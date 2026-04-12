@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import '../models/admin_session.dart';
 import '../services/supabase_service.dart';
 
 // Events
@@ -38,12 +38,12 @@ class AuthInitial extends AuthState {}
 class AuthLoading extends AuthState {}
 
 class AuthAuthenticated extends AuthState {
-  final User user;
+  final AdminSession session;
 
-  const AuthAuthenticated(this.user);
+  const AuthAuthenticated(this.session);
 
   @override
-  List<Object?> get props => [user];
+  List<Object?> get props => [session];
 }
 
 class AuthUnauthenticated extends AuthState {}
@@ -75,9 +75,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(AuthLoading());
     try {
-      final user = _supabaseService.currentUser;
-      if (user != null) {
-        emit(AuthAuthenticated(user));
+      final session = _supabaseService.currentAdmin;
+      if (session != null) {
+        emit(AuthAuthenticated(session));
       } else {
         emit(AuthUnauthenticated());
       }
@@ -92,15 +92,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(AuthLoading());
     try {
-      final response = await _supabaseService.signIn(
+      final session = await _supabaseService.signIn(
         event.email,
         event.password,
       );
-      if (response.user != null) {
-        emit(AuthAuthenticated(response.user!));
-      } else {
-        emit(const AuthError('登录失败'));
-      }
+      emit(AuthAuthenticated(session));
     } catch (e) {
       emit(AuthError('登录失败: ${e.toString()}'));
     }

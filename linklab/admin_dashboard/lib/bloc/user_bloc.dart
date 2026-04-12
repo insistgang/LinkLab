@@ -256,20 +256,19 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     UserBanRequested event,
     Emitter<UserState> emit,
   ) async {
+    final previousState = state;
     try {
       await _supabaseService.updateUserStatus(event.userId, UserStatus.banned);
       emit(const UserActionSuccess('用户已封禁'));
 
-      // 刷新列表
-      if (state is UserLoaded) {
-        final currentState = state as UserLoaded;
+      if (previousState is UserLoaded) {
         add(UserLoadRequested(
-          page: currentState.page,
-          pageSize: currentState.pageSize,
-          search: currentState.search,
-          status: currentState.status,
-          role: currentState.role,
-          userType: currentState.userType,
+          page: previousState.page,
+          pageSize: previousState.pageSize,
+          search: previousState.search,
+          status: previousState.status,
+          role: previousState.role,
+          userType: previousState.userType,
         ));
       }
     } catch (e) {
@@ -281,20 +280,19 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     UserUnbanRequested event,
     Emitter<UserState> emit,
   ) async {
+    final previousState = state;
     try {
       await _supabaseService.updateUserStatus(event.userId, UserStatus.active);
       emit(const UserActionSuccess('用户已解封'));
 
-      // 刷新列表
-      if (state is UserLoaded) {
-        final currentState = state as UserLoaded;
+      if (previousState is UserLoaded) {
         add(UserLoadRequested(
-          page: currentState.page,
-          pageSize: currentState.pageSize,
-          search: currentState.search,
-          status: currentState.status,
-          role: currentState.role,
-          userType: currentState.userType,
+          page: previousState.page,
+          pageSize: previousState.pageSize,
+          search: previousState.search,
+          status: previousState.status,
+          role: previousState.role,
+          userType: previousState.userType,
         ));
       }
     } catch (e) {
@@ -306,6 +304,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     UserVerifyRequested event,
     Emitter<UserState> emit,
   ) async {
+    final previousState = state;
     try {
       await _supabaseService.verifyUser(
         event.userId,
@@ -314,16 +313,14 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       );
       emit(const UserActionSuccess('认证审核已更新'));
 
-      // 刷新列表
-      if (state is UserLoaded) {
-        final currentState = state as UserLoaded;
+      if (previousState is UserLoaded) {
         add(UserLoadRequested(
-          page: currentState.page,
-          pageSize: currentState.pageSize,
-          search: currentState.search,
-          status: currentState.status,
-          role: currentState.role,
-          userType: currentState.userType,
+          page: previousState.page,
+          pageSize: previousState.pageSize,
+          search: previousState.search,
+          status: previousState.status,
+          role: previousState.role,
+          userType: previousState.userType,
         ));
       }
     } catch (e) {

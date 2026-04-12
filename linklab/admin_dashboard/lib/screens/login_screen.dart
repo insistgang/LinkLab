@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../bloc/auth_bloc.dart';
+import '../constants/app_constants.dart';
 import '../constants/theme.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -16,6 +17,15 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+
+  @override
+  void initState() {
+    super.initState();
+    if (AppConstants.isDemoMode) {
+      _emailController.text = AppConstants.demoAdminEmail;
+      _passwordController.text = AppConstants.demoAdminPassword;
+    }
+  }
 
   @override
   void dispose() {
@@ -107,10 +117,12 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             const SizedBox(height: 8),
-                            const Text(
-                              '管理员登录',
+                            Text(
+                              AppConstants.isDemoMode
+                                  ? 'GitHub Pages 演示登录'
+                                  : '管理员登录',
                               textAlign: TextAlign.center,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 16,
                                 color: AppTheme.textSecondary,
                               ),
@@ -198,25 +210,35 @@ class _LoginScreenState extends State<LoginScreen> {
                                 color: Colors.grey[100],
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Column(
+                              child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    '演示账号:',
-                                    style: TextStyle(
+                                    AppConstants.isDemoMode
+                                        ? '演示环境已启用本地数据:'
+                                        : '演示账号:',
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 12,
                                     ),
                                   ),
-                                  SizedBox(height: 4),
+                                  const SizedBox(height: 4),
                                   Text(
-                                    '邮箱: admin@linklab.com',
-                                    style: TextStyle(fontSize: 12),
+                                    '邮箱: ${AppConstants.demoAdminEmail}',
+                                    style: const TextStyle(fontSize: 12),
                                   ),
                                   Text(
-                                    '密码: admin123',
-                                    style: TextStyle(fontSize: 12),
+                                    '密码: ${AppConstants.demoAdminPassword}',
+                                    style: const TextStyle(fontSize: 12),
                                   ),
+                                  if (AppConstants.isDemoMode)
+                                    const Padding(
+                                      padding: EdgeInsets.only(top: 4),
+                                      child: Text(
+                                        '当前构建不会连接真实 Supabase，适合公开演示。',
+                                        style: TextStyle(fontSize: 12),
+                                      ),
+                                    ),
                                 ],
                               ),
                             ),

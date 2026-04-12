@@ -80,6 +80,7 @@ class ReportLoaded extends ReportState {
   final bool hasMore;
   final ReportStatus? status;
   final ReportType? type;
+  final ReportStatistics? statistics;
 
   const ReportLoaded({
     required this.reports,
@@ -88,10 +89,19 @@ class ReportLoaded extends ReportState {
     this.hasMore = true,
     this.status,
     this.type,
+    this.statistics,
   });
 
   @override
-  List<Object?> get props => [reports, page, pageSize, hasMore, status, type];
+  List<Object?> get props => [
+        reports,
+        page,
+        pageSize,
+        hasMore,
+        status,
+        type,
+        statistics,
+      ];
 
   ReportLoaded copyWith({
     List<ReportModel>? reports,
@@ -100,6 +110,7 @@ class ReportLoaded extends ReportState {
     bool? hasMore,
     ReportStatus? status,
     ReportType? type,
+    ReportStatistics? statistics,
   }) {
     return ReportLoaded(
       reports: reports ?? this.reports,
@@ -108,17 +119,9 @@ class ReportLoaded extends ReportState {
       hasMore: hasMore ?? this.hasMore,
       status: status ?? this.status,
       type: type ?? this.type,
+      statistics: statistics ?? this.statistics,
     );
   }
-}
-
-class ReportStatisticsLoaded extends ReportState {
-  final ReportStatistics statistics;
-
-  const ReportStatisticsLoaded(this.statistics);
-
-  @override
-  List<Object?> get props => [statistics];
 }
 
 class ReportError extends ReportState {
@@ -156,6 +159,7 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
     ReportLoadRequested event,
     Emitter<ReportState> emit,
   ) async {
+    final previousState = state is ReportLoaded ? state as ReportLoaded : null;
     emit(ReportLoading());
     try {
       final reports = await _supabaseService.getReports(
@@ -172,6 +176,7 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
         hasMore: reports.length == event.pageSize,
         status: event.status,
         type: event.type,
+        statistics: previousState?.statistics,
       ));
     } catch (e) {
       emit(ReportError('加载举报失败: ${e.toString()}'));
@@ -197,6 +202,7 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
     ReportProcessRequested event,
     Emitter<ReportState> emit,
   ) async {
+    final previousState = state;
     try {
       await _supabaseService.processReport(
         event.reportId,
@@ -206,15 +212,14 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
       );
       emit(const ReportActionSuccess('举报处理成功'));
 
-      // 刷新列表
-      if (state is ReportLoaded) {
-        final currentState = state as ReportLoaded;
+      if (previousState is ReportLoaded) {
         add(ReportLoadRequested(
-          page: currentState.page,
-          pageSize: currentState.pageSize,
-          status: currentState.status,
-          type: currentState.type,
+          page: previousState.page,
+          pageSize: previousState.pageSize,
+          status: previousState.status,
+          type: previousState.type,
         ));
+        add(ReportLoadStatistics());
       }
     } catch (e) {
       emit(ReportError('处理举报失败: ${e.toString()}'));
@@ -227,7 +232,17 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
   ) async {
     try {
       final statistics = await _supabaseService.getReportStatistics();
-      emit(ReportStatisticsLoaded(statistics));
+      if (state is ReportLoaded) {
+        emit((state as ReportLoaded).copyWith(statistics: statistics));
+      } else {
+        emit(ReportLoaded(
+          reports: const [],
+          page: 1,
+          pageSize: AppConstants.defaultPageSize,
+          hasMore: false,
+          statistics: statistics,
+        ));
+      }
     } catch (e) {
       emit(ReportError('加载统计失败: ${e.toString()}'));
     }

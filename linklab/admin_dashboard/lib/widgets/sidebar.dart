@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../bloc/auth_bloc.dart';
 import '../constants/app_constants.dart';
 import '../constants/theme.dart';
 
@@ -90,66 +92,86 @@ class Sidebar extends StatelessWidget {
   }
 
   Widget _buildUserInfo(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          const CircleAvatar(
-            radius: 20,
-            backgroundColor: AppTheme.primaryLight,
-            child: Icon(Icons.person, color: Colors.white, size: 20),
-          ),
-          const SizedBox(width: 12),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '管理员',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    color: AppTheme.textPrimary,
-                  ),
-                ),
-                Text(
-                  'admin@linklab.com',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.textSecondary,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout, size: 20),
-            onPressed: () {
-              // Logout
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('确认退出'),
-                  content: const Text('确定要退出登录吗？'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('取消'),
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        final session =
+            state is AuthAuthenticated ? state.session : null;
+
+        return Container(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              const CircleAvatar(
+                radius: 20,
+                backgroundColor: AppTheme.primaryLight,
+                child: Icon(Icons.person, color: Colors.white, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      session?.displayName ?? '管理员',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: AppTheme.textPrimary,
+                      ),
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        context.go('/login');
-                      },
-                      child: const Text('退出'),
+                    Text(
+                      session?.email ?? AppConstants.demoAdminEmail,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppTheme.textSecondary,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
+                    if (AppConstants.isDemoMode)
+                      const Padding(
+                        padding: EdgeInsets.only(top: 4),
+                        child: Text(
+                          'Demo Mode',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppTheme.primaryColor,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
-              );
-            },
+              ),
+              IconButton(
+                icon: const Icon(Icons.logout, size: 20),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (dialogContext) => AlertDialog(
+                      title: const Text('确认退出'),
+                      content: const Text('确定要退出登录吗？'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(dialogContext),
+                          child: const Text('取消'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(dialogContext);
+                            context
+                                .read<AuthBloc>()
+                                .add(AuthLogoutRequested());
+                          },
+                          child: const Text('退出'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 

@@ -1,12 +1,24 @@
 // 应用常量
 class AppConstants {
   // Supabase 配置
-  static const String supabaseUrl = 'YOUR_SUPABASE_URL';
-  static const String supabaseAnonKey = 'YOUR_SUPABASE_ANON_KEY';
+  static const String supabaseUrl =
+      String.fromEnvironment('LINKLAB_SUPABASE_URL', defaultValue: '');
+  static const String supabaseAnonKey =
+      String.fromEnvironment('LINKLAB_SUPABASE_ANON_KEY', defaultValue: '');
+  static const bool demoModeOverride =
+      bool.fromEnvironment('LINKLAB_ADMIN_DEMO', defaultValue: false);
+
+  static const String demoAdminEmail = 'admin@linklab.com';
+  static const String demoAdminPassword = 'admin123';
 
   // 应用信息
   static const String appName = 'LinkLab 运营后台';
   static const String appVersion = '1.0.0';
+
+  static bool get hasSupabaseConfig =>
+      supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty;
+
+  static bool get isDemoMode => demoModeOverride || !hasSupabaseConfig;
 
   // 分页配置
   static const int defaultPageSize = 20;

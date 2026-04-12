@@ -72,8 +72,8 @@ class _ReportsContent extends StatelessWidget {
           return Column(
             children: [
               // Statistics Cards
-              if (state is ReportStatisticsLoaded)
-                _buildStatisticsCards(state.statistics, isMobile),
+              if (state is ReportLoaded && state.statistics != null)
+                _buildStatisticsCards(state.statistics!, isMobile),
 
               // Reports List
               Expanded(
@@ -145,6 +145,10 @@ class _ReportsContent extends StatelessWidget {
     }
 
     if (state is ReportLoaded) {
+      if (state.reports.isEmpty) {
+        return const Center(child: Text('暂无举报数据'));
+      }
+
       if (isMobile) {
         return ListView.builder(
           padding: const EdgeInsets.all(16),
@@ -183,7 +187,27 @@ class _ReportsContent extends StatelessWidget {
       );
     }
 
-    return const SizedBox.shrink();
+    if (state is ReportError) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(state.message),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                context.read<ReportBloc>()
+                  ..add(const ReportLoadRequested())
+                  ..add(ReportLoadStatistics());
+              },
+              child: const Text('重试'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return const Center(child: CircularProgressIndicator());
   }
 
   void _showProcessDialog(BuildContext parentContext, ReportModel report) {

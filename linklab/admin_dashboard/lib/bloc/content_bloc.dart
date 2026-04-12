@@ -231,16 +231,15 @@ class ContentBloc extends Bloc<ContentEvent, ContentState> {
     ContentUpdateStoryStatus event,
     Emitter<ContentState> emit,
   ) async {
+    final previousState = state;
     try {
       await _supabaseService.updateStoryStatus(event.storyId, event.status);
       emit(ContentActionSuccess('故事状态已更新'));
 
-      // 刷新列表
-      if (state is ContentStoriesLoaded) {
-        final currentState = state as ContentStoriesLoaded;
+      if (previousState is ContentStoriesLoaded) {
         add(ContentLoadStoriesRequested(
-          page: currentState.page,
-          pageSize: currentState.pageSize,
+          page: previousState.page,
+          pageSize: previousState.pageSize,
         ));
       }
     } catch (e) {
@@ -252,16 +251,15 @@ class ContentBloc extends Bloc<ContentEvent, ContentState> {
     ContentSetStoryFeatured event,
     Emitter<ContentState> emit,
   ) async {
+    final previousState = state;
     try {
       await _supabaseService.setStoryFeatured(event.storyId, event.isFeatured);
       emit(ContentActionSuccess(event.isFeatured ? '已设为精选' : '已取消精选'));
 
-      // 刷新列表
-      if (state is ContentStoriesLoaded) {
-        final currentState = state as ContentStoriesLoaded;
+      if (previousState is ContentStoriesLoaded) {
         add(ContentLoadStoriesRequested(
-          page: currentState.page,
-          pageSize: currentState.pageSize,
+          page: previousState.page,
+          pageSize: previousState.pageSize,
         ));
       }
     } catch (e) {
@@ -273,16 +271,15 @@ class ContentBloc extends Bloc<ContentEvent, ContentState> {
     ContentUpdateCommunityStatus event,
     Emitter<ContentState> emit,
   ) async {
+    final previousState = state;
     try {
       await _supabaseService.updateContentStatus(event.contentId, event.status);
       emit(ContentActionSuccess('内容状态已更新'));
 
-      // 刷新列表
-      if (state is ContentCommunityLoaded) {
-        final currentState = state as ContentCommunityLoaded;
+      if (previousState is ContentCommunityLoaded) {
         add(ContentLoadCommunityRequested(
-          page: currentState.page,
-          pageSize: currentState.pageSize,
+          page: previousState.page,
+          pageSize: previousState.pageSize,
         ));
       }
     } catch (e) {
@@ -290,4 +287,3 @@ class ContentBloc extends Bloc<ContentEvent, ContentState> {
     }
   }
 }
-
