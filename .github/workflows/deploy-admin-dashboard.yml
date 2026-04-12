@@ -1,4 +1,4 @@
-name: Deploy Admin Dashboard
+name: Deploy LinkLab App
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - .github/workflows/deploy-admin-dashboard.yml
-      - linklab/admin_dashboard/**
+      - linklab/**
   workflow_dispatch:
 
 permissions:
@@ -36,19 +36,18 @@ jobs:
         run: flutter config --enable-web
 
       - name: Install dependencies
-        working-directory: linklab/admin_dashboard
+        working-directory: linklab
         run: flutter pub get
 
-      - name: Build web demo
-        working-directory: linklab/admin_dashboard
+      - name: Build web app
+        working-directory: linklab
         run: >
           flutter build web
           --release
           --base-href "/${{ github.event.repository.name }}/"
-          --dart-define=LINKLAB_ADMIN_DEMO=true
 
       - name: Prepare Pages artifact
-        working-directory: linklab/admin_dashboard
+        working-directory: linklab
         run: |
           cp build/web/index.html build/web/404.html
           touch build/web/.nojekyll
@@ -56,7 +55,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: linklab/admin_dashboard/build/web
+          path: linklab/build/web
 
   deploy:
     needs: build
