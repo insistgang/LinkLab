@@ -1,0 +1,3 @@
+[functions.points-calculator]
+verify_jwt = false  # 允许数据库触发器调用
+cors_origins = ["*"]

@@ -1,0 +1,700 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import '../../config/api_config.dart';
+import 'ai_service.dart';
+
+/// 通义千问VL服务
+/// F3 物体/场景识别与描述 + F7 环境描述的核心实现
+/// 集成通义千问VL多模态大模型
+class QwenVLService implements AIService {
+  final _client = http.Client();
+
+  @override
+  String get serviceName => 'QwenVLService';
+
+  @override
+  Future<bool> isAvailable() async {
+    return APIConfig.isQwenConfigured;
+  }
+
+  @override
+  Future<AIResponse> process(
+    String input, {
+    String? imageUrl,
+    DialogContext? context,
+  }) async {
+    if (imageUrl == null) {
+      return AIResponse.error('场景描述需要图片输入');
+    }
+
+    if (!APIConfig.isQwenConfigured) {
+      return AIResponse.error('通义千问API密钥未配置，请在APIConfig中设置');
+    }
+
+    try {
+      final result = await describeScene(File(imageUrl), customPrompt: input);
+
+      if (!result.isSuccess) {
+        return AIResponse.error(result.error?.message ?? '场景描述失败');
+      }
+
+      final description = result.data!;
+
+      return AIResponse(
+        text: description.formattedText,
+        intent: IntentType.sceneDescription,
+        urgency: UrgencyLevel.normal,
+        needsHuman: false,
+        confidence: description.confidence,
+        extraData: {
+          'rawResponse': description.rawText,
+          'objects': description.objects.map((o) => o.toString()).toList(),
+          'spatialRelations': description.spatialRelations,
+          'safetyWarnings': description.safetyWarnings,
+          'sceneType': description.sceneType,
+        },
+      );
+    } catch (e) {
+      return AIResponse.error('场景描述失败: $e');
+    }
+  }
+
+  /// 描述场景
+  /// [image] 图片文件
+  /// [customPrompt] 自定义提示词（可选）
+  Future<APIResponse<SceneDescription>> describeScene(
+    File image, {
+    String? customPrompt,
+  }) async {
+    final prompt = customPrompt?.isNotEmpty == true
+        ? _buildCustomPrompt(customPrompt!)
+        : _buildDefaultPrompt();
+
+    return await _callQwenVLWithRetry(image, prompt);
+  }
+
+  /// 回答关于图片的问题
+  /// [image] 图片文件
+  /// [question] 用户问题
+  Future<APIResponse<String>> answerQuestion(
+    File image,
+    String question,
+  ) async {
+    final prompt = _buildQuestionPrompt(question);
+    final result = await _callQwenVLWithRetry(image, prompt);
+
+    if (result.isSuccess) {
+      return APIResponse.success(result.data!.rawText);
+    }
+    return APIResponse.failure(result.error!);
+  }
+
+  /// 识别物体
+  /// [image] 图片文件
+  /// [focusObject] 关注的物体类型（可选）
+  Future<APIResponse<List<DetectedObject>>> detectObjects(
+    File image, {
+    String? focusObject,
+  }) async {
+    final prompt = _buildObjectDetectionPrompt(focusObject);
+    final result = await _callQwenVLWithRetry(image, prompt);
+
+    if (result.isSuccess) {
+      return APIResponse.success(result.data!.objects);
+    }
+    return APIResponse.failure(result.error!);
+  }
+
+  /// 分析空间布局
+  /// [image] 图片文件
+  Future<APIResponse<SpatialLayout>> analyzeSpatialLayout(File image) async {
+    final prompt = _buildSpatialLayoutPrompt();
+    final result = await _callQwenVLWithRetry(image, prompt);
+
+    if (result.isSuccess) {
+      final desc = result.data!;
+      return APIResponse.success(SpatialLayout(
+        sceneType: desc.sceneType,
+        objects: desc.objects,
+        relations: desc.spatialRelations,
+        passableAreas: desc.passableAreas,
+        obstacles: desc.obstacles,
+        safetyWarnings: desc.safetyWarnings,
+      ));
+    }
+    return APIResponse.failure(result.error!);
+  }
+
+  /// 带重试机制的API调用
+  Future<APIResponse<SceneDescription>> _callQwenVLWithRetry(
+    File image,
+    String prompt, {
+    int maxRetries = 3,
+  }) async {
+    int attempts = 0;
+
+    while (attempts < maxRetries) {
+      try {
+        return await _callQwenVL(image, prompt);
+      } catch (e) {
+        attempts++;
+        if (attempts >= maxRetries) {
+          if (e is APIError) {
+            return APIResponse.failure(e);
+          }
+          return APIResponse.failure(APIError(
+            type: APIErrorType.unknown,
+            message: '场景描述失败，已重试$maxRetries次',
+            originalError: e.toString(),
+          ));
+        }
+        await Future.delayed(Duration(milliseconds: 500 * attempts));
+      }
+    }
+
+    return APIResponse.failure(APIError(
+      type: APIErrorType.unknown,
+      message: '场景描述失败',
+    ));
+  }
+
+  /// 调用通义千问VL API
+  Future<APIResponse<SceneDescription>> _callQwenVL(
+    File image,
+    String prompt,
+  ) async {
+    final base64Image = base64Encode(await image.readAsBytes());
+
+    // 检查图片大小（限制5MB）
+    final imageBytes = base64Decode(base64Image);
+    if (imageBytes.length > 5 * 1024 * 1024) {
+      return APIResponse.failure(APIError(
+        type: APIErrorType.invalidParameter,
+        message: '图片过大，请压缩后重试（最大5MB）',
+      ));
+    }
+
+    final url = Uri.parse(
+      '${APIConfig.qwenBaseUrl}/services/aigc/multimodal-generation/generation',
+    );
+
+    final requestBody = {
+      'model': APIConfig.qwenModel,
+      'input': {
+        'messages': [
+          {
+            'role': 'user',
+            'content': [
+              {'image': 'data:image/jpeg;base64,$base64Image'},
+              {'text': prompt},
+            ],
+          },
+        ],
+      },
+      'parameters': {
+        'result_format': 'message',
+        'max_tokens': APIConfig.qwenMaxTokens,
+        'temperature': APIConfig.qwenTemperature,
+      },
+    };
+
+    final response = await _client
+        .post(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ${APIConfig.qwenApiKey}',
+          },
+          body: jsonEncode(requestBody),
+        )
+        .timeout(Duration(seconds: APIConfig.requestTimeoutSeconds));
+
+    return _handleQwenResponse(response);
+  }
+
+  /// 处理通义千问响应
+  APIResponse<SceneDescription> _handleQwenResponse(http.Response response) {
+    if (response.statusCode != 200) {
+      // 处理特定状态码
+      if (response.statusCode == 401) {
+        return APIResponse.failure(APIError.authentication(
+          'Invalid API Key',
+        ));
+      }
+      if (response.statusCode == 429) {
+        return APIResponse.failure(APIError.quotaExceeded(
+          'Rate limit exceeded',
+        ));
+      }
+      return APIResponse.failure(APIError.serviceUnavailable(
+        'HTTP ${response.statusCode}: ${response.body}',
+        response.statusCode,
+      ));
+    }
+
+    final data = jsonDecode(response.body);
+
+    // 检查业务错误码
+    final code = data['code'];
+    if (code != null && code != '200') {
+      final message = data['message'] ?? '未知错误';
+
+      if (code == 'InvalidApiKey') {
+        return APIResponse.failure(APIError.authentication(message));
+      }
+      if (code == 'Throttling' || code == 'QuotaExceeded') {
+        return APIResponse.failure(APIError.quotaExceeded(message));
+      }
+
+      return APIResponse.failure(APIError(
+        type: APIErrorType.unknown,
+        message: 'API错误: $message',
+        originalError: message,
+      ));
+    }
+
+    final output = data['output'] as Map<String, dynamic>?;
+    final choices = output?['choices'] as List<dynamic>?;
+
+    if (choices == null || choices.isEmpty) {
+      return APIResponse.failure(APIError(
+        type: APIErrorType.unknown,
+        message: 'API返回结果为空',
+      ));
+    }
+
+    final message = choices[0]['message'] as Map<String, dynamic>?;
+    final content = message?['content'] as String? ?? '';
+
+    // 计算置信度
+    final finishReason = choices[0]['finish_reason'] as String?;
+    final confidence = finishReason == 'stop' ? 0.9 : 0.7;
+
+    // 解析结构化描述
+    final description = _parseDescription(content, confidence);
+
+    return APIResponse.success(description);
+  }
+
+  /// 构建默认提示词
+  String _buildDefaultPrompt() {
+    return '''请详细描述这张图片的内容，帮助视障人士理解周围环境。请按以下格式输出：
+
+1. 场景概述（室内/室外，环境类型）
+2. 主要物体及其位置（使用距离和方位描述，如"前方约2米处"、"右侧约1米处"）
+3. 空间布局和通道情况
+4. 安全提示（如有障碍物或危险）
+
+请使用视障人士友好的描述方式：
+- 提供清晰的空间方位信息
+- 使用具体的距离描述
+- 指出可能的障碍物或危险
+- 给出行动建议
+
+输出示例：
+这是一个室内客厅场景。前方约2米处有一张沙发，右侧约1米处有一扇窗户，左侧有一扇门。中间有约1.5米宽的通道可以通行。地面平整，没有明显障碍物。'''
+        ;
+  }
+
+  /// 构建自定义提示词
+  String _buildCustomPrompt(String userInput) {
+    final lowerInput = userInput.toLowerCase();
+
+    // 前方场景
+    if (lowerInput.contains('前面') ||
+        lowerInput.contains('前方') ||
+        lowerInput.contains('front') ||
+        lowerInput.contains('ahead')) {
+      return '''请描述图片中前方/正前方的场景。请按以下格式输出：
+
+1. 首先描述主要物体的名称和类型
+2. 然后描述物体相对于观察者的位置（距离和方位）
+3. 描述物体的特征（颜色、大小、形状等）
+4. 如有潜在障碍物或危险，请特别指出
+5. 给出是否可以通行的建议
+
+请使用视障人士友好的描述方式，提供清晰的空间方位信息和具体距离。
+
+输出示例："前方约2米处有一张木质桌子，桌子左侧约1米处有一扇门，地面平整，可以安全通行。"'''
+          ;
+    }
+
+    // 周围环境
+    if (lowerInput.contains('周围') ||
+        lowerInput.contains('环境') ||
+        lowerInput.contains('场景') ||
+        lowerInput.contains('around') ||
+        lowerInput.contains('environment') ||
+        lowerInput.contains('surrounding')) {
+      return '''请描述图片中的整体环境布局。请按以下格式输出：
+
+1. 描述场景类型（室内/室外，房间类型等）
+2. 描述主要物体的位置分布（使用相对方位：前方、后方、左侧、右侧）
+3. 描述通道/行走空间
+4. 指出可能的障碍物或危险区域
+5. 给出行动建议
+
+请使用视障人士友好的描述方式，提供清晰的空间方位信息。
+
+输出示例："这是一个室内走廊场景。前方约3米处有拐角，右侧约1米处有椅子，左侧墙壁平整，中间有约1.5米宽的通道可以通行。地面平整，没有明显障碍物。"'''
+          ;
+    }
+
+    // 物体识别
+    if (lowerInput.contains('什么') ||
+        lowerInput.contains('物体') ||
+        lowerInput.contains('东西') ||
+        lowerInput.contains('object') ||
+        lowerInput.contains('what')) {
+      return '''请识别图片中的主要物体。请按以下格式输出：
+
+1. 描述物体的名称和类别
+2. 描述物体的大致位置
+3. 描述物体的关键特征（颜色、形状、大小、材质等）
+4. 如有文字，请读出文字内容
+5. 说明物体是否可能造成障碍
+
+请使用视障人士友好的描述方式。
+
+输出示例："这是一张桌子，位于画面中央，是深色木质的方形桌子，桌面上有一本打开的书。桌子高度约75厘米，不会阻挡通行。"'''
+          ;
+    }
+
+    // 导航相关
+    if (lowerInput.contains('导航') ||
+        lowerInput.contains('怎么走') ||
+        lowerInput.contains('路线') ||
+        lowerInput.contains('navigate') ||
+        lowerInput.contains('direction')) {
+      return '''请分析图片中的环境，提供导航指引。请按以下格式输出：
+
+1. 描述当前所在位置的环境特征
+2. 指出可通行的方向
+3. 描述前方路径情况
+4. 指出需要注意的障碍物或危险
+5. 给出具体的行走建议
+
+请使用视障人士友好的描述方式，提供清晰的方向指引。
+
+输出示例："您当前在一个走廊中。前方约3米处有拐角，建议沿右侧墙壁行走。中间通道宽约1.5米，地面平整，可以安全通行。到达拐角后请停下再次确认方向。"'''
+          ;
+    }
+
+    // 默认使用用户输入作为提示词
+    return '''$userInput
+
+请使用视障人士友好的描述方式，提供清晰的空间方位信息和具体距离。如有障碍物或危险请特别指出。'''
+        ;
+  }
+
+  /// 构建问题提示词
+  String _buildQuestionPrompt(String question) {
+    return '''用户问：$question
+
+请基于图片内容回答这个问题。回答要简洁明了，适合语音播报。如果图片中没有相关信息，请明确说明。'''
+        ;
+  }
+
+  /// 构建物体检测提示词
+  String _buildObjectDetectionPrompt(String? focusObject) {
+    final focus = focusObject?.isNotEmpty == true
+        ? '特别关注$focusObject类物体。'
+        : '';
+
+    return '''请识别图片中的所有主要物体。$focus
+
+请按以下格式列出物体：
+1. 物体名称 - 位置描述 - 特征描述
+2. ...
+
+位置描述请使用：前方、后方、左侧、右侧、中央等方位词，并尽可能提供距离信息。
+特征描述包括：颜色、大小、形状等。
+
+最后总结是否有障碍物影响通行。'''
+        ;
+  }
+
+  /// 构建空间布局提示词
+  String _buildSpatialLayoutPrompt() {
+    return '''请详细分析图片中的空间布局，帮助视障人士理解环境结构。
+
+请按以下格式输出：
+
+【场景类型】
+室内/室外，具体场所类型
+
+【主要物体分布】
+- 前方：...
+- 后方：...
+- 左侧：...
+- 右侧：...
+
+【可通行区域】
+描述可以安全行走的空间
+
+【障碍物/危险】
+列出需要注意的障碍物
+
+【行动建议】
+给出具体的移动建议'''
+        ;
+  }
+
+  /// 解析描述
+  SceneDescription _parseDescription(String text, double confidence) {
+    // 提取物体信息
+    final objects = _extractObjects(text);
+
+    // 提取空间关系
+    final spatialRelations = _extractSpatialRelations(text);
+
+    // 提取安全警告
+    final safetyWarnings = _extractSafetyWarnings(text);
+
+    // 检测场景类型
+    final sceneType = _detectSceneType(text);
+
+    // 提取可通行区域
+    final passableAreas = _extractPassableAreas(text);
+
+    // 提取障碍物
+    final obstacles = _extractObstacles(text);
+
+    // 格式化输出
+    final formattedText = _formatDescription(text, safetyWarnings);
+
+    return SceneDescription(
+      rawText: text,
+      formattedText: formattedText,
+      objects: objects,
+      spatialRelations: spatialRelations,
+      safetyWarnings: safetyWarnings,
+      sceneType: sceneType,
+      passableAreas: passableAreas,
+      obstacles: obstacles,
+      confidence: confidence,
+    );
+  }
+
+  /// 提取物体信息
+  List<DetectedObject> _extractObjects(String text) {
+    final objects = <DetectedObject>[];
+
+    // 匹配 "前方X米有/是Y" 格式
+    final pattern1 = RegExp(r'([前后左右])方(?:约)?(\d+)米(?:处)?[有是]([\u4e00-\u9fa5]+)');
+    for (final match in pattern1.allMatches(text)) {
+      objects.add(DetectedObject(
+        name: match.group(3) ?? '',
+        direction: match.group(1) ?? '',
+        distance: double.tryParse(match.group(2) ?? '0') ?? 0,
+      ));
+    }
+
+    // 匹配 "X侧有Y" 格式
+    final pattern2 = RegExp(r'([左右])侧(?:约)?(\d+)?米?(?:处)?[有是]([\u4e00-\u9fa5]+)');
+    for (final match in pattern2.allMatches(text)) {
+      objects.add(DetectedObject(
+        name: match.group(3) ?? '',
+        direction: match.group(1) ?? '',
+        distance: double.tryParse(match.group(2) ?? '0') ?? 0,
+      ));
+    }
+
+    // 匹配 "Y在X方" 格式
+    final pattern3 = RegExp(r'([\u4e00-\u9fa5]+)在([前后左右])方');
+    for (final match in pattern3.allMatches(text)) {
+      objects.add(DetectedObject(
+        name: match.group(1) ?? '',
+        direction: match.group(2) ?? '',
+        distance: 0,
+      ));
+    }
+
+    return objects;
+  }
+
+  /// 提取空间关系
+  List<String> _extractSpatialRelations(String text) {
+    final relations = <String>[];
+    final sentences = text.split(RegExp(r'[。！\n]'));
+
+    for (final sentence in sentences) {
+      final trimmed = sentence.trim();
+      if (trimmed.contains('米') ||
+          trimmed.contains('前方') ||
+          trimmed.contains('后方') ||
+          trimmed.contains('左侧') ||
+          trimmed.contains('右侧') ||
+          trimmed.contains('通道') ||
+          trimmed.contains('距离')) {
+        relations.add(trimmed);
+      }
+    }
+
+    return relations;
+  }
+
+  /// 提取安全警告
+  List<String> _extractSafetyWarnings(String text) {
+    final warnings = <String>[];
+    final warningKeywords = [
+      '注意', '小心', '危险', '障碍', '台阶', '楼梯', '门槛',
+      '滑', '陡', '窄', '低', '碰撞', '绊倒', '摔倒',
+      '避让', '绕行', '停止', '谨慎',
+    ];
+
+    final sentences = text.split('。');
+    for (final sentence in sentences) {
+      for (final keyword in warningKeywords) {
+        if (sentence.contains(keyword)) {
+          warnings.add(sentence.trim());
+          break;
+        }
+      }
+    }
+
+    return warnings.toSet().toList(); // 去重
+  }
+
+  /// 检测场景类型
+  String _detectSceneType(String text) {
+    final indoorKeywords = ['室内', '房间', '客厅', '卧室', '厨房', '走廊', '办公室'];
+    final outdoorKeywords = ['室外', '街道', '马路', '公园', '广场', '户外'];
+
+    for (final keyword in indoorKeywords) {
+      if (text.contains(keyword)) return 'indoor';
+    }
+    for (final keyword in outdoorKeywords) {
+      if (text.contains(keyword)) return 'outdoor';
+    }
+
+    return 'unknown';
+  }
+
+  /// 提取可通行区域
+  List<String> _extractPassableAreas(String text) {
+    final areas = <String>[];
+    final patterns = [
+      RegExp(r'[有|中间|两侧]([^，。]+)通道'),
+      RegExp(r'可以([^，。]+)通行'),
+      RegExp(r'([^，。]+)可以走'),
+    ];
+
+    for (final pattern in patterns) {
+      for (final match in pattern.allMatches(text)) {
+        areas.add(match.group(0) ?? '');
+      }
+    }
+
+    return areas;
+  }
+
+  /// 提取障碍物
+  List<String> _extractObstacles(String text) {
+    final obstacles = <String>[];
+    final obstacleKeywords = [
+      '障碍物', '台阶', '门槛', '楼梯', '柱子', '墙壁', '栏杆',
+      '椅子', '桌子', '箱子', '杂物',
+    ];
+
+    for (final keyword in obstacleKeywords) {
+      if (text.contains(keyword)) {
+        // 提取包含该关键词的句子
+        final sentences = text.split('。');
+        for (final sentence in sentences) {
+          if (sentence.contains(keyword)) {
+            obstacles.add(sentence.trim());
+            break;
+          }
+        }
+      }
+    }
+
+    return obstacles.toSet().toList(); // 去重
+  }
+
+  /// 格式化描述
+  String _formatDescription(String text, List<String> safetyWarnings) {
+    final buffer = StringBuffer();
+    buffer.writeln(text);
+
+    if (safetyWarnings.isNotEmpty) {
+      buffer.writeln();
+      buffer.writeln('【安全提示】');
+      for (final warning in safetyWarnings) {
+        buffer.writeln('• $warning');
+      }
+    }
+
+    return buffer.toString();
+  }
+
+  /// 释放资源
+  void dispose() {
+    _client.close();
+  }
+}
+
+/// 场景描述
+class SceneDescription {
+  final String rawText;
+  final String formattedText;
+  final List<DetectedObject> objects;
+  final List<String> spatialRelations;
+  final List<String> safetyWarnings;
+  final String sceneType;
+  final List<String> passableAreas;
+  final List<String> obstacles;
+  final double confidence;
+
+  const SceneDescription({
+    required this.rawText,
+    required this.formattedText,
+    required this.objects,
+    required this.spatialRelations,
+    required this.safetyWarnings,
+    required this.sceneType,
+    required this.passableAreas,
+    required this.obstacles,
+    required this.confidence,
+  });
+}
+
+/// 检测到的物体
+class DetectedObject {
+  final String name;
+  final String direction;
+  final double distance;
+
+  const DetectedObject({
+    required this.name,
+    required this.direction,
+    required this.distance,
+  });
+
+  @override
+  String toString() => distance > 0
+      ? '$direction方约${distance.toInt()}米的$name'
+      : '$direction方的$name';
+}
+
+/// 空间布局
+class SpatialLayout {
+  final String sceneType;
+  final List<DetectedObject> objects;
+  final List<String> relations;
+  final List<String> passableAreas;
+  final List<String> obstacles;
+  final List<String> safetyWarnings;
+
+  const SpatialLayout({
+    required this.sceneType,
+    required this.objects,
+    required this.relations,
+    required this.passableAreas,
+    required this.obstacles,
+    required this.safetyWarnings,
+  });
+}

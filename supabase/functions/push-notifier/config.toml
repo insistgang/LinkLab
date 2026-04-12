@@ -1,0 +1,3 @@
+[functions.push-notifier]
+verify_jwt = true
+cors_origins = ["*"]

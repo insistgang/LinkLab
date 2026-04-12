@@ -1,0 +1,8 @@
+[functions.matching-engine]
+enabled = true
+verify_jwt = true
+
+[functions.matching-engine.timeout]
+seconds = 30
+
+cors_origins = ["*"]
