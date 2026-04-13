@@ -1,15 +1,30 @@
-import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../core/theme/app_theme.dart';
-import '../../widgets/accessible/index.dart';
-import '../../services/demo/demo_ai_service.dart';
-import '../../demo_flow/demo_flow_controller.dart';
 
-/// 演示版AI对话页面
-/// 支持完整的演示流程：输入 -> AI回复 -> 触发匹配
+import '../../core/theme/app_theme.dart';
+import '../../demo_flow/demo_flow_controller.dart';
+import '../../services/demo/demo_ai_service.dart';
+import '../../widgets/accessible/index.dart';
+
+/// 演示版 AI 对话页面
+/// 支持文字、图片、语音预填充，以及转人工与 SOS 演示衔接。
 class DemoAIChatScreen extends StatefulWidget {
-  const DemoAIChatScreen({super.key});
+  const DemoAIChatScreen({
+    super.key,
+    this.title = 'AI助手',
+    this.introMessage,
+    this.initialPrompt,
+    this.quickPrompts = const [],
+    this.autoSendInitialPrompt = false,
+  });
+
+  final String title;
+  final String? introMessage;
+  final String? initialPrompt;
+  final List<String> quickPrompts;
+  final bool autoSendInitialPrompt;
 
   @override
   State<DemoAIChatScreen> createState() => _DemoAIChatScreenState();
@@ -22,13 +37,20 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
   final DemoAIService _aiService = DemoAIService();
 
   bool _isProcessing = false;
-  File? _selectedImage;
+  Uint8List? _selectedImageBytes;
+  String? _selectedImageName;
 
   @override
   void initState() {
     super.initState();
-    // 添加欢迎消息
-    _addBotMessage('您好！我是AI助手"智动"。\n\n我可以帮您：\n• 识别文字（拍照识别药品说明书、菜单等）\n• 描述场景（了解周围环境）\n• 识别颜色\n• 回答各种问题\n\n请直接说话或输入您的问题，如需拍照请点击下方相机按钮。');
+    _addBotMessage(widget.introMessage ?? _defaultIntroMessage);
+
+    if (widget.initialPrompt != null && widget.autoSendInitialPrompt) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _sendPresetMessage(widget.initialPrompt!);
+      });
+    }
   }
 
   @override
@@ -38,26 +60,38 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
     super.dispose();
   }
 
-  void _addUserMessage(String text, {File? image}) {
+  String get _defaultIntroMessage =>
+      '您好！我是 AI 助手“智动”。\n\n我可以帮您：\n• 识别文字和说明书\n• 描述周围环境\n• 分辨衣物或物品颜色\n• 判断是否需要转接志愿者\n\n您可以直接输入问题，或点击下方相机、语音按钮开始。';
+
+  void _addUserMessage(
+    String text, {
+    Uint8List? imageBytes,
+    String? imageName,
+  }) {
     setState(() {
-      _messages.add(ChatMessage(
-        text: text,
-        isUser: true,
-        image: image,
-        timestamp: DateTime.now(),
-      ));
+      _messages.add(
+        ChatMessage(
+          text: text,
+          isUser: true,
+          imageBytes: imageBytes,
+          imageName: imageName,
+          timestamp: DateTime.now(),
+        ),
+      );
     });
     _scrollToBottom();
   }
 
   void _addBotMessage(String text, {Map<String, dynamic>? data}) {
     setState(() {
-      _messages.add(ChatMessage(
-        text: text,
-        isUser: false,
-        data: data,
-        timestamp: DateTime.now(),
-      ));
+      _messages.add(
+        ChatMessage(
+          text: text,
+          isUser: false,
+          data: data,
+          timestamp: DateTime.now(),
+        ),
+      );
     });
     _scrollToBottom();
   }
@@ -76,36 +110,50 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
 
   Future<void> _sendMessage() async {
     final text = _textController.text.trim();
-    if (text.isEmpty && _selectedImage == null) return;
+    final imageBytes = _selectedImageBytes;
+    final imageName = _selectedImageName;
 
-    // 添加用户消息
-    _addUserMessage(text.isEmpty ? '发送了图片' : text, image: _selectedImage);
+    if (text.isEmpty && imageBytes == null) return;
+
+    final visibleText = text.isEmpty ? '发送了图片' : text;
+    final requestText = text.isEmpty ? '这是什么？' : text;
+
+    _addUserMessage(
+      visibleText,
+      imageBytes: imageBytes,
+      imageName: imageName,
+    );
     _textController.clear();
 
-    // 处理AI回复
-    await _processAIResponse(text, image: _selectedImage);
-
-    // 清除已选图片
     setState(() {
-      _selectedImage = null;
+      _selectedImageBytes = null;
+      _selectedImageName = null;
     });
+
+    await _processAIResponse(
+      requestText,
+      imagePath: imageName ?? (imageBytes != null ? 'selected-image' : null),
+    );
   }
 
-  Future<void> _processAIResponse(String input, {File? image}) async {
+  Future<void> _sendPresetMessage(String prompt) async {
+    if (_isProcessing) return;
+
+    _addUserMessage(prompt);
+    await _processAIResponse(prompt);
+  }
+
+  Future<void> _processAIResponse(String input, {String? imagePath}) async {
     setState(() {
       _isProcessing = true;
     });
 
-    // 显示思考中
     _addBotMessage('思考中...');
 
-    // 调用AI服务
-    final result = await _aiService.process(
-      input,
-      imagePath: image?.path,
-    );
+    final result = await _aiService.process(input, imagePath: imagePath);
 
-    // 移除"思考中"消息
+    if (!mounted) return;
+
     setState(() {
       _messages.removeLast();
     });
@@ -113,30 +161,36 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
     if (result.success) {
       _addBotMessage(result.text, data: result.data);
 
-      // 检查是否需要转人工（演示流程）
-      if (_shouldTransferToHuman(result)) {
+      if (_isEmergencyResult(result)) {
+        _showEmergencyAssistOption();
+      } else if (_shouldTransferToHuman(result)) {
         _showTransferToHumanOption();
       }
     } else {
       _addBotMessage('抱歉，处理出错了：${result.error}');
     }
 
+    if (!mounted) return;
     setState(() {
       _isProcessing = false;
     });
   }
 
   bool _shouldTransferToHuman(AIResult result) {
-    // 演示逻辑：随机触发转人工，或者特定关键词
     final text = result.text.toLowerCase();
     return text.contains('无法') ||
-           text.contains('不清楚') ||
-           text.contains('志愿者') ||
-           result.data?['intent'] == 'need_human';
+        text.contains('不清楚') ||
+        text.contains('志愿者') ||
+        result.data?['intent'] == 'need_human';
+  }
+
+  bool _isEmergencyResult(AIResult result) {
+    return result.data?['isEmergency'] == true ||
+        result.data?['action'] == 'sos_triggered';
   }
 
   void _showTransferToHumanOption() {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: const AccessibleText(
@@ -147,13 +201,13 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
           ),
         ),
         content: const AccessibleText(
-          'AI可能无法完全解决您的问题。是否为您连接志愿者？',
+          'AI 可能无法完全解决您的问题。是否现在为您连接志愿者？',
           style: TextStyle(fontSize: AppTheme.fontSizeNormal),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const AccessibleText('继续AI对话'),
+            child: const AccessibleText('继续 AI 对话'),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -171,6 +225,43 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
     );
   }
 
+  void _showEmergencyAssistOption() {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const AccessibleText(
+          '检测到紧急情况',
+          style: TextStyle(
+            fontSize: AppTheme.fontSizeXLarge,
+            fontWeight: FontWeight.bold,
+            color: AppTheme.emergencyColor,
+          ),
+        ),
+        content: const AccessibleText(
+          '是否立即发起 SOS 广播，并同步通知志愿者与紧急联系人？',
+          style: TextStyle(fontSize: AppTheme.fontSizeNormal),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const AccessibleText('暂不发起'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.emergencyColor,
+              foregroundColor: AppTheme.textOnPrimary,
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+              DemoFlowNavigator.onSOSButtonPressed(context);
+            },
+            child: const AccessibleText('发起 SOS'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _startMatchingFlow() {
     DemoFlowNavigator.onAIRequestMatching(context);
   }
@@ -179,23 +270,21 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: source);
 
-    if (pickedFile != null) {
-      setState(() {
-        _selectedImage = File(pickedFile.path);
-      });
+    if (pickedFile == null) return;
 
-      // 自动发送图片
-      _addUserMessage('发送了图片', image: _selectedImage);
-      await _processAIResponse('这是什么？', image: _selectedImage);
+    final bytes = await pickedFile.readAsBytes();
 
-      setState(() {
-        _selectedImage = null;
-      });
-    }
+    setState(() {
+      _selectedImageBytes = bytes;
+      _selectedImageName =
+          pickedFile.name.isEmpty ? 'selected-image' : pickedFile.name;
+    });
+
+    await _sendMessage();
   }
 
   void _showImagePickerOptions() {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       builder: (context) => SafeArea(
         child: Column(
@@ -226,50 +315,89 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
   @override
   Widget build(BuildContext context) {
     return AccessibleScaffold(
-      title: 'AI助手',
+      title: widget.title,
       body: Column(
         children: [
-          // 消息列表
+          if (widget.quickPrompts.isNotEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(
+                AppTheme.spacingM,
+                AppTheme.spacingM,
+                AppTheme.spacingM,
+                AppTheme.spacingS,
+              ),
+              decoration: BoxDecoration(
+                color: AppTheme.backgroundGrey,
+                border: Border(
+                  bottom: BorderSide(
+                    color: AppTheme.dividerColor.withValues(alpha: 0.45),
+                  ),
+                ),
+              ),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    for (final prompt in widget.quickPrompts) ...[
+                      ActionChip(
+                        label: Text(prompt),
+                        onPressed: _isProcessing
+                            ? null
+                            : () => _sendPresetMessage(prompt),
+                      ),
+                      const SizedBox(width: AppTheme.spacingS),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+
           Expanded(
             child: ListView.builder(
               controller: _scrollController,
               padding: const EdgeInsets.all(AppTheme.spacingM),
               itemCount: _messages.length,
               itemBuilder: (context, index) {
-                return _ChatMessageBubble(message: _messages[index]);
+                return _ChatMessageBubble(
+                  message: _messages[index],
+                  onTransferToHuman: _startMatchingFlow,
+                );
               },
             ),
           ),
 
-          // 已选图片预览
-          if (_selectedImage != null)
+          if (_selectedImageBytes != null)
             Container(
               padding: const EdgeInsets.all(AppTheme.spacingS),
               color: AppTheme.surfaceColor,
               child: Row(
                 children: [
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
-                    child: Image.file(
-                      _selectedImage!,
+                    borderRadius:
+                        BorderRadius.circular(AppTheme.borderRadiusSmall),
+                    child: Image.memory(
+                      _selectedImageBytes!,
                       width: 60,
                       height: 60,
                       fit: BoxFit.cover,
                     ),
                   ),
                   const SizedBox(width: AppTheme.spacingM),
-                  const Expanded(
-                    child: AccessibleText('已选择图片'),
+                  Expanded(
+                    child: AccessibleText(_selectedImageName ?? '已选择图片'),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close),
-                    onPressed: () => setState(() => _selectedImage = null),
+                    onPressed: () => setState(() {
+                      _selectedImageBytes = null;
+                      _selectedImageName = null;
+                    }),
                   ),
                 ],
               ),
             ),
 
-          // 输入栏
           Container(
             padding: const EdgeInsets.all(AppTheme.spacingM),
             decoration: BoxDecoration(
@@ -279,26 +407,20 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
             child: SafeArea(
               child: Row(
                 children: [
-                  // 相机按钮
                   AccessibleIconButton(
                     icon: Icons.camera_alt,
                     semanticLabel: '拍照',
                     onPressed: _showImagePickerOptions,
                   ),
                   const SizedBox(width: AppTheme.spacingS),
-
-                  // 语音按钮（演示版）
                   AccessibleIconButton(
                     icon: Icons.mic,
                     semanticLabel: '语音输入',
                     onPressed: () {
-                      // 演示：模拟语音输入
                       _textController.text = '帮我识别这段文字';
                     },
                   ),
                   const SizedBox(width: AppTheme.spacingS),
-
-                  // 文本输入
                   Expanded(
                     child: TextField(
                       controller: _textController,
@@ -307,7 +429,9 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
                         filled: true,
                         fillColor: AppTheme.surfaceColor,
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.borderRadiusLarge,
+                          ),
                           borderSide: BorderSide.none,
                         ),
                         contentPadding: const EdgeInsets.symmetric(
@@ -321,8 +445,6 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
                     ),
                   ),
                   const SizedBox(width: AppTheme.spacingS),
-
-                  // 发送按钮
                   AccessibleIconButton(
                     icon: Icons.send,
                     semanticLabel: '发送消息',
@@ -339,47 +461,60 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
   }
 }
 
-/// 聊天消息
 class ChatMessage {
-  final String text;
-  final bool isUser;
-  final File? image;
-  final Map<String, dynamic>? data;
-  final DateTime timestamp;
-
   ChatMessage({
     required this.text,
     required this.isUser,
-    this.image,
+    this.imageBytes,
+    this.imageName,
     this.data,
     required this.timestamp,
   });
+
+  final String text;
+  final bool isUser;
+  final Uint8List? imageBytes;
+  final String? imageName;
+  final Map<String, dynamic>? data;
+  final DateTime timestamp;
 }
 
-/// 聊天消息气泡
 class _ChatMessageBubble extends StatelessWidget {
-  const _ChatMessageBubble({required this.message});
+  const _ChatMessageBubble({
+    required this.message,
+    required this.onTransferToHuman,
+  });
 
   final ChatMessage message;
+  final VoidCallback onTransferToHuman;
+
+  bool get _showTransferAction {
+    return !message.isUser &&
+        (message.text.contains('无法') ||
+            message.text.contains('志愿者') ||
+            message.text.contains('真人'));
+  }
 
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: message.isUser ? '我说：${message.text}' : 'AI助手说：${message.text}',
+      label: message.isUser ? '我说：${message.text}' : 'AI 助手说：${message.text}',
       child: Padding(
         padding: const EdgeInsets.only(bottom: AppTheme.spacingM),
         child: Row(
-          mainAxisAlignment: message.isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+          mainAxisAlignment:
+              message.isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (!message.isUser) ...[
-              // AI头像
               Container(
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
                   color: AppTheme.primaryColor,
-                  borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+                  borderRadius: BorderRadius.circular(
+                    AppTheme.borderRadiusMedium,
+                  ),
                 ),
                 child: const Icon(
                   Icons.smart_toy,
@@ -389,78 +524,76 @@ class _ChatMessageBubble extends StatelessWidget {
               ),
               const SizedBox(width: AppTheme.spacingS),
             ],
-
-            // 消息内容
             Flexible(
               child: Column(
-                crossAxisAlignment: message.isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                crossAxisAlignment: message.isUser
+                    ? CrossAxisAlignment.end
+                    : CrossAxisAlignment.start,
                 children: [
-                  // 图片
-                  if (message.image != null)
+                  if (message.imageBytes != null)
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
-                      child: Image.file(
-                        message.image!,
+                      borderRadius:
+                          BorderRadius.circular(AppTheme.borderRadiusMedium),
+                      child: Image.memory(
+                        message.imageBytes!,
                         width: 200,
                         fit: BoxFit.cover,
                       ),
                     ),
-
-                  // 文字
                   if (message.text.isNotEmpty)
                     Container(
                       padding: const EdgeInsets.all(AppTheme.spacingM),
                       decoration: BoxDecoration(
-                        color: message.isUser ? AppTheme.primaryColor : AppTheme.surfaceColor,
-                        borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+                        color: message.isUser
+                            ? AppTheme.primaryColor
+                            : AppTheme.surfaceColor,
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.borderRadiusMedium,
+                        ),
                       ),
                       child: AccessibleText(
                         message.text,
                         style: TextStyle(
-                          color: message.isUser ? AppTheme.textOnPrimary : AppTheme.textPrimary,
+                          color: message.isUser
+                              ? AppTheme.textOnPrimary
+                              : AppTheme.textPrimary,
                           fontSize: AppTheme.fontSizeNormal,
                         ),
                       ),
                     ),
-
-                  // 操作按钮（仅AI消息）
-                  if (!message.isUser && !message.text.contains('思考中'))
+                  if (!message.isUser && !message.text.contains('思考中')) ...[
+                    const SizedBox(height: AppTheme.spacingXS),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // 语音播放按钮
                         AccessibleIconButton(
                           icon: Icons.volume_up,
                           semanticLabel: '语音播放',
                           size: 36,
                           iconSize: AppTheme.fontSizeNormal,
-                          onPressed: () {
-                            // TODO: 调用TTS播放
-                          },
+                          onPressed: () {},
                         ),
-                        // 转人工按钮
-                        if (message.text.contains('无法') || message.text.contains('志愿者'))
+                        if (_showTransferAction)
                           TextButton(
-                            onPressed: () {
-                              // 触发匹配流程
-                            },
+                            onPressed: onTransferToHuman,
                             child: const AccessibleText('转人工'),
                           ),
                       ],
                     ),
+                  ],
                 ],
               ),
             ),
-
             if (message.isUser) ...[
               const SizedBox(width: AppTheme.spacingS),
-              // 用户头像
               Container(
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
                   color: AppTheme.secondaryColor,
-                  borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+                  borderRadius: BorderRadius.circular(
+                    AppTheme.borderRadiusMedium,
+                  ),
                 ),
                 child: const Icon(
                   Icons.person,

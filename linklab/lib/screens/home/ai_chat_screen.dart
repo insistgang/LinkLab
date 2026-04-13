@@ -1,202 +1,506 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/app_theme.dart';
-import '../../widgets/accessible/index.dart';
 
-/// AI助手页面
+import '../../core/theme/app_theme.dart';
+import '../../demo_flow/demo_matching_flow.dart';
+import '../../widgets/accessible/index.dart';
+import '../ai_chat/demo_ai_chat_screen.dart';
+
+/// AI助手主入口
+/// 对齐 PRD 的 F1/F2/F3/F4 主要能力，并作为手机端演示的统一入口。
 class AIChatScreen extends StatelessWidget {
   const AIChatScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final presets = [
+      const _AssistantPreset(
+        label: '文字识别',
+        subtitle: '读说明书、菜单、站牌',
+        icon: Icons.document_scanner_outlined,
+        color: AppTheme.primaryColor,
+        title: 'AI文字识别',
+        introMessage:
+            '请告诉我需要读什么，或者直接上传一张图片。我会先尝试识别文字，再用更容易理解的方式读给您听。',
+        initialPrompt: '帮我读一下这个说明书',
+        quickPrompts: ['帮我读一下这个说明书', '帮我看一下菜单写了什么', '读一下公交站牌内容'],
+      ),
+      const _AssistantPreset(
+        label: '场景描述',
+        subtitle: '理解周围环境与障碍物',
+        icon: Icons.camera_alt_outlined,
+        color: AppTheme.secondaryColor,
+        title: 'AI场景描述',
+        introMessage:
+            '您可以发一张现场照片，或者直接描述现在的困惑。我会按方位、距离和风险点来说明当前环境。',
+        initialPrompt: '描述一下我周围的环境',
+        quickPrompts: ['描述一下我周围的环境', '告诉我前面有没有障碍物', '我面前现在是什么样子'],
+      ),
+      const _AssistantPreset(
+        label: '颜色识别',
+        subtitle: '识别衣物和物品主色',
+        icon: Icons.color_lens_outlined,
+        color: AppTheme.accentColor,
+        title: 'AI颜色识别',
+        introMessage:
+            '如果您想确认衣服、包装或物品颜色，可以直接拍照。我会给出主要颜色和更容易理解的描述。',
+        initialPrompt: '这件衣服是什么颜色',
+        quickPrompts: ['这件衣服是什么颜色', '帮我分辨这两个颜色', '这个物体的主色调是什么'],
+      ),
+      const _AssistantPreset(
+        label: '紧急识别',
+        subtitle: '检测危险并快速进入 SOS',
+        icon: Icons.warning_amber_rounded,
+        color: AppTheme.emergencyColor,
+        title: '紧急求助识别',
+        introMessage:
+            '如果您处在危险、摔倒、迷路或身体不适等情况，可以直接描述。我会先判断风险，再建议发起 SOS。',
+        initialPrompt: '我摔倒了，现在有点头晕',
+        quickPrompts: ['我摔倒了，现在有点头晕', '我找不到路了', '救命，我现在很危险'],
+      ),
+    ];
+
     return AccessibleScaffold(
       title: 'AI助手',
       body: SafeArea(
-        child: Padding(
+        child: ListView(
           padding: const EdgeInsets.all(AppTheme.spacingL),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const AccessibleText(
-                '我能为您做什么？',
-                style: TextStyle(
-                  fontSize: AppTheme.fontSizeLarge,
-                  fontWeight: FontWeight.bold,
-                ),
+          children: [
+            _HeroCard(
+              onStartChat: () => _openDefaultChat(context),
+              onConnectVolunteer: () => DemoMatchingFlow.startMatching(context),
+            ),
+            const SizedBox(height: AppTheme.spacingXL),
+            const AccessibleText(
+              '高频能力',
+              style: TextStyle(
+                fontSize: AppTheme.fontSizeLarge,
+                fontWeight: FontWeight.bold,
               ),
-              const SizedBox(height: AppTheme.spacingL),
-              // AI功能列表
-              Expanded(
-                child: ListView(
-                  children: [
-                    _AIFeatureCard(
-                      title: '文字识别',
-                      subtitle: '拍照识别文字并朗读',
-                      icon: Icons.document_scanner,
-                      color: AppTheme.primaryColor,
-                      onTap: () {
-                        // TODO: 打开OCR
-                      },
-                    ),
-                    const SizedBox(height: AppTheme.spacingM),
-                    _AIFeatureCard(
-                      title: '场景描述',
-                      subtitle: '描述周围环境',
-                      icon: Icons.camera_alt,
-                      color: AppTheme.secondaryColor,
-                      onTap: () {
-                        // TODO: 打开场景描述
-                      },
-                    ),
-                    const SizedBox(height: AppTheme.spacingM),
-                    _AIFeatureCard(
-                      title: '颜色识别',
-                      subtitle: '识别物体颜色',
-                      icon: Icons.color_lens,
-                      color: Colors.purple,
-                      onTap: () {
-                        // TODO: 打开颜色识别
-                      },
-                    ),
-                    const SizedBox(height: AppTheme.spacingM),
-                    _AIFeatureCard(
-                      title: '物体识别',
-                      subtitle: '识别物体名称和位置',
-                      icon: Icons.category,
-                      color: Colors.orange,
-                      onTap: () {
-                        // TODO: 打开物体识别
-                      },
-                    ),
-                    const SizedBox(height: AppTheme.spacingM),
-                    _AIFeatureCard(
-                      title: '智能对话',
-                      subtitle: '语音问答，解答疑惑',
-                      icon: Icons.chat,
-                      color: Colors.teal,
-                      onTap: () {
-                        // TODO: 打开智能对话
-                      },
-                    ),
-                  ],
-                ),
+            ),
+            const SizedBox(height: AppTheme.spacingS),
+            const AccessibleText(
+              '优先覆盖 PRD 里的智能对话、OCR、场景描述、颜色识别与紧急检测。',
+              style: TextStyle(
+                fontSize: AppTheme.fontSizeSmall,
+                color: AppTheme.textSecondary,
               ),
-              const SizedBox(height: AppTheme.spacingL),
-              // 语音唤醒提示
-              Semantics(
-                label: '语音唤醒提示',
-                child: Container(
-                  padding: const EdgeInsets.all(AppTheme.spacingM),
-                  decoration: BoxDecoration(
-                    color: AppTheme.surfaceColor,
-                    borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
-                    border: Border.all(color: AppTheme.borderColor),
+            ),
+            const SizedBox(height: AppTheme.spacingM),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: presets.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: AppTheme.spacingM,
+                mainAxisSpacing: AppTheme.spacingM,
+                childAspectRatio: 0.92,
+              ),
+              itemBuilder: (context, index) {
+                final preset = presets[index];
+                return _CapabilityCard(
+                  preset: preset,
+                  onTap: () => _openPresetChat(context, preset),
+                );
+              },
+            ),
+            const SizedBox(height: AppTheme.spacingXL),
+            const AccessibleText(
+              '推荐场景',
+              style: TextStyle(
+                fontSize: AppTheme.fontSizeLarge,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: AppTheme.spacingM),
+            Wrap(
+              spacing: AppTheme.spacingS,
+              runSpacing: AppTheme.spacingS,
+              children: [
+                for (final preset in presets)
+                  ActionChip(
+                    avatar: Icon(
+                      preset.icon,
+                      size: 18,
+                      color: preset.color,
+                    ),
+                    label: Text(preset.quickPrompts.first),
+                    onPressed: () => _openPresetChat(context, preset),
                   ),
-                  child: const Row(
-                    children: [
-                      Icon(
-                        Icons.mic,
-                        color: AppTheme.primaryColor,
-                        size: AppTheme.fontSizeXLarge,
-                      ),
-                      SizedBox(width: AppTheme.spacingM),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            AccessibleText(
-                              '语音唤醒',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            AccessibleText(
-                              '说"Hey 智动"唤醒AI助手',
-                              style: TextStyle(
-                                fontSize: AppTheme.fontSizeSmall,
-                                color: AppTheme.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+              ],
+            ),
+            const SizedBox(height: AppTheme.spacingXL),
+            AccessibleCard(
+              semanticLabel: 'AI处理说明',
+              hint: '双击查看 AI 与真人协作方式',
+              margin: EdgeInsets.zero,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const AccessibleText(
+                    'AI 先处理，复杂问题再转真人',
+                    style: TextStyle(
+                      fontSize: AppTheme.fontSizeNormal,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                ),
+                  const SizedBox(height: AppTheme.spacingS),
+                  _FlowRow(
+                    icon: Icons.smart_toy_outlined,
+                    color: AppTheme.primaryColor,
+                    title: '标准化问题',
+                    subtitle: 'AI 直接回复，适合读文字、颜色识别、环境描述等场景。',
+                  ),
+                  const SizedBox(height: AppTheme.spacingM),
+                  _FlowRow(
+                    icon: Icons.volunteer_activism_outlined,
+                    color: AppTheme.secondaryColor,
+                    title: '复杂或情绪化问题',
+                    subtitle: '当回答不确定时，可一键转真人志愿者继续处理。',
+                  ),
+                  const SizedBox(height: AppTheme.spacingM),
+                  _FlowRow(
+                    icon: Icons.emergency_outlined,
+                    color: AppTheme.emergencyColor,
+                    title: '紧急情况',
+                    subtitle: '识别到摔倒、迷路、危险等关键词时，会提示发起 SOS 广播。',
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _openDefaultChat(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const DemoAIChatScreen(
+          title: 'AI智能对话',
+          introMessage:
+              '您好，我是 AI 助手智动。您可以直接说需求，也可以通过下方按钮发语音或图片，我会优先尝试自己解决。',
+          quickPrompts: [
+            '帮我读一下这个说明书',
+            '描述一下我周围的环境',
+            '这件衣服是什么颜色',
+            '我需要真人志愿者帮助',
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _openPresetChat(BuildContext context, _AssistantPreset preset) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => DemoAIChatScreen(
+          title: preset.title,
+          introMessage: preset.introMessage,
+          initialPrompt: preset.initialPrompt,
+          quickPrompts: preset.quickPrompts,
+          autoSendInitialPrompt: true,
         ),
       ),
     );
   }
 }
 
-/// AI功能卡片
-class _AIFeatureCard extends StatelessWidget {
-  const _AIFeatureCard({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.color,
-    required this.onTap,
+class _HeroCard extends StatelessWidget {
+  const _HeroCard({
+    required this.onStartChat,
+    required this.onConnectVolunteer,
   });
 
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final Color color;
-  final VoidCallback onTap;
+  final VoidCallback onStartChat;
+  final VoidCallback onConnectVolunteer;
 
   @override
   Widget build(BuildContext context) {
-    return AccessibleCard(
-      semanticLabel: title,
-      hint: subtitle,
-      onTap: onTap,
-      child: Row(
+    return Container(
+      padding: const EdgeInsets.all(AppTheme.spacingL),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [AppTheme.primaryColor, AppTheme.secondaryColor],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
+        boxShadow: AppTheme.elevatedShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: AppTheme.minTouchTarget * 1.5,
-            height: AppTheme.minTouchTarget * 1.5,
+            width: 56,
+            height: 56,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+              color: Colors.white.withValues(alpha: 0.18),
+              borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
             ),
-            child: Icon(
-              icon,
-              size: AppTheme.fontSizeXXLarge,
-              color: color,
-            ),
-          ),
-          const SizedBox(width: AppTheme.spacingL),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AccessibleText(
-                  title,
-                  style: const TextStyle(
-                    fontSize: AppTheme.fontSizeLarge,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: AppTheme.spacingXS),
-                AccessibleText(
-                  subtitle,
-                  style: const TextStyle(
-                    fontSize: AppTheme.fontSizeNormal,
-                    color: AppTheme.textSecondary,
-                  ),
-                ),
-              ],
+            child: const Icon(
+              Icons.multitrack_audio,
+              color: AppTheme.textOnPrimary,
+              size: 30,
             ),
           ),
-          const Icon(
-            Icons.arrow_forward_ios,
-            color: AppTheme.textHint,
+          const SizedBox(height: AppTheme.spacingL),
+          const AccessibleText(
+            '先由 AI 快速响应\n必要时再无缝转接志愿者',
+            style: TextStyle(
+              fontSize: AppTheme.fontSizeLarge,
+              height: 1.35,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.textOnPrimary,
+            ),
+          ),
+          const SizedBox(height: AppTheme.spacingS),
+          const AccessibleText(
+            '支持语音、文字、图片三种输入，适合手机端快速求助演示。',
+            style: TextStyle(
+              fontSize: AppTheme.fontSizeSmall,
+              height: 1.6,
+              color: AppTheme.textOnPrimary,
+            ),
+          ),
+          const SizedBox(height: AppTheme.spacingL),
+          Wrap(
+            spacing: AppTheme.spacingS,
+            runSpacing: AppTheme.spacingS,
+            children: const [
+              _HeroStat(label: '响应目标', value: '3 秒内'),
+              _HeroStat(label: '演示模式', value: '本地可用'),
+              _HeroStat(label: '输入方式', value: '语音/文字/图片'),
+            ],
+          ),
+          const SizedBox(height: AppTheme.spacingL),
+          AccessibleButton(
+            label: '开始智能对话',
+            semanticLabel: '开始智能对话按钮',
+            hint: '双击进入 AI 对话页',
+            icon: Icons.chat_bubble_outline,
+            backgroundColor: AppTheme.textOnPrimary,
+            foregroundColor: AppTheme.primaryColor,
+            height: 72,
+            onPressed: onStartChat,
+          ),
+          const SizedBox(height: AppTheme.spacingM),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: onConnectVolunteer,
+              icon: const Icon(Icons.volunteer_activism_outlined),
+              label: const Text('复杂问题直接连接志愿者'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppTheme.textOnPrimary,
+                side: BorderSide(
+                  color: Colors.white.withValues(alpha: 0.36),
+                  width: 1.5,
+                ),
+                minimumSize: const Size(double.infinity, 56),
+              ),
+            ),
           ),
         ],
       ),
     );
   }
+}
+
+class _HeroStat extends StatelessWidget {
+  const _HeroStat({
+    required this.label,
+    required this.value,
+  });
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppTheme.spacingM,
+        vertical: AppTheme.spacingS,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: '$label ',
+              style: const TextStyle(
+                fontSize: AppTheme.fontSizeSmall,
+                color: AppTheme.textOnPrimary,
+              ),
+            ),
+            TextSpan(
+              text: value,
+              style: const TextStyle(
+                fontSize: AppTheme.fontSizeSmall,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.textOnPrimary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CapabilityCard extends StatelessWidget {
+  const _CapabilityCard({
+    required this.preset,
+    required this.onTap,
+  });
+
+  final _AssistantPreset preset;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return AccessibleCard(
+      semanticLabel: '${preset.label}能力卡片',
+      hint: '双击打开${preset.label}演示',
+      onTap: onTap,
+      margin: EdgeInsets.zero,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: preset.color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
+            ),
+            child: Icon(
+              preset.icon,
+              color: preset.color,
+              size: 28,
+            ),
+          ),
+          const Spacer(),
+          AccessibleText(
+            preset.label,
+            style: const TextStyle(
+              fontSize: AppTheme.fontSizeNormal,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: AppTheme.spacingXS),
+          AccessibleText(
+            preset.subtitle,
+            style: const TextStyle(
+              fontSize: AppTheme.fontSizeSmall,
+              color: AppTheme.textSecondary,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: AppTheme.spacingS),
+          Row(
+            children: [
+              AccessibleText(
+                '进入演示',
+                style: TextStyle(
+                  fontSize: AppTheme.fontSizeSmall,
+                  color: preset.color,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(width: AppTheme.spacingXS),
+              Icon(
+                Icons.arrow_forward,
+                size: 18,
+                color: preset.color,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FlowRow extends StatelessWidget {
+  const _FlowRow({
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.subtitle,
+  });
+
+  final IconData icon;
+  final Color color;
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+          ),
+          child: Icon(icon, color: color),
+        ),
+        const SizedBox(width: AppTheme.spacingM),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AccessibleText(
+                title,
+                style: const TextStyle(
+                  fontSize: AppTheme.fontSizeSmall,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: AppTheme.spacingXS),
+              AccessibleText(
+                subtitle,
+                style: const TextStyle(
+                  fontSize: AppTheme.fontSizeSmall,
+                  color: AppTheme.textSecondary,
+                  height: 1.55,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _AssistantPreset {
+  const _AssistantPreset({
+    required this.label,
+    required this.subtitle,
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.introMessage,
+    required this.initialPrompt,
+    required this.quickPrompts,
+  });
+
+  final String label;
+  final String subtitle;
+  final IconData icon;
+  final Color color;
+  final String title;
+  final String introMessage;
+  final String initialPrompt;
+  final List<String> quickPrompts;
 }

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'core/theme/app_theme.dart';
+import 'services/app_session_service.dart';
 import 'screens/auth/login_screen.dart';
+import 'screens/auth/onboarding_screen.dart';
+import 'screens/home/main_screen.dart';
 
 /// 应用根组件
 class LinkLabApp extends StatelessWidget {
@@ -8,25 +11,48 @@ class LinkLabApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: '共感LinkAble',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.highContrastTheme,
-      themeMode: ThemeMode.light,
-      home: const LoginScreen(),
-      builder: (context, child) {
-        // 确保所有页面都有正确的无障碍支持
-        return MediaQuery(
-          // 支持系统字体缩放
-          data: MediaQuery.of(context).copyWith(
-            textScaler: TextScaler.linear(
-              MediaQuery.of(context).textScaler.scale(1.0).clamp(0.8, 2.0),
-            ),
-          ),
-          child: child!,
+    final session = AppSessionService.instance;
+
+    return AnimatedBuilder(
+      animation: session,
+      builder: (context, _) {
+        final preferences = session.preferences;
+
+        return MaterialApp(
+          title: '共感LinkAble',
+          debugShowCheckedModeBanner: false,
+          theme: preferences.highContrastMode
+              ? AppTheme.highContrastTheme
+              : AppTheme.lightTheme,
+          darkTheme: AppTheme.highContrastTheme,
+          themeMode: ThemeMode.light,
+          home: _buildInitialScreen(session),
+          builder: (context, child) {
+            final mediaQuery = MediaQuery.of(context);
+            final scaledText = preferences.fontScale.clamp(0.8, 2.0).toDouble();
+            final childWidget = child ?? const SizedBox.shrink();
+
+            return MediaQuery(
+              data: mediaQuery.copyWith(
+                textScaler: TextScaler.linear(scaledText),
+              ),
+              child: childWidget,
+            );
+          },
         );
       },
     );
+  }
+
+  Widget _buildInitialScreen(AppSessionService session) {
+    if (session.isLoggedIn) {
+      return const MainScreen();
+    }
+
+    if (session.isFirstLaunch) {
+      return const OnboardingScreen();
+    }
+
+    return const LoginScreen();
   }
 }

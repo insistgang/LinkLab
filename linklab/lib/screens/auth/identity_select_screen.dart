@@ -5,7 +5,12 @@ import 'disability_select_screen.dart';
 
 /// 身份选择页面
 class IdentitySelectScreen extends StatefulWidget {
-  const IdentitySelectScreen({super.key});
+  const IdentitySelectScreen({
+    super.key,
+    required this.phone,
+  });
+
+  final String phone;
 
   @override
   State<IdentitySelectScreen> createState() => _IdentitySelectScreenState();
@@ -18,7 +23,10 @@ class _IdentitySelectScreenState extends State<IdentitySelectScreen> {
     if (_selectedRole != null) {
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => DisabilitySelectScreen(role: _selectedRole!),
+          builder: (context) => DisabilitySelectScreen(
+            phone: widget.phone,
+            role: _selectedRole!,
+          ),
         ),
       );
     }

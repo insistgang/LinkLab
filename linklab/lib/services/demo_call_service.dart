@@ -2,7 +2,12 @@
 // 模拟通话流程，不建立真实WebRTC连接
 
 import 'dart:async';
+
 import 'package:flutter/material.dart';
+
+import 'app_session_service.dart';
+import 'local_storage.dart';
+import 'user_center/favorite_volunteer_service.dart';
 
 /// 演示通话状态
 enum DemoCallState {
@@ -66,21 +71,38 @@ class DemoCallService extends ChangeNotifier {
   factory DemoCallService() => _instance;
   DemoCallService._internal();
 
+  final LocalStorage _storage = LocalStorage();
+  final FavoriteVolunteerService _favoriteService = FavoriteVolunteerService();
+
   DemoCallState _state = DemoCallState.idle;
   DemoVolunteer? _currentVolunteer;
+  String? _currentHelpRequestId;
   Duration _callDuration = Duration.zero;
   Timer? _durationTimer;
   Timer? _simulationTimer;
+  bool _localInitialized = false;
 
   // Getters
   DemoCallState get state => _state;
   DemoVolunteer? get currentVolunteer => _currentVolunteer;
+  String? get currentHelpRequestId => _currentHelpRequestId;
   Duration get callDuration => _callDuration;
   bool get isInCall => _state == DemoCallState.connected;
   bool get isConnecting => _state == DemoCallState.connecting || _state == DemoCallState.ringing;
 
+  Future<void> _ensureLocalStorage() async {
+    if (_localInitialized) return;
+    await _storage.initialize();
+    _localInitialized = true;
+  }
+
+  String get _currentSeekerId =>
+      AppSessionService.instance.userProfile?.id ?? 'demo-seeker';
+
   /// 开始模拟通话
   Future<void> startCall() async {
+    await _ensureLocalStorage();
+
     _state = DemoCallState.connecting;
     notifyListeners();
 
@@ -98,6 +120,7 @@ class DemoCallService extends ChangeNotifier {
 
     _state = DemoCallState.connected;
     _startDurationTimer();
+    await _createCurrentHelpRecord();
     notifyListeners();
   }
 
@@ -113,9 +136,54 @@ class DemoCallService extends ChangeNotifier {
 
   /// 挂断电话
   Future<void> hangUp() async {
+    await _ensureLocalStorage();
     _durationTimer?.cancel();
     _state = DemoCallState.ended;
+    await _upsertCurrentHelpRecord(
+      status: 'completed',
+      durationSeconds: _callDuration.inSeconds,
+      completedAt: DateTime.now(),
+    );
     notifyListeners();
+  }
+
+  /// 保存求助者评价，并同步到帮助档案和常用志愿者
+  Future<void> submitSeekerRating({
+    required int rating,
+    List<String> tags = const [],
+    String? feedback,
+  }) async {
+    await _ensureLocalStorage();
+
+    final volunteer = _currentVolunteer;
+    if (_currentHelpRequestId == null || volunteer == null) {
+      return;
+    }
+
+    final mergedAiResponse = <String, dynamic>{
+      'summary': feedback?.trim().isNotEmpty == true
+          ? feedback!.trim()
+          : '已完成与 ${volunteer.name} 的实时语音协助。',
+      'volunteerName': volunteer.name,
+      'volunteerSkills': volunteer.skills,
+      if (tags.isNotEmpty) 'ratingTags': tags,
+      if (feedback?.trim().isNotEmpty == true) 'feedback': feedback!.trim(),
+    };
+
+    await _upsertCurrentHelpRecord(
+      status: 'completed',
+      durationSeconds: _callDuration.inSeconds,
+      completedAt: DateTime.now(),
+      seekerRating: rating,
+      aiResponse: mergedAiResponse,
+    );
+
+    await _favoriteService.incrementCooperation(
+      _currentSeekerId,
+      volunteer.id,
+      rating: rating,
+      volunteerName: volunteer.name,
+    );
   }
 
   /// 重置状态
@@ -123,8 +191,80 @@ class DemoCallService extends ChangeNotifier {
     _durationTimer?.cancel();
     _state = DemoCallState.idle;
     _currentVolunteer = null;
+    _currentHelpRequestId = null;
     _callDuration = Duration.zero;
     notifyListeners();
+  }
+
+  Future<void> _createCurrentHelpRecord() async {
+    final now = DateTime.now();
+    final volunteer = _currentVolunteer;
+    if (volunteer == null) {
+      return;
+    }
+
+    _currentHelpRequestId = 'demo_realtime_${now.microsecondsSinceEpoch}';
+
+    await _storage.upsertHelpRecord({
+      'id': _currentHelpRequestId,
+      'seekerId': _currentSeekerId,
+      'type': 'realtime_voice',
+      'intent': '与 ${volunteer.name} 进行实时语音协助',
+      'urgency': 'normal',
+      'status': 'connected',
+      'volunteerId': volunteer.id,
+      'aiResponse': {
+        'summary': '已为您接通真人志愿者，正在进行语音协助。',
+        'volunteerName': volunteer.name,
+        'volunteerSkills': volunteer.skills,
+      },
+      'createdAt': now.toIso8601String(),
+      'matchedAt': now.toIso8601String(),
+    });
+  }
+
+  Future<void> _upsertCurrentHelpRecord({
+    required String status,
+    int? durationSeconds,
+    int? seekerRating,
+    DateTime? completedAt,
+    Map<String, dynamic>? aiResponse,
+  }) async {
+    final volunteer = _currentVolunteer;
+    if (_currentHelpRequestId == null || volunteer == null) {
+      return;
+    }
+
+    final history = _storage.getHelpHistory();
+    final existingIndex =
+        history.indexWhere((item) => item['id'] == _currentHelpRequestId);
+    final existing = existingIndex >= 0
+        ? Map<String, dynamic>.from(history[existingIndex])
+        : <String, dynamic>{};
+    final existingAiResponse = existing['aiResponse'] is Map
+        ? Map<String, dynamic>.from(existing['aiResponse'] as Map)
+        : <String, dynamic>{};
+
+    final payload = <String, dynamic>{
+      'id': _currentHelpRequestId,
+      'seekerId': _currentSeekerId,
+      'type': 'realtime_voice',
+      'intent': existing['intent'] ?? '与 ${volunteer.name} 进行实时语音协助',
+      'urgency': existing['urgency'] ?? 'normal',
+      'status': status,
+      'volunteerId': volunteer.id,
+      'durationSeconds': durationSeconds ?? existing['durationSeconds'],
+      'seekerRating': seekerRating ?? existing['seekerRating'],
+      'matchedAt': existing['matchedAt'] ?? existing['createdAt'],
+      'createdAt': existing['createdAt'] ?? DateTime.now().toIso8601String(),
+      'completedAt': completedAt?.toIso8601String() ?? existing['completedAt'],
+      'aiResponse': {
+        ...existingAiResponse,
+        if (aiResponse != null) ...aiResponse,
+      },
+    };
+
+    await _storage.upsertHelpRecord(payload);
   }
 
   @override

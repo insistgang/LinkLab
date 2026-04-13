@@ -4,6 +4,7 @@ import 'app.dart';
 import 'core/theme/app_theme.dart';
 import 'config/app_config.dart';
 import 'services/demo/demo_data_loader.dart';
+import 'services/app_session_service.dart';
 
 /// 演示模式入口
 /// 用于竞赛演示，使用模拟数据
@@ -32,6 +33,7 @@ void main() async {
 
   // 加载演示数据
   await DemoDataLoader.initialize();
+  await AppSessionService.instance.initialize();
 
   runApp(const LinkLabApp());
 }

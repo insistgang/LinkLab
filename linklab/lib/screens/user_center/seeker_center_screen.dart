@@ -2,17 +2,26 @@ import 'package:flutter/material.dart';
 import '../../models/help_request_model.dart';
 import '../../models/help_statistics_model.dart';
 import '../../models/favorite_volunteer_model.dart';
-import '../../models/user_model.dart';
+import '../../services/app_session_service.dart';
+import '../../services/user_center/async_task_service.dart';
 import '../../services/user_center/help_archive_service.dart';
 import '../../services/user_center/points_service.dart';
 import '../../services/user_center/favorite_volunteer_service.dart';
-import '../../core/theme/app_theme.dart';
 import '../../core/utils/extensions.dart';
+import '../call/async_help_request_screen.dart';
+
+String _resolveCurrentUserId() =>
+    AppSessionService.instance.userProfile?.id ?? 'demo-user-id';
 
 /// 求助者中心页面 (F14-F17)
 /// 整合帮助档案、安心积分、常用志愿者、无障碍偏好
 class SeekerCenterScreen extends StatefulWidget {
-  const SeekerCenterScreen({super.key});
+  const SeekerCenterScreen({
+    super.key,
+    this.initialTabIndex = 0,
+  });
+
+  final int initialTabIndex;
 
   @override
   State<SeekerCenterScreen> createState() => _SeekerCenterScreenState();
@@ -22,13 +31,18 @@ class _SeekerCenterScreenState extends State<SeekerCenterScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final HelpArchiveService _helpArchiveService = HelpArchiveService();
+  final AsyncTaskService _asyncTaskService = AsyncTaskService();
   final PointsService _pointsService = PointsService();
   final FavoriteVolunteerService _favoriteService = FavoriteVolunteerService();
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(
+      length: 5,
+      vsync: this,
+      initialIndex: widget.initialTabIndex.clamp(0, 4).toInt(),
+    );
   }
 
   @override
@@ -47,6 +61,7 @@ class _SeekerCenterScreenState extends State<SeekerCenterScreen>
           isScrollable: true,
           tabs: const [
             Tab(icon: Icon(Icons.history), text: '帮助档案'),
+            Tab(icon: Icon(Icons.markunread_outlined), text: '异步留言'),
             Tab(icon: Icon(Icons.stars), text: '安心积分'),
             Tab(icon: Icon(Icons.favorite), text: '常用志愿者'),
             Tab(icon: Icon(Icons.settings_accessibility), text: '偏好设置'),
@@ -57,10 +72,238 @@ class _SeekerCenterScreenState extends State<SeekerCenterScreen>
         controller: _tabController,
         children: [
           HelpArchiveTab(service: _helpArchiveService),
+          AsyncRequestsTab(service: _asyncTaskService),
           PointsTab(service: _pointsService),
           FavoriteVolunteersTab(service: _favoriteService),
           const AccessibilityPreferencesTab(),
         ],
+      ),
+    );
+  }
+}
+
+class AsyncRequestsTab extends StatefulWidget {
+  const AsyncRequestsTab({
+    super.key,
+    required this.service,
+  });
+
+  final AsyncTaskService service;
+
+  @override
+  State<AsyncRequestsTab> createState() => _AsyncRequestsTabState();
+}
+
+class _AsyncRequestsTabState extends State<AsyncRequestsTab> {
+  List<AsyncTaskModel> _tasks = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() => _isLoading = true);
+    final userId = _resolveCurrentUserId();
+    final tasks = await widget.service.getSeekerTasks(userId, limit: 50);
+    if (!mounted) return;
+    setState(() {
+      _tasks = tasks;
+      _isLoading = false;
+    });
+  }
+
+  Future<void> _openComposer() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const AsyncHelpRequestScreen(),
+      ),
+    );
+    await _loadData();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final pendingCount =
+        _tasks.where((task) => task.status == 'pending').length;
+    final processingCount = _tasks.where((task) => task.isAssigned).length;
+    final completedCount =
+        _tasks.where((task) => task.status == 'completed').length;
+
+    return RefreshIndicator(
+      onRefresh: _loadData,
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          _AsyncSummaryCard(
+            pendingCount: pendingCount,
+            processingCount: processingCount,
+            completedCount: completedCount,
+            onCreate: () {
+              _openComposer();
+            },
+          ),
+          const SizedBox(height: 16),
+          if (_tasks.isEmpty)
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.markunread_outlined,
+                      size: 56,
+                      color: Colors.grey[300],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      '还没有异步留言',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey[800],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '适合非紧急问题，例如读信件、看菜单、辨认照片。',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.grey[600]),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      onPressed: _openComposer,
+                      icon: const Icon(Icons.add),
+                      label: const Text('创建第一条留言'),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else
+            ..._tasks.map(_buildTaskCard),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTaskCard(AsyncTaskModel task) {
+    final statusColor = switch (task.status) {
+      'completed' => Colors.green,
+      'assigned' || 'processing' => Colors.orange,
+      'pending' => Colors.blue,
+      _ => Colors.grey,
+    };
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: statusColor.withOpacity(0.1),
+          child: Icon(Icons.schedule_send, color: statusColor),
+        ),
+        title: Text(task.taskType),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              task.description.split('\n').first,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              '${task.statusLabel} · ${task.createdAt?.formatRelative() ?? ''}',
+              style: TextStyle(color: Colors.grey[600], fontSize: 12),
+            ),
+          ],
+        ),
+        trailing: Chip(
+          label: Text(task.statusLabel),
+          backgroundColor: statusColor.withOpacity(0.12),
+          labelStyle: TextStyle(color: statusColor),
+        ),
+        onTap: () => _showTaskDetail(task),
+      ),
+    );
+  }
+
+  void _showTaskDetail(AsyncTaskModel task) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              task.taskType,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 16),
+            _DetailRow(label: '当前状态', value: task.statusLabel),
+            _DetailRow(
+              label: '提交时间',
+              value: task.createdAt?.formatDateTime() ?? '未知',
+            ),
+            if (task.assignedAt != null)
+              _DetailRow(
+                label: '领取时间',
+                value: task.assignedAt!.formatDateTime(),
+              ),
+            if (task.completedAt != null)
+              _DetailRow(
+                label: '回复时间',
+                value: task.completedAt!.formatDateTime(),
+              ),
+            const SizedBox(height: 8),
+            const Text(
+              '留言内容',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(task.description),
+            if (task.result != null && task.result!.trim().isNotEmpty) ...[
+              const SizedBox(height: 16),
+              const Text(
+                '志愿者回复',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Text(task.result!),
+            ],
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                    label: const Text('关闭'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _openComposer();
+                    },
+                    icon: const Icon(Icons.add_comment_outlined),
+                    label: const Text('再提一个'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -92,8 +335,7 @@ class _HelpArchiveTabState extends State<HelpArchiveTab> {
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
 
-    // TODO: 从用户认证获取真实用户ID
-    const userId = 'demo-user-id';
+    final userId = _resolveCurrentUserId();
 
     final stats = await widget.service.getStatistics(userId);
     final history = await widget.service.getHelpHistory(
@@ -257,18 +499,23 @@ class _HelpArchiveTabState extends State<HelpArchiveTab> {
       case 'sos':
         icon = Icons.emergency;
         color = Colors.red;
+        break;
       case 'realtime_voice':
         icon = Icons.phone;
         color = Colors.blue;
+        break;
       case 'realtime_video':
         icon = Icons.videocam;
         color = Colors.green;
+        break;
       case 'async':
         icon = Icons.schedule;
         color = Colors.orange;
+        break;
       default:
         icon = Icons.help;
         color = Colors.grey;
+        break;
     }
 
     return CircleAvatar(
@@ -283,7 +530,7 @@ class _HelpArchiveTabState extends State<HelpArchiveTab> {
       child: ElevatedButton(
         onPressed: () async {
           setState(() => _currentPage++);
-          const userId = 'demo-user-id';
+          final userId = _resolveCurrentUserId();
           final moreHistory = await widget.service.getHelpHistory(
             userId,
             limit: _pageSize,
@@ -367,7 +614,7 @@ class _PointsTabState extends State<PointsTab> {
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
 
-    const userId = 'demo-user-id';
+    final userId = _resolveCurrentUserId();
     final points = await widget.service.getCurrentPoints(userId);
     final status = await widget.service.getCheckInStatus(userId);
 
@@ -379,7 +626,7 @@ class _PointsTabState extends State<PointsTab> {
   }
 
   Future<void> _performCheckIn() async {
-    const userId = 'demo-user-id';
+    final userId = _resolveCurrentUserId();
     final result = await widget.service.performDailyCheckIn(userId);
 
     if (mounted) {
@@ -522,7 +769,7 @@ class _FavoriteVolunteersTabState extends State<FavoriteVolunteersTab> {
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
 
-    const userId = 'demo-user-id';
+    final userId = _resolveCurrentUserId();
     final favorites = await widget.service.getFavoriteVolunteers(userId);
     final stats = await widget.service.getStats(userId);
 
@@ -534,7 +781,7 @@ class _FavoriteVolunteersTabState extends State<FavoriteVolunteersTab> {
   }
 
   Future<void> _removeFavorite(String volunteerId) async {
-    const userId = 'demo-user-id';
+    final userId = _resolveCurrentUserId();
     final success = await widget.service.removeFavorite(userId, volunteerId);
 
     if (success && mounted) {
@@ -832,6 +1079,95 @@ class _AccessibilityPreferencesTabState
 
 // ==================== 辅助组件 ====================
 
+class _AsyncSummaryCard extends StatelessWidget {
+  const _AsyncSummaryCard({
+    required this.pendingCount,
+    required this.processingCount,
+    required this.completedCount,
+    required this.onCreate,
+  });
+
+  final int pendingCount;
+  final int processingCount;
+  final int completedCount;
+  final VoidCallback onCreate;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 4,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          gradient: LinearGradient(
+            colors: [Colors.teal[400]!, Colors.blue[500]!],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              '异步留言状态',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              '适合非紧急需求，留言会进入志愿者异步任务队列。',
+              style: TextStyle(color: Colors.white70),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _StatColumn(
+                    value: pendingCount.toString(),
+                    label: '待领取',
+                    valueColor: Colors.white,
+                    labelColor: Colors.white70,
+                  ),
+                ),
+                Expanded(
+                  child: _StatColumn(
+                    value: processingCount.toString(),
+                    label: '处理中',
+                    valueColor: Colors.white,
+                    labelColor: Colors.white70,
+                  ),
+                ),
+                Expanded(
+                  child: _StatColumn(
+                    value: completedCount.toString(),
+                    label: '已回复',
+                    valueColor: Colors.white,
+                    labelColor: Colors.white70,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: onCreate,
+              icon: const Icon(Icons.add_comment_outlined),
+              label: const Text('新建异步留言'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.blue[700],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _StatCard extends StatelessWidget {
   final String title;
   final String value;
@@ -1026,8 +1362,15 @@ class _RuleItem extends StatelessWidget {
 class _StatColumn extends StatelessWidget {
   final String value;
   final String label;
+  final Color? valueColor;
+  final Color? labelColor;
 
-  const _StatColumn({required this.value, required this.label});
+  const _StatColumn({
+    required this.value,
+    required this.label,
+    this.valueColor,
+    this.labelColor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1035,16 +1378,17 @@ class _StatColumn extends StatelessWidget {
       children: [
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
+            color: valueColor,
           ),
         ),
         Text(
           label,
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey[600],
+            color: labelColor ?? Colors.grey[600],
           ),
         ),
       ],

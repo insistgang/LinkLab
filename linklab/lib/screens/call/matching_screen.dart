@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../models/call_models.dart';
 import '../../services/matching_service.dart';
 import '../../services/webrtc_service.dart';
+import 'async_help_request_screen.dart';
 import 'call_screen.dart';
 
 /// 匹配等待页面
@@ -164,8 +165,17 @@ class _MatchingScreenState extends State<MatchingScreen>
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              // 导航到异步留言页面
-              // Navigator.pushReplacement(context, ...);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AsyncHelpRequestScreen(
+                    initialTaskType: widget.helpType,
+                    initialDescription:
+                        '当前实时匹配暂无响应，我想先留言等待志愿者稍后回复。',
+                    replaceWithSeekerCenterOnSubmit: true,
+                  ),
+                ),
+              );
             },
             child: const Text('转为留言'),
           ),
@@ -192,7 +202,17 @@ class _MatchingScreenState extends State<MatchingScreen>
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              // 导航到异步留言页面
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AsyncHelpRequestScreen(
+                    initialTaskType: widget.helpType,
+                    initialDescription:
+                        '当前附近暂无在线志愿者，请帮我转成异步留言。',
+                    replaceWithSeekerCenterOnSubmit: true,
+                  ),
+                ),
+              );
             },
             child: const Text('转为留言'),
           ),

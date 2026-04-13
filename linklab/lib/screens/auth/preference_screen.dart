@@ -1,11 +1,24 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
+import '../../models/user_model.dart';
+import '../../services/app_session_service.dart';
 import '../../widgets/accessible/index.dart';
 import '../home/main_screen.dart';
 
 /// 无障碍偏好设置页面
 class PreferenceScreen extends StatefulWidget {
-  const PreferenceScreen({super.key});
+  const PreferenceScreen({
+    super.key,
+    this.phone,
+    this.role,
+    this.disabilityTypes = const [],
+  });
+
+  final String? phone;
+  final String? role;
+  final List<String> disabilityTypes;
+
+  bool get isEditMode => phone == null || role == null;
 
   @override
   State<PreferenceScreen> createState() => _PreferenceScreenState();
@@ -18,8 +31,45 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
   bool _hapticFeedback = true;
   bool _autoReadResults = true;
 
-  void _onComplete() {
-    // TODO: 保存偏好设置到本地存储
+  @override
+  void initState() {
+    super.initState();
+    final prefs = AppSessionService.instance.preferences;
+    _highContrastMode = prefs.highContrastMode;
+    _fontScale = prefs.fontScale;
+    _voiceSpeed = prefs.voiceSpeed;
+    _hapticFeedback = prefs.hapticFeedback;
+    _autoReadResults = prefs.autoReadResults;
+  }
+
+  Future<void> _onComplete() async {
+    final prefs = AccessibilityPreferences(
+      highContrastMode: _highContrastMode,
+      fontScale: _fontScale,
+      voiceSpeed: _voiceSpeed,
+      hapticFeedback: _hapticFeedback,
+      autoReadResults: _autoReadResults,
+    );
+
+    final session = AppSessionService.instance;
+
+    if (widget.isEditMode) {
+      await session.updatePreferences(prefs);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('无障碍偏好已更新')),
+      );
+      Navigator.of(context).pop();
+      return;
+    }
+
+    await session.completeOnboarding(
+      phone: widget.phone!,
+      role: widget.role!,
+      disabilityTypes: widget.disabilityTypes,
+      preferences: prefs,
+    );
+    if (!mounted) return;
 
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(
@@ -48,9 +98,11 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
                 ),
               ),
               const SizedBox(height: AppTheme.spacingS),
-              const AccessibleText(
-                '这些设置可以随时在"我的"页面修改',
-                style: TextStyle(
+              AccessibleText(
+                widget.isEditMode
+                    ? '这些设置会立即应用到当前会话'
+                    : '这些设置可以随时在"我的"页面修改',
+                style: const TextStyle(
                   fontSize: AppTheme.fontSizeNormal,
                   color: AppTheme.textSecondary,
                 ),
@@ -131,9 +183,10 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
               const SizedBox(height: AppTheme.spacingL),
               // 完成按钮
               AccessibleButton(
-                label: '开始使用',
-                semanticLabel: '完成设置，进入应用',
-                hint: '双击开始使用共感LinkAble',
+                label: widget.isEditMode ? '保存设置' : '开始使用',
+                semanticLabel:
+                    widget.isEditMode ? '保存无障碍偏好' : '完成设置，进入应用',
+                hint: widget.isEditMode ? '双击保存偏好设置' : '双击开始使用共感LinkAble',
                 onPressed: _onComplete,
               ),
             ],

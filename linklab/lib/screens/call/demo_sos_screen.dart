@@ -3,8 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../models/emergency_contact_model.dart';
+import '../../services/app_session_service.dart';
 import '../../services/demo_call_service.dart';
+import '../../services/security/emergency_contact_service.dart';
+import '../../services/security/safety_settings_service.dart';
 import 'demo_call_screen.dart';
+import '../security/location_sharing_screen.dart';
 
 /// 演示版SOS紧急求助页面
 /// 简化版：模拟SOS流程，固定5秒匹配成功
@@ -18,6 +23,8 @@ class DemoSOSScreen extends StatefulWidget {
 class _DemoSOSScreenState extends State<DemoSOSScreen>
     with TickerProviderStateMixin {
   final DemoSOSService _sosService = DemoSOSService();
+  final EmergencyContactService _contactService = EmergencyContactService();
+  final SafetySettingsService _safetySettingsService = SafetySettingsService();
 
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
@@ -27,12 +34,19 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
   double _longPressProgress = 0;
   Timer? _longPressTimer;
   static const int _longPressDurationMs = 3000;
+  List<EmergencyContactModel> _emergencyContacts = const [];
+  SafetySettings _safetySettings = const SafetySettings();
+  bool _isLoadingReadiness = true;
+
+  String get _currentUserId =>
+      AppSessionService.instance.userProfile?.id ?? 'demo-seeker';
 
   @override
   void initState() {
     super.initState();
     _initAnimations();
     _sosService.addListener(_onSOSStateChanged);
+    _loadSafetyContext();
   }
 
   void _initAnimations() {
@@ -100,12 +114,47 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
     });
   }
 
+  Future<void> _loadSafetyContext() async {
+    final results = await Future.wait<dynamic>([
+      _contactService.getContacts(_currentUserId),
+      _safetySettingsService.getSettings(_currentUserId),
+    ]);
+
+    if (!mounted) return;
+    setState(() {
+      _emergencyContacts = results[0] as List<EmergencyContactModel>;
+      _safetySettings = results[1] as SafetySettings;
+      _isLoadingReadiness = false;
+    });
+  }
+
+  Future<void> _openSafetySettings() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => LocationSharingScreen(userId: _currentUserId),
+      ),
+    );
+    await _loadSafetyContext();
+  }
+
   Future<void> _triggerSOS() async {
     HapticFeedback.heavyImpact();
     setState(() {
       _isLongPressing = false;
       _longPressProgress = 0;
     });
+    if (_safetySettings.shareWithEmergencyContacts &&
+        _emergencyContacts.isNotEmpty) {
+      unawaited(
+        _contactService.notifyEmergencyContacts(
+          userId: _currentUserId,
+          latitude: _safetySettings.autoShareLocation ? 31.2304 : 0,
+          longitude: _safetySettings.autoShareLocation ? 121.4737 : 0,
+          address: _buildLocationSummary(),
+          message: _buildEmergencyNotificationMessage(),
+        ),
+      );
+    }
     await _sosService.triggerSOS();
   }
 
@@ -261,6 +310,10 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
                               fontSize: 12,
                             ),
                           ),
+                          const SizedBox(height: 16),
+                          _buildEmergencyContactBanner(isActive: true),
+                          const SizedBox(height: 16),
+                          _buildSafetyTimelineCard(isActive: true),
                           // 响应者数量
                           if (_sosService.responderCount > 0) ...[
                             const SizedBox(height: 24),
@@ -288,6 +341,27 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
 
                         // 其他触发方式提示
                         if (!isActive) ...[
+                          _buildEmergencyContactBanner(isActive: false),
+                          const SizedBox(height: 16),
+                          if (_isLoadingReadiness)
+                            const Padding(
+                              padding: EdgeInsets.symmetric(
+                                vertical: 24,
+                              ),
+                              child: CircularProgressIndicator(),
+                            )
+                          else ...[
+                            _buildSafetyTimelineCard(isActive: false),
+                            if (_needsMoreSafetySetup()) ...[
+                              const SizedBox(height: 12),
+                              TextButton.icon(
+                                onPressed: _openSafetySettings,
+                                icon: const Icon(Icons.tune),
+                                label: const Text('完善位置共享设置'),
+                              ),
+                            ],
+                          ],
+                          const SizedBox(height: 20),
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
@@ -307,8 +381,11 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
                                 const SizedBox(height: 8),
                                 _buildTriggerHint(
                                     '连按电源键3次', '3秒内快速按3次'),
-                                _buildTriggerHint(
-                                    '语音触发', '说出"紧急求助"等关键词'),
+                                if (_safetySettings.enableVoiceTrigger)
+                                  _buildTriggerHint(
+                                    '语音触发',
+                                    '说出"紧急求助"等关键词',
+                                  ),
                               ],
                             ),
                           ),
@@ -373,6 +450,242 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
     );
   }
 
+  Widget _buildEmergencyContactBanner({required bool isActive}) {
+    final hasContacts = _emergencyContacts.isNotEmpty;
+    final names = _emergencyContacts.map((contact) => contact.name).join('、');
+    final shouldNotifyContacts =
+        _safetySettings.shareWithEmergencyContacts && hasContacts;
+    final locationLabel = !_safetySettings.autoShareLocation
+        ? '未自动共享位置'
+        : (_safetySettings.usePreciseLocation ? '精确位置' : '大致位置');
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isActive
+            ? Colors.white.withOpacity(0.12)
+            : Colors.red.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isActive
+              ? Colors.white.withOpacity(0.18)
+              : Colors.red.withOpacity(0.16),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            shouldNotifyContacts
+                ? '安全通知已就绪'
+                : (hasContacts ? '联系人通知已关闭' : '尚未设置紧急联系人'),
+            style: TextStyle(
+              color: isActive ? Colors.white : Colors.red,
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            shouldNotifyContacts
+                ? '本次 SOS 会以$locationLabel同步通知 ${_emergencyContacts.length} 位联系人：$names'
+                : _safetySettings.shareWithEmergencyContacts
+                    ? '当前仍会演示志愿者广播流程，但联系人通知需要先在“我的 > 紧急联系人”中完成设置。位置状态：$locationLabel。'
+                    : '本次 SOS 仅展示志愿者广播流程。位置状态：$locationLabel。',
+            style: TextStyle(
+              color: isActive
+                  ? Colors.white.withOpacity(0.88)
+                  : Colors.black87,
+              fontSize: 13,
+              height: 1.5,
+            ),
+          ),
+          if (!shouldNotifyContacts) ...[
+            const SizedBox(height: 8),
+            Text(
+              _safetySettings.shareWithEmergencyContacts
+                  ? '可在“我的 > 紧急联系人”中添加，最多 3 位。'
+                  : '可在“位置共享”中重新开启联系人同步。',
+              style: TextStyle(
+                color: isActive
+                    ? Colors.white.withOpacity(0.72)
+                    : Colors.black54,
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSafetyTimelineCard({required bool isActive}) {
+    final steps = _buildSafetySteps(isActive: isActive);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isActive
+            ? Colors.white.withOpacity(0.12)
+            : Colors.grey.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isActive
+              ? Colors.white.withOpacity(0.18)
+              : Colors.black.withOpacity(0.08),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            isActive ? 'SOS 当前进度' : 'SOS 将执行的步骤',
+            style: TextStyle(
+              color: isActive ? Colors.white : Colors.black87,
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+            ),
+          ),
+          const SizedBox(height: 12),
+          ...steps.map(
+            (step) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _buildSafetyStepRow(step: step, isActive: isActive),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSafetyStepRow({
+    required _SafetyStep step,
+    required bool isActive,
+  }) {
+    final (icon, color) = switch (step.state) {
+      _SafetyStepState.completed => (Icons.check_circle, Colors.greenAccent),
+      _SafetyStepState.active => (Icons.radio_button_checked, Colors.amberAccent),
+      _SafetyStepState.skipped => (Icons.remove_circle_outline, Colors.white70),
+      _SafetyStepState.pending => (
+          Icons.radio_button_unchecked,
+          isActive ? Colors.white70 : Colors.black45,
+        ),
+    };
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, color: color, size: 20),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                step.title,
+                style: TextStyle(
+                  color: isActive ? Colors.white : Colors.black87,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                step.description,
+                style: TextStyle(
+                  color: isActive
+                      ? Colors.white.withOpacity(0.82)
+                      : Colors.black54,
+                  fontSize: 12,
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  List<_SafetyStep> _buildSafetySteps({required bool isActive}) {
+    final hasResponse = _sosService.responderCount > 0;
+    final shouldNotifyContacts =
+        _safetySettings.shareWithEmergencyContacts &&
+            _emergencyContacts.isNotEmpty;
+
+    return [
+      _SafetyStep(
+        title: _safetySettings.autoShareLocation
+            ? '同步${_safetySettings.usePreciseLocation ? '精确' : '大致'}位置'
+            : '跳过自动位置共享',
+        description: _safetySettings.autoShareLocation
+            ? '演示位置摘要会进入 SOS 链路。'
+            : '本次流程只展示基础求助，不附带位置。',
+        state: _safetySettings.autoShareLocation
+            ? (isActive
+                ? _SafetyStepState.completed
+                : _SafetyStepState.pending)
+            : _SafetyStepState.skipped,
+      ),
+      _SafetyStep(
+        title: shouldNotifyContacts ? '通知紧急联系人' : '跳过联系人通知',
+        description: shouldNotifyContacts
+            ? '将同步通知 ${_emergencyContacts.length} 位联系人。'
+            : _safetySettings.shareWithEmergencyContacts
+                ? '当前没有可通知的联系人。'
+                : '你已在设置中关闭联系人同步。',
+        state: shouldNotifyContacts
+            ? (isActive
+                ? _SafetyStepState.completed
+                : _SafetyStepState.pending)
+            : _SafetyStepState.skipped,
+      ),
+      _SafetyStep(
+        title: '向附近志愿者广播',
+        description: hasResponse
+            ? '已有 ${_sosService.responderCount} 位志愿者响应。'
+            : '演示版默认在 5km 范围内广播。',
+        state: !isActive
+            ? _SafetyStepState.pending
+            : (hasResponse
+                ? _SafetyStepState.completed
+                : _SafetyStepState.active),
+      ),
+      _SafetyStep(
+        title: '建立演示响应',
+        description: hasResponse ? '即将进入通话演示。' : '正在等待志愿者接入。',
+        state: !isActive
+            ? _SafetyStepState.pending
+            : (hasResponse
+                ? _SafetyStepState.completed
+                : _SafetyStepState.active),
+      ),
+    ];
+  }
+
+  bool _needsMoreSafetySetup() {
+    return !_safetySettings.autoShareLocation ||
+        (_safetySettings.shareWithEmergencyContacts &&
+            _emergencyContacts.isEmpty);
+  }
+
+  String _buildLocationSummary() {
+    if (!_safetySettings.autoShareLocation) {
+      return '用户未开启自动位置共享';
+    }
+
+    return _safetySettings.usePreciseLocation
+        ? '演示位置：上海市静安区'
+        : '演示位置：上海市静安区附近';
+  }
+
+  String _buildEmergencyNotificationMessage() {
+    final location = _buildLocationSummary();
+    return '【LinkLab紧急求助】用户已触发 SOS，$location，请尽快联系确认安全。';
+  }
+
   Widget _buildTriggerHint(String title, String description) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -406,4 +719,23 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
     _pulseController.dispose();
     super.dispose();
   }
+}
+
+enum _SafetyStepState {
+  pending,
+  active,
+  completed,
+  skipped,
+}
+
+class _SafetyStep {
+  const _SafetyStep({
+    required this.title,
+    required this.description,
+    required this.state,
+  });
+
+  final String title;
+  final String description;
+  final _SafetyStepState state;
 }

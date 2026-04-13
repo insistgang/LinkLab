@@ -7,9 +7,11 @@ import 'preference_screen.dart';
 class DisabilitySelectScreen extends StatefulWidget {
   const DisabilitySelectScreen({
     super.key,
+    required this.phone,
     required this.role,
   });
 
+  final String phone;
   final String role;
 
   @override
@@ -55,7 +57,11 @@ class _DisabilitySelectScreenState extends State<DisabilitySelectScreen> {
   void _onContinue() {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => const PreferenceScreen(),
+        builder: (context) => PreferenceScreen(
+          phone: widget.phone,
+          role: widget.role,
+          disabilityTypes: List<String>.from(_selectedTypes),
+        ),
       ),
     );
   }
@@ -63,7 +69,10 @@ class _DisabilitySelectScreenState extends State<DisabilitySelectScreen> {
   void _onSkip() {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => const PreferenceScreen(),
+        builder: (context) => PreferenceScreen(
+          phone: widget.phone,
+          role: widget.role,
+        ),
       ),
     );
   }

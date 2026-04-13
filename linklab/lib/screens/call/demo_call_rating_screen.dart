@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../home/main_screen.dart';
 import '../../services/demo_call_service.dart';
 
 /// 演示版通话评价页面
@@ -18,6 +19,9 @@ class DemoCallRatingScreen extends StatefulWidget {
 }
 
 class _DemoCallRatingScreenState extends State<DemoCallRatingScreen> {
+  final DemoCallService _callService = DemoCallService();
+  final TextEditingController _feedbackController = TextEditingController();
+
   int _rating = 0;
   final List<String> _selectedTags = [];
   bool _isSubmitting = false;
@@ -49,20 +53,28 @@ class _DemoCallRatingScreenState extends State<DemoCallRatingScreen> {
 
     setState(() => _isSubmitting = true);
 
-    // 模拟提交延迟
-    await Future.delayed(const Duration(seconds: 1));
+    await _callService.submitSeekerRating(
+      rating: _rating,
+      tags: _selectedTags,
+      feedback: _feedbackController.text.trim(),
+    );
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('感谢您的评价！')),
+        SnackBar(
+          content: Text(
+            _rating >= 4
+                ? '感谢您的评价，已同步到帮助档案和常用志愿者。'
+                : '感谢您的评价，已同步到帮助档案。',
+          ),
+        ),
       );
-      // 返回首页
-      Navigator.of(context).popUntil((route) => route.isFirst);
+      _returnToMain();
     }
   }
 
   void _skipRating() {
-    Navigator.of(context).popUntil((route) => route.isFirst);
+    _returnToMain();
   }
 
   String _formatDuration(Duration duration) {
@@ -132,6 +144,22 @@ class _DemoCallRatingScreenState extends State<DemoCallRatingScreen> {
                 color: Colors.grey[600],
               ),
             ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.deepPurple.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Text(
+                '4 星及以上会加入“常用志愿者”',
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.deepPurple,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
             const SizedBox(height: 40),
             // 标题
             const Text(
@@ -191,6 +219,7 @@ class _DemoCallRatingScreenState extends State<DemoCallRatingScreen> {
             ],
             // 文字反馈
             TextField(
+              controller: _feedbackController,
               maxLines: 3,
               decoration: InputDecoration(
                 hintText: '写下您的具体反馈（可选）',
@@ -281,5 +310,21 @@ class _DemoCallRatingScreenState extends State<DemoCallRatingScreen> {
       default:
         return '';
     }
+  }
+
+  void _returnToMain() {
+    _callService.reset();
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (_) => const MainScreen(),
+      ),
+      (route) => false,
+    );
+  }
+
+  @override
+  void dispose() {
+    _feedbackController.dispose();
+    super.dispose();
   }
 }

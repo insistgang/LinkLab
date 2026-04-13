@@ -102,6 +102,29 @@ class AsyncTaskModel with _$AsyncTaskModel {
   /// 是否待处理
   bool get isPending => status == 'pending';
 
+  /// 是否已领取
+  bool get isAssigned => status == 'assigned' || status == 'processing';
+
   /// 是否已完成
   bool get isCompleted => status == 'completed';
+
+  /// 状态标签
+  String get statusLabel {
+    switch (status) {
+      case 'pending':
+        return '待志愿者领取';
+      case 'assigned':
+        return '已被领取';
+      case 'processing':
+        return '处理中';
+      case 'completed':
+        return '已回复';
+      case 'expired':
+        return '已超时';
+      case 'cancelled':
+        return '已取消';
+      default:
+        return '状态未知';
+    }
+  }
 }

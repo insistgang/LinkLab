@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 
+import '../screens/ai_chat/demo_ai_chat_screen.dart';
 import '../screens/call/demo_exports.dart';
 import '../services/demo_call_service.dart';
 import 'demo_ai_service.dart';
@@ -37,7 +38,11 @@ class DemoFlowController extends ChangeNotifier {
     notifyListeners();
 
     if (_context != null) {
-      Navigator.of(_context!).pushNamed('/ai_chat');
+      Navigator.of(_context!).push(
+        MaterialPageRoute(
+          builder: (_) => const DemoAIChatScreen(),
+        ),
+      );
     }
   }
 

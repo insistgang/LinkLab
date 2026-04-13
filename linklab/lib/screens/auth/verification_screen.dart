@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
+import '../../services/app_session_service.dart';
 import '../../widgets/accessible/index.dart';
 import 'identity_select_screen.dart';
+import '../home/main_screen.dart';
 
 /// 验证码页面
 class VerificationScreen extends StatefulWidget {
@@ -42,10 +44,23 @@ class _VerificationScreenState extends State<VerificationScreen> {
             _isLoading = false;
           });
 
-          // 验证成功，进入身份选择
+          final session = AppSessionService.instance;
+          if (session.userProfile != null) {
+            session.loginExistingUser(widget.phone).then((_) {
+              if (!mounted) return;
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                  builder: (context) => const MainScreen(),
+                ),
+                (route) => false,
+              );
+            });
+            return;
+          }
+
           Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(
-              builder: (context) => const IdentitySelectScreen(),
+              builder: (context) => IdentitySelectScreen(phone: widget.phone),
             ),
             (route) => false,
           );

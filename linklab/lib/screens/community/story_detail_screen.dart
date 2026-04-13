@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../../models/community_models.dart';
+import '../../services/app_session_service.dart';
 import '../../services/community/featured_story_service.dart';
 import '../../widgets/accessible/index.dart';
 
@@ -26,29 +27,39 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
   void initState() {
     super.initState();
     _story = widget.story;
+    _loadStory();
     _checkLikeStatus();
   }
 
+  String get _currentUserId =>
+      AppSessionService.instance.userProfile?.id ?? 'demo-story-user';
+
+  Future<void> _loadStory() async {
+    final detail = await _storyService.getStoryDetail(_story.id);
+    if (!mounted || detail == null) return;
+    setState(() => _story = detail);
+  }
+
   Future<void> _checkLikeStatus() async {
-    // TODO: 获取当前用户ID
-    const userId = 'current_user_id';
-    final hasLiked = await _storyService.hasLiked(_story.id, userId);
+    final hasLiked = await _storyService.hasLiked(_story.id, _currentUserId);
+    if (!mounted) return;
     setState(() => _isLiked = hasLiked);
   }
 
   Future<void> _toggleLike() async {
     try {
-      // TODO: 获取当前用户ID
-      const userId = 'current_user_id';
-
       if (_isLiked) {
-        await _storyService.unlikeStory(_story.id, userId);
+        await _storyService.unlikeStory(_story.id, _currentUserId);
+        if (!mounted) return;
         setState(() {
           _isLiked = false;
-          _story = _story.copyWith(likeCount: _story.likeCount - 1);
+          _story = _story.copyWith(
+            likeCount: _story.likeCount > 0 ? _story.likeCount - 1 : 0,
+          );
         });
       } else {
-        await _storyService.likeStory(_story.id, userId);
+        await _storyService.likeStory(_story.id, _currentUserId);
+        if (!mounted) return;
         setState(() {
           _isLiked = true;
           _story = _story.copyWith(likeCount: _story.likeCount + 1);
