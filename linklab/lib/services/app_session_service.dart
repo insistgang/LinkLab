@@ -23,6 +23,7 @@ class AppSessionService extends ChangeNotifier {
   bool get isInitialized => _initialized;
   bool get isLoggedIn => _isLoggedIn;
   bool get isFirstLaunch => _isFirstLaunch;
+  UserModel? get currentUser => _userProfile;
   UserModel? get userProfile => _userProfile;
   AccessibilityPreferences get preferences => _preferences;
 

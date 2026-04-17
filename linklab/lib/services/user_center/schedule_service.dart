@@ -1,17 +1,45 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../../core/utils/logger.dart';
 import '../../models/schedule_model.dart';
+import 'volunteer_demo_store.dart';
 
 /// 排班服务 (F23)
 /// 管理志愿者的可用时间和在线状态
 class ScheduleService {
-  final SupabaseClient _supabase;
+  ScheduleService({
+    SupabaseClient? supabase,
+    VolunteerDemoStore? demoStore,
+  })  : _supabaseClient = supabase,
+        _demoStore = demoStore ?? VolunteerDemoStore();
 
-  ScheduleService({SupabaseClient? supabase})
-      : _supabase = supabase ?? Supabase.instance.client;
+  SupabaseClient? _supabaseClient;
+  final VolunteerDemoStore _demoStore;
+
+  bool get _hasSupabase => Supabase.instance.isInitialized;
+
+  SupabaseClient get _supabase {
+    if (!_hasSupabase) {
+      throw StateError('Supabase not initialized');
+    }
+    _supabaseClient ??= Supabase.instance.client;
+    return _supabaseClient!;
+  }
 
   /// 获取志愿者的排班设置
   Future<ScheduleModel> getSchedule(String volunteerId) async {
+    if (!_hasSupabase) {
+      try {
+        return await _demoStore.getSchedule(volunteerId);
+      } catch (e) {
+        AppLogger.error('获取本地排班设置失败', e);
+        return ScheduleModel(
+          userId: volunteerId,
+          weeklySchedule: ScheduleModel.defaultSchedule,
+        );
+      }
+    }
+
     try {
       final response = await _supabase
           .from('volunteer_profiles')
@@ -19,14 +47,16 @@ class ScheduleService {
           .eq('user_id', volunteerId)
           .single();
 
-      final scheduleData = response['available_schedule'] as Map<String, dynamic>?;
+      final responseMap = Map<String, dynamic>.from(response as Map);
+      final scheduleData =
+          responseMap['available_schedule'] as Map<String, dynamic>?;
 
       return ScheduleModel(
         userId: volunteerId,
         weeklySchedule: _parseWeeklySchedule(scheduleData),
-        isOnline: response['is_online'] ?? false,
-        lastStatusUpdateAt: response['last_heartbeat_at'] != null
-            ? DateTime.parse(response['last_heartbeat_at'])
+        isOnline: responseMap['is_online'] as bool? ?? false,
+        lastStatusUpdateAt: responseMap['last_heartbeat_at'] != null
+            ? DateTime.parse(responseMap['last_heartbeat_at'].toString())
             : null,
       );
     } catch (e) {
@@ -45,13 +75,18 @@ class ScheduleService {
     final result = <String, List<TimeSlot>>{};
 
     for (final day in ScheduleModel.defaultSchedule.keys) {
-      final dayData = data[day] as List?;
+      final dayData = data[day] as List?; 
       if (dayData != null) {
         result[day] = dayData
-            .map((slot) => TimeSlot(
-                  start: slot['start'] as String,
-                  end: slot['end'] as String,
-                ))
+            .map(
+              (slot) {
+                final slotMap = Map<String, dynamic>.from(slot as Map);
+                return TimeSlot(
+                  start: slotMap['start'].toString(),
+                  end: slotMap['end'].toString(),
+                );
+              },
+            )
             .toList();
       } else {
         result[day] = [];
@@ -66,6 +101,22 @@ class ScheduleService {
     String volunteerId,
     Map<String, List<TimeSlot>> weeklySchedule,
   ) async {
+    if (!_hasSupabase) {
+      try {
+        final current = await _demoStore.getSchedule(volunteerId);
+        await _demoStore.saveSchedule(
+          current.copyWith(
+            weeklySchedule: weeklySchedule,
+            updatedAt: DateTime.now(),
+          ),
+        );
+        return true;
+      } catch (e) {
+        AppLogger.error('更新本地排班设置失败', e);
+        return false;
+      }
+    }
+
     try {
       // 转换为JSON格式
       final scheduleData = <String, List<Map<String, String>>>{};
@@ -215,6 +266,24 @@ class ScheduleService {
     bool isOnline, {
     OnlineStatus status = OnlineStatus.online,
   }) async {
+    if (!_hasSupabase) {
+      try {
+        final schedule = await _demoStore.getSchedule(volunteerId);
+        await _demoStore.saveSchedule(
+          schedule.copyWith(
+            isOnline: isOnline,
+            status: status,
+            lastStatusUpdateAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          ),
+        );
+        return true;
+      } catch (e) {
+        AppLogger.error('设置本地在线状态失败', e);
+        return false;
+      }
+    }
+
     try {
       await _supabase
           .from('volunteer_profiles')
@@ -235,6 +304,21 @@ class ScheduleService {
 
   /// 更新心跳（保持在线状态）
   Future<void> updateHeartbeat(String volunteerId) async {
+    if (!_hasSupabase) {
+      try {
+        final schedule = await _demoStore.getSchedule(volunteerId);
+        await _demoStore.saveSchedule(
+          schedule.copyWith(
+            lastStatusUpdateAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          ),
+        );
+      } catch (e) {
+        AppLogger.error('更新本地心跳失败', e);
+      }
+      return;
+    }
+
     try {
       await _supabase
           .from('volunteer_profiles')

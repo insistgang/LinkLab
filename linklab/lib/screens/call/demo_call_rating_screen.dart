@@ -27,27 +27,15 @@ class _DemoCallRatingScreenState extends State<DemoCallRatingScreen> {
   bool _isSubmitting = false;
 
   // 评价标签
-  final List<String> _positiveTags = [
-    '耐心细致',
-    '专业高效',
-    '态度友好',
-    '解决问题',
-    '沟通顺畅',
-  ];
+  final List<String> _positiveTags = ['耐心细致', '专业高效', '态度友好', '解决问题', '沟通顺畅'];
 
-  final List<String> _negativeTags = [
-    '沟通困难',
-    '未能解决',
-    '态度冷淡',
-    '网络卡顿',
-    '声音不清',
-  ];
+  final List<String> _negativeTags = ['沟通困难', '未能解决', '态度冷淡', '网络卡顿', '声音不清'];
 
   Future<void> _submitRating() async {
     if (_rating == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('请给出评分')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('请给出评分')));
       return;
     }
 
@@ -63,9 +51,7 @@ class _DemoCallRatingScreenState extends State<DemoCallRatingScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            _rating >= 4
-                ? '感谢您的评价，已同步到帮助档案和常用志愿者。'
-                : '感谢您的评价，已同步到帮助档案。',
+            _rating >= 4 ? '感谢您的评价，已同步到帮助档案和常用志愿者。' : '感谢您的评价，已同步到帮助档案。',
           ),
         ),
       );
@@ -115,7 +101,7 @@ class _DemoCallRatingScreenState extends State<DemoCallRatingScreen> {
               height: 80,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.deepPurple.withOpacity(0.1),
+                color: Colors.deepPurple.withValues(alpha: 0.1),
               ),
               child: Center(
                 child: Text(
@@ -131,24 +117,18 @@ class _DemoCallRatingScreenState extends State<DemoCallRatingScreen> {
             const SizedBox(height: 16),
             Text(
               widget.volunteer.name,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
               '通话时长: ${_formatDuration(widget.duration)}',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             ),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.deepPurple.withOpacity(0.08),
+                color: Colors.deepPurple.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(999),
               ),
               child: Text(
@@ -164,10 +144,7 @@ class _DemoCallRatingScreenState extends State<DemoCallRatingScreen> {
             // 标题
             const Text(
               '为这次帮助评分',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 32),
             // 星级评分
@@ -285,7 +262,7 @@ class _DemoCallRatingScreenState extends State<DemoCallRatingScreen> {
           }
         });
       },
-      selectedColor: Colors.deepPurple.withOpacity(0.2),
+      selectedColor: Colors.deepPurple.withValues(alpha: 0.2),
       checkmarkColor: Colors.deepPurple,
       labelStyle: TextStyle(
         color: isSelected ? Colors.deepPurple : Colors.grey[700],
@@ -315,9 +292,7 @@ class _DemoCallRatingScreenState extends State<DemoCallRatingScreen> {
   void _returnToMain() {
     _callService.reset();
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(
-        builder: (_) => const MainScreen(),
-      ),
+      MaterialPageRoute(builder: (_) => const MainScreen()),
       (route) => false,
     );
   }

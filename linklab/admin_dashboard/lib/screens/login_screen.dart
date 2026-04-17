@@ -53,10 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              AppTheme.primaryColor,
-              AppTheme.primaryDark,
-            ],
+            colors: [AppTheme.primaryColor, AppTheme.primaryDark],
           ),
         ),
         child: Center(
@@ -96,7 +93,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               width: 80,
                               height: 80,
                               decoration: BoxDecoration(
-                                color: AppTheme.primaryColor.withOpacity(0.1),
+                                color: AppTheme.primaryColor.withValues(
+                                  alpha: 0.1,
+                                ),
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               child: const Icon(
@@ -184,16 +183,19 @@ class _LoginScreenState extends State<LoginScreen> {
                             SizedBox(
                               height: 48,
                               child: ElevatedButton(
-                                onPressed: state is AuthLoading ? null : _onLogin,
+                                onPressed: state is AuthLoading
+                                    ? null
+                                    : _onLogin,
                                 child: state is AuthLoading
                                     ? const SizedBox(
                                         width: 24,
                                         height: 24,
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2,
-                                          valueColor: AlwaysStoppedAnimation<Color>(
-                                            Colors.white,
-                                          ),
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                Colors.white,
+                                              ),
                                         ),
                                       )
                                     : const Text(

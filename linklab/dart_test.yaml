@@ -1,0 +1,5 @@
+tags:
+  demo:
+    timeout: 2x
+  closed-loop:
+    timeout: 2x

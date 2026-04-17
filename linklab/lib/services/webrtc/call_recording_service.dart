@@ -6,6 +6,7 @@ import 'package:flutter_sound/flutter_sound.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../../core/utils/logger.dart';
 import 'webrtc_config.dart';
 
 /// 录音状态
@@ -154,10 +155,11 @@ class CallRecordingService {
       );
 
       _isInitialized = true;
-      print('[Recording] 录音服务已初始化');
-    } catch (e) {
-      _emitError('初始化录音服务失败: $e');
-      throw Exception('初始化录音服务失败: $e');
+      AppLogger.info('[Recording] 录音服务已初始化');
+    } catch (error, stackTrace) {
+      AppLogger.error('[Recording] 初始化录音服务失败', error, stackTrace);
+      _emitError('初始化录音服务失败: $error');
+      throw Exception('初始化录音服务失败: $error');
     }
   }
 
@@ -187,8 +189,9 @@ class CallRecordingService {
       }
 
       return microphoneStatus.isGranted;
-    } catch (e) {
-      _emitError('权限检查失败: $e');
+    } catch (error, stackTrace) {
+      AppLogger.error('[Recording] 权限检查失败', error, stackTrace);
+      _emitError('权限检查失败: $error');
       return false;
     }
   }
@@ -250,7 +253,7 @@ class CallRecordingService {
       // 启动计时器
       _startDurationTimer();
 
-      print('[Recording] 开始录音: $filePath');
+      AppLogger.info('[Recording] 开始录音: $filePath');
 
       return RecordingInfo(
         filePath: filePath,
@@ -259,10 +262,11 @@ class CallRecordingService {
         fileSize: 0,
         format: _getFormatFromCodec(codec),
       );
-    } catch (e) {
+    } catch (error, stackTrace) {
+      AppLogger.error('[Recording] 开始录音失败', error, stackTrace);
       _state = RecordingState.error;
       _stateController.add(_state);
-      _emitError('开始录音失败: $e');
+      _emitError('开始录音失败: $error');
       return null;
     }
   }
@@ -286,9 +290,10 @@ class CallRecordingService {
       // 停止计时器
       _stopDurationTimer();
 
-      print('[Recording] 录音已暂停');
-    } catch (e) {
-      _emitError('暂停录音失败: $e');
+      AppLogger.info('[Recording] 录音已暂停');
+    } catch (error, stackTrace) {
+      AppLogger.error('[Recording] 暂停录音失败', error, stackTrace);
+      _emitError('暂停录音失败: $error');
     }
   }
 
@@ -307,9 +312,10 @@ class CallRecordingService {
       // 启动计时器
       _startDurationTimer();
 
-      print('[Recording] 录音已恢复');
-    } catch (e) {
-      _emitError('恢复录音失败: $e');
+      AppLogger.info('[Recording] 录音已恢复');
+    } catch (error, stackTrace) {
+      AppLogger.error('[Recording] 恢复录音失败', error, stackTrace);
+      _emitError('恢复录音失败: $error');
     }
   }
 
@@ -357,13 +363,16 @@ class CallRecordingService {
       _state = RecordingState.stopped;
       _stateController.add(_state);
 
-      print('[Recording] 录音已停止: ${info.formattedDuration}, ${info.formattedFileSize}');
+      AppLogger.info(
+        '[Recording] 录音已停止: ${info.formattedDuration}, ${info.formattedFileSize}',
+      );
 
       return info;
-    } catch (e) {
+    } catch (error, stackTrace) {
+      AppLogger.error('[Recording] 停止录音失败', error, stackTrace);
       _state = RecordingState.error;
       _stateController.add(_state);
-      _emitError('停止录音失败: $e');
+      _emitError('停止录音失败: $error');
       return null;
     }
   }
@@ -401,9 +410,10 @@ class CallRecordingService {
       _currentFilePath = null;
       _stateController.add(_state);
 
-      print('[Recording] 录音已取消');
-    } catch (e) {
-      _emitError('取消录音失败: $e');
+      AppLogger.info('[Recording] 录音已取消');
+    } catch (error, stackTrace) {
+      AppLogger.error('[Recording] 取消录音失败', error, stackTrace);
+      _emitError('取消录音失败: $error');
     }
   }
 
@@ -434,8 +444,9 @@ class CallRecordingService {
       recordings.sort((a, b) => b.startTime.compareTo(a.startTime));
 
       return recordings;
-    } catch (e) {
-      _emitError('获取录音列表失败: $e');
+    } catch (error, stackTrace) {
+      AppLogger.error('[Recording] 获取录音列表失败', error, stackTrace);
+      _emitError('获取录音列表失败: $error');
       return [];
     }
   }
@@ -446,12 +457,13 @@ class CallRecordingService {
       final file = File(filePath);
       if (await file.exists()) {
         await file.delete();
-        print('[Recording] 录音已删除: $filePath');
+        AppLogger.info('[Recording] 录音已删除: $filePath');
         return true;
       }
       return false;
-    } catch (e) {
-      _emitError('删除录音失败: $e');
+    } catch (error, stackTrace) {
+      AppLogger.error('[Recording] 删除录音失败', error, stackTrace);
+      _emitError('删除录音失败: $error');
       return false;
     }
   }
@@ -468,8 +480,9 @@ class CallRecordingService {
 
       final newFile = await oldFile.rename(newPath);
       return newFile.path;
-    } catch (e) {
-      _emitError('重命名录音失败: $e');
+    } catch (error, stackTrace) {
+      AppLogger.error('[Recording] 重命名录音失败', error, stackTrace);
+      _emitError('重命名录音失败: $error');
       return null;
     }
   }
@@ -482,8 +495,9 @@ class CallRecordingService {
         return file;
       }
       return null;
-    } catch (e) {
-      _emitError('获取录音文件失败: $e');
+    } catch (error, stackTrace) {
+      AppLogger.error('[Recording] 获取录音文件失败', error, stackTrace);
+      _emitError('获取录音文件失败: $error');
       return null;
     }
   }
@@ -495,10 +509,11 @@ class CallRecordingService {
       if (!await sourceFile.exists()) return false;
 
       await sourceFile.copy(destinationPath);
-      print('[Recording] 录音已导出: $destinationPath');
+      AppLogger.info('[Recording] 录音已导出: $destinationPath');
       return true;
-    } catch (e) {
-      _emitError('导出录音失败: $e');
+    } catch (error, stackTrace) {
+      AppLogger.error('[Recording] 导出录音失败', error, stackTrace);
+      _emitError('导出录音失败: $error');
       return false;
     }
   }
@@ -645,7 +660,7 @@ class CallRecordingService {
 
   /// 发送错误
   void _emitError(String error) {
-    print('[Recording] 错误: $error');
+    AppLogger.error('[Recording] $error');
     _errorController.add(error);
   }
 

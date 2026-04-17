@@ -46,18 +46,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       );
     } else {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const PhoneLoginScreen(),
-        ),
+        MaterialPageRoute(builder: (context) => const PhoneLoginScreen()),
       );
     }
   }
 
   void _onSkip() {
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => const PhoneLoginScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const PhoneLoginScreen()),
     );
   }
 
@@ -82,9 +78,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   onPressed: _onSkip,
                   child: const AccessibleText(
                     '跳过',
-                    style: TextStyle(
-                      fontSize: AppTheme.fontSizeNormal,
-                    ),
+                    style: TextStyle(fontSize: AppTheme.fontSizeNormal),
                   ),
                 ),
               ),
@@ -111,7 +105,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           width: 150,
                           height: 150,
                           decoration: BoxDecoration(
-                            color: AppTheme.primaryLight.withOpacity(0.3),
+                            color: AppTheme.primaryLight.withValues(alpha: 0.3),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
@@ -173,8 +167,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               padding: const EdgeInsets.all(AppTheme.spacingL),
               child: AccessibleButton(
                 label: _currentPage == _pages.length - 1 ? '开始使用' : '下一步',
-                semanticLabel:
-                    _currentPage == _pages.length - 1 ? '开始使用' : '下一页',
+                semanticLabel: _currentPage == _pages.length - 1
+                    ? '开始使用'
+                    : '下一页',
                 onPressed: _onNext,
               ),
             ),

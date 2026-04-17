@@ -276,7 +276,7 @@ if (result.isSuccess) {
 
 ### 核心服务文件
 - `lib/config/api_config.dart` - API配置
-- `lib/config/api_config_example.dart` - API配置示例
+- `lib/config/api_config.example.dart` - API配置示例
 - `lib/services/ai/ai_service.dart` - AI服务接口
 - `lib/services/ai/ai_module_export.dart` - 模块导出
 

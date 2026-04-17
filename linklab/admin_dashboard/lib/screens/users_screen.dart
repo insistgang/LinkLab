@@ -59,7 +59,9 @@ class _UsersContentState extends State<_UsersContent> {
                             icon: const Icon(Icons.clear),
                             onPressed: () {
                               _searchController.clear();
-                              context.read<UserBloc>().add(const UserSearchChanged(''));
+                              context.read<UserBloc>().add(
+                                const UserSearchChanged(''),
+                              );
                             },
                           )
                         : null,
@@ -76,31 +78,13 @@ class _UsersContentState extends State<_UsersContent> {
             icon: const Icon(Icons.filter_list),
             tooltip: '筛选',
             itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'all',
-                child: Text('全部用户'),
-              ),
-              const PopupMenuItem(
-                value: 'disabled',
-                child: Text('残障用户'),
-              ),
-              const PopupMenuItem(
-                value: 'volunteer',
-                child: Text('志愿者'),
-              ),
+              const PopupMenuItem(value: 'all', child: Text('全部用户')),
+              const PopupMenuItem(value: 'disabled', child: Text('残障用户')),
+              const PopupMenuItem(value: 'volunteer', child: Text('志愿者')),
               const PopupMenuDivider(),
-              const PopupMenuItem(
-                value: 'active',
-                child: Text('正常用户'),
-              ),
-              const PopupMenuItem(
-                value: 'banned',
-                child: Text('已封禁'),
-              ),
-              const PopupMenuItem(
-                value: 'pending',
-                child: Text('待审核'),
-              ),
+              const PopupMenuItem(value: 'active', child: Text('正常用户')),
+              const PopupMenuItem(value: 'banned', child: Text('已封禁')),
+              const PopupMenuItem(value: 'pending', child: Text('待审核')),
             ],
             onSelected: (value) {
               switch (value) {
@@ -140,9 +124,9 @@ class _UsersContentState extends State<_UsersContent> {
       body: BlocConsumer<UserBloc, UserState>(
         listener: (context, state) {
           if (state is UserActionSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           } else if (state is UserError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -236,14 +220,16 @@ class _UsersContentState extends State<_UsersContent> {
           availableRowsPerPage: const [10, 20, 50],
           onRowsPerPageChanged: (value) {
             if (value != null) {
-              context.read<UserBloc>().add(UserLoadRequested(
-                page: 1,
-                pageSize: value,
-                search: state.search,
-                status: state.status,
-                role: state.role,
-                userType: state.userType,
-              ));
+              context.read<UserBloc>().add(
+                UserLoadRequested(
+                  page: 1,
+                  pageSize: value,
+                  search: state.search,
+                  status: state.status,
+                  role: state.role,
+                  userType: state.userType,
+                ),
+              );
             }
           },
           showFirstLastButtons: true,
@@ -251,14 +237,16 @@ class _UsersContentState extends State<_UsersContent> {
           initialFirstRowIndex: (state.page - 1) * state.pageSize,
           onPageChanged: (firstRowIndex) {
             final page = (firstRowIndex ~/ state.pageSize) + 1;
-            context.read<UserBloc>().add(UserLoadRequested(
-              page: page,
-              pageSize: state.pageSize,
-              search: state.search,
-              status: state.status,
-              role: state.role,
-              userType: state.userType,
-            ));
+            context.read<UserBloc>().add(
+              UserLoadRequested(
+                page: page,
+                pageSize: state.pageSize,
+                search: state.search,
+                status: state.status,
+                role: state.role,
+                userType: state.userType,
+              ),
+            );
           },
         ),
       ),
@@ -302,8 +290,14 @@ class _UsersContentState extends State<_UsersContent> {
                 ],
                 if (user.volunteerLevel != null) ...[
                   _buildDetailRow('志愿者等级', user.volunteerLevel!),
-                  _buildDetailRow('积分', user.volunteerPoints?.toString() ?? '0'),
-                  _buildDetailRow('评分', user.rating?.toStringAsFixed(1) ?? '0.0'),
+                  _buildDetailRow(
+                    '积分',
+                    user.volunteerPoints?.toString() ?? '0',
+                  ),
+                  _buildDetailRow(
+                    '评分',
+                    user.rating?.toStringAsFixed(1) ?? '0.0',
+                  ),
                   _buildDetailRow('总通话', user.totalCalls?.toString() ?? '0'),
                 ],
                 _buildDetailRow(
@@ -362,9 +356,7 @@ class _UsersContentState extends State<_UsersContent> {
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
-                color: AppTheme.textPrimary,
-              ),
+              style: const TextStyle(color: AppTheme.textPrimary),
             ),
           ),
         ],
@@ -531,8 +523,10 @@ class _UserDataSource extends DataTableSource {
                     ? NetworkImage(user.avatarUrl!)
                     : null,
                 child: user.avatarUrl == null
-                    ? Text(user.displayName?.substring(0, 1).toUpperCase() ??
-                        user.email.substring(0, 1).toUpperCase())
+                    ? Text(
+                        user.displayName?.substring(0, 1).toUpperCase() ??
+                            user.email.substring(0, 1).toUpperCase(),
+                      )
                     : null,
               ),
               const SizedBox(width: 12),
@@ -566,8 +560,8 @@ class _UserDataSource extends DataTableSource {
               user.disabilityType != null
                   ? '残障用户'
                   : user.volunteerLevel != null
-                      ? '志愿者'
-                      : '普通用户',
+                  ? '志愿者'
+                  : '普通用户',
               style: const TextStyle(fontSize: 12),
             ),
             padding: EdgeInsets.zero,
@@ -578,7 +572,7 @@ class _UserDataSource extends DataTableSource {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: _getStatusColor(user.status).withOpacity(0.1),
+              color: _getStatusColor(user.status).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(
@@ -594,10 +588,14 @@ class _UserDataSource extends DataTableSource {
         DataCell(
           user.verificationStatus != null
               ? Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
-                    color: _getVerificationColor(user.verificationStatus!)
-                        .withOpacity(0.1),
+                    color: _getVerificationColor(
+                      user.verificationStatus!,
+                    ).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
@@ -717,10 +715,7 @@ class _UserListTile extends StatelessWidget {
   final UserModel user;
   final VoidCallback onTap;
 
-  const _UserListTile({
-    required this.user,
-    required this.onTap,
-  });
+  const _UserListTile({required this.user, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -728,11 +723,14 @@ class _UserListTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundImage:
-              user.avatarUrl != null ? NetworkImage(user.avatarUrl!) : null,
+          backgroundImage: user.avatarUrl != null
+              ? NetworkImage(user.avatarUrl!)
+              : null,
           child: user.avatarUrl == null
-              ? Text(user.displayName?.substring(0, 1).toUpperCase() ??
-                  user.email.substring(0, 1).toUpperCase())
+              ? Text(
+                  user.displayName?.substring(0, 1).toUpperCase() ??
+                      user.email.substring(0, 1).toUpperCase(),
+                )
               : null,
         ),
         title: Text(user.displayName ?? '未设置昵称'),
@@ -773,7 +771,7 @@ class _UserListTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
@@ -804,7 +802,7 @@ class _UserListTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(

@@ -10,14 +10,20 @@ class FavoriteVolunteerService {
   FavoriteVolunteerService({
     SupabaseClient? supabase,
     app_storage.LocalStorage? storage,
-  })  : _supabaseClient = supabase,
-        _storage = storage ?? app_storage.LocalStorage();
+  }) : _supabaseClient = supabase,
+       _storage = storage ?? app_storage.LocalStorage();
 
   SupabaseClient? _supabaseClient;
   final app_storage.LocalStorage _storage;
   bool _localInitialized = false;
 
-  bool get _hasSupabase => Supabase.instance.isInitialized;
+  bool get _hasSupabase {
+    try {
+      return Supabase.instance.isInitialized;
+    } catch (_) {
+      return false;
+    }
+  }
 
   SupabaseClient get _supabase {
     if (!_hasSupabase) {
@@ -48,15 +54,18 @@ class FavoriteVolunteerService {
         final favorites = _storage.getFavoriteVolunteers();
         final index = favorites.indexWhere(
           (item) =>
-              item['seekerId'] == seekerId && item['volunteerId'] == volunteerId,
+              item['seekerId'] == seekerId &&
+              item['volunteerId'] == volunteerId,
         );
 
         if (index >= 0) {
           final current = Map<String, dynamic>.from(favorites[index]);
-          final currentCount = (current['cooperationCount'] as num?)?.toInt() ?? 1;
+          final currentCount =
+              (current['cooperationCount'] as num?)?.toInt() ?? 1;
           if (initialRating != null) {
             current['averageRating'] = _calculateAverageRating(
-              currentAverage: (current['averageRating'] as num?)?.toDouble() ?? 0.0,
+              currentAverage:
+                  (current['averageRating'] as num?)?.toDouble() ?? 0.0,
               currentCount: currentCount,
               nextRating: initialRating,
             );
@@ -96,13 +105,19 @@ class FavoriteVolunteerService {
           .maybeSingle();
 
       if (existing != null) {
+        final existingMap = Map<String, dynamic>.from(existing as Map);
+        final favoriteId = existingMap['id'];
+        if (favoriteId is! Object) {
+          throw StateError('favorite_volunteers record missing id');
+        }
         await _supabase
             .from('favorite_volunteers')
             .update({
-              'cooperation_count': (existing['cooperation_count'] ?? 1) + 1,
+              'cooperation_count':
+                  ((existingMap['cooperation_count'] as num?) ?? 1).toInt() + 1,
               'last_cooperation_at': DateTime.now().toIso8601String(),
             })
-            .eq('id', existing['id']);
+            .eq('id', favoriteId);
 
         AppLogger.info('更新常用志愿者合作次数: $seekerId -> $volunteerId');
         return true;
@@ -113,12 +128,17 @@ class FavoriteVolunteerService {
           .select('name, avatar_url')
           .eq('id', volunteerId)
           .single();
+      final volunteerMap = Map<String, dynamic>.from(volunteerResponse as Map);
+      final remoteVolunteerName = _asTrimmedString(volunteerMap['name']);
+      final remoteVolunteerAvatar = _normalizeLocalAvatar(
+        _asTrimmedString(volunteerMap['avatar_url']),
+      );
 
       await _supabase.from('favorite_volunteers').insert({
         'seeker_id': seekerId,
         'volunteer_id': volunteerId,
-        'volunteer_name': volunteerResponse['name'] ?? '志愿者',
-        'volunteer_avatar': volunteerResponse['avatar_url'],
+        'volunteer_name': remoteVolunteerName ?? '志愿者',
+        'volunteer_avatar': remoteVolunteerAvatar,
         'cooperation_count': 1,
         'created_at': DateTime.now().toIso8601String(),
         'last_cooperation_at': DateTime.now().toIso8601String(),
@@ -159,8 +179,8 @@ class FavoriteVolunteerService {
           if (countDiff != 0) return countDiff;
           return (b.lastCooperationAt ?? DateTime.fromMillisecondsSinceEpoch(0))
               .compareTo(
-            a.lastCooperationAt ?? DateTime.fromMillisecondsSinceEpoch(0),
-          );
+                a.lastCooperationAt ?? DateTime.fromMillisecondsSinceEpoch(0),
+              );
         });
 
         return items.length > limit ? items.sublist(0, limit) : items;
@@ -188,19 +208,29 @@ class FavoriteVolunteerService {
           .limit(limit);
 
       final favorites = (response as List).map((json) {
-        final volunteer = json['volunteer'];
+        final item = Map<String, dynamic>.from(json as Map);
+        final volunteer = item['volunteer'];
         if (volunteer != null) {
-          json['volunteer_name'] = volunteer['name'] ?? json['volunteer_name'];
-          json['volunteer_avatar'] =
-              volunteer['avatar_url'] ?? json['volunteer_avatar'];
+          final volunteerMap = Map<String, dynamic>.from(volunteer as Map);
+          final volunteerName = _asTrimmedString(volunteerMap['name']);
+          final volunteerAvatar = _normalizeLocalAvatar(
+            _asTrimmedString(volunteerMap['avatar_url']),
+          );
+          if (volunteerName != null) {
+            item['volunteer_name'] = volunteerName;
+          }
+          if (volunteerAvatar != null) {
+            item['volunteer_avatar'] = volunteerAvatar;
+          }
 
-          final profiles = volunteer['volunteer_profiles'];
+          final profiles = volunteerMap['volunteer_profiles'];
           if (profiles != null && profiles is List && profiles.isNotEmpty) {
-            json['volunteer_level'] = profiles[0]['level'];
-            json['is_online'] = profiles[0]['is_online'];
+            final profile = Map<String, dynamic>.from(profiles[0] as Map);
+            item['volunteer_level'] = profile['level'];
+            item['is_online'] = profile['is_online'];
           }
         }
-        return FavoriteVolunteerModel.fromJson(json);
+        return FavoriteVolunteerModel.fromJson(_normalizeFavoriteJson(item));
       }).toList();
 
       return favorites;
@@ -218,7 +248,8 @@ class FavoriteVolunteerService {
         final favorites = _storage.getFavoriteVolunteers();
         favorites.removeWhere(
           (item) =>
-              item['seekerId'] == seekerId && item['volunteerId'] == volunteerId,
+              item['seekerId'] == seekerId &&
+              item['volunteerId'] == volunteerId,
         );
         await _saveLocalFavorites(favorites);
         AppLogger.info('移除本地常用志愿者: $seekerId -> $volunteerId');
@@ -249,10 +280,9 @@ class FavoriteVolunteerService {
     if (!_hasSupabase) {
       await _ensureLocalStorage();
       return _storage.getFavoriteVolunteers().any(
-            (item) =>
-                item['seekerId'] == seekerId &&
-                item['volunteerId'] == volunteerId,
-          );
+        (item) =>
+            item['seekerId'] == seekerId && item['volunteerId'] == volunteerId,
+      );
     }
 
     try {
@@ -306,7 +336,9 @@ class FavoriteVolunteerService {
           .select()
           .eq('seeker_id', seekerId);
 
-      final favorites = response as List;
+      final favorites = (response as List)
+          .map((item) => Map<String, dynamic>.from(item as Map))
+          .toList();
 
       if (favorites.isEmpty) {
         return const FavoriteVolunteerStats();
@@ -317,16 +349,19 @@ class FavoriteVolunteerService {
         (sum, f) => sum + (((f['cooperation_count'] as num?) ?? 1).toInt()),
       );
 
-      final mostFrequent = favorites.reduce((curr, next) =>
-          (curr['cooperation_count'] ?? 1) > (next['cooperation_count'] ?? 1)
-              ? curr
-              : next);
+      final mostFrequent = favorites.reduce((curr, next) {
+        final currentCount = ((curr['cooperation_count'] as num?) ?? 1).toInt();
+        final nextCount = ((next['cooperation_count'] as num?) ?? 1).toInt();
+        return currentCount > nextCount ? curr : next;
+      });
 
       return FavoriteVolunteerStats(
         totalFavorites: favorites.length,
         totalCooperations: totalCooperations,
-        mostFrequentVolunteerId: mostFrequent['volunteer_id'],
-        mostFrequentVolunteerName: mostFrequent['volunteer_name'],
+        mostFrequentVolunteerId: _asTrimmedString(mostFrequent['volunteer_id']),
+        mostFrequentVolunteerName: _asTrimmedString(
+          mostFrequent['volunteer_name'],
+        ),
       );
     } catch (e) {
       AppLogger.error('获取常用志愿者统计失败', e);
@@ -348,18 +383,21 @@ class FavoriteVolunteerService {
         final favorites = _storage.getFavoriteVolunteers();
         final index = favorites.indexWhere(
           (item) =>
-              item['seekerId'] == seekerId && item['volunteerId'] == volunteerId,
+              item['seekerId'] == seekerId &&
+              item['volunteerId'] == volunteerId,
         );
 
         if (index >= 0) {
           final current = Map<String, dynamic>.from(favorites[index]);
-          final currentCount = (current['cooperationCount'] as num?)?.toInt() ?? 1;
+          final currentCount =
+              (current['cooperationCount'] as num?)?.toInt() ?? 1;
           if (volunteerName != null && volunteerName.trim().isNotEmpty) {
             current['name'] = volunteerName.trim();
           }
           if (rating != null) {
             current['averageRating'] = _calculateAverageRating(
-              currentAverage: (current['averageRating'] as num?)?.toDouble() ?? 0.0,
+              currentAverage:
+                  (current['averageRating'] as num?)?.toDouble() ?? 0.0,
               currentCount: currentCount,
               nextRating: rating.toDouble(),
             );
@@ -395,15 +433,22 @@ class FavoriteVolunteerService {
           .maybeSingle();
 
       if (existing != null) {
+        final existingMap = Map<String, dynamic>.from(existing as Map);
+        final favoriteId = existingMap['id'];
+        if (favoriteId is! Object) {
+          throw StateError('favorite_volunteers record missing id');
+        }
         final updates = <String, dynamic>{
-          'cooperation_count': (existing['cooperation_count'] ?? 1) + 1,
+          'cooperation_count':
+              ((existingMap['cooperation_count'] as num?) ?? 1).toInt() + 1,
           'last_cooperation_at': DateTime.now().toIso8601String(),
         };
 
         if (rating != null) {
-          final currentAvg = existing['average_rating']?.toDouble() ?? 0.0;
-          final currentCount =
-              ((existing['cooperation_count'] as num?) ?? 1).toInt();
+          final currentAvg =
+              (existingMap['average_rating'] as num?)?.toDouble() ?? 0.0;
+          final currentCount = ((existingMap['cooperation_count'] as num?) ?? 1)
+              .toInt();
           final newAvg =
               ((currentAvg * currentCount) + rating) / (currentCount + 1);
           updates['average_rating'] = newAvg;
@@ -412,7 +457,7 @@ class FavoriteVolunteerService {
         await _supabase
             .from('favorite_volunteers')
             .update(updates)
-            .eq('id', existing['id']);
+            .eq('id', favoriteId);
       } else if (rating != null && rating >= 4) {
         await addFavorite(seekerId, volunteerId);
       }
@@ -456,8 +501,9 @@ class FavoriteVolunteerService {
           .maybeSingle();
 
       if (response == null) return null;
+      final responseMap = Map<String, dynamic>.from(response as Map);
 
-      final count = response['cooperation_count'] ?? 1;
+      final count = ((responseMap['cooperation_count'] as num?) ?? 1).toInt();
 
       if (count == 1) {
         return '首次合作，感谢信任！';
@@ -475,7 +521,9 @@ class FavoriteVolunteerService {
   }
 
   /// 获取在线的常用志愿者
-  Future<List<FavoriteVolunteerModel>> getOnlineFavorites(String seekerId) async {
+  Future<List<FavoriteVolunteerModel>> getOnlineFavorites(
+    String seekerId,
+  ) async {
     if (!_hasSupabase) {
       return getFavorites(seekerId);
     }
@@ -491,7 +539,10 @@ class FavoriteVolunteerService {
             .eq('user_id', favorite.volunteerId)
             .maybeSingle();
 
-        if (volunteerResponse != null && volunteerResponse['is_online'] == true) {
+        final volunteerMap = volunteerResponse == null
+            ? null
+            : Map<String, dynamic>.from(volunteerResponse as Map);
+        if (volunteerMap != null && volunteerMap['is_online'] == true) {
           onlineFavorites.add(favorite);
         }
       }
@@ -508,9 +559,11 @@ class FavoriteVolunteerService {
       final countDiff = ((b['cooperationCount'] as num?)?.toInt() ?? 0)
           .compareTo((a['cooperationCount'] as num?)?.toInt() ?? 0);
       if (countDiff != 0) return countDiff;
-      final aTime = DateTime.tryParse('${a['lastCooperationAt'] ?? ''}') ??
+      final aTime =
+          DateTime.tryParse('${a['lastCooperationAt'] ?? ''}') ??
           DateTime.fromMillisecondsSinceEpoch(0);
-      final bTime = DateTime.tryParse('${b['lastCooperationAt'] ?? ''}') ??
+      final bTime =
+          DateTime.tryParse('${b['lastCooperationAt'] ?? ''}') ??
           DateTime.fromMillisecondsSinceEpoch(0);
       return bTime.compareTo(aTime);
     });
@@ -524,6 +577,46 @@ class FavoriteVolunteerService {
     required double nextRating,
   }) {
     return ((currentAverage * currentCount) + nextRating) / (currentCount + 1);
+  }
+
+  Map<String, dynamic> _normalizeFavoriteJson(Map<String, dynamic> source) {
+    return {
+      'id':
+          _asTrimmedString(source['id']) ??
+          'favorite_${DateTime.now().microsecondsSinceEpoch}',
+      'seekerId':
+          _asTrimmedString(source['seekerId'] ?? source['seeker_id']) ?? '',
+      'volunteerId':
+          _asTrimmedString(source['volunteerId'] ?? source['volunteer_id']) ??
+          '',
+      'name': _asTrimmedString(source['name'] ?? source['volunteer_name']),
+      'avatarUrl': _normalizeLocalAvatar(
+        _asTrimmedString(source['avatarUrl'] ?? source['volunteer_avatar']),
+      ),
+      'cooperationCount':
+          ((source['cooperationCount'] as num?) ??
+                  (source['cooperation_count'] as num?) ??
+                  1)
+              .toInt(),
+      'averageRating':
+          ((source['averageRating'] as num?) ??
+                  (source['average_rating'] as num?))
+              ?.toDouble(),
+      'lastCooperationAt': _asTrimmedString(
+        source['lastCooperationAt'] ?? source['last_cooperation_at'],
+      ),
+      'createdAt': _asTrimmedString(
+        source['createdAt'] ?? source['created_at'],
+      ),
+    };
+  }
+
+  String? _asTrimmedString(Object? value) {
+    final text = value?.toString().trim();
+    if (text == null || text.isEmpty) {
+      return null;
+    }
+    return text;
   }
 
   String? _normalizeLocalAvatar(String? avatar) {

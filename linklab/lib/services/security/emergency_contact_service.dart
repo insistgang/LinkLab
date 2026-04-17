@@ -11,14 +11,20 @@ class EmergencyContactService {
   EmergencyContactService({
     SupabaseClient? supabase,
     app_storage.LocalStorage? storage,
-  })  : _supabaseClient = supabase,
-        _storage = storage ?? app_storage.LocalStorage();
+  }) : _supabaseClient = supabase,
+       _storage = storage ?? app_storage.LocalStorage();
 
   SupabaseClient? _supabaseClient;
   final app_storage.LocalStorage _storage;
   bool _localInitialized = false;
 
-  bool get _hasSupabase => Supabase.instance.isInitialized;
+  bool get _hasSupabase {
+    try {
+      return Supabase.instance.isInitialized;
+    } catch (_) {
+      return false;
+    }
+  }
 
   SupabaseClient get _supabase {
     if (!_hasSupabase) {
@@ -152,7 +158,10 @@ class EmergencyContactService {
       if (relationship != null) updates['relationship'] = relationship;
       if (priority != null) updates['priority'] = priority;
 
-      await _supabase.from('emergency_contacts').update(updates).eq('id', contactId);
+      await _supabase
+          .from('emergency_contacts')
+          .update(updates)
+          .eq('id', contactId);
       AppLogger.info('紧急联系人更新成功: $contactId');
     } catch (e) {
       AppLogger.error('更新紧急联系人失败', e);
@@ -193,14 +202,13 @@ class EmergencyContactService {
         return;
       }
 
-      final content = message ??
+      final content =
+          message ??
           '【共感LinkAble紧急求助】位置：${address ?? '未知地址'} '
               '($latitude,$longitude)';
 
       if (!_hasSupabase) {
-        AppLogger.info(
-          '演示模式通知紧急联系人: ${contacts.map((c) => c.name).join('、')}',
-        );
+        AppLogger.info('演示模式通知紧急联系人: ${contacts.map((c) => c.name).join('、')}');
         return;
       }
 
@@ -254,10 +262,11 @@ class EmergencyContactService {
 
   Future<List<EmergencyContactModel>> _getLocalContacts(String userId) async {
     final contacts = await _getAllLocalContacts();
-    final filtered = contacts
-        .where((contact) => contact.userId == userId && contact.isActive)
-        .toList()
-      ..sort((a, b) => a.priority.compareTo(b.priority));
+    final filtered =
+        contacts
+            .where((contact) => contact.userId == userId && contact.isActive)
+            .toList()
+          ..sort((a, b) => a.priority.compareTo(b.priority));
     return filtered;
   }
 
@@ -266,9 +275,8 @@ class EmergencyContactService {
     final rawContacts = _storage.getEmergencyContacts();
     final contacts = rawContacts
         .map(
-          (json) => EmergencyContactModel.fromJson(
-            Map<String, dynamic>.from(json),
-          ),
+          (json) =>
+              EmergencyContactModel.fromJson(Map<String, dynamic>.from(json)),
         )
         .toList();
     return contacts;

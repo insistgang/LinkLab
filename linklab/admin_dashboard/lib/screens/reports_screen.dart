@@ -37,17 +37,18 @@ class _ReportsContent extends StatelessWidget {
             icon: const Icon(Icons.filter_list),
             tooltip: '筛选状态',
             itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: null,
-                child: Text('全部'),
+              const PopupMenuItem(value: null, child: Text('全部')),
+              ...ReportStatus.values.map(
+                (status) => PopupMenuItem(
+                  value: status,
+                  child: Text(_getStatusText(status)),
+                ),
               ),
-              ...ReportStatus.values.map((status) => PopupMenuItem(
-                    value: status,
-                    child: Text(_getStatusText(status)),
-                  )),
             ],
             onSelected: (value) {
-              context.read<ReportBloc>().add(ReportFilterChanged(status: value));
+              context.read<ReportBloc>().add(
+                ReportFilterChanged(status: value),
+              );
             },
           ),
           const SizedBox(width: 16),
@@ -56,9 +57,9 @@ class _ReportsContent extends StatelessWidget {
       body: BlocConsumer<ReportBloc, ReportState>(
         listener: (context, state) {
           if (state is ReportActionSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           } else if (state is ReportError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -76,9 +77,7 @@ class _ReportsContent extends StatelessWidget {
                 _buildStatisticsCards(state.statistics!, isMobile),
 
               // Reports List
-              Expanded(
-                child: _buildReportsList(context, state, isMobile),
-              ),
+              Expanded(child: _buildReportsList(context, state, isMobile)),
             ],
           );
         },
@@ -118,10 +117,14 @@ class _ReportsContent extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.all(16),
         child: Column(
-          children: cards.map((card) => Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: card,
-          )).toList(),
+          children: cards
+              .map(
+                (card) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: card,
+                ),
+              )
+              .toList(),
         ),
       );
     }
@@ -129,17 +132,25 @@ class _ReportsContent extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       child: Row(
-        children: cards.map((card) => Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: card,
-          ),
-        )).toList(),
+        children: cards
+            .map(
+              (card) => Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: card,
+                ),
+              ),
+            )
+            .toList(),
       ),
     );
   }
 
-  Widget _buildReportsList(BuildContext context, ReportState state, bool isMobile) {
+  Widget _buildReportsList(
+    BuildContext context,
+    ReportState state,
+    bool isMobile,
+  ) {
     if (state is ReportLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -156,7 +167,8 @@ class _ReportsContent extends StatelessWidget {
           itemBuilder: (context, index) {
             return _ReportCard(
               report: state.reports[index],
-              onProcess: () => _showProcessDialog(context, state.reports[index]),
+              onProcess: () =>
+                  _showProcessDialog(context, state.reports[index]),
             );
           },
         );
@@ -230,7 +242,10 @@ class _ReportsContent extends StatelessWidget {
                 _buildInfoRow('举报原因', report.reason),
                 if (report.description != null)
                   _buildInfoRow('详细描述', report.description!),
-                _buildInfoRow('被举报对象', '${report.targetTypeText}: ${report.targetUserName ?? '未知'}'),
+                _buildInfoRow(
+                  '被举报对象',
+                  '${report.targetTypeText}: ${report.targetUserName ?? '未知'}',
+                ),
                 if (report.targetContent != null)
                   _buildInfoRow('举报内容', report.targetContent!),
                 const Divider(height: 32),
@@ -247,25 +262,29 @@ class _ReportsContent extends StatelessWidget {
                         title: const Text('警告用户'),
                         value: 'warn',
                         groupValue: selectedAction,
-                        onChanged: (value) => setState(() => selectedAction = value),
+                        onChanged: (value) =>
+                            setState(() => selectedAction = value),
                       ),
                       RadioListTile<String>(
                         title: const Text('封禁用户'),
                         value: 'ban',
                         groupValue: selectedAction,
-                        onChanged: (value) => setState(() => selectedAction = value),
+                        onChanged: (value) =>
+                            setState(() => selectedAction = value),
                       ),
                       RadioListTile<String>(
                         title: const Text('删除内容'),
                         value: 'delete',
                         groupValue: selectedAction,
-                        onChanged: (value) => setState(() => selectedAction = value),
+                        onChanged: (value) =>
+                            setState(() => selectedAction = value),
                       ),
                       RadioListTile<String>(
                         title: const Text('驳回举报'),
                         value: 'dismiss',
                         groupValue: selectedAction,
-                        onChanged: (value) => setState(() => selectedAction = value),
+                        onChanged: (value) =>
+                            setState(() => selectedAction = value),
                       ),
                     ],
                   ),
@@ -377,7 +396,7 @@ class _StatCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(icon, color: color),
@@ -417,10 +436,7 @@ class _ReportCard extends StatelessWidget {
   final ReportModel report;
   final VoidCallback onProcess;
 
-  const _ReportCard({
-    required this.report,
-    required this.onProcess,
-  });
+  const _ReportCard({required this.report, required this.onProcess});
 
   @override
   Widget build(BuildContext context) {
@@ -439,10 +455,7 @@ class _ReportCard extends StatelessWidget {
                 const Spacer(),
                 Text(
                   report.createdAt.toString().substring(0, 16),
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -455,19 +468,13 @@ class _ReportCard extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 report.description!,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
             ],
             const SizedBox(height: 8),
             Text(
               '被举报对象: ${report.targetTypeText} - ${report.targetUserName ?? '未知'}',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
             ),
             if (report.targetContent != null) ...[
               const SizedBox(height: 8),
@@ -479,10 +486,7 @@ class _ReportCard extends StatelessWidget {
                 ),
                 child: Text(
                   report.targetContent!,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey[700],
-                  ),
+                  style: TextStyle(fontSize: 13, color: Colors.grey[700]),
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -526,7 +530,7 @@ class _ReportCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
@@ -560,7 +564,7 @@ class _ReportCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
@@ -579,10 +583,7 @@ class _ReportDataSource extends DataTableSource {
   final List<ReportModel> reports;
   final Function(ReportModel) onProcess;
 
-  _ReportDataSource({
-    required this.reports,
-    required this.onProcess,
-  });
+  _ReportDataSource({required this.reports, required this.onProcess});
 
   @override
   DataRow getRow(int index) {
@@ -603,10 +604,7 @@ class _ReportDataSource extends DataTableSource {
               if (report.targetContent != null)
                 Text(
                   report.targetContent!,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -648,7 +646,7 @@ class _ReportDataSource extends DataTableSource {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(

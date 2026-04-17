@@ -1,43 +1,27 @@
-// 统一通话服务
-// 支持演示模式和真实模式自动切换
+// AGENTS.md §4.2：竞赛版已冻结 Demo 主线，真实路径仅供实验，已隔离到 services/experimental/real/。
 
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 
-import '../config/app_config.dart';
+import '../config/app_config.dart' show DemoConfig;
 import '../models/call_models.dart';
 import 'demo_call_service.dart';
-import 'real_call_service.dart';
-import 'webrtc/webrtc_exports.dart';
+import 'experimental/real/real_call_service.dart';
+import 'webrtc/webrtc_config.dart';
 
 /// 通话状态
-enum CallStatus {
-  idle,
-  connecting,
-  ringing,
-  connected,
-  ended,
-  failed,
-}
+enum CallStatus { idle, connecting, ringing, connected, ended, failed }
 
 /// 统一通话服务
-/// 根据 AppConfig.mode 自动切换演示/真实模式
+/// 默认只驱动 Demo 通话；历史实验页若显式调用 real API，则只走隔离后的 experimental 实现。
 class UnifiedCallService extends ChangeNotifier {
   static final UnifiedCallService _instance = UnifiedCallService._internal();
   factory UnifiedCallService() => _instance;
-  UnifiedCallService._internal() {
-    _setupRealServiceListeners();
-  }
+  UnifiedCallService._internal();
 
-  // ==================== 服务实例 ====================
-
-  /// 演示模式服务
   final DemoCallService _demoService = DemoCallService();
-
-  /// 真实模式服务
-  final RealCallService _realService = RealCallService();
-
-  // ==================== 状态 ====================
+  RealCallService? _experimentalRealService;
 
   CallStatus _status = CallStatus.idle;
   DemoVolunteer? _currentVolunteer;
@@ -48,13 +32,11 @@ class UnifiedCallService extends ChangeNotifier {
   bool _isMuted = false;
   bool _isSpeakerOn = true;
   bool _isRecording = false;
-
-  // ==================== 计时器 ====================
+  bool _experimentalRealSessionActive = false;
+  bool _experimentalListenersBound = false;
 
   Timer? _durationTimer;
   Timer? _autoEndTimer;
-
-  // ==================== Getters ====================
 
   CallStatus get status => _status;
   DemoVolunteer? get currentVolunteer => _currentVolunteer;
@@ -66,7 +48,8 @@ class UnifiedCallService extends ChangeNotifier {
   bool get isSpeakerOn => _isSpeakerOn;
   bool get isRecording => _isRecording;
   bool get isInCall => _status == CallStatus.connected;
-  bool get isConnecting => _status == CallStatus.connecting || _status == CallStatus.ringing;
+  bool get isConnecting =>
+      _status == CallStatus.connecting || _status == CallStatus.ringing;
 
   String get statusText {
     switch (_status) {
@@ -85,22 +68,21 @@ class UnifiedCallService extends ChangeNotifier {
     }
   }
 
-  String get networkQualityText => NetworkQualityEvaluator.getQualityDescription(_networkQuality);
+  String get networkQualityText =>
+      NetworkQualityEvaluator.getQualityDescription(_networkQuality);
 
-  // ==================== 服务引用 ====================
+  RealCallService get realCallService {
+    _experimentalRealService ??= RealCallService();
+    _bindExperimentalRealService();
+    return _experimentalRealService!;
+  }
 
-  /// 获取当前使用的服务
-  dynamic get _currentService => AppConfig.isDemoMode ? _demoService : _realService;
+  void _bindExperimentalRealService() {
+    if (_experimentalListenersBound) return;
+    _experimentalListenersBound = true;
 
-  /// 获取真实通话服务（用于高级功能）
-  RealCallService get realCallService => _realService;
-
-  // ==================== 监听器设置 ====================
-
-  void _setupRealServiceListeners() {
-    // 监听真实服务的通话状态
-    _realService.callStateStream.listen((state) {
-      if (!AppConfig.isRealMode) return;
+    realCallService.callStateStream.listen((state) {
+      if (!_experimentalRealSessionActive) return;
 
       switch (state) {
         case CallState.connecting:
@@ -115,10 +97,12 @@ class UnifiedCallService extends ChangeNotifier {
           break;
         case CallState.ended:
           _status = CallStatus.ended;
+          _experimentalRealSessionActive = false;
           _stopDurationTimer();
           break;
         case CallState.failed:
           _status = CallStatus.failed;
+          _experimentalRealSessionActive = false;
           _stopDurationTimer();
           break;
         default:
@@ -127,74 +111,63 @@ class UnifiedCallService extends ChangeNotifier {
       notifyListeners();
     });
 
-    // 监听网络质量
-    _realService.networkQualityStream.listen((quality) {
+    realCallService.networkQualityStream.listen((quality) {
+      if (!_experimentalRealSessionActive) return;
       _networkQuality = quality;
       notifyListeners();
     });
 
-    // 监听通话时长
-    _realService.addListener(() {
-      if (AppConfig.isRealMode) {
-        _callDuration = _realService.callDuration;
-        _isMuted = _realService.isMuted;
-        _isSpeakerOn = _realService.isSpeakerOn;
-        _isRecording = _realService.isRecording;
-        notifyListeners();
-      }
+    realCallService.addListener(() {
+      if (!_experimentalRealSessionActive) return;
+      _callDuration = realCallService.callDuration;
+      _isMuted = realCallService.isMuted;
+      _isSpeakerOn = realCallService.isSpeakerOn;
+      _isRecording = realCallService.isRecording;
+      _errorMessage = realCallService.errorMessage;
+      notifyListeners();
     });
   }
 
-  // ==================== 初始化 ====================
-
-  /// 初始化服务
   Future<void> initialize() async {
-    if (AppConfig.isRealMode) {
-      await _realService.initialize();
-    }
+    // AGENTS.md §4.2：竞赛版默认链路不初始化真实通话依赖。
   }
 
-  // ==================== 通话控制 ====================
-
-  /// 开始通话（演示模式）
   Future<void> startCall(DemoVolunteer volunteer) async {
     _resetState();
+    _experimentalRealSessionActive = false;
     _currentVolunteer = volunteer;
     _status = CallStatus.connecting;
     notifyListeners();
 
-    if (AppConfig.isDemoMode) {
-      await _startDemoCall();
-    } else {
-      await _startRealCall(volunteer);
-    }
+    await _startDemoCall();
   }
 
-  /// 开始真实通话（真实模式）
   Future<void> startRealCall({
     required String seekerId,
     required String helpRequestId,
     required VolunteerInfo volunteer,
   }) async {
+    // AGENTS.md §4.2：该入口只供历史实验页使用，不进入默认导航和演示脚本。
     _resetState();
+    _experimentalRealSessionActive = true;
     _realVolunteer = volunteer;
     _status = CallStatus.connecting;
     notifyListeners();
 
     try {
-      await _realService.startCallAsSeeker(
+      await realCallService.startCallAsSeeker(
         seekerId: seekerId,
         helpRequestId: helpRequestId,
         volunteer: volunteer,
       );
     } catch (e) {
       _status = CallStatus.failed;
+      _experimentalRealSessionActive = false;
       _errorMessage = e.toString();
       notifyListeners();
     }
   }
 
-  /// 接听通话（志愿者）
   Future<void> answerCallAsVolunteer({
     required String volunteerId,
     required String seekerId,
@@ -202,13 +175,15 @@ class UnifiedCallService extends ChangeNotifier {
     required String roomId,
     required VolunteerInfo volunteer,
   }) async {
+    // AGENTS.md §4.2：该入口只供历史实验页使用，不进入默认导航和演示脚本。
     _resetState();
+    _experimentalRealSessionActive = true;
     _realVolunteer = volunteer;
     _status = CallStatus.connecting;
     notifyListeners();
 
     try {
-      await _realService.answerCallAsVolunteer(
+      await realCallService.answerCallAsVolunteer(
         volunteerId: volunteerId,
         seekerId: seekerId,
         helpRequestId: helpRequestId,
@@ -217,132 +192,94 @@ class UnifiedCallService extends ChangeNotifier {
       );
     } catch (e) {
       _status = CallStatus.failed;
+      _experimentalRealSessionActive = false;
       _errorMessage = e.toString();
       notifyListeners();
     }
   }
 
-  /// 演示模式通话
   Future<void> _startDemoCall() async {
     _demoService.addListener(_onDemoServiceUpdate);
     await _demoService.startCall();
     _demoService.removeListener(_onDemoServiceUpdate);
 
-    // 演示模式：30秒后自动结束
-    if (AppConfig.isDemoMode) {
-      _autoEndTimer?.cancel();
-      _autoEndTimer = Timer(
-        Duration(seconds: DemoConfig.callAutoEndDuration),
-        () => endCall(),
-      );
-    }
+    _autoEndTimer?.cancel();
+    _autoEndTimer = Timer(
+      Duration(seconds: DemoConfig.callAutoEndDuration),
+      () => endCall(),
+    );
   }
 
-  /// 真实模式通话
-  Future<void> _startRealCall(DemoVolunteer volunteer) async {
-    try {
-      // 将DemoVolunteer转换为VolunteerInfo
-      final volunteerInfo = VolunteerInfo(
-        id: volunteer.id,
-        name: volunteer.name,
-        avatar: volunteer.avatar,
-        rating: volunteer.rating,
-        helpCount: volunteer.helpCount,
-        skills: volunteer.skills,
-      );
-
-      await _realService.startCallAsSeeker(
-        seekerId: 'current_user_id', // 应该从认证服务获取
-        helpRequestId: 'help_request_${DateTime.now().millisecondsSinceEpoch}',
-        volunteer: volunteerInfo,
-      );
-    } catch (e) {
-      _status = CallStatus.failed;
-      _errorMessage = e.toString();
-      notifyListeners();
-    }
-  }
-
-  /// 静音/取消静音
   Future<void> toggleMute() async {
-    if (AppConfig.isDemoMode) {
-      // 演示模式：仅切换状态
-      _isMuted = !_isMuted;
-      notifyListeners();
-    } else {
-      await _realService.toggleMute();
+    if (_experimentalRealSessionActive) {
+      await realCallService.toggleMute();
+      return;
     }
+
+    _isMuted = !_isMuted;
+    notifyListeners();
   }
 
-  /// 切换扬声器
   Future<void> toggleSpeaker() async {
-    if (AppConfig.isDemoMode) {
-      // 演示模式：仅切换状态
-      _isSpeakerOn = !_isSpeakerOn;
-      notifyListeners();
-    } else {
-      await _realService.toggleSpeaker();
+    if (_experimentalRealSessionActive) {
+      await realCallService.toggleSpeaker();
+      return;
     }
+
+    _isSpeakerOn = !_isSpeakerOn;
+    notifyListeners();
   }
 
-  /// 开始录音
   Future<void> startRecording() async {
-    if (AppConfig.isDemoMode) {
-      // 演示模式：模拟录音
-      _isRecording = true;
-      notifyListeners();
-    } else {
-      await _realService.startRecording();
+    if (_experimentalRealSessionActive) {
+      await realCallService.startRecording();
+      return;
     }
+
+    _isRecording = true;
+    notifyListeners();
   }
 
-  /// 停止录音
   Future<void> stopRecording() async {
-    if (AppConfig.isDemoMode) {
-      // 演示模式：模拟停止录音
-      _isRecording = false;
-      notifyListeners();
-    } else {
-      await _realService.stopRecording();
+    if (_experimentalRealSessionActive) {
+      await realCallService.stopRecording();
+      return;
     }
+
+    _isRecording = false;
+    notifyListeners();
   }
 
-  /// 结束通话
   Future<void> endCall() async {
     _autoEndTimer?.cancel();
     _stopDurationTimer();
 
-    if (AppConfig.isDemoMode) {
-      await _demoService.hangUp();
+    if (_experimentalRealSessionActive) {
+      await realCallService.endCall();
+      _experimentalRealSessionActive = false;
     } else {
-      await _realService.endCall();
+      await _demoService.hangUp();
     }
 
     _status = CallStatus.ended;
     notifyListeners();
   }
 
-  // ==================== 计时器 ====================
-
-  /// 开始计时
   void _startDurationTimer() {
     _autoEndTimer?.cancel();
     _callDuration = Duration.zero;
+    _durationTimer?.cancel();
     _durationTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       _callDuration += const Duration(seconds: 1);
       notifyListeners();
     });
   }
 
-  /// 停止计时
   void _stopDurationTimer() {
     _durationTimer?.cancel();
     _durationTimer = null;
   }
 
-  // ==================== 状态管理 ====================
-
-  /// 重置状态
   void _resetState() {
     _status = CallStatus.idle;
     _callDuration = Duration.zero;
@@ -351,18 +288,18 @@ class UnifiedCallService extends ChangeNotifier {
     _isMuted = false;
     _isSpeakerOn = true;
     _isRecording = false;
+    _currentVolunteer = null;
+    _realVolunteer = null;
     _autoEndTimer?.cancel();
     _durationTimer?.cancel();
   }
 
-  /// 演示服务状态更新回调
   void _onDemoServiceUpdate() {
     _status = _convertDemoState(_demoService.state);
     _callDuration = _demoService.callDuration;
     notifyListeners();
   }
 
-  /// 转换演示状态为统一状态
   CallStatus _convertDemoState(DemoCallState state) {
     switch (state) {
       case DemoCallState.connecting:
@@ -378,21 +315,17 @@ class UnifiedCallService extends ChangeNotifier {
     }
   }
 
-  /// 格式化时长
   String _formatDuration(Duration duration) {
     final minutes = duration.inMinutes.toString().padLeft(2, '0');
     final seconds = (duration.inSeconds % 60).toString().padLeft(2, '0');
     return '$minutes:$seconds';
   }
 
-  // ==================== 资源释放 ====================
-
   @override
   void dispose() {
     _autoEndTimer?.cancel();
     _durationTimer?.cancel();
     _demoService.removeListener(_onDemoServiceUpdate);
-    _realService.dispose();
     super.dispose();
   }
 }

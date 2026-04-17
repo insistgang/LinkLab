@@ -32,7 +32,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
   }
 
   String get _currentUserId =>
-      AppSessionService.instance.userProfile?.id ?? 'demo-story-user';
+      AppSessionService.instance.currentUser?.id ?? 'demo-user-id';
 
   Future<void> _loadStory() async {
     final detail = await _storyService.getStoryDetail(_story.id);

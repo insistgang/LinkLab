@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../../models/community_models.dart';
+import '../../services/app_session_service.dart';
 import '../../services/community/interest_group_service.dart';
 import '../../widgets/accessible/index.dart';
 
@@ -72,8 +73,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     final content = _messageController.text.trim();
     if (content.isEmpty) return;
 
-    // TODO: 获取当前用户ID
-    const userId = 'current_user_id';
+    final userId = AppSessionService.instance.currentUser?.id ?? 'demo-user-id';
 
     try {
       await _groupService.postMessage(widget.group.id, userId, content);
@@ -112,7 +112,12 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                         itemCount: _messages.length,
                         itemBuilder: (context, index) {
                           final message = _messages[index];
-                          return _MessageBubble(message: message);
+                          return _MessageBubble(
+                            message: message,
+                            currentUserId:
+                                AppSessionService.instance.currentUser?.id ??
+                                'demo-user-id',
+                          );
                         },
                       ),
           ),
@@ -157,14 +162,17 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
 
 /// 消息气泡
 class _MessageBubble extends StatelessWidget {
-  const _MessageBubble({required this.message});
+  const _MessageBubble({
+    required this.message,
+    required this.currentUserId,
+  });
 
   final GroupMessage message;
+  final String currentUserId;
 
   @override
   Widget build(BuildContext context) {
-    // TODO: 判断是否是当前用户
-    const isMe = false;
+    final isMe = message.userId == currentUserId;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppTheme.spacingM),

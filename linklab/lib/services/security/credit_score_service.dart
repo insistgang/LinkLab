@@ -22,7 +22,7 @@ class CreditScoreService {
           .eq('user_id', userId)
           .single();
 
-      return CreditScore.fromJson(response);
+      return CreditScore.fromJson(Map<String, dynamic>.from(response as Map));
     } catch (e) {
       AppLogger.error('获取信用分失败', e);
       return null;
@@ -294,7 +294,11 @@ class CreditScoreService {
           .limit(limit);
 
       return (response as List)
-          .map((json) => CreditScoreChange.fromJson(json))
+          .map(
+            (json) => CreditScoreChange.fromJson(
+              Map<String, dynamic>.from(json as Map),
+            ),
+          )
           .toList();
     } catch (e) {
       AppLogger.error('获取信用分历史失败', e);
@@ -313,7 +317,10 @@ class CreditScoreService {
           .order('created_at', ascending: false);
 
       return (response as List)
-          .map((json) => RatingRecord.fromJson(json))
+          .map(
+            (json) =>
+                RatingRecord.fromJson(Map<String, dynamic>.from(json as Map)),
+          )
           .toList();
     } catch (e) {
       AppLogger.error('获取最近评价失败', e);
@@ -399,7 +406,7 @@ class CreditScoreService {
         .eq('user_id', userId)
         .map((rows) {
           if (rows.isEmpty) return null;
-          return CreditScore.fromJson(rows.first);
+          return CreditScore.fromJson(Map<String, dynamic>.from(rows.first));
         });
   }
 }

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../demo_flow/demo_help_request_tracker.dart';
 import '../../services/demo_call_service.dart';
 import 'demo_call_screen.dart';
 
@@ -40,15 +41,14 @@ class _DemoMatchingScreenState extends State<DemoMatchingScreen>
   }
 
   Future<void> _startMatching() async {
+    await DemoHelpRequestTracker.ensureMatchingRequest(intent: '连接真人志愿者获取帮助');
     await _matchingService.startMatching();
 
     if (mounted) {
       // 匹配成功，进入通话页面
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (_) => const DemoCallScreen(),
-        ),
+        MaterialPageRoute(builder: (_) => const DemoCallScreen()),
       );
     }
   }
@@ -74,7 +74,7 @@ class _DemoMatchingScreenState extends State<DemoMatchingScreen>
                       height: 120 * _pulseAnimation.value,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                       ),
                       child: Center(
                         child: Container(
@@ -109,7 +109,7 @@ class _DemoMatchingScreenState extends State<DemoMatchingScreen>
                 Text(
                   '已等待: ${_matchingService.elapsedSeconds}秒',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.6),
+                    color: Colors.white.withValues(alpha: 0.6),
                     fontSize: 14,
                   ),
                 ),
@@ -120,7 +120,7 @@ class _DemoMatchingScreenState extends State<DemoMatchingScreen>
                     margin: const EdgeInsets.symmetric(horizontal: 40),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
+                      color: Colors.white.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
@@ -128,7 +128,7 @@ class _DemoMatchingScreenState extends State<DemoMatchingScreen>
                         Text(
                           '找到以下志愿者',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withValues(alpha: 0.8),
                             fontSize: 14,
                           ),
                         ),
@@ -143,7 +143,7 @@ class _DemoMatchingScreenState extends State<DemoMatchingScreen>
                               height: 40,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: Colors.white.withOpacity(0.3),
+                                color: Colors.white.withValues(alpha: 0.3),
                                 border: Border.all(
                                   color: Colors.white,
                                   width: 2,
@@ -151,7 +151,7 @@ class _DemoMatchingScreenState extends State<DemoMatchingScreen>
                               ),
                               child: Icon(
                                 Icons.person,
-                                color: Colors.white.withOpacity(0.8),
+                                color: Colors.white.withValues(alpha: 0.8),
                                 size: 24,
                               ),
                             ),
@@ -166,8 +166,12 @@ class _DemoMatchingScreenState extends State<DemoMatchingScreen>
                 Padding(
                   padding: const EdgeInsets.all(24),
                   child: ElevatedButton.icon(
-                    onPressed: () {
+                    onPressed: () async {
                       _matchingService.cancelMatching();
+                      await DemoHelpRequestTracker.markCancelled(
+                        reason: '用户取消匹配',
+                      );
+                      if (!context.mounted) return;
                       Navigator.pop(context);
                     },
                     icon: const Icon(Icons.cancel),
@@ -192,6 +196,7 @@ class _DemoMatchingScreenState extends State<DemoMatchingScreen>
 
   @override
   void dispose() {
+    _matchingService.cancelMatching();
     _pulseController.dispose();
     super.dispose();
   }

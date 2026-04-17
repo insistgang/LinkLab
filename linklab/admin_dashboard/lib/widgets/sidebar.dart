@@ -8,10 +8,7 @@ import '../constants/theme.dart';
 class Sidebar extends StatelessWidget {
   final String currentRoute;
 
-  const Sidebar({
-    super.key,
-    required this.currentRoute,
-  });
+  const Sidebar({super.key, required this.currentRoute});
 
   @override
   Widget build(BuildContext context) {
@@ -94,8 +91,7 @@ class Sidebar extends StatelessWidget {
   Widget _buildUserInfo(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
-        final session =
-            state is AuthAuthenticated ? state.session : null;
+        final session = state is AuthAuthenticated ? state.session : null;
 
         return Container(
           padding: const EdgeInsets.all(16),
@@ -157,9 +153,7 @@ class Sidebar extends StatelessWidget {
                         ElevatedButton(
                           onPressed: () {
                             Navigator.pop(dialogContext);
-                            context
-                                .read<AuthBloc>()
-                                .add(AuthLogoutRequested());
+                            context.read<AuthBloc>().add(AuthLogoutRequested());
                           },
                           child: const Text('退出'),
                         ),
@@ -213,7 +207,9 @@ class _MenuItem extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       child: Material(
-        color: isSelected ? AppTheme.primaryColor.withOpacity(0.1) : Colors.transparent,
+        color: isSelected
+            ? AppTheme.primaryColor.withValues(alpha: 0.1)
+            : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
         child: InkWell(
           onTap: onTap,
@@ -225,15 +221,21 @@ class _MenuItem extends StatelessWidget {
                 Icon(
                   icon,
                   size: 20,
-                  color: isSelected ? AppTheme.primaryColor : AppTheme.textSecondary,
+                  color: isSelected
+                      ? AppTheme.primaryColor
+                      : AppTheme.textSecondary,
                 ),
                 const SizedBox(width: 12),
                 Text(
                   title,
                   style: TextStyle(
                     fontSize: 14,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                    color: isSelected ? AppTheme.primaryColor : AppTheme.textPrimary,
+                    fontWeight: isSelected
+                        ? FontWeight.w600
+                        : FontWeight.normal,
+                    color: isSelected
+                        ? AppTheme.primaryColor
+                        : AppTheme.textPrimary,
                   ),
                 ),
               ],
@@ -249,15 +251,10 @@ class _MenuItem extends StatelessWidget {
 class MobileDrawer extends StatelessWidget {
   final String currentRoute;
 
-  const MobileDrawer({
-    super.key,
-    required this.currentRoute,
-  });
+  const MobileDrawer({super.key, required this.currentRoute});
 
   @override
   Widget build(BuildContext context) {
-    return Drawer(
-      child: Sidebar(currentRoute: currentRoute),
-    );
+    return Drawer(child: Sidebar(currentRoute: currentRoute));
   }
 }

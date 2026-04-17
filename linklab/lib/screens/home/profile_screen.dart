@@ -62,8 +62,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
-                        borderRadius:
-                            BorderRadius.circular(AppTheme.borderRadiusLarge),
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.borderRadiusLarge,
+                        ),
                       ),
                       child: Row(
                         children: [
@@ -145,11 +146,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       _ProfileTag(
                         icon: Icons.text_fields,
-                        label: '字体 ${preferences.fontScale.toStringAsFixed(1)}x',
+                        label:
+                            '字体 ${preferences.fontScale.toStringAsFixed(1)}x',
                       ),
                       _ProfileTag(
                         icon: Icons.volume_up,
-                        label: '语速 ${preferences.voiceSpeed.toStringAsFixed(1)}x',
+                        label:
+                            '语速 ${preferences.voiceSpeed.toStringAsFixed(1)}x',
                       ),
                     ],
                   ),
@@ -177,9 +180,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _MenuItem(
                     icon: Icons.auto_awesome,
                     title: '自动朗读与触觉反馈',
-                    subtitle: preferences.autoReadResults
-                        ? '自动朗读开启'
-                        : '自动朗读关闭',
+                    subtitle: preferences.autoReadResults ? '自动朗读开启' : '自动朗读关闭',
                     onTap: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
@@ -251,9 +252,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         onTap: () async {
                           await Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (_) => EmergencyContactsScreen(
-                                userId: userId,
-                              ),
+                              builder: (_) =>
+                                  EmergencyContactsScreen(userId: userId),
                             ),
                           );
                           _refreshSafetyState();
@@ -273,9 +273,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         onTap: () async {
                           await Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (_) => LocationSharingScreen(
-                                userId: userId,
-                              ),
+                              builder: (_) =>
+                                  LocationSharingScreen(userId: userId),
                             ),
                           );
                           _refreshSafetyState();
@@ -356,9 +355,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       'temporary': '临时需要帮助',
     };
 
-    return user.disabilityType
-        .map((type) => labels[type] ?? type)
-        .join(' / ');
+    return user.disabilityType.map((type) => labels[type] ?? type).join(' / ');
   }
 
   String _buildPreferenceSummary(AccessibilityPreferences preferences) {
@@ -370,17 +367,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<_SafetySnapshot> _loadSafetySnapshot(String userId) async {
     final count = await EmergencyContactService().getContactCount(userId);
     final settings = await SafetySettingsService().getSettings(userId);
-    return _SafetySnapshot(
-      contactCount: count,
-      settings: settings,
-    );
+    return _SafetySnapshot(contactCount: count, settings: settings);
   }
 
   String _buildSafetyTitle(_SafetySnapshot safety) {
     if (!safety.settings.autoShareLocation) {
       return 'SOS 位置共享未开启';
     }
-    if (safety.contactCount == 0 && safety.settings.shareWithEmergencyContacts) {
+    if (safety.contactCount == 0 &&
+        safety.settings.shareWithEmergencyContacts) {
       return 'SOS 基础流程已就绪';
     }
     return 'SOS 演示链路已就绪';
@@ -390,7 +385,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (!safety.settings.autoShareLocation) {
       return '当前触发 SOS 时不会自动附带位置，建议开启后再演示。';
     }
-    if (safety.contactCount == 0 && safety.settings.shareWithEmergencyContacts) {
+    if (safety.contactCount == 0 &&
+        safety.settings.shareWithEmergencyContacts) {
       return '位置共享已开启，但联系人通知还没有实际接收对象。';
     }
     return '当前位置、联系人通知和志愿者广播的前端状态都可以完整展示。';
@@ -481,9 +477,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               await AppSessionService.instance.logout();
               if (!context.mounted) return;
               Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(
-                  builder: (_) => const LoginScreen(),
-                ),
+                MaterialPageRoute(builder: (_) => const LoginScreen()),
                 (route) => false,
               );
             },
@@ -496,20 +490,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
 }
 
 class _SafetySnapshot {
-  const _SafetySnapshot({
-    required this.contactCount,
-    required this.settings,
-  });
+  const _SafetySnapshot({required this.contactCount, required this.settings});
 
   final int contactCount;
   final SafetySettings settings;
 }
 
 class _ProfileTag extends StatelessWidget {
-  const _ProfileTag({
-    required this.icon,
-    required this.label,
-  });
+  const _ProfileTag({required this.icon, required this.label});
 
   final IconData icon;
   final String label;
@@ -522,9 +510,11 @@ class _ProfileTag extends StatelessWidget {
         vertical: AppTheme.spacingS,
       ),
       decoration: BoxDecoration(
-        color: AppTheme.primaryColor.withOpacity(0.08),
+        color: AppTheme.primaryColor.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: AppTheme.primaryColor.withOpacity(0.16)),
+        border: Border.all(
+          color: AppTheme.primaryColor.withValues(alpha: 0.16),
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -562,9 +552,11 @@ class _SafetyReadinessCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(AppTheme.spacingL),
       decoration: BoxDecoration(
-        color: AppTheme.primaryColor.withOpacity(0.06),
+        color: AppTheme.primaryColor.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
-        border: Border.all(color: AppTheme.primaryColor.withOpacity(0.14)),
+        border: Border.all(
+          color: AppTheme.primaryColor.withValues(alpha: 0.14),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -604,7 +596,14 @@ class _SafetyReadinessCard extends StatelessWidget {
           Wrap(
             spacing: AppTheme.spacingS,
             runSpacing: AppTheme.spacingS,
-            children: chips.map((item) => _ProfileTag(icon: Icons.check_circle_outline, label: item)).toList(),
+            children: chips
+                .map(
+                  (item) => _ProfileTag(
+                    icon: Icons.check_circle_outline,
+                    label: item,
+                  ),
+                )
+                .toList(),
           ),
         ],
       ),

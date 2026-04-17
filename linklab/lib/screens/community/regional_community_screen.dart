@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../../models/community_models.dart';
+import '../../services/app_session_service.dart';
 import '../../services/community/regional_community_service.dart';
 import '../../widgets/accessible/index.dart';
 
@@ -30,8 +31,7 @@ class _RegionalCommunityScreenState extends State<RegionalCommunityScreen> {
     setState(() => _isLoading = true);
 
     final communities = await _communityService.getPopularCommunities();
-    // TODO: 获取当前用户ID
-    const userId = 'current_user_id';
+    final userId = AppSessionService.instance.currentUser?.id ?? 'demo-user-id';
     final myCommunities = await _communityService.getMyCommunities(userId);
 
     setState(() {
@@ -152,8 +152,7 @@ class _RegionalCommunityScreenState extends State<RegionalCommunityScreen> {
 
   Future<void> _joinCommunity(RegionalCommunity community) async {
     try {
-      // TODO: 获取当前用户ID
-      const userId = 'current_user_id';
+      final userId = AppSessionService.instance.currentUser?.id ?? 'demo-user-id';
       await _communityService.joinCommunity(community.id, userId);
 
       if (mounted) {

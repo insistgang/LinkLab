@@ -14,6 +14,8 @@ class StorageKeys {
   static const String favoriteVolunteers = 'favorite_volunteers';
   static const String emergencyContacts = 'emergency_contacts';
   static const String asyncTasks = 'async_tasks';
+  static const String demoHelpRequests = 'demo_help_requests';
+  static const String currentDemoHelpRequestId = 'current_demo_help_request_id';
 
   static String safetySettings(String userId) => 'safety_settings_$userId';
 }
@@ -58,7 +60,10 @@ class LocalStorage {
   /// 保存用户资料
   Future<bool> saveUserProfile(Map<String, dynamic> profile) async {
     _ensureInitialized();
-    return await _prefs!.setString(StorageKeys.userProfile, jsonEncode(profile));
+    return await _prefs!.setString(
+      StorageKeys.userProfile,
+      jsonEncode(profile),
+    );
   }
 
   /// 获取用户资料
@@ -130,7 +135,10 @@ class LocalStorage {
   /// 保存无障碍偏好
   Future<bool> saveAccessibilityPrefs(Map<String, dynamic> prefs) async {
     _ensureInitialized();
-    return await _prefs!.setString(StorageKeys.accessibilityPrefs, jsonEncode(prefs));
+    return await _prefs!.setString(
+      StorageKeys.accessibilityPrefs,
+      jsonEncode(prefs),
+    );
   }
 
   /// 获取无障碍偏好
@@ -170,13 +178,19 @@ class LocalStorage {
     if (history.length > 20) {
       history.removeRange(20, history.length);
     }
-    return await _prefs!.setString(StorageKeys.helpHistory, jsonEncode(history));
+    return await _prefs!.setString(
+      StorageKeys.helpHistory,
+      jsonEncode(history),
+    );
   }
 
   /// 保存完整求助历史
   Future<bool> saveHelpHistory(List<Map<String, dynamic>> history) async {
     _ensureInitialized();
-    return await _prefs!.setString(StorageKeys.helpHistory, jsonEncode(history));
+    return await _prefs!.setString(
+      StorageKeys.helpHistory,
+      jsonEncode(history),
+    );
   }
 
   /// 新增或更新指定求助记录
@@ -200,18 +214,17 @@ class LocalStorage {
     );
 
     if (index >= 0) {
-      history[index] = {
-        ...history[index],
-        ...record,
-      };
+      history[index] = {...history[index], ...record};
     } else {
       history.insert(0, record);
     }
 
     history.sort((a, b) {
-      final aTime = DateTime.tryParse('${a['createdAt'] ?? ''}') ??
+      final aTime =
+          DateTime.tryParse('${a['createdAt'] ?? ''}') ??
           DateTime.fromMillisecondsSinceEpoch(0);
-      final bTime = DateTime.tryParse('${b['createdAt'] ?? ''}') ??
+      final bTime =
+          DateTime.tryParse('${b['createdAt'] ?? ''}') ??
           DateTime.fromMillisecondsSinceEpoch(0);
       return bTime.compareTo(aTime);
     });
@@ -292,9 +305,14 @@ class LocalStorage {
   // ==================== 紧急联系人 ====================
 
   /// 保存紧急联系人
-  Future<bool> saveEmergencyContacts(List<Map<String, dynamic>> contacts) async {
+  Future<bool> saveEmergencyContacts(
+    List<Map<String, dynamic>> contacts,
+  ) async {
     _ensureInitialized();
-    return await _prefs!.setString(StorageKeys.emergencyContacts, jsonEncode(contacts));
+    return await _prefs!.setString(
+      StorageKeys.emergencyContacts,
+      jsonEncode(contacts),
+    );
   }
 
   /// 获取紧急联系人

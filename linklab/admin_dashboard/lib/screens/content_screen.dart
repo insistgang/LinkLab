@@ -12,7 +12,8 @@ class ContentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => ContentBloc()..add(const ContentLoadStoriesRequested()),
+      create: (context) =>
+          ContentBloc()..add(const ContentLoadStoriesRequested()),
       child: const _ContentContent(),
     );
   }
@@ -69,9 +70,9 @@ class _ContentContentState extends State<_ContentContent>
       body: BlocConsumer<ContentBloc, ContentState>(
         listener: (context, state) {
           if (state is ContentActionSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           } else if (state is ContentError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -84,10 +85,7 @@ class _ContentContentState extends State<_ContentContent>
         builder: (context, state) {
           return TabBarView(
             controller: _tabController,
-            children: [
-              _buildStoriesTab(state),
-              _buildCommunityTab(state),
-            ],
+            children: [_buildStoriesTab(state), _buildCommunityTab(state)],
           );
         },
       ),
@@ -104,10 +102,12 @@ class _ContentContentState extends State<_ContentContent>
         stories: state.stories,
         hasMore: state.hasMore,
         onLoadMore: () {
-          context.read<ContentBloc>().add(ContentLoadStoriesRequested(
-            page: state.page + 1,
-            pageSize: state.pageSize,
-          ));
+          context.read<ContentBloc>().add(
+            ContentLoadStoriesRequested(
+              page: state.page + 1,
+              pageSize: state.pageSize,
+            ),
+          );
         },
       );
     }
@@ -125,10 +125,12 @@ class _ContentContentState extends State<_ContentContent>
         contents: state.contents,
         hasMore: state.hasMore,
         onLoadMore: () {
-          context.read<ContentBloc>().add(ContentLoadCommunityRequested(
-            page: state.page + 1,
-            pageSize: state.pageSize,
-          ));
+          context.read<ContentBloc>().add(
+            ContentLoadCommunityRequested(
+              page: state.page + 1,
+              pageSize: state.pageSize,
+            ),
+          );
         },
       );
     }
@@ -169,12 +171,18 @@ class _StoriesList extends StatelessWidget {
             story: stories[index],
             onPublish: () {
               context.read<ContentBloc>().add(
-                ContentUpdateStoryStatus(stories[index].id, ContentStatus.published),
+                ContentUpdateStoryStatus(
+                  stories[index].id,
+                  ContentStatus.published,
+                ),
               );
             },
             onArchive: () {
               context.read<ContentBloc>().add(
-                ContentUpdateStoryStatus(stories[index].id, ContentStatus.archived),
+                ContentUpdateStoryStatus(
+                  stories[index].id,
+                  ContentStatus.archived,
+                ),
               );
             },
             onSetFeatured: (isFeatured) {
@@ -191,24 +199,26 @@ class _StoriesList extends StatelessWidget {
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
-          ...stories.map((story) => _StoryCard(
-            story: story,
-            onPublish: () {
-              context.read<ContentBloc>().add(
-                ContentUpdateStoryStatus(story.id, ContentStatus.published),
-              );
-            },
-            onArchive: () {
-              context.read<ContentBloc>().add(
-                ContentUpdateStoryStatus(story.id, ContentStatus.archived),
-              );
-            },
-            onSetFeatured: (isFeatured) {
-              context.read<ContentBloc>().add(
-                ContentSetStoryFeatured(story.id, isFeatured),
-              );
-            },
-          )),
+          ...stories.map(
+            (story) => _StoryCard(
+              story: story,
+              onPublish: () {
+                context.read<ContentBloc>().add(
+                  ContentUpdateStoryStatus(story.id, ContentStatus.published),
+                );
+              },
+              onArchive: () {
+                context.read<ContentBloc>().add(
+                  ContentUpdateStoryStatus(story.id, ContentStatus.archived),
+                );
+              },
+              onSetFeatured: (isFeatured) {
+                context.read<ContentBloc>().add(
+                  ContentSetStoryFeatured(story.id, isFeatured),
+                );
+              },
+            ),
+          ),
           if (hasMore)
             Padding(
               padding: const EdgeInsets.all(16),
@@ -287,7 +297,7 @@ class _StoryCard extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: AppTheme.warningColor.withOpacity(0.1),
+                          color: AppTheme.warningColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: const Row(
@@ -318,10 +328,7 @@ class _StoryCard extends StatelessWidget {
                 // Summary
                 Text(
                   story.summary,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -341,29 +348,25 @@ class _StoryCard extends StatelessWidget {
                     const SizedBox(width: 8),
                     Text(
                       story.authorName,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: const TextStyle(fontWeight: FontWeight.w500),
                     ),
                     const Spacer(),
-                    Icon(Icons.remove_red_eye, size: 16, color: Colors.grey[400]),
+                    Icon(
+                      Icons.remove_red_eye,
+                      size: 16,
+                      color: Colors.grey[400],
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       story.viewCount.toString(),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     ),
                     const SizedBox(width: 16),
                     Icon(Icons.favorite, size: 16, color: Colors.grey[400]),
                     const SizedBox(width: 4),
                     Text(
                       story.likeCount.toString(),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     ),
                   ],
                 ),
@@ -429,7 +432,7 @@ class _StoryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
@@ -463,10 +466,7 @@ class _CommunityList extends StatelessWidget {
       itemBuilder: (context, index) {
         if (index == contents.length) {
           return Center(
-            child: TextButton(
-              onPressed: onLoadMore,
-              child: const Text('加载更多'),
-            ),
+            child: TextButton(onPressed: onLoadMore, child: const Text('加载更多')),
           );
         }
 
@@ -488,10 +488,7 @@ class _CommunityCard extends StatelessWidget {
   final CommunityContentModel content;
   final VoidCallback onArchive;
 
-  const _CommunityCard({
-    required this.content,
-    required this.onArchive,
-  });
+  const _CommunityCard({required this.content, required this.onArchive});
 
   @override
   Widget build(BuildContext context) {
@@ -521,16 +518,11 @@ class _CommunityCard extends StatelessWidget {
                     children: [
                       Text(
                         content.authorName,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
                       Text(
                         '${content.groupName} · ${content.createdAt.toString().substring(0, 16)}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                     ],
                   ),
@@ -571,20 +563,14 @@ class _CommunityCard extends StatelessWidget {
                 const SizedBox(width: 4),
                 Text(
                   content.likeCount.toString(),
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
                 const SizedBox(width: 16),
                 Icon(Icons.comment, size: 16, color: Colors.grey[400]),
                 const SizedBox(width: 4),
                 Text(
                   content.commentCount.toString(),
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
                 const Spacer(),
                 TextButton.icon(

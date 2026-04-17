@@ -128,7 +128,9 @@ class LineChartWidget extends StatelessWidget {
                       dotData: FlDotData(show: showDots),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: (lineColor ?? AppTheme.primaryColor).withOpacity(0.1),
+                        color: (lineColor ?? AppTheme.primaryColor).withValues(
+                          alpha: 0.1,
+                        ),
                       ),
                     ),
                   ],
@@ -140,13 +142,12 @@ class LineChartWidget extends StatelessWidget {
                           final date = data[spot.spotIndex].date;
                           return LineTooltipItem(
                             '${date.month}月${date.day}日\n',
-                            const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                            ),
+                            const TextStyle(color: Colors.white, fontSize: 12),
                             children: [
                               TextSpan(
-                                text: formatY?.call(spot.y) ?? spot.y.toInt().toString(),
+                                text:
+                                    formatY?.call(spot.y) ??
+                                    spot.y.toInt().toString(),
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 14,
@@ -190,18 +191,9 @@ class LineChartWidget extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.show_chart,
-                      size: 48,
-                      color: Colors.grey[400],
-                    ),
+                    Icon(Icons.show_chart, size: 48, color: Colors.grey[400]),
                     const SizedBox(height: 8),
-                    Text(
-                      '暂无数据',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                      ),
-                    ),
+                    Text('暂无数据', style: TextStyle(color: Colors.grey[600])),
                   ],
                 ),
               ),
@@ -218,11 +210,7 @@ class PieChartWidget extends StatelessWidget {
   final List<DistributionData> data;
   final String title;
 
-  const PieChartWidget({
-    super.key,
-    required this.data,
-    required this.title,
-  });
+  const PieChartWidget({super.key, required this.data, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -260,10 +248,13 @@ class PieChartWidget extends StatelessWidget {
                         sections: data.asMap().entries.map((entry) {
                           final index = entry.key;
                           final item = entry.value;
-                          final percentage = total > 0 ? (item.value / total * 100) : 0;
+                          final percentage = total > 0
+                              ? (item.value / total * 100)
+                              : 0;
                           final color = index < AppTheme.chartColors.length
                               ? AppTheme.chartColors[index]
-                              : AppTheme.chartColors[index % AppTheme.chartColors.length];
+                              : AppTheme.chartColors[index %
+                                    AppTheme.chartColors.length];
 
                           return PieChartSectionData(
                             color: color,
@@ -278,7 +269,8 @@ class PieChartWidget extends StatelessWidget {
                           );
                         }).toList(),
                         pieTouchData: PieTouchData(
-                          touchCallback: (FlTouchEvent event, pieTouchResponse) {},
+                          touchCallback:
+                              (FlTouchEvent event, pieTouchResponse) {},
                         ),
                       ),
                     ),
@@ -293,7 +285,8 @@ class PieChartWidget extends StatelessWidget {
                       final item = entry.value;
                       final color = index < AppTheme.chartColors.length
                           ? AppTheme.chartColors[index]
-                          : AppTheme.chartColors[index % AppTheme.chartColors.length];
+                          : AppTheme.chartColors[index %
+                                AppTheme.chartColors.length];
 
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 4),
@@ -368,12 +361,7 @@ class PieChartWidget extends StatelessWidget {
                       color: Colors.grey[400],
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      '暂无数据',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                      ),
-                    ),
+                    Text('暂无数据', style: TextStyle(color: Colors.grey[600])),
                   ],
                 ),
               ),
@@ -444,14 +432,13 @@ class BarChartWidget extends StatelessWidget {
                       getTooltipColor: (group) => Colors.black87,
                       getTooltipItem: (group, groupIndex, rod, rodIndex) {
                         final item = data[groupIndex];
-                        final value = rodIndex == 0 ? item.current : item.previous;
+                        final value = rodIndex == 0
+                            ? item.current
+                            : item.previous;
                         final label = rodIndex == 0 ? '本期' : '上期';
                         return BarTooltipItem(
                           '$label\n',
-                          const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                          ),
+                          const TextStyle(color: Colors.white, fontSize: 12),
                           children: [
                             TextSpan(
                               text: value.toInt().toString(),
@@ -541,7 +528,7 @@ class BarChartWidget extends StatelessWidget {
                         ),
                         BarChartRodData(
                           toY: item.previous,
-                          color: AppTheme.primaryColor.withOpacity(0.3),
+                          color: AppTheme.primaryColor.withValues(alpha: 0.3),
                           width: 12,
                           borderRadius: const BorderRadius.vertical(
                             top: Radius.circular(4),
@@ -560,7 +547,10 @@ class BarChartWidget extends StatelessWidget {
               children: [
                 _buildLegendItem('本期', AppTheme.primaryColor),
                 const SizedBox(width: 24),
-                _buildLegendItem('上期', AppTheme.primaryColor.withOpacity(0.3)),
+                _buildLegendItem(
+                  '上期',
+                  AppTheme.primaryColor.withValues(alpha: 0.3),
+                ),
               ],
             ),
           ],
@@ -584,10 +574,7 @@ class BarChartWidget extends StatelessWidget {
         const SizedBox(width: 6),
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 12,
-            color: AppTheme.textSecondary,
-          ),
+          style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
         ),
       ],
     );
@@ -615,18 +602,9 @@ class BarChartWidget extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.bar_chart,
-                      size: 48,
-                      color: Colors.grey[400],
-                    ),
+                    Icon(Icons.bar_chart, size: 48, color: Colors.grey[400]),
                     const SizedBox(height: 8),
-                    Text(
-                      '暂无数据',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                      ),
-                    ),
+                    Text('暂无数据', style: TextStyle(color: Colors.grey[600])),
                   ],
                 ),
               ),

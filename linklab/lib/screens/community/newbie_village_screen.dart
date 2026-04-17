@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../../models/community_models.dart';
+import '../../services/app_session_service.dart';
 import '../../services/community/newbie_village_service.dart';
 import '../../widgets/accessible/index.dart';
 import 'training_scenario_screen.dart';
@@ -28,8 +29,7 @@ class _NewbieVillageScreenState extends State<NewbieVillageScreen> {
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
 
-    // TODO: 获取当前用户ID
-    const userId = 'current_user_id';
+    final userId = AppSessionService.instance.currentUser?.id ?? 'demo-user-id';
 
     final stats = await _newbieService.getTrainingStats(userId);
     final scenarios = await _newbieService.getAllScenarios();

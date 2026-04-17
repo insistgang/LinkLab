@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_theme.dart';
 import '../../models/community_models.dart';
+import '../../services/app_session_service.dart';
 import '../../services/community/interest_group_service.dart';
 import '../../widgets/accessible/index.dart';
 import 'group_chat_screen.dart';
@@ -32,8 +33,7 @@ class _InterestGroupsScreenState
     setState(() => _isLoading = true);
 
     final groups = await _groupService.getGroups();
-    // TODO: 获取当前用户ID
-    const userId = 'current_user_id';
+    final userId = AppSessionService.instance.currentUser?.id ?? 'demo-user-id';
     final myGroups = await _groupService.getMyGroups(userId);
 
     setState(() {
@@ -144,8 +144,7 @@ class _InterestGroupsScreenState
 
   Future<void> _joinGroup(InterestGroup group) async {
     try {
-      // TODO: 获取当前用户ID
-      const userId = 'current_user_id';
+      final userId = AppSessionService.instance.currentUser?.id ?? 'demo-user-id';
       await _groupService.joinGroup(group.id, userId);
 
       if (mounted) {

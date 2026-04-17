@@ -1,15 +1,32 @@
 import 'dart:io';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../../core/utils/logger.dart';
 import '../../models/skill_model.dart';
+import 'volunteer_demo_store.dart';
 
 /// 技能标签服务 (F19)
 /// 管理志愿者的技能标签和认证
 class SkillTagService {
-  final SupabaseClient _supabase;
+  SkillTagService({
+    SupabaseClient? supabase,
+    VolunteerDemoStore? demoStore,
+  })  : _supabaseClient = supabase,
+        _demoStore = demoStore ?? VolunteerDemoStore();
 
-  SkillTagService({SupabaseClient? supabase})
-      : _supabase = supabase ?? Supabase.instance.client;
+  SupabaseClient? _supabaseClient;
+  final VolunteerDemoStore _demoStore;
+
+  bool get _hasSupabase => Supabase.instance.isInitialized;
+
+  SupabaseClient get _supabase {
+    if (!_hasSupabase) {
+      throw StateError('Supabase not initialized');
+    }
+    _supabaseClient ??= Supabase.instance.client;
+    return _supabaseClient!;
+  }
 
   /// 获取所有预设技能标签
   List<SkillModel> getAllPredefinedSkills() {
@@ -28,6 +45,15 @@ class SkillTagService {
 
   /// 获取志愿者的技能列表
   Future<List<SkillModel>> getVolunteerSkills(String volunteerId) async {
+    if (!_hasSupabase) {
+      try {
+        return await _demoStore.getSkills(volunteerId);
+      } catch (e) {
+        AppLogger.error('获取本地志愿者技能失败', e);
+        return [];
+      }
+    }
+
     try {
       final response = await _supabase
           .from('volunteer_profiles')
@@ -54,6 +80,45 @@ class SkillTagService {
     String volunteerId,
     List<String> skillIds,
   ) async {
+    if (!_hasSupabase) {
+      try {
+        final currentSkills = await _demoStore.getSkills(volunteerId);
+        final updatedSkills = <SkillModel>[];
+
+        for (final skillId in skillIds.toSet()) {
+          final definition = SkillDefinitions.getById(skillId);
+          if (definition == null) continue;
+
+          final existing = currentSkills.where((item) => item.id == skillId).toList();
+          if (existing.isNotEmpty) {
+            updatedSkills.add(existing.first);
+            continue;
+          }
+
+          if (definition.requiresVerification) {
+            continue;
+          }
+
+          updatedSkills.add(definition.copyWith(isVerified: true));
+        }
+
+        for (final skill in currentSkills) {
+          if (skill.requiresVerification && skill.isVerified) {
+            final exists = updatedSkills.any((item) => item.id == skill.id);
+            if (!exists) {
+              updatedSkills.add(skill);
+            }
+          }
+        }
+
+        await _demoStore.saveSkills(volunteerId, updatedSkills);
+        return true;
+      } catch (e) {
+        AppLogger.error('更新本地志愿者技能失败', e);
+        return false;
+      }
+    }
+
     try {
       // 验证技能ID
       final validSkills = skillIds
@@ -101,6 +166,14 @@ class SkillTagService {
     File certificate, {
     String? description,
   }) async {
+    if (!_hasSupabase) {
+      return submitVerificationRequest(
+        volunteerId,
+        skillId,
+        description: description,
+      );
+    }
+
     try {
       final skill = SkillDefinitions.getById(skillId);
       if (skill == null || !skill.requiresVerification) {
@@ -144,6 +217,15 @@ class SkillTagService {
   Future<List<SkillVerificationRequest>> getVerificationRequests(
     String volunteerId,
   ) async {
+    if (!_hasSupabase) {
+      try {
+        return await _demoStore.getSkillRequests(volunteerId);
+      } catch (e) {
+        AppLogger.error('获取本地认证申请失败', e);
+        return [];
+      }
+    }
+
     try {
       final response = await _supabase
           .from('skill_verification_requests')
@@ -152,7 +234,11 @@ class SkillTagService {
           .order('submitted_at', ascending: false);
 
       return (response as List)
-          .map((json) => SkillVerificationRequest.fromJson(json))
+          .map(
+            (json) => SkillVerificationRequest.fromJson(
+              Map<String, dynamic>.from(json as Map),
+            ),
+          )
           .toList();
     } catch (e) {
       AppLogger.error('获取认证申请失败', e);
@@ -162,6 +248,16 @@ class SkillTagService {
 
   /// 获取已认证的技能
   Future<List<SkillModel>> getVerifiedSkills(String volunteerId) async {
+    if (!_hasSupabase) {
+      try {
+        final skills = await _demoStore.getSkills(volunteerId);
+        return skills.where((item) => item.isVerified).toList();
+      } catch (e) {
+        AppLogger.error('获取本地已认证技能失败', e);
+        return [];
+      }
+    }
+
     try {
       final response = await _supabase
           .from('volunteer_skills')
@@ -170,7 +266,11 @@ class SkillTagService {
           .eq('is_verified', true);
 
       final verifiedSkillIds = (response as List)
-          .map((r) => r['skill_id'] as String)
+          .map((r) {
+            final item = Map<String, dynamic>.from(r as Map);
+            return item['skill_id']?.toString();
+          })
+          .whereType<String>()
           .toList();
 
       return verifiedSkillIds
@@ -187,6 +287,11 @@ class SkillTagService {
 
   /// 检查技能是否已认证
   Future<bool> isSkillVerified(String volunteerId, String skillId) async {
+    if (!_hasSupabase) {
+      final skills = await _demoStore.getSkills(volunteerId);
+      return skills.any((item) => item.id == skillId && item.isVerified);
+    }
+
     try {
       final response = await _supabase
           .from('volunteer_skills')
@@ -271,6 +376,21 @@ class SkillTagService {
 
   /// 获取推荐技能（根据帮助历史）
   Future<List<SkillModel>> getRecommendedSkills(String volunteerId) async {
+    if (!_hasSupabase) {
+      try {
+        final currentSkillIds = (await _demoStore.getSkills(volunteerId))
+            .map((item) => item.id)
+            .toSet();
+        return SkillDefinitions.all
+            .where((item) => !currentSkillIds.contains(item.id))
+            .take(3)
+            .toList();
+      } catch (e) {
+        AppLogger.error('获取本地推荐技能失败', e);
+        return [];
+      }
+    }
+
     try {
       // 获取帮助历史中的意图类型
       final response = await _supabase
@@ -281,7 +401,10 @@ class SkillTagService {
           .limit(100);
 
       final intents = (response as List)
-          .map((r) => r['intent'] as String?)
+          .map((r) {
+            final item = Map<String, dynamic>.from(r as Map);
+            return item['intent']?.toString();
+          })
           .where((i) => i != null)
           .cast<String>()
           .toList();
@@ -309,6 +432,63 @@ class SkillTagService {
     } catch (e) {
       AppLogger.error('获取推荐技能失败', e);
       return [];
+    }
+  }
+
+  /// 提交技能认证申请
+  Future<bool> submitVerificationRequest(
+    String volunteerId,
+    String skillId, {
+    String? description,
+  }) async {
+    final skill = SkillDefinitions.getById(skillId);
+    if (skill == null || !skill.requiresVerification) {
+      return false;
+    }
+
+    if (!_hasSupabase) {
+      try {
+        final requests = await _demoStore.getSkillRequests(volunteerId);
+        final existsPending = requests.any(
+          (item) => item.skillId == skillId && item.status == 'pending',
+        );
+        if (existsPending) {
+          return false;
+        }
+
+        requests.insert(
+          0,
+          SkillVerificationRequest(
+            id: 'skill_request_${DateTime.now().microsecondsSinceEpoch}',
+            volunteerId: volunteerId,
+            skillId: skillId,
+            skillName: skill.name,
+            description: description,
+            status: 'pending',
+            submittedAt: DateTime.now(),
+          ),
+        );
+        await _demoStore.saveSkillRequests(volunteerId, requests);
+        return true;
+      } catch (e) {
+        AppLogger.error('提交本地技能认证申请失败', e);
+        return false;
+      }
+    }
+
+    try {
+      await _supabase.from('skill_verification_requests').insert({
+        'volunteer_id': volunteerId,
+        'skill_id': skillId,
+        'skill_name': skill.name,
+        'description': description,
+        'status': 'pending',
+        'submitted_at': DateTime.now().toIso8601String(),
+      });
+      return true;
+    } catch (e) {
+      AppLogger.error('提交技能认证申请失败', e);
+      return false;
     }
   }
 }

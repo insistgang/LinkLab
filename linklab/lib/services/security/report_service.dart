@@ -153,7 +153,7 @@ class ReportService {
           .eq('id', reportId)
           .single();
 
-      return Report.fromJson(response);
+      return Report.fromJson(Map<String, dynamic>.from(response as Map));
     } catch (e) {
       AppLogger.error('获取举报详情失败', e);
       return null;
@@ -182,7 +182,7 @@ class ReportService {
           .range(offset, offset + limit - 1);
 
       return (response as List)
-          .map((json) => Report.fromJson(json))
+          .map((json) => Report.fromJson(Map<String, dynamic>.from(json as Map)))
           .toList();
     } catch (e) {
       AppLogger.error('获取用户举报失败', e);
@@ -204,7 +204,7 @@ class ReportService {
           .range(offset, offset + limit - 1);
 
       return (response as List)
-          .map((json) => Report.fromJson(json))
+          .map((json) => Report.fromJson(Map<String, dynamic>.from(json as Map)))
           .toList();
     } catch (e) {
       AppLogger.error('获取待处理举报失败', e);
@@ -278,7 +278,7 @@ class ReportService {
       final response = await query.maybeSingle();
 
       if (response == null) return null;
-      return Report.fromJson(response);
+      return Report.fromJson(Map<String, dynamic>.from(response as Map));
     } catch (e) {
       return null;
     }
@@ -402,7 +402,9 @@ class ReportService {
           .gt('expires_at', DateTime.now().toIso8601String())
           .maybeSingle();
 
-      return response;
+      return response == null
+          ? null
+          : Map<String, dynamic>.from(response as Map);
     } catch (e) {
       return null;
     }

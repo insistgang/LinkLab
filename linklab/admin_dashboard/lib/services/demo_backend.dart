@@ -113,15 +113,19 @@ class DemoBackend {
     String? reason,
   }) async {
     _users = _users
-        .map((user) => user.id == userId
-            ? user.copyWith(
-                verificationStatus: status,
-                metadata: {
-                  ...?user.metadata,
-                  if (reason != null) 'verification_reason': reason,
-                },
-              )
-            : user)
+        .map(
+          (user) => user.id == userId
+              ? user.copyWith(
+                  verificationStatus: status,
+                  metadata: {
+                    ...?user.metadata,
+                    ...?(reason == null
+                        ? null
+                        : <String, dynamic>{'verification_reason': reason}),
+                  },
+                )
+              : user,
+        )
         .toList();
   }
 
@@ -130,9 +134,10 @@ class DemoBackend {
     final yesterday = _dailyReports[_dailyReports.length - 2];
     final latestGrowth = _userGrowthReports.last;
     final previousGrowth = _userGrowthReports[_userGrowthReports.length - 2];
-    final monthlyActive = _dailyReports
-        .map((report) => report.activeUsers)
-        .reduce((a, b) => a + b) ~/
+    final monthlyActive =
+        _dailyReports
+            .map((report) => report.activeUsers)
+            .reduce((a, b) => a + b) ~/
         _dailyReports.length;
 
     return DashboardMetrics(
@@ -141,8 +146,10 @@ class DemoBackend {
       dauChange: _percentChange(today.activeUsers, yesterday.activeUsers),
       mauChange: _percentChange(monthlyActive, monthlyActive - 186),
       responseRate: today.responseRate,
-      responseRateChange:
-          _percentChange(today.responseRate, yesterday.responseRate),
+      responseRateChange: _percentChange(
+        today.responseRate,
+        yesterday.responseRate,
+      ),
       volunteerRetention: latestGrowth.volunteerRetentionRate,
       volunteerRetentionChange: _percentChange(
         latestGrowth.volunteerRetentionRate,
@@ -159,11 +166,12 @@ class DemoBackend {
         yesterday.avgCallDuration,
       ),
       satisfaction: today.satisfaction,
-      satisfactionChange:
-          _percentChange(today.satisfaction, yesterday.satisfaction),
+      satisfactionChange: _percentChange(
+        today.satisfaction,
+        yesterday.satisfaction,
+      ),
       totalCalls: today.totalCalls,
-      totalCallsChange:
-          today.totalCalls - yesterday.totalCalls,
+      totalCallsChange: today.totalCalls - yesterday.totalCalls,
       newUsers: today.newUsers,
       newUsersChange: today.newUsers - yesterday.newUsers,
     );
@@ -179,28 +187,36 @@ class DemoBackend {
 
     return TrendData(
       dau: reports
-          .map((report) => TrendDataPoint(
-                date: report.date,
-                value: report.activeUsers.toDouble(),
-              ))
+          .map(
+            (report) => TrendDataPoint(
+              date: report.date,
+              value: report.activeUsers.toDouble(),
+            ),
+          )
           .toList(),
       mau: reports
-          .map((report) => TrendDataPoint(
-                date: report.date,
-                value: (report.activeUsers * 4.4),
-              ))
+          .map(
+            (report) => TrendDataPoint(
+              date: report.date,
+              value: (report.activeUsers * 4.4),
+            ),
+          )
           .toList(),
       calls: reports
-          .map((report) => TrendDataPoint(
-                date: report.date,
-                value: report.totalCalls.toDouble(),
-              ))
+          .map(
+            (report) => TrendDataPoint(
+              date: report.date,
+              value: report.totalCalls.toDouble(),
+            ),
+          )
           .toList(),
       newUsers: reports
-          .map((report) => TrendDataPoint(
-                date: report.date,
-                value: report.newUsers.toDouble(),
-              ))
+          .map(
+            (report) => TrendDataPoint(
+              date: report.date,
+              value: report.newUsers.toDouble(),
+            ),
+          )
           .toList(),
     );
   }
@@ -222,21 +238,13 @@ class DemoBackend {
 
     for (final user in volunteers) {
       for (final skill in user.skills ?? const <String>[]) {
-        skillBuckets.update(
-          skill,
-          (value) => value + 1,
-          ifAbsent: () => 1,
-        );
+        skillBuckets.update(skill, (value) => value + 1, ifAbsent: () => 1);
       }
     }
 
     for (final user in _users) {
       final region = user.metadata?['region'] as String? ?? '未分区';
-      regionBuckets.update(
-        region,
-        (value) => value + 1,
-        ifAbsent: () => 1,
-      );
+      regionBuckets.update(region, (value) => value + 1, ifAbsent: () => 1);
     }
 
     return UserDistribution(
@@ -269,7 +277,9 @@ class DemoBackend {
     }
 
     if (isFeatured != null) {
-      filtered = filtered.where((story) => story.isFeatured == isFeatured).toList();
+      filtered = filtered
+          .where((story) => story.isFeatured == isFeatured)
+          .toList();
     }
 
     filtered.sort((a, b) => b.createdAt.compareTo(a.createdAt));
@@ -341,7 +351,9 @@ class DemoBackend {
     }
 
     if (groupId != null) {
-      filtered = filtered.where((content) => content.groupId == groupId).toList();
+      filtered = filtered
+          .where((content) => content.groupId == groupId)
+          .toList();
     }
 
     filtered.sort((a, b) => b.createdAt.compareTo(a.createdAt));
@@ -438,13 +450,15 @@ class DemoBackend {
 
     return ReportStatistics(
       totalReports: _reports.length,
-      pendingReports:
-          _reports.where((report) => report.status == ReportStatus.pending).length,
+      pendingReports: _reports
+          .where((report) => report.status == ReportStatus.pending)
+          .length,
       processingReports: _reports
           .where((report) => report.status == ReportStatus.processing)
           .length,
-      resolvedReports:
-          _reports.where((report) => report.status == ReportStatus.resolved).length,
+      resolvedReports: _reports
+          .where((report) => report.status == ReportStatus.resolved)
+          .length,
       dismissedReports: _reports
           .where((report) => report.status == ReportStatus.dismissed)
           .length,
@@ -488,7 +502,7 @@ class DemoBackend {
     if (start >= items.length || start < 0) {
       return <T>[];
     }
-    final end = (start + pageSize).clamp(0, items.length) as int;
+    final end = (start + pageSize).clamp(0, items.length);
     return items.sublist(start, end);
   }
 
@@ -834,8 +848,11 @@ class DemoBackend {
       final helpRequests = 150 + index * 3;
       final helpResponses = helpRequests - 18 + (index % 4) * 2;
       return DailyReport(
-        date: DateTime(now.year, now.month, now.day)
-            .subtract(Duration(days: dayOffset)),
+        date: DateTime(
+          now.year,
+          now.month,
+          now.day,
+        ).subtract(Duration(days: dayOffset)),
         newUsers: 18 + (index % 7),
         activeUsers: baseActive,
         totalCalls: totalCalls,
@@ -854,8 +871,11 @@ class DemoBackend {
     return List<UserGrowthReport>.generate(30, (index) {
       final dayOffset = 29 - index;
       return UserGrowthReport(
-        date: DateTime(now.year, now.month, now.day)
-            .subtract(Duration(days: dayOffset)),
+        date: DateTime(
+          now.year,
+          now.month,
+          now.day,
+        ).subtract(Duration(days: dayOffset)),
         newDisabledUsers: 4 + (index % 4),
         newVolunteerUsers: 3 + (index % 3),
         totalDisabledUsers: 430 + index * 5,

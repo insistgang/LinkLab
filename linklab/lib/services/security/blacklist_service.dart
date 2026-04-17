@@ -237,8 +237,9 @@ class BlacklistService {
           .select('device_fingerprint')
           .eq('user_id', userId);
 
-      for (final device in devices) {
-        final fingerprint = device['device_fingerprint'] as String;
+      for (final device in devices as List<dynamic>) {
+        final deviceMap = Map<String, dynamic>.from(device as Map);
+        final fingerprint = deviceMap['device_fingerprint'].toString();
         await addDeviceBan(fingerprint, reason: '关联违规账号');
       }
     } catch (e) {
@@ -261,12 +262,15 @@ class BlacklistService {
         deviceInfo = '${iosInfo.name} ${iosInfo.model}';
       }
 
-      await _supabase.from('user_devices').upsert({
-        'user_id': userId,
-        'device_fingerprint': fingerprint,
-        'device_info': deviceInfo,
-        'last_used_at': DateTime.now().toIso8601String(),
-      });
+      await _supabase.from('user_devices').upsert(
+        {
+          'user_id': userId,
+          'device_fingerprint': fingerprint,
+          'device_info': deviceInfo,
+          'last_used_at': DateTime.now().toIso8601String(),
+        },
+        onConflict: 'user_id',
+      );
     } catch (e) {
       AppLogger.error('记录设备信息失败', e);
     }
@@ -289,8 +293,8 @@ class BlacklistService {
           .order('created_at', ascending: false)
           .range(offset, offset + limit - 1);
 
-      return (response as List)
-          .map((json) => BlacklistEntry.fromJson(json))
+      return (response as List<dynamic>)
+          .map((json) => BlacklistEntry.fromJson(Map<String, dynamic>.from(json as Map)))
           .toList();
     } catch (e) {
       AppLogger.error('获取黑名单失败', e);

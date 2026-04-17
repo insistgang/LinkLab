@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/call_models.dart';
-import '../../services/services_exports.dart';
-import '../../services/webrtc/webrtc_exports.dart';
+import '../../services/experimental/real/real_call_service.dart';
+import '../../services/unified_call_service.dart';
+import '../../services/webrtc/webrtc_config.dart';
 import 'call_rating_screen.dart';
 
 /// 真实WebRTC通话页面
 /// 支持通话状态显示、静音/扬声器切换、通话时长计时、网络状态指示、录音功能
+/// AGENTS.md §4.2：该页面属于实验性真实链路，不进入竞赛版默认导航和演示脚本。
 class RealCallScreen extends ConsumerStatefulWidget {
   final CallInfo callInfo;
   final VolunteerInfo? volunteer;
@@ -37,8 +39,8 @@ class _RealCallScreenState extends ConsumerState<RealCallScreen> {
   String? _errorMessage;
 
   // 订阅
-  StreamSubscription? _callStateSubscription;
-  StreamSubscription? _networkQualitySubscription;
+  StreamSubscription<CallState>? _callStateSubscription;
+  StreamSubscription<NetworkQuality>? _networkQualitySubscription;
 
   @override
   void initState() {

@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../demo_flow/demo_flow_controller.dart';
+import '../../demo_flow/demo_help_request_tracker.dart';
 import '../../services/demo/demo_ai_service.dart';
 import '../../widgets/accessible/index.dart';
 
@@ -118,11 +119,7 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
     final visibleText = text.isEmpty ? '发送了图片' : text;
     final requestText = text.isEmpty ? '这是什么？' : text;
 
-    _addUserMessage(
-      visibleText,
-      imageBytes: imageBytes,
-      imageName: imageName,
-    );
+    _addUserMessage(visibleText, imageBytes: imageBytes, imageName: imageName);
     _textController.clear();
 
     setState(() {
@@ -148,6 +145,7 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
       _isProcessing = true;
     });
 
+    await DemoHelpRequestTracker.startAIProcessing(intent: input);
     _addBotMessage('思考中...');
 
     final result = await _aiService.process(input, imagePath: imagePath);
@@ -166,8 +164,12 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
       } else if (_shouldTransferToHuman(result)) {
         _showTransferToHumanOption();
       }
+      if (!_isEmergencyResult(result) && !_shouldTransferToHuman(result)) {
+        await DemoHelpRequestTracker.markAIResolved(summary: result.text);
+      }
     } else {
       _addBotMessage('抱歉，处理出错了：${result.error}');
+      await DemoHelpRequestTracker.markCancelled(reason: result.error);
     }
 
     if (!mounted) return;
@@ -263,6 +265,18 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
   }
 
   void _startMatchingFlow() {
+    final lastUserMessage = _messages.lastWhere(
+      (message) => message.isUser,
+      orElse: () => ChatMessage(
+        text: '连接真人志愿者获取帮助',
+        isUser: true,
+        timestamp: DateTime.now(),
+      ),
+    );
+    DemoHelpRequestTracker.ensureMatchingRequest(
+      intent: lastUserMessage.text,
+      type: 'realtime_voice',
+    );
     DemoFlowNavigator.onAIRequestMatching(context);
   }
 
@@ -276,8 +290,9 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
 
     setState(() {
       _selectedImageBytes = bytes;
-      _selectedImageName =
-          pickedFile.name.isEmpty ? 'selected-image' : pickedFile.name;
+      _selectedImageName = pickedFile.name.isEmpty
+          ? 'selected-image'
+          : pickedFile.name;
     });
 
     await _sendMessage();
@@ -374,8 +389,9 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
               child: Row(
                 children: [
                   ClipRRect(
-                    borderRadius:
-                        BorderRadius.circular(AppTheme.borderRadiusSmall),
+                    borderRadius: BorderRadius.circular(
+                      AppTheme.borderRadiusSmall,
+                    ),
                     child: Image.memory(
                       _selectedImageBytes!,
                       width: 60,
@@ -502,8 +518,9 @@ class _ChatMessageBubble extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.only(bottom: AppTheme.spacingM),
         child: Row(
-          mainAxisAlignment:
-              message.isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+          mainAxisAlignment: message.isUser
+              ? MainAxisAlignment.end
+              : MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (!message.isUser) ...[
@@ -532,8 +549,9 @@ class _ChatMessageBubble extends StatelessWidget {
                 children: [
                   if (message.imageBytes != null)
                     ClipRRect(
-                      borderRadius:
-                          BorderRadius.circular(AppTheme.borderRadiusMedium),
+                      borderRadius: BorderRadius.circular(
+                        AppTheme.borderRadiusMedium,
+                      ),
                       child: Image.memory(
                         message.imageBytes!,
                         width: 200,

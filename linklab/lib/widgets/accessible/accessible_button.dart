@@ -42,8 +42,6 @@ class AccessibleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     // 确定颜色
     final bgColor = isEmergency
         ? AppTheme.emergencyColor
@@ -51,15 +49,15 @@ class AccessibleButton extends StatelessWidget {
     final fgColor = foregroundColor ?? AppTheme.textOnPrimary;
 
     // 确定高度
-    final btnHeight = height ??
+    final btnHeight =
+        height ??
         (isEmergency
             ? AppTheme.emergencyButtonHeight
             : AppTheme.largeButtonHeight);
 
     // 语义标签
     final effectiveSemanticLabel = semanticLabel ?? label;
-    final effectiveHint = hint ??
-        (isEmergency ? '双击触发紧急求助' : '双击执行${label}操作');
+    final effectiveHint = hint ?? (isEmergency ? '双击触发紧急求助' : '双击执行${label}操作');
 
     return Semantics(
       button: true,
@@ -87,9 +85,7 @@ class AccessibleButton extends StatelessWidget {
           child: Container(
             height: btnHeight,
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppTheme.spacingL,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingL),
             child: isLoading
                 ? Center(
                     child: CircularProgressIndicator(
@@ -154,8 +150,6 @@ class AccessibleIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Semantics(
       button: true,
       label: semanticLabel,
@@ -224,14 +218,12 @@ class AccessibleFloatingButton extends StatelessWidget {
                 onPressed!();
               }
             : null,
-        backgroundColor:
-            isEmergency ? AppTheme.emergencyColor : AppTheme.primaryColor,
+        backgroundColor: isEmergency
+            ? AppTheme.emergencyColor
+            : AppTheme.primaryColor,
         foregroundColor: AppTheme.textOnPrimary,
         elevation: 6,
-        child: Icon(
-          icon,
-          size: AppTheme.fontSizeXLarge,
-        ),
+        child: Icon(icon, size: AppTheme.fontSizeXLarge),
       ),
     );
   }

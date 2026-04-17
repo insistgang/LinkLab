@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../config/app_config.dart';
+
 /// 本地存储键名
 class StorageKeys {
   static const String userProfile = 'user_profile';
@@ -22,8 +24,34 @@ class DemoLocalStorage {
 
   SharedPreferences? _prefs;
 
+  Map<String, dynamic>? _decodeMap(String jsonString) {
+    final decoded = jsonDecode(jsonString);
+    if (decoded is! Map) {
+      return null;
+    }
+    return Map<String, dynamic>.from(decoded as Map);
+  }
+
+  List<Map<String, dynamic>> _decodeMapList(String jsonString) {
+    final decoded = jsonDecode(jsonString);
+    if (decoded is! List) {
+      return const [];
+    }
+
+    return decoded
+        .whereType<Map>()
+        .map((item) => Map<String, dynamic>.from(item))
+        .toList();
+  }
+
   /// 初始化
   Future<void> initialize() async {
+    if (!AppConfig.shouldUseDemoFallback(
+      feature: 'DemoLocalStorage.initialize',
+    )) {
+      throw Exception('DemoLocalStorage 仅在 Demo fallback 开启时可用');
+    }
+
     _prefs = await SharedPreferences.getInstance();
   }
 
@@ -39,7 +67,10 @@ class DemoLocalStorage {
   /// 保存用户资料
   Future<bool> saveUserProfile(Map<String, dynamic> profile) async {
     _ensureInitialized();
-    return await _prefs!.setString(StorageKeys.userProfile, jsonEncode(profile));
+    return await _prefs!.setString(
+      StorageKeys.userProfile,
+      jsonEncode(profile),
+    );
   }
 
   /// 获取用户资料
@@ -48,7 +79,7 @@ class DemoLocalStorage {
     final jsonString = _prefs!.getString(StorageKeys.userProfile);
     if (jsonString == null) return null;
     try {
-      return jsonDecode(jsonString);
+      return _decodeMap(jsonString);
     } catch (e) {
       return null;
     }
@@ -65,7 +96,10 @@ class DemoLocalStorage {
   /// 保存无障碍偏好
   Future<bool> saveAccessibilityPrefs(Map<String, dynamic> prefs) async {
     _ensureInitialized();
-    return await _prefs!.setString(StorageKeys.accessibilityPrefs, jsonEncode(prefs));
+    return await _prefs!.setString(
+      StorageKeys.accessibilityPrefs,
+      jsonEncode(prefs),
+    );
   }
 
   /// 获取无障碍偏好
@@ -86,7 +120,7 @@ class DemoLocalStorage {
       };
     }
     try {
-      return jsonDecode(jsonString);
+      return _decodeMap(jsonString) ?? {};
     } catch (e) {
       return {};
     }
@@ -105,7 +139,10 @@ class DemoLocalStorage {
     if (history.length > 50) {
       history.removeRange(50, history.length);
     }
-    return await _prefs!.setString(StorageKeys.helpHistory, jsonEncode(history));
+    return await _prefs!.setString(
+      StorageKeys.helpHistory,
+      jsonEncode(history),
+    );
   }
 
   /// 获取求助历史
@@ -114,8 +151,7 @@ class DemoLocalStorage {
     final jsonString = _prefs!.getString(StorageKeys.helpHistory);
     if (jsonString == null) return [];
     try {
-      final List<dynamic> decoded = jsonDecode(jsonString);
-      return decoded.cast<Map<String, dynamic>>();
+      return _decodeMapList(jsonString);
     } catch (e) {
       return [];
     }
@@ -130,9 +166,14 @@ class DemoLocalStorage {
   // ==================== 紧急联系人 ====================
 
   /// 保存紧急联系人
-  Future<bool> saveEmergencyContacts(List<Map<String, dynamic>> contacts) async {
+  Future<bool> saveEmergencyContacts(
+    List<Map<String, dynamic>> contacts,
+  ) async {
     _ensureInitialized();
-    return await _prefs!.setString(StorageKeys.emergencyContacts, jsonEncode(contacts));
+    return await _prefs!.setString(
+      StorageKeys.emergencyContacts,
+      jsonEncode(contacts),
+    );
   }
 
   /// 获取紧急联系人
@@ -141,8 +182,7 @@ class DemoLocalStorage {
     final jsonString = _prefs!.getString(StorageKeys.emergencyContacts);
     if (jsonString == null) return [];
     try {
-      final List<dynamic> decoded = jsonDecode(jsonString);
-      return decoded.cast<Map<String, dynamic>>();
+      return _decodeMapList(jsonString);
     } catch (e) {
       return [];
     }

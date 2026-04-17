@@ -76,7 +76,7 @@ class AsyncTaskService {
         'type': 'async',
         'intent': description.trim(),
         'urgency': 'normal',
-        'status': 'pending',
+        'status': 'created',
         'created_at': now.toIso8601String(),
       });
 
@@ -753,7 +753,7 @@ class AsyncTaskService {
       'type': 'async',
       'intent': task.description,
       'urgency': 'normal',
-      'status': task.isCompleted ? 'completed' : 'pending',
+      'status': task.isCompleted ? 'completed' : 'created',
       'volunteerId': task.volunteerId,
       'aiResponse': task.result == null
           ? null

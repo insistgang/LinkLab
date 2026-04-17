@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../models/demo_help_request_model.dart';
 import '../../models/volunteer_level_model.dart';
 import '../../models/badge_model.dart';
 import '../../models/skill_model.dart';
@@ -6,14 +7,19 @@ import '../../models/timeline_model.dart';
 import '../../models/schedule_model.dart';
 import '../../models/help_request_model.dart';
 import '../../models/point_transaction_model.dart';
+import '../../services/app_session_service.dart';
 import '../../services/user_center/volunteer_level_service.dart';
 import '../../services/user_center/badge_service.dart';
 import '../../services/user_center/skill_tag_service.dart';
 import '../../services/user_center/timeline_service.dart';
 import '../../services/user_center/schedule_service.dart';
 import '../../services/user_center/async_task_service.dart';
-import '../../services/user_center/points_service.dart';
+import '../../services/user_center/demo_help_request_service.dart';
 import '../../core/utils/extensions.dart';
+
+String _resolveVolunteerId() {
+  return AppSessionService.instance.userProfile?.id ?? 'demo-volunteer-id';
+}
 
 /// 志愿者中心页面 (F18-F23)
 /// 整合等级积分、技能标签、善意时间线、徽章成就、异步任务、排班管理
@@ -83,7 +89,6 @@ class LevelPointsTab extends StatefulWidget {
 
 class _LevelPointsTabState extends State<LevelPointsTab> {
   final VolunteerLevelService _levelService = VolunteerLevelService();
-  final PointsService _pointsService = PointsService();
 
   VolunteerLevelInfo? _levelInfo;
   List<PointTransactionModel> _transactions = [];
@@ -98,7 +103,7 @@ class _LevelPointsTabState extends State<LevelPointsTab> {
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
 
-    const volunteerId = 'demo-volunteer-id';
+    final volunteerId = _resolveVolunteerId();
 
     final levelInfo = await _levelService.getLevelInfo(volunteerId);
     final transactions = await _levelService.getPointTransactions(volunteerId);
@@ -173,7 +178,7 @@ class _SkillTagsTabState extends State<SkillTagsTab> {
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
 
-    const volunteerId = 'demo-volunteer-id';
+    final volunteerId = _resolveVolunteerId();
 
     final mySkills = await _skillService.getMySkills(volunteerId);
     final pendingRequests = await _skillService.getPendingRequests(volunteerId);
@@ -221,10 +226,7 @@ class _SkillTagsTabState extends State<SkillTagsTab> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '我的技能标签',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
+        Text('我的技能标签', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 12),
         if (_mySkills.isEmpty)
           Card(
@@ -233,12 +235,13 @@ class _SkillTagsTabState extends State<SkillTagsTab> {
               child: Center(
                 child: Column(
                   children: [
-                    Icon(Icons.label_outline, size: 48, color: Colors.grey[300]),
-                    const SizedBox(height: 8),
-                    Text(
-                      '暂无技能标签',
-                      style: TextStyle(color: Colors.grey[600]),
+                    Icon(
+                      Icons.label_outline,
+                      size: 48,
+                      color: Colors.grey[300],
                     ),
+                    const SizedBox(height: 8),
+                    Text('暂无技能标签', style: TextStyle(color: Colors.grey[600])),
                   ],
                 ),
               ),
@@ -270,17 +273,16 @@ class _SkillTagsTabState extends State<SkillTagsTab> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '认证中',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
+        Text('认证中', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 12),
         ..._pendingRequests.map((request) {
           return Card(
             child: ListTile(
               leading: const Icon(Icons.hourglass_empty, color: Colors.orange),
               title: Text(request.skillName ?? '未知技能'),
-              subtitle: Text('提交于 ${request.submittedAt?.formatRelative() ?? ''}'),
+              subtitle: Text(
+                '提交于 ${request.submittedAt?.formatRelative() ?? ''}',
+              ),
               trailing: const Chip(
                 label: Text('审核中'),
                 backgroundColor: Colors.orange,
@@ -316,28 +318,38 @@ class _SkillTagsTabState extends State<SkillTagsTab> {
   }
 
   Future<void> _addSkill(SkillModel skill) async {
-    const volunteerId = 'demo-volunteer-id';
+    final volunteerId = _resolveVolunteerId();
 
     if (skill.requiresVerification) {
-      // 需要认证，跳转到认证申请
-      final success = await _showVerificationDialog(skill);
-      if (success == true) {
+      final description = await _showVerificationDialog(skill);
+      if (description != null) {
+        final success = await _skillService.submitVerificationRequest(
+          volunteerId,
+          skill.id,
+          description: description,
+        );
+        if (success && mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('${skill.name} 认证申请已提交')));
+        }
         _loadData();
       }
     } else {
       // 直接添加
       final success = await _skillService.addSkill(volunteerId, skill.id);
       if (success && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('已添加 ${skill.name}')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('已添加 ${skill.name}')));
         _loadData();
       }
     }
   }
 
-  Future<bool?> _showVerificationDialog(SkillModel skill) async {
-    return showDialog<bool>(
+  Future<String?> _showVerificationDialog(SkillModel skill) async {
+    final controller = TextEditingController();
+    return showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('认证 ${skill.name}'),
@@ -346,8 +358,9 @@ class _SkillTagsTabState extends State<SkillTagsTab> {
           children: [
             Text(skill.description ?? ''),
             const SizedBox(height: 16),
-            const TextField(
-              decoration: InputDecoration(
+            TextField(
+              controller: controller,
+              decoration: const InputDecoration(
                 labelText: '证书/资质说明',
                 hintText: '请描述您的相关资质',
                 border: OutlineInputBorder(),
@@ -358,11 +371,16 @@ class _SkillTagsTabState extends State<SkillTagsTab> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () => Navigator.pop(context),
             child: const Text('取消'),
           ),
           ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () => Navigator.pop(
+              context,
+              controller.text.trim().isEmpty
+                  ? '已提交资质说明'
+                  : controller.text.trim(),
+            ),
             child: const Text('提交认证'),
           ),
         ],
@@ -371,7 +389,7 @@ class _SkillTagsTabState extends State<SkillTagsTab> {
   }
 
   Future<void> _removeSkill(String skillId) async {
-    const volunteerId = 'demo-volunteer-id';
+    final volunteerId = _resolveVolunteerId();
     final success = await _skillService.removeSkill(volunteerId, skillId);
     if (success) {
       _loadData();
@@ -403,9 +421,12 @@ class _TimelineTabState extends State<TimelineTab> {
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
 
-    const volunteerId = 'demo-volunteer-id';
+    final volunteerId = _resolveVolunteerId();
 
-    final timeline = await _timelineService.getTimeline(volunteerId, _selectedYear);
+    final timeline = await _timelineService.getTimeline(
+      volunteerId,
+      _selectedYear,
+    );
 
     setState(() {
       _timeline = timeline;
@@ -429,19 +450,13 @@ class _TimelineTabState extends State<TimelineTab> {
       child: CustomScrollView(
         slivers: [
           // 年份选择器
-          SliverToBoxAdapter(
-            child: _buildYearSelector(),
-          ),
+          SliverToBoxAdapter(child: _buildYearSelector()),
 
           // 统计卡片
-          SliverToBoxAdapter(
-            child: _buildStatsCards(timeline),
-          ),
+          SliverToBoxAdapter(child: _buildStatsCards(timeline)),
 
           // 热力图
-          SliverToBoxAdapter(
-            child: _buildHeatmap(timeline),
-          ),
+          SliverToBoxAdapter(child: _buildHeatmap(timeline)),
 
           // 最近活动
           const SliverToBoxAdapter(
@@ -456,15 +471,15 @@ class _TimelineTabState extends State<TimelineTab> {
 
           // 活动列表
           SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final days = timeline.days.where((d) => d.events.isNotEmpty).toList();
-                if (index >= days.length) return null;
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final days = timeline.days
+                  .where((d) => d.events.isNotEmpty)
+                  .toList();
+              if (index >= days.length) return null;
 
-                final day = days[index];
-                return _buildDayCard(day);
-              },
-            ),
+              final day = days[index];
+              return _buildDayCard(day);
+            }),
           ),
         ],
       ),
@@ -479,10 +494,7 @@ class _TimelineTabState extends State<TimelineTab> {
       padding: const EdgeInsets.all(16),
       child: SegmentedButton<int>(
         segments: years.map((year) {
-          return ButtonSegment(
-            value: year,
-            label: Text('$year年'),
-          );
+          return ButtonSegment(value: year, label: Text('$year年'));
         }).toList(),
         selected: {_selectedYear},
         onSelectionChanged: (selected) {
@@ -496,8 +508,6 @@ class _TimelineTabState extends State<TimelineTab> {
   }
 
   Widget _buildStatsCards(TimelineModel timeline) {
-    final stats = timeline.stats;
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
@@ -571,7 +581,10 @@ class _TimelineTabState extends State<TimelineTab> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Text('少', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                Text(
+                  '少',
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                ),
                 const SizedBox(width: 4),
                 ...List.generate(5, (i) {
                   return Container(
@@ -585,7 +598,10 @@ class _TimelineTabState extends State<TimelineTab> {
                   );
                 }),
                 const SizedBox(width: 4),
-                Text('多', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                Text(
+                  '多',
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                ),
               ],
             ),
           ],
@@ -626,7 +642,8 @@ class _TimelineTabState extends State<TimelineTab> {
                     mainAxisSize: MainAxisSize.min,
                     children: List.generate(
                       event.rating!,
-                      (i) => const Icon(Icons.star, size: 14, color: Colors.amber),
+                      (i) =>
+                          const Icon(Icons.star, size: 14, color: Colors.amber),
                     ),
                   )
                 : null,
@@ -661,7 +678,9 @@ class _BadgesTabState extends State<BadgesTab> {
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
 
-    const volunteerId = 'demo-volunteer-id';
+    final volunteerId = _resolveVolunteerId();
+
+    await _badgeService.checkAndAwardBadges(volunteerId);
 
     final myBadges = await _badgeService.getMyBadges(volunteerId);
     final availableBadges = await _badgeService.getAvailableBadges(volunteerId);
@@ -697,13 +716,13 @@ class _BadgesTabState extends State<BadgesTab> {
                 child: Center(
                   child: Column(
                     children: [
-                      Icon(Icons.emoji_events_outlined,
-                          size: 48, color: Colors.grey[300]),
-                      const SizedBox(height: 8),
-                      Text(
-                        '还没有徽章',
-                        style: TextStyle(color: Colors.grey[600]),
+                      Icon(
+                        Icons.emoji_events_outlined,
+                        size: 48,
+                        color: Colors.grey[300],
                       ),
+                      const SizedBox(height: 8),
+                      Text('还没有徽章', style: TextStyle(color: Colors.grey[600])),
                     ],
                   ),
                 ),
@@ -720,20 +739,14 @@ class _BadgesTabState extends State<BadgesTab> {
               itemCount: _myBadges.length,
               itemBuilder: (context, index) {
                 final badge = _myBadges[index];
-                return _BadgeCard(
-                  badge: badge,
-                  isEarned: true,
-                );
+                return _BadgeCard(badge: badge, isEarned: true);
               },
             ),
 
           const SizedBox(height: 24),
 
           // 待解锁徽章
-          Text(
-            '待解锁',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          Text('待解锁', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 12),
           GridView.builder(
             shrinkWrap: true,
@@ -773,7 +786,12 @@ class AsyncTasksTab extends StatefulWidget {
 
 class _AsyncTasksTabState extends State<AsyncTasksTab> {
   final AsyncTaskService _taskService = AsyncTaskService();
+  final DemoHelpRequestService _demoHelpRequestService =
+      DemoHelpRequestService();
+  final VolunteerLevelService _levelService = VolunteerLevelService();
+  final BadgeService _badgeService = BadgeService();
 
+  List<DemoHelpRequestModel> _pendingHelpRequests = [];
   List<AsyncTaskModel> _availableTasks = [];
   List<AsyncTaskModel> _myTasks = [];
   bool _isLoading = true;
@@ -787,12 +805,15 @@ class _AsyncTasksTabState extends State<AsyncTasksTab> {
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
 
-    const volunteerId = 'demo-volunteer-id';
+    final volunteerId = _resolveVolunteerId();
 
+    final pendingHelpRequests = await _demoHelpRequestService
+        .getVolunteerRequests(volunteerId, pendingOnly: true);
     final availableTasks = await _taskService.getAvailableTasks(volunteerId);
     final myTasks = await _taskService.getMyTasks(volunteerId);
 
     setState(() {
+      _pendingHelpRequests = pendingHelpRequests;
       _availableTasks = availableTasks;
       _myTasks = myTasks;
       _isLoading = false;
@@ -800,25 +821,28 @@ class _AsyncTasksTabState extends State<AsyncTasksTab> {
   }
 
   Future<void> _claimTask(String taskId) async {
-    const volunteerId = 'demo-volunteer-id';
+    final volunteerId = _resolveVolunteerId();
     final success = await _taskService.claimTask(taskId, volunteerId);
 
     if (success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('领取成功')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('领取成功')));
       _loadData();
     }
   }
 
   Future<void> _completeTask(String taskId, String result) async {
-    const volunteerId = 'demo-volunteer-id';
+    final volunteerId = _resolveVolunteerId();
     final success = await _taskService.completeTask(taskId, result);
 
     if (success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('任务已完成')),
-      );
+      await _levelService.onAsyncHelpCompleted(volunteerId, taskId);
+      await _badgeService.checkAndAwardBadges(volunteerId);
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('任务已完成')));
       _loadData();
     }
   }
@@ -830,11 +854,12 @@ class _AsyncTasksTabState extends State<AsyncTasksTab> {
     }
 
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Column(
         children: [
           const TabBar(
             tabs: [
+              Tab(text: '待处理求助'),
               Tab(text: '可领取'),
               Tab(text: '我的任务'),
             ],
@@ -842,6 +867,7 @@ class _AsyncTasksTabState extends State<AsyncTasksTab> {
           Expanded(
             child: TabBarView(
               children: [
+                _buildPendingHelpRequestsList(),
                 _buildAvailableTasksList(),
                 _buildMyTasksList(),
               ],
@@ -860,10 +886,7 @@ class _AsyncTasksTabState extends State<AsyncTasksTab> {
           children: [
             Icon(Icons.inbox_outlined, size: 64, color: Colors.grey[300]),
             const SizedBox(height: 16),
-            Text(
-              '暂无可领取的任务',
-              style: TextStyle(color: Colors.grey[600]),
-            ),
+            Text('暂无可领取的任务', style: TextStyle(color: Colors.grey[600])),
           ],
         ),
       );
@@ -886,6 +909,113 @@ class _AsyncTasksTabState extends State<AsyncTasksTab> {
     );
   }
 
+  Widget _buildPendingHelpRequestsList() {
+    if (_pendingHelpRequests.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.mark_email_unread_outlined,
+              size: 64,
+              color: Colors.grey[300],
+            ),
+            const SizedBox(height: 16),
+            Text('暂无待处理求助', style: TextStyle(color: Colors.grey[600])),
+            const SizedBox(height: 8),
+            Text(
+              '求助者提交后，这里会直接出现新的演示任务。',
+              style: TextStyle(color: Colors.grey[400], fontSize: 12),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _loadData,
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: _pendingHelpRequests.length,
+        itemBuilder: (context, index) {
+          final request = _pendingHelpRequests[index];
+          final statusColor = switch (request.status) {
+            DemoHelpRequestStatus.pending => Colors.orange,
+            DemoHelpRequestStatus.inProgress => Colors.blue,
+            DemoHelpRequestStatus.completed => Colors.green,
+            DemoHelpRequestStatus.cancelled => Colors.grey,
+            _ => Colors.teal,
+          };
+
+          return Card(
+            margin: const EdgeInsets.only(bottom: 12),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          request.title,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Chip(
+                        label: Text(request.statusLabel),
+                        backgroundColor: statusColor.withAlpha(26),
+                        labelStyle: TextStyle(color: statusColor),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _RequestMetaChip(
+                        icon: Icons.category_outlined,
+                        label: request.typeLabel,
+                      ),
+                      _RequestMetaChip(
+                        icon: Icons.schedule_outlined,
+                        label: request.schedulePreference,
+                      ),
+                      _RequestMetaChip(
+                        icon: Icons.accessibility_new_outlined,
+                        label: request.accessibilityLabel,
+                      ),
+                      _RequestMetaChip(
+                        icon: Icons.place_outlined,
+                        label: request.locationModeLabel,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    request.description,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: Colors.grey[700]),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    '提交于 ${request.createdAt.formatDateTime()}',
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   Widget _buildMyTasksList() {
     if (_myTasks.isEmpty) {
       return Center(
@@ -894,10 +1024,7 @@ class _AsyncTasksTabState extends State<AsyncTasksTab> {
           children: [
             Icon(Icons.assignment_outlined, size: 64, color: Colors.grey[300]),
             const SizedBox(height: 16),
-            Text(
-              '还没有任务',
-              style: TextStyle(color: Colors.grey[600]),
-            ),
+            Text('还没有任务', style: TextStyle(color: Colors.grey[600])),
           ],
         ),
       );
@@ -985,7 +1112,7 @@ class _ScheduleTabState extends State<ScheduleTab> {
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
 
-    const volunteerId = 'demo-volunteer-id';
+    final volunteerId = _resolveVolunteerId();
 
     final schedule = await _scheduleService.getSchedule(volunteerId);
     final isOnline = await _scheduleService.isOnline(volunteerId);
@@ -998,7 +1125,7 @@ class _ScheduleTabState extends State<ScheduleTab> {
   }
 
   Future<void> _toggleOnline(bool value) async {
-    const volunteerId = 'demo-volunteer-id';
+    final volunteerId = _resolveVolunteerId();
 
     final success = value
         ? await _scheduleService.goOnline(volunteerId)
@@ -1048,18 +1175,13 @@ class _ScheduleTabState extends State<ScheduleTab> {
                           ),
                         ),
                         Text(
-                          _isOnline
-                              ? '您现在可以接收求助请求'
-                              : '开启后可接收求助请求',
+                          _isOnline ? '您现在可以接收求助请求' : '开启后可接收求助请求',
                           style: TextStyle(color: Colors.grey[600]),
                         ),
                       ],
                     ),
                   ),
-                  Switch(
-                    value: _isOnline,
-                    onChanged: _toggleOnline,
-                  ),
+                  Switch(value: _isOnline, onChanged: _toggleOnline),
                 ],
               ),
             ),
@@ -1068,10 +1190,7 @@ class _ScheduleTabState extends State<ScheduleTab> {
           const SizedBox(height: 24),
 
           // 本周排班
-          Text(
-            '本周排班',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          Text('本周排班', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 12),
 
           ...WeekDay.values.map((day) {
@@ -1087,18 +1206,19 @@ class _ScheduleTabState extends State<ScheduleTab> {
     );
   }
 
-  Future<void> _editDaySchedule(WeekDay day, List<TimeSlot> currentSlots) async {
+  Future<void> _editDaySchedule(
+    WeekDay day,
+    List<TimeSlot> currentSlots,
+  ) async {
     // 简化的编辑对话框
     final result = await showDialog<List<TimeSlot>>(
       context: context,
-      builder: (context) => _ScheduleEditorDialog(
-        day: day,
-        initialSlots: currentSlots,
-      ),
+      builder: (context) =>
+          _ScheduleEditorDialog(day: day, initialSlots: currentSlots),
     );
 
     if (result != null) {
-      const volunteerId = 'demo-volunteer-id';
+      final volunteerId = _resolveVolunteerId();
       final success = await _scheduleService.updateDaySchedule(
         volunteerId,
         day.key,
@@ -1137,10 +1257,7 @@ class _LevelCard extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Text(
-              currentDef.emoji,
-              style: const TextStyle(fontSize: 64),
-            ),
+            Text(currentDef.emoji, style: const TextStyle(fontSize: 64)),
             const SizedBox(height: 12),
             Text(
               'Lv${levelInfo.currentLevel} ${currentDef.name}',
@@ -1195,9 +1312,7 @@ class _LevelProgress extends StatelessWidget {
               value: levelInfo.progressPercent,
               minHeight: 12,
               backgroundColor: Colors.grey[200],
-              valueColor: AlwaysStoppedAnimation<Color>(
-                Colors.blue[400]!,
-              ),
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue[400]!),
             ),
             const SizedBox(height: 8),
             if (nextLevel != null)
@@ -1206,10 +1321,7 @@ class _LevelProgress extends StatelessWidget {
                 style: TextStyle(color: Colors.grey[600]),
               )
             else
-              const Text(
-                '已达到最高等级！',
-                style: TextStyle(color: Colors.green),
-              ),
+              const Text('已达到最高等级！', style: TextStyle(color: Colors.green)),
           ],
         ),
       ),
@@ -1242,7 +1354,11 @@ class _PrivilegesCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: Row(
                   children: [
-                    const Icon(Icons.check_circle, color: Colors.green, size: 20),
+                    const Icon(
+                      Icons.check_circle,
+                      color: Colors.green,
+                      size: 20,
+                    ),
                     const SizedBox(width: 8),
                     Text(privilege),
                   ],
@@ -1267,9 +1383,7 @@ class _TransactionsList extends StatelessWidget {
       return const Card(
         child: Padding(
           padding: EdgeInsets.all(24),
-          child: Center(
-            child: Text('暂无积分记录'),
-          ),
+          child: Center(child: Text('暂无积分记录')),
         ),
       );
     }
@@ -1352,9 +1466,9 @@ class _SkillSelector extends StatelessWidget {
               itemCount: categories.length,
               itemBuilder: (context, index) {
                 final category = categories[index];
-                final skills = SkillDefinitions.getByCategory(category)
-                    .where((s) => !existingSkills.contains(s.id))
-                    .toList();
+                final skills = SkillDefinitions.getByCategory(
+                  category,
+                ).where((s) => !existingSkills.contains(s.id)).toList();
 
                 if (skills.isEmpty) return const SizedBox.shrink();
 
@@ -1411,7 +1525,7 @@ class _TimelineStatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withAlpha(26),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -1428,10 +1542,7 @@ class _TimelineStatCard extends StatelessWidget {
           ),
           Text(
             label,
-            style: TextStyle(
-              fontSize: 12,
-              color: color.withOpacity(0.8),
-            ),
+            style: TextStyle(fontSize: 12, color: color.withAlpha(204)),
           ),
         ],
       ),
@@ -1478,10 +1589,7 @@ class _BadgeCard extends StatelessWidget {
               if (isEarned && badge.earnedAt != null)
                 Text(
                   badge.earnedAt!.formatDate(),
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 10, color: Colors.grey[600]),
                 ),
             ],
           ),
@@ -1509,6 +1617,23 @@ class _BadgeCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _RequestMetaChip extends StatelessWidget {
+  const _RequestMetaChip({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Chip(
+      avatar: Icon(icon, size: 16, color: Colors.teal),
+      label: Text(label, overflow: TextOverflow.ellipsis),
+      backgroundColor: Colors.teal.withAlpha(20),
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
   }
 }
@@ -1545,15 +1670,9 @@ class _TaskCard extends StatelessWidget {
                 ),
                 const Spacer(),
                 if (isAvailable)
-                  ElevatedButton(
-                    onPressed: onClaim,
-                    child: const Text('领取'),
-                  )
+                  ElevatedButton(onPressed: onClaim, child: const Text('领取'))
                 else if (task.status == 'processing')
-                  ElevatedButton(
-                    onPressed: onComplete,
-                    child: const Text('完成'),
-                  )
+                  ElevatedButton(onPressed: onComplete, child: const Text('完成'))
                 else
                   Chip(
                     label: Text(task.status ?? '未知'),
@@ -1562,10 +1681,7 @@ class _TaskCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            Text(
-              task.description,
-              style: const TextStyle(fontSize: 16),
-            ),
+            Text(task.description, style: const TextStyle(fontSize: 16)),
             if (task.imageUrl != null) ...[
               const SizedBox(height: 12),
               ClipRRect(
@@ -1629,10 +1745,7 @@ class _DayScheduleCard extends StatelessWidget {
                   );
                 }).toList(),
               ),
-        trailing: IconButton(
-          icon: const Icon(Icons.edit),
-          onPressed: onEdit,
-        ),
+        trailing: IconButton(icon: const Icon(Icons.edit), onPressed: onEdit),
       ),
     );
   }
@@ -1642,10 +1755,7 @@ class _ScheduleEditorDialog extends StatefulWidget {
   final WeekDay day;
   final List<TimeSlot> initialSlots;
 
-  const _ScheduleEditorDialog({
-    required this.day,
-    required this.initialSlots,
-  });
+  const _ScheduleEditorDialog({required this.day, required this.initialSlots});
 
   @override
   State<_ScheduleEditorDialog> createState() => _ScheduleEditorDialogState();

@@ -135,7 +135,7 @@ class CallRecordingService {
           .eq('id', recordingId)
           .single();
 
-      return CallRecording.fromJson(response);
+      return CallRecording.fromJson(Map<String, dynamic>.from(response as Map));
     } catch (e) {
       AppLogger.error('获取录音记录失败', e);
       return null;
@@ -152,7 +152,7 @@ class CallRecordingService {
           .maybeSingle();
 
       if (response == null) return null;
-      return CallRecording.fromJson(response);
+      return CallRecording.fromJson(Map<String, dynamic>.from(response as Map));
     } catch (e) {
       AppLogger.error('获取通话录音记录失败', e);
       return null;
@@ -198,7 +198,7 @@ class CallRecordingService {
           .eq('is_deleted', false);
 
       final expiredIds = (response as List)
-          .map((r) => r['id'] as String)
+          .map((r) => Map<String, dynamic>.from(r as Map)['id'] as String)
           .toList();
 
       // 删除每个过期录音
@@ -230,7 +230,12 @@ class CallRecordingService {
           .maybeSingle();
 
       if (response == null) return RecordingConfig.defaultEnabled;
-      return response['recording_enabled'] ?? RecordingConfig.defaultEnabled;
+      final preference = Map<String, dynamic>.from(response as Map);
+      final enabled = preference['recording_enabled'];
+      if (enabled is bool) {
+        return enabled;
+      }
+      return RecordingConfig.defaultEnabled;
     } catch (e) {
       return RecordingConfig.defaultEnabled;
     }

@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../core/utils/logger.dart';
 import '../screens/call/demo_exports.dart';
 import 'demo_matching_flow.dart';
 
@@ -73,10 +74,10 @@ class DemoSOSFlow {
   static Future<void> _sendEmergencySMS() async {
     // 演示模式：仅打印日志
     // 真实版本会调用SMS API
-    print('[DEMO] 发送紧急短信给联系人:');
-    print('- 联系人1: 138****0001');
-    print('- 联系人2: 139****0002');
-    print('- 短信内容: 【共感LinkAble紧急求助】您的亲友触发了SOS...');
+    AppLogger.info('[DEMO] 发送紧急短信给联系人');
+    AppLogger.verbose('[DEMO] - 联系人1: 138****0001');
+    AppLogger.verbose('[DEMO] - 联系人2: 139****0002');
+    AppLogger.verbose('[DEMO] - 短信内容: 【共感LinkAble紧急求助】您的亲友触发了SOS...');
 
     // 模拟延迟
     await Future.delayed(const Duration(milliseconds: 500));
@@ -86,7 +87,7 @@ class DemoSOSFlow {
   static void _autoMatchVolunteer(BuildContext context) {
     if (!_isActive) return;
 
-    print('[DEMO] SOS响应：匹配到志愿者');
+    AppLogger.info('[DEMO] SOS响应：匹配到志愿者');
 
     // 导航到通话页面
     if (context.mounted) {
@@ -124,7 +125,7 @@ class DemoSOSTrigger {
       _powerKeyCount = 0;
       // 触发SOS
       // 需要BuildContext，这里仅记录状态
-      print('[DEMO] 电源键SOS触发（3次）');
+      AppLogger.warning('[DEMO] 电源键SOS触发（3次）');
     }
   }
 

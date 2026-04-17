@@ -1,4 +1,5 @@
 import 'dart:math';
+import '../../config/app_config.dart';
 import '../../models/user_model.dart';
 import '../../models/call_models.dart';
 import 'demo_data_loader.dart';
@@ -6,14 +7,28 @@ import 'demo_data_loader.dart';
 /// 演示版志愿者服务
 /// 用于替代真实的Supabase匹配服务
 class DemoVolunteerService {
-  static final DemoVolunteerService _instance = DemoVolunteerService._internal();
+  static final DemoVolunteerService _instance =
+      DemoVolunteerService._internal();
   factory DemoVolunteerService() => _instance;
   DemoVolunteerService._internal();
 
   final _random = Random();
 
+  List<String> _stringList(dynamic raw) {
+    if (raw is! List) {
+      return const [];
+    }
+    return raw.whereType<String>().toList();
+  }
+
   /// 获取所有演示志愿者
   List<VolunteerProfile> getAllVolunteers() {
+    if (!AppConfig.shouldUseDemoFallback(
+      feature: 'DemoVolunteerService.getAllVolunteers',
+    )) {
+      return const [];
+    }
+
     final volunteersData = DemoDataLoader.getDemoVolunteers();
     return volunteersData.map((data) => _parseVolunteer(data)).toList();
   }
@@ -29,6 +44,14 @@ class DemoVolunteerService {
     required String seekerId,
     int delayMs = 3000,
   }) async {
+    if (!AppConfig.shouldUseDemoFallback(
+      feature: 'DemoVolunteerService.matchVolunteer',
+    )) {
+      throw StateError(
+        'DemoVolunteerService.matchVolunteer 仅在 Demo fallback 开启时可用',
+      );
+    }
+
     // 模拟匹配延迟
     await Future.delayed(Duration(milliseconds: delayMs));
 
@@ -45,7 +68,7 @@ class DemoVolunteerService {
       id: 'match_${_random.nextInt(10000)}',
       userId: volunteer.userId,
       score: 0.95,
-      distance: volunteer.distance ?? 1.2,
+      distance: 1.2,
       skills: volunteer.skills,
     );
 
@@ -61,6 +84,12 @@ class DemoVolunteerService {
     int count = 3,
     int delayMs = 2000,
   }) async {
+    if (!AppConfig.shouldUseDemoFallback(
+      feature: 'DemoVolunteerService.matchMultipleVolunteers',
+    )) {
+      return const [];
+    }
+
     await Future.delayed(Duration(milliseconds: delayMs));
 
     final volunteers = getOnlineVolunteers();
@@ -68,13 +97,15 @@ class DemoVolunteerService {
 
     for (int i = 0; i < min(count, volunteers.length); i++) {
       final volunteer = volunteers[i];
-      matched.add(MatchedVolunteer(
-        id: 'match_${_random.nextInt(10000)}_$i',
-        userId: volunteer.userId,
-        score: 0.9 - (i * 0.05),
-        distance: volunteer.distance ?? (1.0 + i * 1.5),
-        skills: volunteer.skills,
-      ));
+      matched.add(
+        MatchedVolunteer(
+          id: 'match_${_random.nextInt(10000)}_$i',
+          userId: volunteer.userId,
+          score: 0.9 - (i * 0.05),
+          distance: 1.0 + i * 1.5,
+          skills: volunteer.skills,
+        ),
+      );
     }
 
     return matched;
@@ -92,35 +123,45 @@ class DemoVolunteerService {
 
   /// 解析志愿者数据
   VolunteerProfile _parseVolunteer(Map<String, dynamic> data) {
+    final creditScore = (data['creditScore'] as num?)?.toDouble() ?? 5.0;
+    final latitude = (data['latitude'] as num?)?.toDouble();
+    final longitude = (data['longitude'] as num?)?.toDouble();
+
     return VolunteerProfile(
-      userId: data['userId'] ?? '',
-      skills: List<String>.from(data['skills'] ?? []),
-      level: data['level'] ?? 1,
-      points: data['points'] ?? 0,
-      creditScore: (data['creditScore'] ?? 5.0).toDouble(),
-      isVerified: data['isVerified'] ?? false,
-      isOnline: data['isOnline'] ?? false,
-      totalHelpCount: data['totalHelpCount'],
-      latitude: data['latitude']?.toDouble(),
-      longitude: data['longitude']?.toDouble(),
+      userId: data['userId'] as String? ?? '',
+      skills: _stringList(data['skills']),
+      level: data['level'] as int? ?? 1,
+      points: data['points'] as int? ?? 0,
+      creditScore: creditScore,
+      isVerified: data['isVerified'] as bool? ?? false,
+      isOnline: data['isOnline'] as bool? ?? false,
+      totalHelpCount: data['totalHelpCount'] as int?,
+      latitude: latitude,
+      longitude: longitude,
     );
   }
 
   /// 模拟获取志愿者用户信息
   UserModel? getVolunteerUser(String userId) {
+    if (!AppConfig.shouldUseDemoFallback(
+      feature: 'DemoVolunteerService.getVolunteerUser',
+    )) {
+      return null;
+    }
+
     final volunteerData = DemoDataLoader.getDemoVolunteers().firstWhere(
-      (v) => v['userId'] == userId,
-      orElse: () => {},
+      (v) => (v['userId'] as String? ?? '') == userId,
+      orElse: () => <String, dynamic>{},
     );
 
     if (volunteerData.isEmpty) return null;
 
     return UserModel(
-      id: volunteerData['userId'] ?? '',
-      phone: volunteerData['phone'] ?? '',
-      name: volunteerData['name'],
-      avatarUrl: volunteerData['avatarUrl'],
-      role: List<String>.from(volunteerData['role'] ?? ['volunteer']),
+      id: volunteerData['userId'] as String? ?? '',
+      phone: volunteerData['phone'] as String? ?? '',
+      name: volunteerData['name'] as String?,
+      avatarUrl: volunteerData['avatarUrl'] as String?,
+      role: _stringList(volunteerData['role'] ?? ['volunteer']),
     );
   }
 }

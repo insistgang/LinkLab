@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'sidebar.dart';
 
@@ -7,11 +6,7 @@ class AppLayout extends StatelessWidget {
   final Widget child;
   final String currentRoute;
 
-  const AppLayout({
-    super.key,
-    required this.child,
-    required this.currentRoute,
-  });
+  const AppLayout({super.key, required this.child, required this.currentRoute});
 
   @override
   Widget build(BuildContext context) {
@@ -19,9 +14,7 @@ class AppLayout extends StatelessWidget {
 
     if (isMobile) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('LinkLab 运营后台'),
-        ),
+        appBar: AppBar(title: const Text('LinkLab 运营后台')),
         drawer: MobileDrawer(currentRoute: currentRoute),
         body: child,
       );
@@ -53,10 +46,7 @@ class AppLayout extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 4,
-          ),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4),
         ],
       ),
       child: Row(
@@ -69,10 +59,7 @@ class AppLayout extends StatelessWidget {
             onPressed: () {},
           ),
           const SizedBox(width: 8),
-          IconButton(
-            icon: const Icon(Icons.help_outline),
-            onPressed: () {},
-          ),
+          IconButton(icon: const Icon(Icons.help_outline), onPressed: () {}),
         ],
       ),
     );

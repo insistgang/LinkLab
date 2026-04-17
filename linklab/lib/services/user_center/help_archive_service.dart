@@ -13,7 +13,13 @@ class HelpArchiveService {
   SupabaseClient? _supabaseClient;
   final storage.LocalStorage _localStorage = storage.LocalStorage();
 
-  bool get _hasSupabase => Supabase.instance.isInitialized;
+  bool get _hasSupabase {
+    try {
+      return Supabase.instance.isInitialized;
+    } catch (_) {
+      return false;
+    }
+  }
 
   SupabaseClient get _supabase {
     if (!_hasSupabase) {
@@ -98,8 +104,10 @@ class HelpArchiveService {
   Future<HelpRequestModel?> getHelpRequestDetail(String requestId) async {
     if (!_hasSupabase) {
       try {
-        return _getLocalHelpHistory(limit: 100, offset: 0)
-            .firstWhere((request) => request.id == requestId);
+        return _getLocalHelpHistory(
+          limit: 100,
+          offset: 0,
+        ).firstWhere((request) => request.id == requestId);
       } catch (_) {
         return null;
       }
@@ -232,18 +240,20 @@ class HelpArchiveService {
     int offset = 0,
     HelpRecordFilter? filter,
   }) {
-    List<HelpRequestModel> items = _localStorage
-        .getHelpHistory()
-        .map(
-          (json) => HelpRequestModel.fromJson(
-            Map<String, dynamic>.from(json),
-          ),
-        )
-        .toList()
-      ..sort(
-        (a, b) => (b.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0))
-            .compareTo(a.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0)),
-      );
+    List<HelpRequestModel> items =
+        _localStorage
+            .getHelpHistory()
+            .map(
+              (json) =>
+                  HelpRequestModel.fromJson(Map<String, dynamic>.from(json)),
+            )
+            .toList()
+          ..sort(
+            (a, b) => (b.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0))
+                .compareTo(
+                  a.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0),
+                ),
+          );
 
     final type = filter?.type;
     final status = filter?.status;
@@ -286,29 +296,34 @@ class HelpArchiveService {
     return _buildStatisticsFromRequests(allRequests);
   }
 
-  HelpStatistics _buildStatisticsFromRequests(List<HelpRequestModel> allRequests) {
+  HelpStatistics _buildStatisticsFromRequests(
+    List<HelpRequestModel> allRequests,
+  ) {
     final totalRequests = allRequests.length;
-    final aiResolvedCount =
-        allRequests.where((request) => request.status == 'ai_resolved').length;
-    final volunteerHelpCount =
-        allRequests.where((request) => request.volunteerId != null).length;
-    final sosCount = allRequests.where((request) => request.type == 'sos').length;
-    final aiResolutionRate =
-        totalRequests > 0 ? aiResolvedCount / totalRequests : 0.0;
+    final aiResolvedCount = allRequests
+        .where((request) => request.status == 'ai_resolved')
+        .length;
+    final volunteerHelpCount = allRequests
+        .where((request) => request.volunteerId != null)
+        .length;
+    final sosCount = allRequests
+        .where((request) => request.type == 'sos')
+        .length;
+    final aiResolutionRate = totalRequests > 0
+        ? aiResolvedCount / totalRequests
+        : 0.0;
     final totalDurationMinutes = allRequests
         .where((request) => request.durationSeconds != null)
-        .fold<int>(
-          0,
-          (sum, request) => sum + (request.durationSeconds! ~/ 60),
-        );
-    final ratedRequests =
-        allRequests.where((request) => request.seekerRating != null).toList();
+        .fold<int>(0, (sum, request) => sum + (request.durationSeconds! ~/ 60));
+    final ratedRequests = allRequests
+        .where((request) => request.seekerRating != null)
+        .toList();
     final averageRating = ratedRequests.isNotEmpty
         ? ratedRequests.fold<int>(
-              0,
-              (sum, request) => sum + request.seekerRating!,
-            ) /
-            ratedRequests.length
+                0,
+                (sum, request) => sum + request.seekerRating!,
+              ) /
+              ratedRequests.length
         : 0.0;
 
     return HelpStatistics(

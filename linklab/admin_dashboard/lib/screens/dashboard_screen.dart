@@ -65,22 +65,18 @@ class _DashboardContent extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.error_outline,
-                    size: 64,
-                    color: Colors.grey[400],
-                  ),
+                  Icon(Icons.error_outline, size: 64, color: Colors.grey[400]),
                   const SizedBox(height: 16),
                   Text(
                     state.message,
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(color: Colors.grey[600]),
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
-                      context.read<DashboardBloc>().add(DashboardLoadRequested());
+                      context.read<DashboardBloc>().add(
+                        DashboardLoadRequested(),
+                      );
                     },
                     child: const Text('重试'),
                   ),
@@ -143,7 +139,7 @@ class _DashboardContent extends StatelessWidget {
       ),
       MetricCard(
         title: '用户满意度',
-        value: '${metrics.satisfaction.toStringAsFixed(1)}',
+        value: metrics.satisfaction.toStringAsFixed(1),
         change: metrics.satisfactionChange,
         subtitle: '满分5分',
         icon: Icons.star_outline,
@@ -160,10 +156,14 @@ class _DashboardContent extends StatelessWidget {
 
     if (isMobile) {
       return Column(
-        children: cards.map((card) => Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: card,
-        )).toList(),
+        children: cards
+            .map(
+              (card) => Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: card,
+              ),
+            )
+            .toList(),
       );
     }
 
@@ -203,15 +203,9 @@ class _DashboardContent extends StatelessWidget {
           ],
           if (distribution != null) ...[
             const SizedBox(height: 16),
-            PieChartWidget(
-              data: distribution.userType,
-              title: '用户类型分布',
-            ),
+            PieChartWidget(data: distribution.userType, title: '用户类型分布'),
             const SizedBox(height: 16),
-            PieChartWidget(
-              data: distribution.disabilityType,
-              title: '残障类型分布',
-            ),
+            PieChartWidget(data: distribution.disabilityType, title: '残障类型分布'),
           ],
         ],
       );

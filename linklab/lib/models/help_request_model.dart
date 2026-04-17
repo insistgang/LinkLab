@@ -12,7 +12,7 @@ class HelpRequestModel with _$HelpRequestModel {
     String? type, // 'ai_auto', 'async', 'realtime_voice', 'realtime_video', 'sos'
     String? intent,
     String? urgency, // 'normal', 'important', 'urgent', 'emergency'
-    String? status, // 'pending', 'ai_resolved', 'matching', 'connected', 'completed', 'cancelled'
+    String? status, // 'created', 'ai_processing', 'ai_resolved', 'matching', 'connected', 'completed', 'cancelled', 'expired'
     Map<String, dynamic>? aiResponse,
     String? volunteerId,
     double? latitude,
@@ -39,7 +39,10 @@ class HelpRequestModel with _$HelpRequestModel {
 
   /// 是否进行中
   bool get isActive =>
-      status == 'matching' || status == 'connected';
+      status == 'created' ||
+      status == 'ai_processing' ||
+      status == 'matching' ||
+      status == 'connected';
 
   /// 紧急程度标签
   String get urgencyLabel {
@@ -58,8 +61,10 @@ class HelpRequestModel with _$HelpRequestModel {
   /// 状态标签
   String get statusLabel {
     switch (status) {
-      case 'pending':
+      case 'created':
         return '等待中';
+      case 'ai_processing':
+        return 'AI分析中';
       case 'ai_resolved':
         return 'AI已解决';
       case 'matching':
@@ -70,6 +75,8 @@ class HelpRequestModel with _$HelpRequestModel {
         return '已完成';
       case 'cancelled':
         return '已取消';
+      case 'expired':
+        return '已超时';
       default:
         return '未知';
     }

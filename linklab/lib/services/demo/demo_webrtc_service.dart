@@ -1,4 +1,6 @@
 import 'dart:async';
+
+import '../../config/app_config.dart';
 import '../../models/call_models.dart';
 
 /// 演示版WebRTC服务
@@ -20,12 +22,20 @@ class DemoWebRTCService {
   Timer? _callTimer;
   int _elapsedSeconds = 0;
 
+  void _ensureDemoFallbackEnabled(String action) {
+    if (!AppConfig.shouldUseDemoFallback(feature: action)) {
+      throw StateError('$action 仅在 Demo fallback 开启时可用');
+    }
+  }
+
   /// 初始化通话
   Future<CallInfo> initializeCall({
     required String seekerId,
     required String volunteerId,
     required CallRole myRole,
   }) async {
+    _ensureDemoFallbackEnabled('DemoWebRTCService.initializeCall');
+
     // 模拟初始化延迟
     await Future.delayed(const Duration(milliseconds: 500));
 
@@ -45,6 +55,7 @@ class DemoWebRTCService {
 
   /// 开始通话（模拟连接过程）
   Future<void> startCall() async {
+    _ensureDemoFallbackEnabled('DemoWebRTCService.startCall');
     if (_currentCall == null) return;
 
     // 模拟连接过程
@@ -64,6 +75,7 @@ class DemoWebRTCService {
 
   /// 模拟自动接听（用于演示）
   Future<void> autoAnswer({int delaySeconds = 3}) async {
+    _ensureDemoFallbackEnabled('DemoWebRTCService.autoAnswer');
     await Future.delayed(Duration(seconds: delaySeconds));
     await startCall();
   }

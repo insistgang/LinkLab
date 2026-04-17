@@ -86,7 +86,7 @@ class RatingService {
           .eq('id', ratingId)
           .single();
 
-      return RatingRecord.fromJson(response);
+      return RatingRecord.fromJson(Map<String, dynamic>.from(response as Map));
     } catch (e) {
       AppLogger.error('获取评价失败', e);
       return null;
@@ -102,7 +102,10 @@ class RatingService {
           .eq('call_id', callId);
 
       return (response as List)
-          .map((json) => RatingRecord.fromJson(json))
+          .map(
+            (json) =>
+                RatingRecord.fromJson(Map<String, dynamic>.from(json as Map)),
+          )
           .toList();
     } catch (e) {
       AppLogger.error('获取通话评价失败', e);
@@ -125,7 +128,10 @@ class RatingService {
           .range(offset, offset + limit - 1);
 
       return (response as List)
-          .map((json) => RatingRecord.fromJson(json))
+          .map(
+            (json) =>
+                RatingRecord.fromJson(Map<String, dynamic>.from(json as Map)),
+          )
           .toList();
     } catch (e) {
       AppLogger.error('获取用户评价失败', e);
@@ -148,7 +154,10 @@ class RatingService {
           .range(offset, offset + limit - 1);
 
       return (response as List)
-          .map((json) => RatingRecord.fromJson(json))
+          .map(
+            (json) =>
+                RatingRecord.fromJson(Map<String, dynamic>.from(json as Map)),
+          )
           .toList();
     } catch (e) {
       AppLogger.error('获取用户发出的评价失败', e);
@@ -224,7 +233,7 @@ class RatingService {
           .maybeSingle();
 
       if (response == null) return null;
-      return RatingRecord.fromJson(response);
+      return RatingRecord.fromJson(Map<String, dynamic>.from(response as Map));
     } catch (e) {
       return null;
     }

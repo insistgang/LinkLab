@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'ai_service.dart';
+import '../../core/utils/logger.dart';
 
 /// 对话上下文管理器
 /// 负责管理多轮对话的状态和历史记录
@@ -196,9 +198,13 @@ class DialogContextManager {
       }
 
       await _prefs!.setString(_storageKey, jsonEncode(sessions));
-    } catch (e) {
+    } catch (error, stackTrace) {
       // 存储失败不抛出异常
-      print('Failed to save session: $e');
+      AppLogger.error(
+        '保存对话会话失败，已跳过持久化',
+        error,
+        stackTrace,
+      );
     }
   }
 
@@ -215,8 +221,12 @@ class DialogContextManager {
           .map((data) => _deserializeSession(data))
           .whereType<DialogContext>()
           .toList();
-    } catch (e) {
-      print('Failed to load sessions: $e');
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        '加载历史对话会话失败，已回退为空列表',
+        error,
+        stackTrace,
+      );
       return [];
     }
   }
@@ -246,8 +256,12 @@ class DialogContextManager {
                 .toList() ??
             [],
       );
-    } catch (e) {
-      print('Failed to deserialize session: $e');
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        '反序列化对话会话失败，已跳过损坏记录',
+        error,
+        stackTrace,
+      );
       return null;
     }
   }
@@ -264,8 +278,12 @@ class DialogContextManager {
         timestamp: DateTime.parse(data['timestamp']),
         imageUrl: data['imageUrl'],
       );
-    } catch (e) {
-      print('Failed to deserialize message: $e');
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        '反序列化对话消息失败，已跳过损坏消息',
+        error,
+        stackTrace,
+      );
       return null;
     }
   }

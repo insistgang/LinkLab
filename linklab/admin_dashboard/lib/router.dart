@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'bloc/auth_bloc.dart';
 import 'screens/login_screen.dart';
@@ -41,10 +40,7 @@ class AppRouter {
         ),
         ShellRoute(
           builder: (context, state, child) {
-            return AppLayout(
-              currentRoute: state.matchedLocation,
-              child: child,
-            );
+            return AppLayout(currentRoute: state.matchedLocation, child: child);
           },
           routes: [
             GoRoute(

@@ -82,6 +82,9 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  # admin_dashboard 当前未使用 Flutter asset bundle。
+  # `web/` 下的 favicon 和 icons 由 Web 静态资源直接提供，不进入 pubspec assets。
+
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

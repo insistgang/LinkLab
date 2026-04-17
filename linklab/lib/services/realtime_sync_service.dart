@@ -2,8 +2,7 @@ import 'dart:async';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../models/help_request_model.dart';
-import '../models/user_model.dart';
+import '../core/utils/logger.dart';
 
 /// Realtime状态同步服务
 /// 负责志愿者在线状态、求助状态、通话状态的实时同步
@@ -49,17 +48,18 @@ class RealtimeSyncService {
           table: 'volunteer_profiles',
           filter: PostgresChangeFilter(
             type: PostgresChangeFilterType.eq,
-            column: 'id',
+            column: 'user_id',
             value: volunteerId,
           ),
           callback: (payload) {
-            final record = payload.newRecord;
+            final record = Map<String, dynamic>.from(payload.newRecord);
+            final lastHeartbeatAt = record['last_heartbeat_at']?.toString();
             _volunteerStatusController.add(VolunteerStatus(
               volunteerId: volunteerId,
-              isOnline: record['is_online'] ?? false,
-              isAvailable: record['is_available'] ?? false,
-              lastHeartbeatAt: record['last_heartbeat_at'] != null
-                  ? DateTime.parse(record['last_heartbeat_at'])
+              isOnline: record['is_online'] == true,
+              isAvailable: record['is_available'] != false,
+              lastHeartbeatAt: lastHeartbeatAt != null
+                  ? DateTime.parse(lastHeartbeatAt)
                   : null,
             ));
           },
@@ -89,16 +89,18 @@ class RealtimeSyncService {
             value: helpRequestId,
           ),
           callback: (payload) {
-            final record = payload.newRecord;
+            final record = Map<String, dynamic>.from(payload.newRecord);
+            final matchedAt = record['matched_at']?.toString();
+            final completedAt = record['completed_at']?.toString();
             _helpRequestStatusController.add(HelpRequestStatus(
               helpRequestId: helpRequestId,
-              status: record['status'] ?? 'pending',
-              volunteerId: record['volunteer_id'],
-              matchedAt: record['matched_at'] != null
-                  ? DateTime.parse(record['matched_at'])
+              status: record['status']?.toString() ?? 'created',
+              volunteerId: record['volunteer_id']?.toString(),
+              matchedAt: matchedAt != null
+                  ? DateTime.parse(matchedAt)
                   : null,
-              completedAt: record['completed_at'] != null
-                  ? DateTime.parse(record['completed_at'])
+              completedAt: completedAt != null
+                  ? DateTime.parse(completedAt)
                   : null,
             ));
           },
@@ -121,11 +123,12 @@ class RealtimeSyncService {
         .onBroadcast(
           event: 'signaling',
           callback: (payload) {
+            final message = Map<String, dynamic>.from(payload);
             _callStatusController.add(CallStatusEvent(
               roomId: roomId,
-              type: payload['type'] as String,
-              fromUserId: payload['from_user_id'] as String,
-              data: payload['data'],
+              type: message['type']?.toString() ?? 'unknown',
+              fromUserId: message['from_user_id']?.toString() ?? '',
+              data: message['data'],
               timestamp: DateTime.now(),
             ));
           },
@@ -148,20 +151,29 @@ class RealtimeSyncService {
         .onPostgresChanges(
           event: PostgresChangeEvent.update,
           schema: 'public',
-          table: 'sos_requests',
+          table: 'help_requests',
           filter: PostgresChangeFilter(
             type: PostgresChangeFilterType.eq,
             column: 'id',
             value: sosId,
           ),
           callback: (payload) {
-            final record = payload.newRecord;
+            final record = Map<String, dynamic>.from(payload.newRecord);
+            if (record['type']?.toString() != 'sos') {
+              return;
+            }
+
+            final matchedAt = record['matched_at']?.toString();
+            final completedAt = record['completed_at']?.toString();
             _helpRequestStatusController.add(HelpRequestStatus(
               helpRequestId: sosId,
-              status: record['status'] ?? 'active',
-              volunteerId: record['responder_id'],
-              matchedAt: record['responded_at'] != null
-                  ? DateTime.parse(record['responded_at'])
+              status: record['status']?.toString() ?? 'matching',
+              volunteerId: record['volunteer_id']?.toString(),
+              matchedAt: matchedAt != null
+                  ? DateTime.parse(matchedAt)
+                  : null,
+              completedAt: completedAt != null
+                  ? DateTime.parse(completedAt)
                   : null,
             ));
           },
@@ -184,16 +196,20 @@ class RealtimeSyncService {
         .onPostgresChanges(
           event: PostgresChangeEvent.insert,
           schema: 'public',
-          table: 'help_request_matches',
+          table: 'help_requests',
           filter: PostgresChangeFilter(
             type: PostgresChangeFilterType.eq,
-            column: 'volunteer_user_id',
-            value: userId,
+            column: 'status',
+            value: 'matching',
           ),
           callback: (payload) {
-            final record = payload.newRecord;
-            // 触发匹配请求事件
-            _onMatchingRequestReceived(record);
+            final record = Map<String, dynamic>.from(payload.newRecord);
+            final requestType = record['type']?.toString();
+            if (requestType == 'realtime_voice' ||
+                requestType == 'realtime_video' ||
+                requestType == 'sos') {
+              _onMatchingRequestReceived(record);
+            }
           },
         )
         .subscribe();
@@ -228,8 +244,8 @@ class RealtimeSyncService {
     required Map<String, dynamic> data,
   }) async {
     await _supabase.channel('call:$roomId').sendBroadcastMessage(
-      'signaling',
-      {
+      event: 'signaling',
+      payload: {
         'type': type,
         'from_user_id': _supabase.auth.currentUser?.id,
         'data': data,
@@ -342,16 +358,19 @@ class OnlinePresenceManager {
     if (userId == null) return;
 
     try {
-      await _supabase.from('user_presence').upsert({
-        'user_id': userId,
-        'is_online': true,
-        'last_seen_at': DateTime.now().toIso8601String(),
-      });
+      await _supabase
+          .from('volunteer_profiles')
+          .update({
+            'is_online': true,
+            'is_available': true,
+            'last_heartbeat_at': DateTime.now().toIso8601String(),
+          })
+          .eq('user_id', userId);
 
       _isOnline = true;
       _startHeartbeat();
     } catch (e) {
-      print('上线失败: $e');
+      AppLogger.error('在线状态上线失败', e);
     }
   }
 
@@ -363,15 +382,14 @@ class OnlinePresenceManager {
     if (userId == null) return;
 
     try {
-      await _supabase.from('user_presence').upsert({
-        'user_id': userId,
-        'is_online': false,
-        'last_seen_at': DateTime.now().toIso8601String(),
-      });
+      await _supabase
+          .from('volunteer_profiles')
+          .update({'is_online': false, 'is_available': false})
+          .eq('user_id', userId);
 
       _isOnline = false;
     } catch (e) {
-      print('下线失败: $e');
+      AppLogger.error('在线状态下线失败', e);
     }
   }
 
@@ -386,13 +404,12 @@ class OnlinePresenceManager {
       }
 
       try {
-        await _supabase.from('user_presence').upsert({
-          'user_id': userId,
-          'is_online': true,
-          'last_seen_at': DateTime.now().toIso8601String(),
-        });
+        await _supabase
+            .from('volunteer_profiles')
+            .update({'last_heartbeat_at': DateTime.now().toIso8601String()})
+            .eq('user_id', userId);
       } catch (e) {
-        print('心跳发送失败: $e');
+        AppLogger.error('在线状态心跳发送失败', e);
       }
     });
   }

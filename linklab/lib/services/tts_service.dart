@@ -113,7 +113,11 @@ class TTSService {
   /// 获取可用语音
   Future<List<dynamic>> getVoices() async {
     try {
-      return await _flutterTts.getVoices;
+      final voices = await _flutterTts.getVoices;
+      if (voices is List) {
+        return List<dynamic>.from(voices);
+      }
+      return const [];
     } catch (e) {
       AppLogger.error('获取TTS语音列表失败', e);
       return [];

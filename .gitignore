@@ -14,3 +14,6 @@ replay_pid*.log
 **/.pub-cache/
 **/.pub/
 **/coverage/
+
+# Local API config must stay untracked; use api_config.example.dart as template.
+linklab/lib/config/api_config.dart

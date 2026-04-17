@@ -5,6 +5,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../demo_flow/demo_help_request_tracker.dart';
+import '../config/app_config.dart';
 import 'app_session_service.dart';
 import 'local_storage.dart';
 import 'user_center/favorite_volunteer_service.dart';
@@ -12,10 +14,10 @@ import 'user_center/favorite_volunteer_service.dart';
 /// 演示通话状态
 enum DemoCallState {
   idle,
-  connecting,    // 正在连接
-  ringing,       // 响铃中
-  connected,     // 通话中
-  ended,         // 已结束
+  connecting, // 正在连接
+  ringing, // 响铃中
+  connected, // 通话中
+  ended, // 已结束
 }
 
 /// 演示志愿者数据
@@ -42,7 +44,7 @@ const List<DemoVolunteer> demoVolunteers = [
   DemoVolunteer(
     id: 'demo_001',
     name: '张小明',
-    avatar: 'assets/images/volunteer1.png',
+    avatar: '',
     rating: 4.9,
     helpCount: 128,
     skills: ['医疗辅助', '出行导航'],
@@ -50,7 +52,7 @@ const List<DemoVolunteer> demoVolunteers = [
   DemoVolunteer(
     id: 'demo_002',
     name: '李阿姨',
-    avatar: 'assets/images/volunteer2.png',
+    avatar: '',
     rating: 4.8,
     helpCount: 256,
     skills: ['生活常识', '心理支持'],
@@ -58,7 +60,7 @@ const List<DemoVolunteer> demoVolunteers = [
   DemoVolunteer(
     id: 'demo_003',
     name: '王医生',
-    avatar: 'assets/images/volunteer3.png',
+    avatar: '',
     rating: 5.0,
     helpCount: 89,
     skills: ['医疗辅助', '紧急救助'],
@@ -88,7 +90,8 @@ class DemoCallService extends ChangeNotifier {
   String? get currentHelpRequestId => _currentHelpRequestId;
   Duration get callDuration => _callDuration;
   bool get isInCall => _state == DemoCallState.connected;
-  bool get isConnecting => _state == DemoCallState.connecting || _state == DemoCallState.ringing;
+  bool get isConnecting =>
+      _state == DemoCallState.connecting || _state == DemoCallState.ringing;
 
   Future<void> _ensureLocalStorage() async {
     if (_localInitialized) return;
@@ -99,15 +102,23 @@ class DemoCallService extends ChangeNotifier {
   String get _currentSeekerId =>
       AppSessionService.instance.userProfile?.id ?? 'demo-seeker';
 
+  void _ensureDemoFallbackEnabled(String action) {
+    if (!AppConfig.shouldUseDemoFallback(feature: action)) {
+      throw StateError('$action 仅在 Demo fallback 开启时可用');
+    }
+  }
+
   /// 开始模拟通话
   Future<void> startCall() async {
+    _ensureDemoFallbackEnabled('DemoCallService.startCall');
     await _ensureLocalStorage();
 
     _state = DemoCallState.connecting;
     notifyListeners();
 
     // 随机选择一个志愿者
-    _currentVolunteer = demoVolunteers[DateTime.now().millisecond % demoVolunteers.length];
+    _currentVolunteer =
+        demoVolunteers[DateTime.now().millisecond % demoVolunteers.length];
 
     // 模拟连接延迟
     await Future.delayed(const Duration(seconds: 1));
@@ -120,7 +131,7 @@ class DemoCallService extends ChangeNotifier {
 
     _state = DemoCallState.connected;
     _startDurationTimer();
-    await _createCurrentHelpRecord();
+    await _createOrUpdateCurrentHelpRecord();
     notifyListeners();
   }
 
@@ -139,10 +150,8 @@ class DemoCallService extends ChangeNotifier {
     await _ensureLocalStorage();
     _durationTimer?.cancel();
     _state = DemoCallState.ended;
-    await _upsertCurrentHelpRecord(
-      status: 'completed',
+    await DemoHelpRequestTracker.markCompleted(
       durationSeconds: _callDuration.inSeconds,
-      completedAt: DateTime.now(),
     );
     notifyListeners();
   }
@@ -170,6 +179,15 @@ class DemoCallService extends ChangeNotifier {
       if (feedback?.trim().isNotEmpty == true) 'feedback': feedback!.trim(),
     };
 
+    await DemoHelpRequestTracker.markCompleted(
+      durationSeconds: _callDuration.inSeconds,
+      seekerRating: rating,
+      feedback:
+          mergedAiResponse['feedback']?.toString() ??
+          mergedAiResponse['summary']?.toString(),
+      ratingTags: tags,
+    );
+
     await _upsertCurrentHelpRecord(
       status: 'completed',
       durationSeconds: _callDuration.inSeconds,
@@ -193,34 +211,38 @@ class DemoCallService extends ChangeNotifier {
     _currentVolunteer = null;
     _currentHelpRequestId = null;
     _callDuration = Duration.zero;
+    DemoHelpRequestTracker.clearCurrentRequest();
     notifyListeners();
   }
 
-  Future<void> _createCurrentHelpRecord() async {
-    final now = DateTime.now();
+  Future<void> _createOrUpdateCurrentHelpRecord() async {
     final volunteer = _currentVolunteer;
     if (volunteer == null) {
       return;
     }
 
-    _currentHelpRequestId = 'demo_realtime_${now.microsecondsSinceEpoch}';
+    _currentHelpRequestId = await DemoHelpRequestTracker.currentRequestId();
+    _currentHelpRequestId ??=
+        await DemoHelpRequestTracker.ensureMatchingRequest(
+          intent: '与 ${volunteer.name} 进行实时语音协助',
+          type: 'realtime_voice',
+        );
 
-    await _storage.upsertHelpRecord({
-      'id': _currentHelpRequestId,
-      'seekerId': _currentSeekerId,
-      'type': 'realtime_voice',
-      'intent': '与 ${volunteer.name} 进行实时语音协助',
-      'urgency': 'normal',
-      'status': 'connected',
-      'volunteerId': volunteer.id,
-      'aiResponse': {
+    await DemoHelpRequestTracker.markConnected(
+      volunteerId: volunteer.id,
+      volunteerName: volunteer.name,
+      volunteerSkills: volunteer.skills,
+    );
+
+    await _upsertCurrentHelpRecord(
+      status: 'connected',
+      completedAt: null,
+      aiResponse: {
         'summary': '已为您接通真人志愿者，正在进行语音协助。',
         'volunteerName': volunteer.name,
         'volunteerSkills': volunteer.skills,
       },
-      'createdAt': now.toIso8601String(),
-      'matchedAt': now.toIso8601String(),
-    });
+    );
   }
 
   Future<void> _upsertCurrentHelpRecord({
@@ -236,8 +258,9 @@ class DemoCallService extends ChangeNotifier {
     }
 
     final history = _storage.getHelpHistory();
-    final existingIndex =
-        history.indexWhere((item) => item['id'] == _currentHelpRequestId);
+    final existingIndex = history.indexWhere(
+      (item) => item['id'] == _currentHelpRequestId,
+    );
     final existing = existingIndex >= 0
         ? Map<String, dynamic>.from(history[existingIndex])
         : <String, dynamic>{};
@@ -285,6 +308,7 @@ class DemoMatchingService extends ChangeNotifier {
   int _elapsedSeconds = 0;
   int _matchedCount = 0;
   Timer? _timer;
+  Completer<void>? _matchingCompleter;
 
   // Getters
   bool get isSearching => _isSearching;
@@ -298,9 +322,19 @@ class DemoMatchingService extends ChangeNotifier {
 
   /// 开始匹配（演示版）
   Future<void> startMatching() async {
+    if (!AppConfig.shouldUseDemoFallback(
+      feature: 'DemoMatchingService.startMatching',
+    )) {
+      throw StateError(
+        'DemoMatchingService.startMatching 仅在 Demo fallback 开启时可用',
+      );
+    }
+
     _isSearching = true;
     _elapsedSeconds = 0;
     _matchedCount = 0;
+    _timer?.cancel();
+    _matchingCompleter = Completer<void>();
     notifyListeners();
 
     // 模拟匹配过程
@@ -316,14 +350,15 @@ class DemoMatchingService extends ChangeNotifier {
       if (_elapsedSeconds >= 4) {
         timer.cancel();
         _isSearching = false;
+        if (!(_matchingCompleter?.isCompleted ?? true)) {
+          _matchingCompleter?.complete();
+        }
       }
 
       notifyListeners();
     });
 
-    // 等待匹配完成
-    await Future.delayed(const Duration(seconds: 4));
-    return;
+    await _matchingCompleter?.future;
   }
 
   /// 取消匹配
@@ -331,6 +366,10 @@ class DemoMatchingService extends ChangeNotifier {
     _timer?.cancel();
     _isSearching = false;
     _elapsedSeconds = 0;
+    _matchedCount = 0;
+    if (!(_matchingCompleter?.isCompleted ?? true)) {
+      _matchingCompleter?.complete();
+    }
     notifyListeners();
   }
 
@@ -364,6 +403,12 @@ class DemoSOSService extends ChangeNotifier {
 
   /// 触发SOS（演示版）
   Future<void> triggerSOS() async {
+    if (!AppConfig.shouldUseDemoFallback(
+      feature: 'DemoSOSService.triggerSOS',
+    )) {
+      throw StateError('DemoSOSService.triggerSOS 仅在 Demo fallback 开启时可用');
+    }
+
     _isActive = true;
     _elapsedSeconds = 0;
     _responderCount = 0;

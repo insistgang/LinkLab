@@ -1,6 +1,10 @@
+// AGENTS.md §4.2：竞赛版已冻结 Demo 主线。
+// 默认 AI 管理器只走本地 mock / fallback；真实 AI 管理器已隔离到 services/experimental/real/ai/。
+
 import 'dart:async';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
-import '../../config/app_config.dart';
+import '../../core/utils/logger.dart';
 import 'ai_service.dart';
 import 'smart_dialog_service.dart';
 import 'ocr_service.dart';
@@ -37,8 +41,8 @@ class AIServiceManager {
   // 演示模式：使用模拟服务
   late final MockAIService _mockService;
 
-  /// 是否使用模拟模式 - 从 AppConfig 获取
-  bool get _useMockMode => AppConfig.isDemoMode;
+  /// 竞赛版默认只允许本地 mock fallback。
+  bool get _useMockMode => true;
 
   // 状态
   bool _isInitialized = false;
@@ -71,8 +75,8 @@ class AIServiceManager {
     await _voiceService.initialize();
 
     // 监听网络状态
-    Connectivity().onConnectivityChanged.listen((result) {
-      _isOnline = result != ConnectivityResult.none;
+    Connectivity().onConnectivityChanged.listen((results) {
+      _isOnline = !results.contains(ConnectivityResult.none);
     });
 
     _isInitialized = true;
@@ -90,17 +94,9 @@ class AIServiceManager {
     }
 
     try {
-      // 演示模式：使用模拟服务
-      if (_useMockMode) {
-        return await _processMockRequest(
-          input: input,
-          imageUrl: imageUrl,
-          sessionId: sessionId,
-        );
-      }
-
-      // 真实模式：调用实际API（保留原有逻辑）
-      return await _processRealRequest(
+      // AGENTS.md §4.2：竞赛版默认 AI 主线只走本地 mock fallback。
+      // 如需验证真实 AI，请显式使用 services/experimental/real/ai/real_ai_service_manager.dart。
+      return await _processMockRequest(
         input: input,
         imageUrl: imageUrl,
         sessionId: sessionId,
@@ -216,10 +212,7 @@ class AIServiceManager {
   }
 
   /// 处理OCR请求
-  Future<AIResponse> _handleOCR(
-    String? imageUrl,
-    DialogContext context,
-  ) async {
+  Future<AIResponse> _handleOCR(String? imageUrl, DialogContext context) async {
     if (imageUrl == null) {
       return AIResponse(
         text: '请拍照或选择图片，我来帮您识别文字。',
@@ -421,13 +414,11 @@ class AIServiceManager {
   /// 是否使用模拟模式
   bool get useMockMode => _useMockMode;
 
-  /// 设置模拟模式（演示模式下强制为true）
+  /// 设置模拟模式
   void setMockMode(bool enabled) {
-    if (AppConfig.isDemoMode) {
-      print('[AIServiceManager] 演示模式下无法关闭模拟模式');
-      return;
-    }
-    // 真实模式下可以通过此方法切换
+    AppLogger.warning(
+      'AGENTS.md §4.2：竞赛版已冻结 Demo 主线，AIServiceManager 始终保持本地 mock fallback',
+    );
   }
 
   /// 清理资源
@@ -439,8 +430,10 @@ class AIServiceManager {
 
   SmartDialogService get smartDialogService => _smartDialogService;
   OcrService get ocrService => _ocrService;
-  SceneDescriptionService get sceneDescriptionService => _sceneDescriptionService;
-  ColorRecognitionService get colorRecognitionService => _colorRecognitionService;
+  SceneDescriptionService get sceneDescriptionService =>
+      _sceneDescriptionService;
+  ColorRecognitionService get colorRecognitionService =>
+      _colorRecognitionService;
   EmergencyDetectionService get emergencyService => _emergencyService;
   DialogContextManager get dialogManager => _dialogManager;
   CameraService get cameraService => _cameraService;

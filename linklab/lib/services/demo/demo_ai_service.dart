@@ -1,14 +1,15 @@
 import 'dart:math';
+import '../../config/app_config.dart';
 import 'demo_data_loader.dart';
 
 /// AI服务类型
 enum AIServiceType {
-  ocr,              // 文字识别
+  ocr, // 文字识别
   sceneDescription, // 场景描述
   colorRecognition, // 颜色识别
-  chat,             // 对话
-  intentDetection,  // 意图识别
-  emergency,        // 紧急检测
+  chat, // 对话
+  intentDetection, // 意图识别
+  emergency, // 紧急检测
 }
 
 /// AI服务结果
@@ -18,12 +19,7 @@ class AIResult {
   final Map<String, dynamic>? data;
   final String? error;
 
-  AIResult({
-    required this.success,
-    required this.text,
-    this.data,
-    this.error,
-  });
+  AIResult({required this.success, required this.text, this.data, this.error});
 
   factory AIResult.success(String text, {Map<String, dynamic>? data}) {
     return AIResult(success: true, text: text, data: data);
@@ -43,6 +39,12 @@ class DemoAIService {
 
   final _random = Random();
 
+  bool get _demoFallbackEnabled =>
+      AppConfig.shouldUseDemoFallback(feature: 'DemoAIService');
+
+  AIResult get _demoModeDisabledResult =>
+      AIResult.error('DemoAIService 当前未启用 Demo fallback');
+
   /// 模拟处理延迟
   Future<void> _simulateDelay({int minMs = 500, int maxMs = 2000}) async {
     final delay = minMs + _random.nextInt(maxMs - minMs);
@@ -51,6 +53,7 @@ class DemoAIService {
 
   /// OCR文字识别
   Future<AIResult> recognizeText(String imagePath) async {
+    if (!_demoFallbackEnabled) return _demoModeDisabledResult;
     await _simulateDelay();
 
     final scenarios = DemoDataLoader.getOCRScenarios();
@@ -60,9 +63,10 @@ class DemoAIService {
 
     // 随机选择一个场景
     final scenario = scenarios[_random.nextInt(scenarios.length)];
+    final summary = scenario['summary'] as String? ?? '识别失败';
 
     return AIResult.success(
-      scenario['summary'] ?? '识别失败',
+      summary,
       data: {
         'recognizedText': scenario['recognizedText'],
         'scenario': scenario['scenario'],
@@ -73,6 +77,7 @@ class DemoAIService {
 
   /// 场景描述
   Future<AIResult> describeScene(String imagePath) async {
+    if (!_demoFallbackEnabled) return _demoModeDisabledResult;
     await _simulateDelay(minMs: 800, maxMs: 2500);
 
     final descriptions = DemoDataLoader.getSceneDescriptions();
@@ -81,18 +86,17 @@ class DemoAIService {
     }
 
     final description = descriptions[_random.nextInt(descriptions.length)];
+    final descriptionText = description['description'] as String? ?? '描述失败';
 
     return AIResult.success(
-      description['description'] ?? '描述失败',
-      data: {
-        'scenario': description['scenario'],
-        'confidence': 0.92,
-      },
+      descriptionText,
+      data: {'scenario': description['scenario'], 'confidence': 0.92},
     );
   }
 
   /// 颜色识别
   Future<AIResult> recognizeColor(String imagePath) async {
+    if (!_demoFallbackEnabled) return _demoModeDisabledResult;
     await _simulateDelay(minMs: 300, maxMs: 1000);
 
     final colors = DemoDataLoader.getColorRecognitions();
@@ -101,9 +105,10 @@ class DemoAIService {
     }
 
     final color = colors[_random.nextInt(colors.length)];
+    final colorText = color['description'] as String? ?? '识别失败';
 
     return AIResult.success(
-      color['description'] ?? '识别失败',
+      colorText,
       data: {
         'dominantColor': color['dominantColor'],
         'colorHex': color['colorHex'],
@@ -112,7 +117,11 @@ class DemoAIService {
   }
 
   /// 对话回复
-  Future<AIResult> chat(String userMessage, {List<Map<String, String>>? history}) async {
+  Future<AIResult> chat(
+    String userMessage, {
+    List<Map<String, String>>? history,
+  }) async {
+    if (!_demoFallbackEnabled) return _demoModeDisabledResult;
     await _simulateDelay(minMs: 300, maxMs: 1500);
 
     // 检测意图
@@ -123,30 +132,26 @@ class DemoAIService {
 
     return AIResult.success(
       response,
-      data: {
-        'intent': intent,
-        'confidence': 0.88,
-      },
+      data: {'intent': intent, 'confidence': 0.88},
     );
   }
 
   /// 意图识别
   Future<AIResult> detectIntent(String input) async {
+    if (!_demoFallbackEnabled) return _demoModeDisabledResult;
     await _simulateDelay(minMs: 200, maxMs: 500);
 
     final intent = DemoDataLoader.detectIntent(input);
 
     return AIResult.success(
       '意图识别完成',
-      data: {
-        'intent': intent,
-        'confidence': 0.90,
-      },
+      data: {'intent': intent, 'confidence': 0.90},
     );
   }
 
   /// 紧急检测
   Future<AIResult> detectEmergency(String input) async {
+    if (!_demoFallbackEnabled) return _demoModeDisabledResult;
     await _simulateDelay(minMs: 100, maxMs: 300);
 
     final isEmergency = DemoDataLoader.detectEmergency(input);
@@ -164,15 +169,13 @@ class DemoAIService {
 
     return AIResult.success(
       '未检测到紧急情况',
-      data: {
-        'isEmergency': false,
-        'urgencyLevel': 'normal',
-      },
+      data: {'isEmergency': false, 'urgencyLevel': 'normal'},
     );
   }
 
   /// 综合AI处理（根据输入自动选择服务）
   Future<AIResult> process(String input, {String? imagePath}) async {
+    if (!_demoFallbackEnabled) return _demoModeDisabledResult;
     // 如果有图片路径，优先进行图像识别
     if (imagePath != null) {
       // 根据输入内容判断使用OCR还是场景描述
@@ -196,6 +199,11 @@ class DemoAIService {
 
   /// 流式对话（模拟）
   Stream<String> chatStream(String userMessage) async* {
+    if (!_demoFallbackEnabled) {
+      yield 'DemoAIService 当前未启用 Demo fallback';
+      return;
+    }
+
     final response = await chat(userMessage);
 
     if (!response.success) {

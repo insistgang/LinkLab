@@ -3,7 +3,7 @@
     {
       "userId": "volunteer_001",
       "name": "李明",
-      "avatarUrl": "assets/images/avatars/volunteer_1.png",
+      "avatarUrl": "",
       "phone": "138****1234",
       "role": ["volunteer"],
       "skills": ["guide", "daily"],
@@ -21,7 +21,7 @@
     {
       "userId": "volunteer_002",
       "name": "王芳",
-      "avatarUrl": "assets/images/avatars/volunteer_2.png",
+      "avatarUrl": "",
       "phone": "139****5678",
       "role": ["volunteer"],
       "skills": ["medical", "elderly"],
@@ -39,7 +39,7 @@
     {
       "userId": "volunteer_003",
       "name": "张伟",
-      "avatarUrl": "assets/images/avatars/volunteer_3.png",
+      "avatarUrl": "",
       "phone": "137****9012",
       "role": ["volunteer"],
       "skills": ["tech", "sign"],
@@ -57,7 +57,7 @@
     {
       "userId": "volunteer_004",
       "name": "刘洋",
-      "avatarUrl": "assets/images/avatars/volunteer_4.png",
+      "avatarUrl": "",
       "phone": "136****3456",
       "role": ["volunteer"],
       "skills": ["child", "daily"],
@@ -75,7 +75,7 @@
     {
       "userId": "volunteer_005",
       "name": "陈静",
-      "avatarUrl": "assets/images/avatars/volunteer_5.png",
+      "avatarUrl": "",
       "phone": "135****7890",
       "role": ["volunteer"],
       "skills": ["guide", "daily", "elderly"],
@@ -94,7 +94,7 @@
   "defaultMatchedVolunteer": {
     "userId": "volunteer_001",
     "name": "李明",
-    "avatarUrl": "assets/images/avatars/volunteer_1.png",
+    "avatarUrl": "",
     "phone": "138****1234",
     "role": ["volunteer"],
     "skills": ["guide", "daily"],

@@ -1,15 +1,15 @@
-// WebRTC 通话管理器
-// 整合 RealWebRTCService、SignalingService 和 CallRecordingService
-// 提供完整的P2P语音通话功能
+// AGENTS.md §4.2：该管理器属于历史实验性真实链路。
+// 默认竞赛版不进入此实现，真实 WebRTC 已隔离到 services/experimental/real/。
 
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
+import '../../core/utils/logger.dart';
 import '../../models/call_models.dart';
 import 'call_recording_service.dart';
-import 'real_webrtc_service.dart';
+import '../experimental/real/webrtc/real_webrtc_service.dart';
 import 'signaling_service.dart';
 import 'webrtc_config.dart';
 
@@ -187,7 +187,7 @@ class WebRTCCallManager {
     // 订阅录音状态
     _recordingStateSubscription = _recordingService.stateStream.listen(_handleRecordingStateChange);
 
-    print('[CallManager] 通话管理器已初始化');
+    AppLogger.info('[CallManager] 通话管理器已初始化');
   }
 
   /// 设置WebRTC回调
@@ -266,8 +266,9 @@ class WebRTCCallManager {
       _emitEvent(CallManagerEventType.callConnecting, data: callInfo);
 
       return callInfo;
-    } catch (e) {
-      _emitEvent(CallManagerEventType.error, error: '发起通话失败: $e');
+    } catch (error, stackTrace) {
+      AppLogger.error('[CallManager] 发起通话失败', error, stackTrace);
+      _emitEvent(CallManagerEventType.error, error: '发起通话失败: $error');
       await _cleanup();
       rethrow;
     }
@@ -312,8 +313,9 @@ class WebRTCCallManager {
       _emitEvent(CallManagerEventType.callConnecting, data: callInfo);
 
       return callInfo;
-    } catch (e) {
-      _emitEvent(CallManagerEventType.error, error: '接听通话失败: $e');
+    } catch (error, stackTrace) {
+      AppLogger.error('[CallManager] 接听通话失败', error, stackTrace);
+      _emitEvent(CallManagerEventType.error, error: '接听通话失败: $error');
       await _cleanup();
       rethrow;
     }
@@ -347,8 +349,9 @@ class WebRTCCallManager {
       await _cleanup();
 
       _emitEvent(CallManagerEventType.callEnded, data: reason);
-    } catch (e) {
-      _emitEvent(CallManagerEventType.error, error: '结束通话失败: $e');
+    } catch (error, stackTrace) {
+      AppLogger.error('[CallManager] 结束通话失败', error, stackTrace);
+      _emitEvent(CallManagerEventType.error, error: '结束通话失败: $error');
     }
   }
 
@@ -382,8 +385,9 @@ class WebRTCCallManager {
         _emitEvent(CallManagerEventType.recordingStarted, data: info);
       }
       return info;
-    } catch (e) {
-      _emitEvent(CallManagerEventType.recordingError, error: '开始录音失败: $e');
+    } catch (error, stackTrace) {
+      AppLogger.error('[CallManager] 开始录音失败', error, stackTrace);
+      _emitEvent(CallManagerEventType.recordingError, error: '开始录音失败: $error');
       return null;
     }
   }
@@ -396,8 +400,9 @@ class WebRTCCallManager {
         _emitEvent(CallManagerEventType.recordingStopped, data: info);
       }
       return info;
-    } catch (e) {
-      _emitEvent(CallManagerEventType.recordingError, error: '停止录音失败: $e');
+    } catch (error, stackTrace) {
+      AppLogger.error('[CallManager] 停止录音失败', error, stackTrace);
+      _emitEvent(CallManagerEventType.recordingError, error: '停止录音失败: $error');
       return null;
     }
   }
@@ -532,7 +537,7 @@ class WebRTCCallManager {
   /// 处理录音状态变化
   void _handleRecordingStateChange(RecordingState state) {
     // 可以在这里添加录音状态变化的处理逻辑
-    print('[CallManager] 录音状态: $state');
+    AppLogger.verbose('[CallManager] 录音状态: $state');
   }
 
   /// 处理通话结束

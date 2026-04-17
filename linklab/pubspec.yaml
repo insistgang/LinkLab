@@ -140,11 +140,6 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/
-    - assets/images/avatars/
-    - assets/icons/
-    - assets/sounds/
-    - assets/fonts/
     - assets/demo_data/
 
   # fonts:

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../../models/community_models.dart';
+import '../../services/app_session_service.dart';
 import '../../services/community/newbie_village_service.dart';
 import '../../widgets/accessible/index.dart';
 
@@ -57,40 +58,17 @@ class _TrainingScenarioScreenState extends State<TrainingScenarioScreen> {
           ),
           const SizedBox(height: AppTheme.spacingL),
           // 场景图片
-          if (widget.scenario.imageUrl != null)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
-              child: Image.asset(
-                widget.scenario.imageUrl!,
-                width: double.infinity,
-                height: 200,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  width: double.infinity,
-                  height: 200,
-                  color: AppTheme.backgroundGrey,
-                  child: Icon(
-                    _getTypeIcon(widget.scenario.type),
-                    size: 64,
-                    color: AppTheme.textHint,
-                  ),
-                ),
-              ),
-            ),
-          if (widget.scenario.imageUrl == null)
-            Container(
-              width: double.infinity,
-              height: 200,
-              decoration: BoxDecoration(
-                color: AppTheme.backgroundGrey,
-                borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
-              ),
-              child: Icon(
-                _getTypeIcon(widget.scenario.type),
-                size: 64,
-                color: AppTheme.textHint,
-              ),
-            ),
+          AccessibleImage.asset(
+            assetPath: widget.scenario.imageUrl,
+            semanticLabel: '${widget.scenario.title}示意图',
+            hint: '用于辅助理解当前训练场景的示意图片',
+            width: double.infinity,
+            height: 200,
+            fit: BoxFit.cover,
+            borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
+            fallbackIcon: _getTypeIcon(widget.scenario.type),
+            fallbackText: '${ScenarioType.getLabel(widget.scenario.type)}场景暂无示意图',
+          ),
           const SizedBox(height: AppTheme.spacingL),
           // 场景描述
           const AccessibleText(
@@ -256,8 +234,7 @@ class _TrainingScenarioScreenState extends State<TrainingScenarioScreen> {
 
   Future<void> _completeScenario() async {
     try {
-      // TODO: 获取当前用户ID
-      const userId = 'current_user_id';
+      final userId = AppSessionService.instance.currentUser?.id ?? 'demo-user-id';
 
       await _newbieService.completeScenario(
         userId,

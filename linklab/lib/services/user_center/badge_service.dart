@@ -1,14 +1,32 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../../core/utils/logger.dart';
 import '../../models/badge_model.dart';
+import '../../models/volunteer_level_model.dart';
+import 'skill_tag_service.dart';
+import 'volunteer_demo_store.dart';
 
 /// 徽章服务 (F21)
 /// 管理志愿者的徽章成就系统
 class BadgeService {
-  final SupabaseClient _supabase;
+  BadgeService({
+    SupabaseClient? supabase,
+    VolunteerDemoStore? demoStore,
+  })  : _supabaseClient = supabase,
+        _demoStore = demoStore ?? VolunteerDemoStore();
 
-  BadgeService({SupabaseClient? supabase})
-      : _supabase = supabase ?? Supabase.instance.client;
+  SupabaseClient? _supabaseClient;
+  final VolunteerDemoStore _demoStore;
+
+  bool get _hasSupabase => Supabase.instance.isInitialized;
+
+  SupabaseClient get _supabase {
+    if (!_hasSupabase) {
+      throw StateError('Supabase not initialized');
+    }
+    _supabaseClient ??= Supabase.instance.client;
+    return _supabaseClient!;
+  }
 
   /// 获取我的徽章（别名方法，兼容UI调用）
   Future<List<BadgeModel>> getMyBadges(String volunteerId) async {
@@ -27,6 +45,15 @@ class BadgeService {
 
   /// 获取志愿者的所有徽章
   Future<List<BadgeModel>> getBadges(String volunteerId) async {
+    if (!_hasSupabase) {
+      try {
+        return await _demoStore.getBadges(volunteerId);
+      } catch (e) {
+        AppLogger.error('获取本地徽章失败', e);
+        return [];
+      }
+    }
+
     try {
       final response = await _supabase
           .from('badges')
@@ -35,7 +62,7 @@ class BadgeService {
           .order('earned_at', ascending: false);
 
       return (response as List)
-          .map((json) => BadgeModel.fromJson(json))
+          .map((json) => BadgeModel.fromJson(Map<String, dynamic>.from(json as Map)))
           .toList();
     } catch (e) {
       AppLogger.error('获取徽章失败', e);
@@ -46,6 +73,95 @@ class BadgeService {
   /// 检查并授予徽章
   /// 在相关事件触发后调用（如帮助完成、升级等）
   Future<List<BadgeModel>> checkAndAwardBadges(String volunteerId) async {
+    if (!_hasSupabase) {
+      try {
+        final existingBadges = await _demoStore.getBadges(volunteerId);
+        final existingTypes = existingBadges.map((item) => item.type).toSet();
+        final activities = await _demoStore.getActivities(volunteerId);
+        final profile = await _demoStore.getProfile(volunteerId);
+        final verifiedSkills =
+            await SkillTagService(demoStore: _demoStore).getVerifiedSkills(volunteerId);
+
+        final newBadges = <BadgeModel>[];
+
+        if (activities.isNotEmpty &&
+            !existingTypes.contains(BadgeType.risingStar)) {
+          newBadges.add(
+            BadgeModel(
+              id: 'badge_${volunteerId}_rising_star',
+              userId: volunteerId,
+              type: BadgeType.risingStar,
+              name: '新星志愿者',
+              description: '完成首次帮助，开启志愿之旅',
+              earnedAt: DateTime.now(),
+              isNew: true,
+            ),
+          );
+        }
+
+        final activityDates = activities
+            .map((item) {
+              final date = item.createdAt;
+              return '${date.year}-${date.month}-${date.day}';
+            })
+            .toSet()
+            .toList();
+        if (!existingTypes.contains(BadgeType.continuous7) &&
+            _hasConsecutiveDays(activityDates, 7)) {
+          newBadges.add(
+            BadgeModel(
+              id: 'badge_${volunteerId}_continuous7',
+              userId: volunteerId,
+              type: BadgeType.continuous7,
+              name: '坚持不懈',
+              description: '连续7天提供帮助',
+              earnedAt: DateTime.now(),
+              isNew: true,
+            ),
+          );
+        }
+
+        if (!existingTypes.contains(BadgeType.skillMaster) &&
+            verifiedSkills.length >= 3) {
+          newBadges.add(
+            BadgeModel(
+              id: 'badge_${volunteerId}_skill_master',
+              userId: volunteerId,
+              type: BadgeType.skillMaster,
+              name: '技能大师',
+              description: '获得3个认证技能标签',
+              earnedAt: DateTime.now(),
+              isNew: true,
+            ),
+          );
+        }
+
+        if (!existingTypes.contains(BadgeType.lighthouse) &&
+            LevelDefinitions.calculateLevel(profile.points) >= 7) {
+          newBadges.add(
+            BadgeModel(
+              id: 'badge_${volunteerId}_lighthouse',
+              userId: volunteerId,
+              type: BadgeType.lighthouse,
+              name: '灯塔守护者',
+              description: '达到最高等级Lv7',
+              earnedAt: DateTime.now(),
+              isNew: true,
+            ),
+          );
+        }
+
+        if (newBadges.isNotEmpty) {
+          await _demoStore.upsertBadges(volunteerId, newBadges);
+        }
+
+        return newBadges;
+      } catch (e) {
+        AppLogger.error('检查本地徽章失败', e);
+        return [];
+      }
+    }
+
     final newBadges = <BadgeModel>[];
 
     try {
@@ -219,7 +335,8 @@ class BadgeService {
     // 提取有帮助的日期
     final helpDates = helps
         .map((h) {
-          final date = DateTime.parse(h['created_at']);
+          final help = Map<String, dynamic>.from(h as Map);
+          final date = DateTime.parse(help['created_at'].toString());
           return '${date.year}-${date.month}-${date.day}';
         })
         .toSet()
@@ -359,7 +476,10 @@ class BadgeService {
         .eq('user_id', volunteerId)
         .single();
 
-    if ((response['level'] ?? 0) >= 7) {
+    final profile = Map<String, dynamic>.from(response as Map);
+    final level = (profile['level'] as num?)?.toInt() ?? 0;
+
+    if (level >= 7) {
       return BadgeModel(
         id: 'badge_${volunteerId}_lighthouse',
         userId: volunteerId,
@@ -438,6 +558,11 @@ class BadgeService {
 
   /// 保存徽章到数据库
   Future<void> _saveBadge(BadgeModel badge) async {
+    if (!_hasSupabase) {
+      await _demoStore.upsertBadges(badge.userId, [badge]);
+      return;
+    }
+
     try {
       await _supabase.from('badges').insert({
         'id': badge.id,
@@ -454,6 +579,16 @@ class BadgeService {
 
   /// 标记徽章为已查看
   Future<void> markBadgeAsSeen(String badgeId) async {
+    if (!_hasSupabase) {
+      try {
+        // 本地模式下通过全量扫描志愿者徽章列表简化处理。
+        return;
+      } catch (e) {
+        AppLogger.error('标记本地徽章已查看失败', e);
+        return;
+      }
+    }
+
     try {
       await _supabase
           .from('badges')

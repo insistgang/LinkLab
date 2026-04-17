@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../demo_flow/demo_help_request_tracker.dart';
 import '../../models/emergency_contact_model.dart';
 import '../../services/app_session_service.dart';
 import '../../services/demo_call_service.dart';
@@ -33,13 +34,17 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
   bool _isLongPressing = false;
   double _longPressProgress = 0;
   Timer? _longPressTimer;
+  Timer? _undoWindowTimer;
   static const int _longPressDurationMs = 3000;
+  static const int _undoWindowSeconds = 10;
   List<EmergencyContactModel> _emergencyContacts = const [];
   SafetySettings _safetySettings = const SafetySettings();
   bool _isLoadingReadiness = true;
+  bool _isUndoWindowActive = false;
+  int _undoCountdownSeconds = _undoWindowSeconds;
 
   String get _currentUserId =>
-      AppSessionService.instance.userProfile?.id ?? 'demo-seeker';
+      AppSessionService.instance.currentUser?.id ?? 'demo-user-id';
 
   @override
   void initState() {
@@ -73,9 +78,7 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
         if (mounted) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(
-              builder: (_) => const DemoCallScreen(),
-            ),
+            MaterialPageRoute(builder: (_) => const DemoCallScreen()),
           );
         }
       });
@@ -83,7 +86,7 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
   }
 
   void _onLongPressStart() {
-    if (_sosService.isActive) return;
+    if (_sosService.isActive || _isUndoWindowActive) return;
 
     setState(() {
       _isLongPressing = true;
@@ -142,7 +145,43 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
     setState(() {
       _isLongPressing = false;
       _longPressProgress = 0;
+      _isUndoWindowActive = true;
+      _undoCountdownSeconds = _undoWindowSeconds;
     });
+    await DemoHelpRequestTracker.startSOSUndoWindow();
+    _startUndoWindow();
+  }
+
+  void _startUndoWindow() {
+    _undoWindowTimer?.cancel();
+    _undoWindowTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+
+      if (_undoCountdownSeconds <= 1) {
+        timer.cancel();
+        _activateSOSFlow();
+        return;
+      }
+
+      setState(() {
+        _undoCountdownSeconds--;
+      });
+    });
+  }
+
+  Future<void> _activateSOSFlow() async {
+    if (!_isUndoWindowActive) {
+      return;
+    }
+
+    setState(() {
+      _isUndoWindowActive = false;
+      _undoCountdownSeconds = _undoWindowSeconds;
+    });
+
     if (_safetySettings.shareWithEmergencyContacts &&
         _emergencyContacts.isNotEmpty) {
       unawaited(
@@ -155,7 +194,22 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
         ),
       );
     }
+
+    await DemoHelpRequestTracker.ensureMatchingRequest(
+      intent: 'SOS紧急求助',
+      type: 'sos',
+      urgency: 'emergency',
+    );
     await _sosService.triggerSOS();
+  }
+
+  Future<void> _cancelPendingSOS() async {
+    _undoWindowTimer?.cancel();
+    setState(() {
+      _isUndoWindowActive = false;
+      _undoCountdownSeconds = _undoWindowSeconds;
+    });
+    await DemoHelpRequestTracker.markCancelled(reason: 'SOS 误触撤销');
   }
 
   @override
@@ -164,14 +218,15 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
       animation: _sosService,
       builder: (context, child) {
         final isActive = _sosService.isActive;
+        final isEmergencyFlowActive = isActive || _isUndoWindowActive;
 
         return Scaffold(
-          backgroundColor: isActive ? Colors.red : Colors.white,
+          backgroundColor: isEmergencyFlowActive ? Colors.red : Colors.white,
           body: SafeArea(
             child: Column(
               children: [
                 // 顶部状态栏
-                if (isActive) ...[
+                if (isEmergencyFlowActive) ...[
                   Container(
                     padding: const EdgeInsets.all(16),
                     color: Colors.red[800],
@@ -189,7 +244,9 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
                           ),
                         ),
                         Text(
-                          '${(_sosService.elapsedSeconds ~/ 60).toString().padLeft(2, '0')}:${(_sosService.elapsedSeconds % 60).toString().padLeft(2, '0')}',
+                          _isUndoWindowActive
+                              ? '撤销 ${_undoCountdownSeconds}s'
+                              : '${(_sosService.elapsedSeconds ~/ 60).toString().padLeft(2, '0')}:${(_sosService.elapsedSeconds % 60).toString().padLeft(2, '0')}',
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -215,20 +272,24 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
                             animation: _pulseAnimation,
                             builder: (context, child) {
                               return Container(
-                                width: 200 *
-                                    (isActive
+                                width:
+                                    200 *
+                                    (isEmergencyFlowActive
                                         ? _pulseAnimation.value
                                         : 1.0),
-                                height: 200 *
-                                    (isActive
+                                height:
+                                    200 *
+                                    (isEmergencyFlowActive
                                         ? _pulseAnimation.value
                                         : 1.0),
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: isActive ? Colors.white : Colors.red,
+                                  color: isEmergencyFlowActive
+                                      ? Colors.white
+                                      : Colors.red,
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.red.withOpacity(0.3),
+                                      color: Colors.red.withValues(alpha: 0.3),
                                       blurRadius: 20,
                                       spreadRadius: 5,
                                     ),
@@ -244,27 +305,28 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
                                         strokeWidth: 8,
                                         backgroundColor: Colors.red[200],
                                         valueColor:
-                                            const AlwaysStoppedAnimation<
-                                                Color>(Colors.white),
+                                            const AlwaysStoppedAnimation<Color>(
+                                              Colors.white,
+                                            ),
                                       ),
                                     // 图标和文字
                                     Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Icon(
-                                          isActive
+                                          isEmergencyFlowActive
                                               ? Icons.sos
                                               : Icons.emergency,
                                           size: 60,
-                                          color: isActive
+                                          color: isEmergencyFlowActive
                                               ? Colors.red
                                               : Colors.white,
                                         ),
                                         const SizedBox(height: 8),
                                         Text(
-                                          isActive ? '求助中' : 'SOS',
+                                          isEmergencyFlowActive ? '求助中' : 'SOS',
                                           style: TextStyle(
-                                            color: isActive
+                                            color: isEmergencyFlowActive
                                                 ? Colors.red
                                                 : Colors.white,
                                             fontSize: 24,
@@ -284,21 +346,39 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
 
                         // 状态文字
                         Text(
-                          _sosService.statusText,
+                          _isUndoWindowActive
+                              ? '已进入 10 秒误触撤销窗口，倒计时结束后才会广播给志愿者和联系人。'
+                              : _sosService.statusText,
                           style: TextStyle(
-                            color: isActive ? Colors.white : Colors.black87,
+                            color: isEmergencyFlowActive
+                                ? Colors.white
+                                : Colors.black87,
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
                           ),
                           textAlign: TextAlign.center,
                         ),
 
-                        if (isActive) ...[
+                        if (_isUndoWindowActive) ...[
+                          const SizedBox(height: 16),
+                          Text(
+                            '误触撤销剩余 $_undoCountdownSeconds 秒',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.85),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          _buildEmergencyContactBanner(isActive: true),
+                          const SizedBox(height: 16),
+                          _buildSafetyTimelineCard(isActive: false),
+                        ] else if (isActive) ...[
                           const SizedBox(height: 16),
                           Text(
                             '5km范围内广播',
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
+                              color: Colors.white.withValues(alpha: 0.8),
                               fontSize: 14,
                             ),
                           ),
@@ -306,7 +386,7 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
                           Text(
                             '已等待: ${_sosService.elapsedSeconds}秒',
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.6),
+                              color: Colors.white.withValues(alpha: 0.6),
                               fontSize: 12,
                             ),
                           ),
@@ -345,9 +425,7 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
                           const SizedBox(height: 16),
                           if (_isLoadingReadiness)
                             const Padding(
-                              padding: EdgeInsets.symmetric(
-                                vertical: 24,
-                              ),
+                              padding: EdgeInsets.symmetric(vertical: 24),
                               child: CircularProgressIndicator(),
                             )
                           else ...[
@@ -379,13 +457,9 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
                                   ),
                                 ),
                                 const SizedBox(height: 8),
-                                _buildTriggerHint(
-                                    '连按电源键3次', '3秒内快速按3次'),
+                                _buildTriggerHint('连按电源键3次', '3秒内快速按3次'),
                                 if (_safetySettings.enableVoiceTrigger)
-                                  _buildTriggerHint(
-                                    '语音触发',
-                                    '说出"紧急求助"等关键词',
-                                  ),
+                                  _buildTriggerHint('语音触发', '说出"紧急求助"等关键词'),
                               ],
                             ),
                           ),
@@ -396,15 +470,56 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
                 ),
 
                 // 底部按钮
-                if (isActive) ...[
+                if (_isUndoWindowActive) ...[
                   Padding(
                     padding: const EdgeInsets.all(24),
                     child: Row(
                       children: [
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () {
+                            onPressed: _cancelPendingSOS,
+                            icon: const Icon(Icons.undo),
+                            label: const Text('撤销误触'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: Colors.red,
+                              minimumSize: const Size(0, 56),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(28),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: _activateSOSFlow,
+                            icon: const Icon(Icons.campaign),
+                            label: const Text('立即发送'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.amber,
+                              foregroundColor: Colors.black87,
+                              minimumSize: const Size(0, 56),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(28),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ] else if (isActive) ...[
+                  Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () async {
                               _sosService.resolveSOS();
+                              await DemoHelpRequestTracker.markCompleted();
+                              if (!context.mounted) return;
                               Navigator.pop(context);
                             },
                             icon: const Icon(Icons.check_circle),
@@ -422,8 +537,12 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
                         const SizedBox(width: 16),
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () {
+                            onPressed: () async {
                               _sosService.cancelSOS();
+                              await DemoHelpRequestTracker.markCancelled(
+                                reason: '用户取消SOS',
+                              );
+                              if (!context.mounted) return;
                               Navigator.pop(context);
                             },
                             icon: const Icon(Icons.cancel),
@@ -464,13 +583,13 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isActive
-            ? Colors.white.withOpacity(0.12)
-            : Colors.red.withOpacity(0.08),
+            ? Colors.white.withValues(alpha: 0.12)
+            : Colors.red.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isActive
-              ? Colors.white.withOpacity(0.18)
-              : Colors.red.withOpacity(0.16),
+              ? Colors.white.withValues(alpha: 0.18)
+              : Colors.red.withValues(alpha: 0.16),
         ),
       ),
       child: Column(
@@ -491,11 +610,11 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
             shouldNotifyContacts
                 ? '本次 SOS 会以$locationLabel同步通知 ${_emergencyContacts.length} 位联系人：$names'
                 : _safetySettings.shareWithEmergencyContacts
-                    ? '当前仍会演示志愿者广播流程，但联系人通知需要先在“我的 > 紧急联系人”中完成设置。位置状态：$locationLabel。'
-                    : '本次 SOS 仅展示志愿者广播流程。位置状态：$locationLabel。',
+                ? '当前仍会演示志愿者广播流程，但联系人通知需要先在“我的 > 紧急联系人”中完成设置。位置状态：$locationLabel。'
+                : '本次 SOS 仅展示志愿者广播流程。位置状态：$locationLabel。',
             style: TextStyle(
               color: isActive
-                  ? Colors.white.withOpacity(0.88)
+                  ? Colors.white.withValues(alpha: 0.88)
                   : Colors.black87,
               fontSize: 13,
               height: 1.5,
@@ -509,7 +628,7 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
                   : '可在“位置共享”中重新开启联系人同步。',
               style: TextStyle(
                 color: isActive
-                    ? Colors.white.withOpacity(0.72)
+                    ? Colors.white.withValues(alpha: 0.72)
                     : Colors.black54,
                 fontSize: 12,
               ),
@@ -528,13 +647,13 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isActive
-            ? Colors.white.withOpacity(0.12)
-            : Colors.grey.withOpacity(0.08),
+            ? Colors.white.withValues(alpha: 0.12)
+            : Colors.grey.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isActive
-              ? Colors.white.withOpacity(0.18)
-              : Colors.black.withOpacity(0.08),
+              ? Colors.white.withValues(alpha: 0.18)
+              : Colors.black.withValues(alpha: 0.08),
         ),
       ),
       child: Column(
@@ -566,12 +685,15 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
   }) {
     final (icon, color) = switch (step.state) {
       _SafetyStepState.completed => (Icons.check_circle, Colors.greenAccent),
-      _SafetyStepState.active => (Icons.radio_button_checked, Colors.amberAccent),
+      _SafetyStepState.active => (
+        Icons.radio_button_checked,
+        Colors.amberAccent,
+      ),
       _SafetyStepState.skipped => (Icons.remove_circle_outline, Colors.white70),
       _SafetyStepState.pending => (
-          Icons.radio_button_unchecked,
-          isActive ? Colors.white70 : Colors.black45,
-        ),
+        Icons.radio_button_unchecked,
+        isActive ? Colors.white70 : Colors.black45,
+      ),
     };
 
     return Row(
@@ -596,7 +718,7 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
                 step.description,
                 style: TextStyle(
                   color: isActive
-                      ? Colors.white.withOpacity(0.82)
+                      ? Colors.white.withValues(alpha: 0.82)
                       : Colors.black54,
                   fontSize: 12,
                   height: 1.4,
@@ -613,7 +735,7 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
     final hasResponse = _sosService.responderCount > 0;
     final shouldNotifyContacts =
         _safetySettings.shareWithEmergencyContacts &&
-            _emergencyContacts.isNotEmpty;
+        _emergencyContacts.isNotEmpty;
 
     return [
       _SafetyStep(
@@ -624,9 +746,7 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
             ? '演示位置摘要会进入 SOS 链路。'
             : '本次流程只展示基础求助，不附带位置。',
         state: _safetySettings.autoShareLocation
-            ? (isActive
-                ? _SafetyStepState.completed
-                : _SafetyStepState.pending)
+            ? (isActive ? _SafetyStepState.completed : _SafetyStepState.pending)
             : _SafetyStepState.skipped,
       ),
       _SafetyStep(
@@ -634,12 +754,10 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
         description: shouldNotifyContacts
             ? '将同步通知 ${_emergencyContacts.length} 位联系人。'
             : _safetySettings.shareWithEmergencyContacts
-                ? '当前没有可通知的联系人。'
-                : '你已在设置中关闭联系人同步。',
+            ? '当前没有可通知的联系人。'
+            : '你已在设置中关闭联系人同步。',
         state: shouldNotifyContacts
-            ? (isActive
-                ? _SafetyStepState.completed
-                : _SafetyStepState.pending)
+            ? (isActive ? _SafetyStepState.completed : _SafetyStepState.pending)
             : _SafetyStepState.skipped,
       ),
       _SafetyStep(
@@ -650,8 +768,8 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
         state: !isActive
             ? _SafetyStepState.pending
             : (hasResponse
-                ? _SafetyStepState.completed
-                : _SafetyStepState.active),
+                  ? _SafetyStepState.completed
+                  : _SafetyStepState.active),
       ),
       _SafetyStep(
         title: '建立演示响应',
@@ -659,8 +777,8 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
         state: !isActive
             ? _SafetyStepState.pending
             : (hasResponse
-                ? _SafetyStepState.completed
-                : _SafetyStepState.active),
+                  ? _SafetyStepState.completed
+                  : _SafetyStepState.active),
       ),
     ];
   }
@@ -676,9 +794,7 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
       return '用户未开启自动位置共享';
     }
 
-    return _safetySettings.usePreciseLocation
-        ? '演示位置：上海市静安区'
-        : '演示位置：上海市静安区附近';
+    return _safetySettings.usePreciseLocation ? '演示位置：上海市静安区' : '演示位置：上海市静安区附近';
   }
 
   String _buildEmergencyNotificationMessage() {
@@ -716,17 +832,13 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
   void dispose() {
     _sosService.removeListener(_onSOSStateChanged);
     _longPressTimer?.cancel();
+    _undoWindowTimer?.cancel();
     _pulseController.dispose();
     super.dispose();
   }
 }
 
-enum _SafetyStepState {
-  pending,
-  active,
-  completed,
-  skipped,
-}
+enum _SafetyStepState { pending, active, completed, skipped }
 
 class _SafetyStep {
   const _SafetyStep({

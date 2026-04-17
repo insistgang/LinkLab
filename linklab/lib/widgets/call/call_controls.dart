@@ -56,10 +56,7 @@ class CallControls extends ConsumerWidget {
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            Colors.transparent,
-            Colors.black.withOpacity(0.5),
-          ],
+          colors: [Colors.transparent, Colors.black.withValues(alpha: 0.5)],
         ),
       ),
       child: SafeArea(
@@ -67,7 +64,8 @@ class CallControls extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             // 网络质量指示器
-            if (callState.isConnected) _buildNetworkIndicator(context, callState),
+            if (callState.isConnected)
+              _buildNetworkIndicator(context, callState),
             SizedBox(height: compact ? 12 : 20),
             // 控制按钮
             _buildControlButtons(ref, callState),
@@ -108,10 +106,7 @@ class CallControls extends ConsumerWidget {
           const SizedBox(width: 4),
           Text(
             '录音中',
-            style: TextStyle(
-              color: Colors.red,
-              fontSize: compact ? 12 : 14,
-            ),
+            style: TextStyle(color: Colors.red, fontSize: compact ? 12 : 14),
           ),
         ],
       ],
@@ -123,41 +118,49 @@ class CallControls extends ConsumerWidget {
     final buttons = <Widget>[];
 
     // 静音按钮
-    buttons.add(_buildControlButton(
-      icon: callState.isMuted ? Icons.mic_off : Icons.mic,
-      label: callState.isMuted ? '静音中' : '静音',
-      isActive: callState.isMuted,
-      activeColor: Colors.orange,
-      onPressed: () => ref.read(webRTCCallProvider.notifier).toggleMute(),
-    ));
+    buttons.add(
+      _buildControlButton(
+        icon: callState.isMuted ? Icons.mic_off : Icons.mic,
+        label: callState.isMuted ? '静音中' : '静音',
+        isActive: callState.isMuted,
+        activeColor: Colors.orange,
+        onPressed: () => ref.read(webRTCCallProvider.notifier).toggleMute(),
+      ),
+    );
 
     buttons.add(const SizedBox(width: 16));
 
     // 扬声器按钮
-    buttons.add(_buildControlButton(
-      icon: callState.isSpeakerOn ? Icons.volume_up : Icons.volume_down,
-      label: callState.isSpeakerOn ? '扬声器' : '听筒',
-      isActive: callState.isSpeakerOn,
-      activeColor: Colors.blue,
-      onPressed: () => ref.read(webRTCCallProvider.notifier).toggleSpeaker(),
-    ));
+    buttons.add(
+      _buildControlButton(
+        icon: callState.isSpeakerOn ? Icons.volume_up : Icons.volume_down,
+        label: callState.isSpeakerOn ? '扬声器' : '听筒',
+        isActive: callState.isSpeakerOn,
+        activeColor: Colors.blue,
+        onPressed: () => ref.read(webRTCCallProvider.notifier).toggleSpeaker(),
+      ),
+    );
 
     // 录音按钮（可选）
     if (showRecordingButton) {
       buttons.add(const SizedBox(width: 16));
-      buttons.add(_buildControlButton(
-        icon: callState.isRecording ? Icons.stop_circle : Icons.fiber_manual_record,
-        label: callState.isRecording ? '停止录音' : '录音',
-        isActive: callState.isRecording,
-        activeColor: Colors.red,
-        onPressed: () {
-          if (callState.isRecording) {
-            ref.read(webRTCCallProvider.notifier).stopRecording();
-          } else {
-            ref.read(webRTCCallProvider.notifier).startRecording();
-          }
-        },
-      ));
+      buttons.add(
+        _buildControlButton(
+          icon: callState.isRecording
+              ? Icons.stop_circle
+              : Icons.fiber_manual_record,
+          label: callState.isRecording ? '停止录音' : '录音',
+          isActive: callState.isRecording,
+          activeColor: Colors.red,
+          onPressed: () {
+            if (callState.isRecording) {
+              ref.read(webRTCCallProvider.notifier).stopRecording();
+            } else {
+              ref.read(webRTCCallProvider.notifier).startRecording();
+            }
+          },
+        ),
+      );
     }
 
     buttons.add(const SizedBox(width: 24));
@@ -165,10 +168,7 @@ class CallControls extends ConsumerWidget {
     // 挂断按钮
     buttons.add(_buildEndCallButton(ref));
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: buttons,
-    );
+    return Row(mainAxisAlignment: MainAxisAlignment.center, children: buttons);
   }
 
   /// 构建单个控制按钮
@@ -187,8 +187,8 @@ class CallControls extends ConsumerWidget {
       children: [
         Material(
           color: isActive
-              ? (activeColor ?? Colors.white).withOpacity(0.3)
-              : Colors.white.withOpacity(0.2),
+              ? (activeColor ?? Colors.white).withValues(alpha: 0.3)
+              : Colors.white.withValues(alpha: 0.2),
           shape: const CircleBorder(),
           child: InkWell(
             onTap: onPressed,
@@ -199,10 +199,7 @@ class CallControls extends ConsumerWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: isActive
-                    ? Border.all(
-                        color: activeColor ?? Colors.white,
-                        width: 2,
-                      )
+                    ? Border.all(color: activeColor ?? Colors.white, width: 2)
                     : null,
               ),
               child: Icon(
@@ -216,10 +213,7 @@ class CallControls extends ConsumerWidget {
         const SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: compact ? 10 : 12,
-          ),
+          style: TextStyle(color: Colors.white, fontSize: compact ? 10 : 12),
         ),
       ],
     );
@@ -247,24 +241,15 @@ class CallControls extends ConsumerWidget {
             child: Container(
               width: size,
               height: size,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.call_end,
-                color: Colors.white,
-                size: iconSize,
-              ),
+              decoration: const BoxDecoration(shape: BoxShape.circle),
+              child: Icon(Icons.call_end, color: Colors.white, size: iconSize),
             ),
           ),
         ),
         const SizedBox(height: 4),
         Text(
           '挂断',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: compact ? 10 : 12,
-          ),
+          style: TextStyle(color: Colors.white, fontSize: compact ? 10 : 12),
         ),
       ],
     );
@@ -275,10 +260,7 @@ class CallControls extends ConsumerWidget {
 class CompactCallControls extends StatelessWidget {
   final VoidCallback? onEndCall;
 
-  const CompactCallControls({
-    super.key,
-    this.onEndCall,
-  });
+  const CompactCallControls({super.key, this.onEndCall});
 
   @override
   Widget build(BuildContext context) {
@@ -294,10 +276,7 @@ class CompactCallControls extends StatelessWidget {
 class CallStatusDisplay extends ConsumerWidget {
   final bool showDuration;
 
-  const CallStatusDisplay({
-    super.key,
-    this.showDuration = true,
-  });
+  const CallStatusDisplay({super.key, this.showDuration = true});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -229,7 +229,7 @@ class DemoConfig {
     'id': 'volunteer_001',
     'name': '李晓明',
     'nickname': '热心小李',
-    'avatar': 'assets/images/avatars/volunteer_1.png',
+    'avatar': '',
     'level': 5,
     'levelName': '资深志愿者',
     'rating': 4.9,

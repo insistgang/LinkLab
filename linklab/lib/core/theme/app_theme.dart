@@ -77,19 +77,11 @@ class AppTheme {
 
   // 阴影
   static const List<BoxShadow> cardShadow = [
-    BoxShadow(
-      color: Color(0x40000000),
-      blurRadius: 4.0,
-      offset: Offset(0, 2),
-    ),
+    BoxShadow(color: Color(0x40000000), blurRadius: 4.0, offset: Offset(0, 2)),
   ];
 
   static const List<BoxShadow> elevatedShadow = [
-    BoxShadow(
-      color: Color(0x60000000),
-      blurRadius: 8.0,
-      offset: Offset(0, 4),
-    ),
+    BoxShadow(color: Color(0x60000000), blurRadius: 8.0, offset: Offset(0, 4)),
   ];
 
   /// 获取亮色主题
@@ -110,8 +102,6 @@ class AppTheme {
         onSurface: textPrimary,
         error: emergencyColor,
         onError: textOnPrimary,
-        background: backgroundColor,
-        onBackground: textPrimary,
       ),
       scaffoldBackgroundColor: backgroundColor,
       cardTheme: CardThemeData(
@@ -127,7 +117,10 @@ class AppTheme {
           backgroundColor: primaryColor,
           foregroundColor: textOnPrimary,
           minimumSize: const Size(double.infinity, buttonHeight),
-          padding: const EdgeInsets.symmetric(horizontal: spacingL, vertical: spacingM),
+          padding: const EdgeInsets.symmetric(
+            horizontal: spacingL,
+            vertical: spacingM,
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadiusMedium),
           ),
@@ -141,7 +134,10 @@ class AppTheme {
         style: TextButton.styleFrom(
           foregroundColor: primaryColor,
           minimumSize: const Size(minTouchTarget, minTouchTarget),
-          padding: const EdgeInsets.symmetric(horizontal: spacingM, vertical: spacingS),
+          padding: const EdgeInsets.symmetric(
+            horizontal: spacingM,
+            vertical: spacingS,
+          ),
           textStyle: const TextStyle(
             fontSize: fontSizeNormal,
             fontWeight: FontWeight.w600,
@@ -153,7 +149,10 @@ class AppTheme {
           foregroundColor: primaryColor,
           side: const BorderSide(color: primaryColor, width: 2),
           minimumSize: const Size(double.infinity, buttonHeight),
-          padding: const EdgeInsets.symmetric(horizontal: spacingL, vertical: spacingM),
+          padding: const EdgeInsets.symmetric(
+            horizontal: spacingL,
+            vertical: spacingM,
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadiusMedium),
           ),
@@ -184,8 +183,11 @@ class AppTheme {
         ),
         contentPadding: const EdgeInsets.all(spacingM),
         labelStyle: const TextStyle(fontSize: fontSizeNormal),
-        hintStyle: TextStyle(fontSize: fontSizeNormal, color: textHint),
-        errorStyle: const TextStyle(fontSize: fontSizeNormal, color: emergencyColor),
+        hintStyle: const TextStyle(fontSize: fontSizeNormal, color: textHint),
+        errorStyle: const TextStyle(
+          fontSize: fontSizeNormal,
+          color: emergencyColor,
+        ),
       ),
       textTheme: const TextTheme(
         displayLarge: TextStyle(
@@ -218,18 +220,9 @@ class AppTheme {
           fontWeight: FontWeight.w600,
           color: textPrimary,
         ),
-        bodyLarge: TextStyle(
-          fontSize: fontSizeLarge,
-          color: textPrimary,
-        ),
-        bodyMedium: TextStyle(
-          fontSize: fontSizeNormal,
-          color: textPrimary,
-        ),
-        bodySmall: TextStyle(
-          fontSize: fontSizeSmall,
-          color: textSecondary,
-        ),
+        bodyLarge: TextStyle(fontSize: fontSizeLarge, color: textPrimary),
+        bodyMedium: TextStyle(fontSize: fontSizeNormal, color: textPrimary),
+        bodySmall: TextStyle(fontSize: fontSizeSmall, color: textSecondary),
         labelLarge: TextStyle(
           fontSize: fontSizeLarge,
           fontWeight: FontWeight.bold,
@@ -251,7 +244,10 @@ class AppTheme {
         backgroundColor: surfaceColor,
         selectedItemColor: primaryColor,
         unselectedItemColor: textSecondary,
-        selectedLabelStyle: TextStyle(fontSize: fontSizeNormal, fontWeight: FontWeight.bold),
+        selectedLabelStyle: TextStyle(
+          fontSize: fontSizeNormal,
+          fontWeight: FontWeight.bold,
+        ),
         unselectedLabelStyle: TextStyle(fontSize: fontSizeSmall),
         type: BottomNavigationBarType.fixed,
         elevation: 8,
@@ -263,7 +259,10 @@ class AppTheme {
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: textSecondary,
-        contentTextStyle: const TextStyle(fontSize: fontSizeNormal, color: textOnPrimary),
+        contentTextStyle: const TextStyle(
+          fontSize: fontSizeNormal,
+          color: textOnPrimary,
+        ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadiusMedium),
         ),
@@ -290,8 +289,6 @@ class AppTheme {
         onSurface: highContrastText,
         error: Colors.red,
         onError: Colors.white,
-        background: highContrastBackground,
-        onBackground: highContrastText,
       ),
       scaffoldBackgroundColor: highContrastBackground,
       textTheme: const TextTheme(
@@ -305,10 +302,7 @@ class AppTheme {
           fontWeight: FontWeight.bold,
           color: highContrastText,
         ),
-        bodyLarge: TextStyle(
-          fontSize: fontSizeLarge,
-          color: highContrastText,
-        ),
+        bodyLarge: TextStyle(fontSize: fontSizeLarge, color: highContrastText),
         bodyMedium: TextStyle(
           fontSize: fontSizeNormal,
           color: highContrastText,

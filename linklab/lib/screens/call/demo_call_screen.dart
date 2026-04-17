@@ -114,10 +114,7 @@ class _DemoCallScreenState extends State<DemoCallScreen> {
                       const SizedBox(width: 16),
                       Text(
                         '已帮助 ${volunteer.helpCount} 次',
-                        style: TextStyle(
-                          color: Colors.grey[400],
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: Colors.grey[400], fontSize: 14),
                       ),
                     ],
                   ),
@@ -126,17 +123,21 @@ class _DemoCallScreenState extends State<DemoCallScreen> {
                   Wrap(
                     spacing: 8,
                     children: volunteer.skills
-                        .map((skill) => Chip(
-                              label: Text(
-                                skill,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                ),
+                        .map(
+                          (skill) => Chip(
+                            label: Text(
+                              skill,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
                               ),
-                              backgroundColor: Colors.deepPurple.withOpacity(0.5),
-                              padding: EdgeInsets.zero,
-                            ))
+                            ),
+                            backgroundColor: Colors.deepPurple.withValues(
+                              alpha: 0.5,
+                            ),
+                            padding: EdgeInsets.zero,
+                          ),
+                        )
                         .toList(),
                   ),
                 ],
@@ -145,18 +146,12 @@ class _DemoCallScreenState extends State<DemoCallScreen> {
                 if (isConnecting)
                   const Text(
                     '正在连接...',
-                    style: TextStyle(
-                      color: Colors.orange,
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(color: Colors.orange, fontSize: 16),
                   )
                 else if (isConnected)
                   Text(
                     '通话中 ${_formatDuration(_callService.callDuration)}',
-                    style: const TextStyle(
-                      color: Colors.green,
-                      fontSize: 16,
-                    ),
+                    style: const TextStyle(color: Colors.green, fontSize: 16),
                   ),
                 const Spacer(),
                 // 通话提示
@@ -164,31 +159,22 @@ class _DemoCallScreenState extends State<DemoCallScreen> {
                   margin: const EdgeInsets.symmetric(horizontal: 40),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
                     children: [
-                      Icon(
-                        Icons.info_outline,
-                        color: Colors.grey[400],
-                      ),
+                      Icon(Icons.info_outline, color: Colors.grey[400]),
                       const SizedBox(height: 8),
                       Text(
                         '演示模式：这是模拟通话界面',
-                        style: TextStyle(
-                          color: Colors.grey[400],
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: Colors.grey[400], fontSize: 14),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 4),
                       Text(
                         '真实版本将建立WebRTC语音连接',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
                         textAlign: TextAlign.center,
                       ),
                     ],
@@ -245,23 +231,14 @@ class _DemoCallScreenState extends State<DemoCallScreen> {
         Container(
           width: 64,
           height: 64,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: color,
-          ),
+          decoration: BoxDecoration(shape: BoxShape.circle, color: color),
           child: IconButton(
             onPressed: onPressed,
             icon: Icon(icon, color: Colors.white, size: 28),
           ),
         ),
         const SizedBox(height: 8),
-        Text(
-          label,
-          style: TextStyle(
-            color: Colors.grey[400],
-            fontSize: 12,
-          ),
-        ),
+        Text(label, style: TextStyle(color: Colors.grey[400], fontSize: 12)),
       ],
     );
   }
@@ -283,13 +260,7 @@ class _DemoCallScreenState extends State<DemoCallScreen> {
           ),
         ),
         const SizedBox(height: 8),
-        Text(
-          '挂断',
-          style: TextStyle(
-            color: Colors.grey[400],
-            fontSize: 12,
-          ),
-        ),
+        Text('挂断', style: TextStyle(color: Colors.grey[400], fontSize: 12)),
       ],
     );
   }

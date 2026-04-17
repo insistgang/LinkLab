@@ -25,10 +25,10 @@ class ContentDetectionService {
   Future<DetectionResult> detectSpeech(String text) async {
     try {
       // 并行检测各种类型
-      final results = await Future.wait([
-        _detectAbuse(text),
-        _detectFraud(text),
-        _detectSensitive(text),
+      final results = await Future.wait<DetectionResult>([
+        detectAbuse(text),
+        detectFraud(text),
+        detectSensitive(text),
       ]);
 
       // 返回置信度最高的违规结果

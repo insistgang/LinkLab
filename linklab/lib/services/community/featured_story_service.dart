@@ -19,7 +19,13 @@ class FeaturedStoryService {
     'story-demo-3': 'demo-seeker',
   };
 
-  bool get _hasSupabase => Supabase.instance.isInitialized;
+  bool get _hasSupabase {
+    try {
+      return Supabase.instance.isInitialized;
+    } catch (_) {
+      return false;
+    }
+  }
 
   SupabaseClient get _supabase {
     if (!_hasSupabase) {
@@ -66,7 +72,9 @@ class FeaturedStoryService {
         'summary': summary ?? _generateSummary(content),
         'cover_image': coverImage,
         'author_type': authorType,
-        'author_name': authorType == 'anonymous' ? null : (authorName ?? '匿名用户'),
+        'author_name': authorType == 'anonymous'
+            ? null
+            : (authorName ?? '匿名用户'),
         'submitted_by': userId,
         'status': 'pending',
         'like_count': 0,
@@ -101,7 +109,11 @@ class FeaturedStoryService {
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) throw Exception('用户未登录');
 
-      final user = await _supabase.from('users').select('role').eq('id', userId).single();
+      final user = await _supabase
+          .from('users')
+          .select('role')
+          .eq('id', userId)
+          .single();
 
       if (user['role'] != 'admin') {
         throw Exception('只有管理员可以审核故事');
@@ -109,12 +121,15 @@ class FeaturedStoryService {
 
       final status = approved ? 'approved' : 'rejected';
 
-      await _supabase.from('featured_stories').update({
-        'status': status,
-        'reviewed_by': userId,
-        'reviewed_at': DateTime.now().toIso8601String(),
-        'rejection_reason': approved ? null : reason,
-      }).eq('id', storyId);
+      await _supabase
+          .from('featured_stories')
+          .update({
+            'status': status,
+            'reviewed_by': userId,
+            'reviewed_at': DateTime.now().toIso8601String(),
+            'rejection_reason': approved ? null : reason,
+          })
+          .eq('id', storyId);
 
       AppLogger.info('审核故事成功: $storyId, 状态: $status');
     } catch (e) {
@@ -141,16 +156,23 @@ class FeaturedStoryService {
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) throw Exception('用户未登录');
 
-      final user = await _supabase.from('users').select('role').eq('id', userId).single();
+      final user = await _supabase
+          .from('users')
+          .select('role')
+          .eq('id', userId)
+          .single();
 
       if (user['role'] != 'admin') {
         throw Exception('只有管理员可以设置精选');
       }
 
-      await _supabase.from('featured_stories').update({
-        'status': 'featured',
-        'featured_date': featuredDate.toIso8601String(),
-      }).eq('id', storyId);
+      await _supabase
+          .from('featured_stories')
+          .update({
+            'status': 'featured',
+            'featured_date': featuredDate.toIso8601String(),
+          })
+          .eq('id', storyId);
 
       AppLogger.info('设置精选故事成功: $storyId');
     } catch (e) {
@@ -162,14 +184,15 @@ class FeaturedStoryService {
   /// 获取每日精选
   Future<List<FeaturedStory>> getDailyFeatured({int limit = 5}) async {
     if (!_hasSupabase) {
-      final stories = _demoStories
-          .where(
-            (story) =>
-                story.status == StoryStatus.featured ||
-                story.status == StoryStatus.approved,
-          )
-          .toList()
-        ..sort(_sortByDisplayTimeDesc);
+      final stories =
+          _demoStories
+              .where(
+                (story) =>
+                    story.status == StoryStatus.featured ||
+                    story.status == StoryStatus.approved,
+              )
+              .toList()
+            ..sort(_sortByDisplayTimeDesc);
       return stories.take(limit).toList();
     }
 
@@ -187,9 +210,8 @@ class FeaturedStoryService {
 
       return (response as List)
           .map(
-            (json) => FeaturedStory.fromJson(
-              Map<String, dynamic>.from(json as Map),
-            ),
+            (json) =>
+                FeaturedStory.fromJson(Map<String, dynamic>.from(json as Map)),
           )
           .toList();
     } catch (e) {
@@ -204,14 +226,15 @@ class FeaturedStoryService {
     int offset = 0,
   }) async {
     if (!_hasSupabase) {
-      final stories = _demoStories
-          .where(
-            (story) =>
-                story.status == StoryStatus.featured ||
-                story.status == StoryStatus.approved,
-          )
-          .toList()
-        ..sort(_sortByDisplayTimeDesc);
+      final stories =
+          _demoStories
+              .where(
+                (story) =>
+                    story.status == StoryStatus.featured ||
+                    story.status == StoryStatus.approved,
+              )
+              .toList()
+            ..sort(_sortByDisplayTimeDesc);
       return _sliceStories(stories, limit: limit, offset: offset);
     }
 
@@ -225,9 +248,8 @@ class FeaturedStoryService {
 
       return (response as List)
           .map(
-            (json) => FeaturedStory.fromJson(
-              Map<String, dynamic>.from(json as Map),
-            ),
+            (json) =>
+                FeaturedStory.fromJson(Map<String, dynamic>.from(json as Map)),
           )
           .toList();
     } catch (e) {
@@ -242,10 +264,11 @@ class FeaturedStoryService {
     int offset = 0,
   }) async {
     if (!_hasSupabase) {
-      final stories = _demoStories
-          .where((story) => story.status == StoryStatus.pending)
-          .toList()
-        ..sort(_sortByDisplayTimeDesc);
+      final stories =
+          _demoStories
+              .where((story) => story.status == StoryStatus.pending)
+              .toList()
+            ..sort(_sortByDisplayTimeDesc);
       return _sliceStories(stories, limit: limit, offset: offset);
     }
 
@@ -253,7 +276,11 @@ class FeaturedStoryService {
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) throw Exception('用户未登录');
 
-      final user = await _supabase.from('users').select('role').eq('id', userId).single();
+      final user = await _supabase
+          .from('users')
+          .select('role')
+          .eq('id', userId)
+          .single();
 
       if (user['role'] != 'admin') {
         throw Exception('只有管理员可以查看待审核故事');
@@ -268,9 +295,8 @@ class FeaturedStoryService {
 
       return (response as List)
           .map(
-            (json) => FeaturedStory.fromJson(
-              Map<String, dynamic>.from(json as Map),
-            ),
+            (json) =>
+                FeaturedStory.fromJson(Map<String, dynamic>.from(json as Map)),
           )
           .toList();
     } catch (e) {
@@ -303,9 +329,10 @@ class FeaturedStoryService {
           .eq('id', storyId)
           .single();
 
-      await _supabase.rpc('increment_story_read_count', params: {
-        'story_id': storyId,
-      });
+      await _supabase.rpc(
+        'increment_story_read_count',
+        params: {'story_id': storyId},
+      );
 
       return FeaturedStory.fromJson(Map<String, dynamic>.from(response as Map));
     } catch (e) {
@@ -352,9 +379,10 @@ class FeaturedStoryService {
         'user_id': userId,
       });
 
-      await _supabase.rpc('increment_story_like_count', params: {
-        'story_id': storyId,
-      });
+      await _supabase.rpc(
+        'increment_story_like_count',
+        params: {'story_id': storyId},
+      );
 
       AppLogger.info('点赞故事成功: $storyId');
     } catch (e) {
@@ -389,9 +417,10 @@ class FeaturedStoryService {
           .eq('story_id', storyId)
           .eq('user_id', userId);
 
-      await _supabase.rpc('decrement_story_like_count', params: {
-        'story_id': storyId,
-      });
+      await _supabase.rpc(
+        'decrement_story_like_count',
+        params: {'story_id': storyId},
+      );
 
       AppLogger.info('取消点赞成功: $storyId');
     } catch (e) {
@@ -439,9 +468,8 @@ class FeaturedStoryService {
 
       return (response as List)
           .map(
-            (json) => FeaturedStory.fromJson(
-              Map<String, dynamic>.from(json as Map),
-            ),
+            (json) =>
+                FeaturedStory.fromJson(Map<String, dynamic>.from(json as Map)),
           )
           .toList();
     } catch (e) {
@@ -468,9 +496,8 @@ class FeaturedStoryService {
 
       return (response as List)
           .map(
-            (json) => FeaturedStory.fromJson(
-              Map<String, dynamic>.from(json as Map),
-            ),
+            (json) =>
+                FeaturedStory.fromJson(Map<String, dynamic>.from(json as Map)),
           )
           .toList();
     } catch (e) {
@@ -489,20 +516,11 @@ class FeaturedStoryService {
   String desensitizeContent(String content) {
     var result = content;
 
-    result = result.replaceAll(
-      RegExp(r'1[3-9]\d{9}'),
-      '***',
-    );
+    result = result.replaceAll(RegExp(r'1[3-9]\d{9}'), '***');
 
-    result = result.replaceAll(
-      RegExp(r'\d{17}[\dXx]'),
-      '***',
-    );
+    result = result.replaceAll(RegExp(r'\d{17}[\dXx]'), '***');
 
-    result = result.replaceAll(
-      RegExp(r'[\w.-]+@[\w.-]+\.\w+'),
-      '***@***.com',
-    );
+    result = result.replaceAll(RegExp(r'[\w.-]+@[\w.-]+\.\w+'), '***@***.com');
 
     result = result.replaceAll(
       RegExp(r'[\u4e00-\u9fa5]{2,}(省|市|区|县|路|街|号|栋|单元|室)'),

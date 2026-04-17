@@ -1,37 +1,14 @@
 // 志愿者匹配引擎 Edge Function
-// 简化版MVP实现：匹配分 = 0.5×紧急度 + 0.5×地理距离
+// AGENTS.md §4.2 / §4.4：竞赛版默认走 Demo 主线；
+// 当前真实函数仅与根 supabase/ schema 对齐，不再依赖 linklab/supabase 历史分叉表。
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0';
 
-// CORS headers
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// 紧急度映射
-const urgencyMap: Record<string, number> = {
-  'normal': 0.4,
-  'important': 0.6,
-  'urgent': 0.8,
-  'emergency': 1.0,
-};
-
-// 志愿者类型定义
-interface Volunteer {
-  id: string;
-  user_id: string;
-  skills: string[];
-  credit_score: number;
-  is_online: boolean;
-  is_verified: boolean;
-  location_lat: number;
-  location_lng: number;
-  current_help_count: number;
-  last_active_at: string;
-}
-
-// 匹配请求类型
 interface MatchingRequest {
   seekerId: string;
   urgency: string;
@@ -43,360 +20,272 @@ interface MatchingRequest {
   helpType?: string;
 }
 
-// 匹配结果类型
-interface MatchedVolunteer extends Volunteer {
-  score: number;
+interface RankedVolunteer {
+  user_id: string;
+  name: string | null;
+  avatar_url: string | null;
+  skills: string[] | null;
+  level: number | null;
+  credit_score: number | null;
+  total_help_count: number | null;
   distance: number;
 }
 
-/**
- * 计算两点间的距离（单位：公里）
- * 使用Haversine公式
- */
-function calculateDistance(
-  lat1: number,
-  lng1: number,
-  lat2: number,
-  lng2: number
-): number {
-  const R = 6371; // 地球半径（公里）
-  const dLat = toRad(lat2 - lat1);
-  const dLng = toRad(lng2 - lng1);
-
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) *
-      Math.cos(toRad(lat2)) *
-      Math.sin(dLng / 2) *
-      Math.sin(dLng / 2);
-
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
+function jsonResponse(body: unknown, status = 200): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
 }
 
-function toRad(deg: number): number {
-  return (deg * Math.PI) / 180;
+function createSupabaseClient() {
+  const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
+  const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+  return createClient(supabaseUrl, supabaseKey);
 }
 
-/**
- * 计算匹配分数
- * MVP简化版：匹配分 = 0.5×紧急度 + 0.5×地理距离
- */
-function calculateScore(
-  volunteer: Volunteer,
-  request: MatchingRequest
-): { score: number; distance: number } {
-  const urgencyScore = urgencyMap[request.urgency] || 0.4;
-
-  // 计算地理距离
-  const distance = calculateDistance(
-    request.location.lat,
-    request.location.lng,
-    volunteer.location_lat,
-    volunteer.location_lng
-  );
-
-  // 距离分数：5km内线性衰减，超出为0
-  const distanceScore = Math.max(0, 1 - distance / 5);
-
-  // MVP简化算法
-  const score = urgencyScore * 0.5 + distanceScore * 0.5;
-
-  return { score, distance };
-}
-
-/**
- * 查询在线志愿者
- */
-async function queryOnlineVolunteers(supabase: any): Promise<Volunteer[]> {
-  const { data, error } = await supabase
-    .from('volunteer_profiles')
-    .select('*')
-    .eq('is_online', true)
-    .eq('is_verified', true)
-    .lt('current_help_count', 3) // 最多同时帮助3人
-    .gt('last_active_at', new Date(Date.now() - 5 * 60 * 1000).toISOString()); // 5分钟内活跃
+async function rankVolunteers(
+  supabase: ReturnType<typeof createSupabaseClient>,
+  request: MatchingRequest,
+  radiusMeters: number,
+): Promise<RankedVolunteer[]> {
+  const { data, error } = await supabase.rpc('find_matching_volunteers', {
+    seeker_lat: request.location.lat,
+    seeker_lng: request.location.lng,
+    max_dist: radiusMeters,
+    required_skills: request.skills ?? [],
+    result_limit: 5,
+  });
 
   if (error) {
-    throw new Error(`查询志愿者失败: ${error.message}`);
+    throw new Error(`查询匹配志愿者失败: ${error.message}`);
   }
 
-  return data || [];
+  return (data ?? []) as RankedVolunteer[];
 }
 
-/**
- * 创建求助记录
- */
 async function createHelpRequest(
-  supabase: any,
+  supabase: ReturnType<typeof createSupabaseClient>,
   request: MatchingRequest,
-  matchedVolunteers: MatchedVolunteer[]
 ): Promise<string> {
   const { data, error } = await supabase
     .from('help_requests')
     .insert({
       seeker_id: request.seekerId,
+      type: 'realtime_voice',
+      intent: request.helpType || '志愿者协助',
       urgency: request.urgency,
-      location_lat: request.location.lat,
-      location_lng: request.location.lng,
-      skills_needed: request.skills || [],
-      help_type: request.helpType || 'general',
       status: 'matching',
-      matched_volunteers: matchedVolunteers.map(v => v.id),
+      help_type: request.helpType || 'general',
+      required_skills: request.skills ?? [],
+      latitude: request.location.lat,
+      longitude: request.location.lng,
+      ai_response: {
+        source: 'matching-engine',
+        mode: 'experimental-real',
+      },
     })
     .select('id')
     .single();
 
-  if (error) {
-    throw new Error(`创建求助记录失败: ${error.message}`);
+  if (error || !data) {
+    throw new Error(`创建求助记录失败: ${error?.message ?? 'unknown error'}`);
   }
 
-  return data.id;
+  return data.id as string;
 }
 
-/**
- * 发送推送通知给志愿者
- */
-async function sendPushNotifications(
-  supabase: any,
-  volunteers: MatchedVolunteer[],
-  helpRequestId: string,
-  helpType: string
-): Promise<void> {
-  const notifications = volunteers.map(v => ({
-    user_id: v.user_id,
-    type: 'help_request',
-    title: '有新的求助需要您的帮助',
-    body: `求助类型: ${helpType}，距离您 ${v.distance.toFixed(1)}km`,
-    data: {
-      help_request_id: helpRequestId,
-      distance: v.distance,
-      priority: 'high',
-    },
-    created_at: new Date().toISOString(),
-  }));
-
-  const { error } = await supabase.from('push_notifications').insert(notifications);
-
-  if (error) {
-    console.error('推送通知失败:', error);
-  }
-}
-
-/**
- * 主处理函数
- */
 async function handleMatching(req: Request): Promise<Response> {
   try {
-    // 解析请求
-    const request: MatchingRequest = await req.json();
+    const request = await req.json() as MatchingRequest;
 
-    // 验证必填字段
     if (!request.seekerId || !request.urgency || !request.location) {
-      return new Response(
-        JSON.stringify({ error: '缺少必填字段: seekerId, urgency, location' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      return jsonResponse(
+        { error: '缺少必填字段: seekerId, urgency, location' },
+        400,
       );
     }
 
-    // 创建Supabase客户端
-    const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    // 1. 查询在线志愿者
-    const volunteers = await queryOnlineVolunteers(supabase);
+    const supabase = createSupabaseClient();
+    const volunteers = await rankVolunteers(supabase, request, 5000);
 
     if (volunteers.length === 0) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: '当前没有在线志愿者',
-          code: 'NO_VOLUNTEERS_AVAILABLE',
-        }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({
+        success: false,
+        error: '5km范围内没有可用志愿者',
+        code: 'NO_VOLUNTEERS_IN_RANGE',
+        suggestion: '请稍候重试，或转为异步留言',
+      });
     }
 
-    // 2. 计算匹配分数并排序
-    const ranked: MatchedVolunteer[] = volunteers
-      .map(v => {
-        const { score, distance } = calculateScore(v, request);
-        return { ...v, score, distance };
-      })
-      .filter(v => v.distance <= 5) // 只保留5km内的志愿者
-      .sort((a, b) => b.score - a.score);
+    const helpRequestId = await createHelpRequest(supabase, request);
 
-    // 3. 取Top 5
-    const topVolunteers = ranked.slice(0, 5);
-
-    if (topVolunteers.length === 0) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: '5km范围内没有可用志愿者',
-          code: 'NO_VOLUNTEERS_IN_RANGE',
-          suggestion: '扩大搜索范围或转为异步留言',
-        }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // 4. 创建求助记录
-    const helpRequestId = await createHelpRequest(supabase, request, topVolunteers);
-
-    // 5. 发送推送通知
-    await sendPushNotifications(
-      supabase,
-      topVolunteers,
+    return jsonResponse({
+      success: true,
       helpRequestId,
-      request.helpType || '一般求助'
-    );
-
-    // 6. 返回结果
-    return new Response(
-      JSON.stringify({
-        success: true,
-        helpRequestId,
-        matchedCount: topVolunteers.length,
-        volunteers: topVolunteers.map(v => ({
-          id: v.id,
-          userId: v.user_id,
-          score: v.score,
-          distance: v.distance,
-          skills: v.skills,
-        })),
-        timeoutAt: new Date(Date.now() + 30 * 1000).toISOString(), // 30秒超时
-      }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+      matchedCount: volunteers.length,
+      volunteers: volunteers.map((volunteer) => ({
+        id: volunteer.user_id,
+        userId: volunteer.user_id,
+        name: volunteer.name ?? '志愿者',
+        avatarUrl: volunteer.avatar_url,
+        score: Math.min(1, Math.max(0, (volunteer.credit_score ?? 5) / 5)),
+        distance: volunteer.distance / 1000,
+        skills: volunteer.skills ?? [],
+      })),
+      timeoutAt: new Date(Date.now() + 30 * 1000).toISOString(),
+    });
   } catch (error) {
     console.error('匹配引擎错误:', error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return jsonResponse({ error: error.message }, 500);
   }
 }
 
-/**
- * 处理匹配超时（扩大搜索范围）
- */
 async function handleTimeout(req: Request): Promise<Response> {
   try {
-    const { helpRequestId, expandRange } = await req.json();
+    const { helpRequestId, expandRange } = await req.json() as {
+      helpRequestId: string;
+      expandRange: boolean;
+    };
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    if (!helpRequestId) {
+      return jsonResponse({ error: '缺少 helpRequestId' }, 400);
+    }
 
-    // 获取原求助记录
+    const supabase = createSupabaseClient();
     const { data: helpRequest, error } = await supabase
       .from('help_requests')
-      .select('*')
+      .select('id, seeker_id, urgency, latitude, longitude, required_skills, help_type, intent, status')
       .eq('id', helpRequestId)
       .single();
 
     if (error || !helpRequest) {
-      return new Response(
-        JSON.stringify({ error: '求助记录不存在' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ error: '求助记录不存在' }, 404);
     }
 
     if (expandRange) {
-      // 扩大搜索范围到10km
-      const { data: moreVolunteers } = await supabase
-        .from('volunteer_profiles')
-        .select('*')
-        .eq('is_online', true)
-        .eq('is_verified', true)
-        .not('id', 'in', `(${helpRequest.matched_volunteers.join(',')})`);
-
-      // 重新计算匹配
-      const request: MatchingRequest = {
-        seekerId: helpRequest.seeker_id,
-        urgency: helpRequest.urgency,
-        location: {
-          lat: helpRequest.location_lat,
-          lng: helpRequest.location_lng,
-        },
-      };
-
-      const additionalVolunteers = (moreVolunteers || [])
-        .map((v: Volunteer) => {
-          const { score, distance } = calculateScore(v, request);
-          return { ...v, score, distance };
-        })
-        .filter((v: MatchedVolunteer) => v.distance <= 10)
-        .sort((a: MatchedVolunteer, b: MatchedVolunteer) => b.score - a.score)
-        .slice(0, 5);
-
-      // 更新求助记录
-      await supabase
-        .from('help_requests')
-        .update({
-          matched_volunteers: [
-            ...helpRequest.matched_volunteers,
-            ...additionalVolunteers.map((v: MatchedVolunteer) => v.id),
-          ],
-          search_range: 10,
-        })
-        .eq('id', helpRequestId);
-
-      // 发送推送
-      await sendPushNotifications(
+      const volunteers = await rankVolunteers(
         supabase,
-        additionalVolunteers,
-        helpRequestId,
-        helpRequest.help_type
+        {
+          seekerId: helpRequest.seeker_id as string,
+          urgency: (helpRequest.urgency as string?) ?? 'normal',
+          location: {
+            lat: Number(helpRequest.latitude ?? 0),
+            lng: Number(helpRequest.longitude ?? 0),
+          },
+          skills: (helpRequest.required_skills as string[]?) ?? [],
+          helpType: (helpRequest.help_type as string?) ?? 'general',
+        },
+        10000,
       );
 
-      return new Response(
-        JSON.stringify({
-          success: true,
-          expanded: true,
-          newMatches: additionalVolunteers.length,
-          timeoutAt: new Date(Date.now() + 30 * 1000).toISOString(),
-        }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({
+        success: true,
+        expanded: true,
+        newVolunteersCount: volunteers.length,
+        timeoutAt: new Date(Date.now() + 30 * 1000).toISOString(),
+      });
     }
 
-    // 转为异步留言
     await supabase
       .from('help_requests')
-      .update({ status: 'async_pending' })
+      .update({ status: 'expired' })
       .eq('id', helpRequestId);
 
-    // 创建异步任务
     await supabase.from('async_tasks').insert({
+      request_id: helpRequestId,
       seeker_id: helpRequest.seeker_id,
-      help_type: helpRequest.help_type,
+      title: (helpRequest.help_type as string?) ?? '异步协助',
+      description: (helpRequest.intent as string?) ?? '匹配超时后自动转为异步留言',
+      type: 'other',
       status: 'pending',
-      deadline: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      deadline_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
     });
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        convertedToAsync: true,
-        message: '已转为异步留言，志愿者将在空闲时回复',
-      }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return jsonResponse({
+      success: true,
+      convertedToAsync: true,
+      message: '匹配超时，已转为异步留言',
+    });
   } catch (error) {
-    console.error('超时处理错误:', error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    console.error('匹配超时处理错误:', error);
+    return jsonResponse({ error: error.message }, 500);
   }
 }
 
-// Deno serve
+async function handleAccept(req: Request): Promise<Response> {
+  try {
+    const { helpRequestId, volunteerId } = await req.json() as {
+      helpRequestId: string;
+      volunteerId: string;
+    };
+
+    if (!helpRequestId || !volunteerId) {
+      return jsonResponse({ error: '缺少 helpRequestId 或 volunteerId' }, 400);
+    }
+
+    const supabase = createSupabaseClient();
+    const { data, error } = await supabase
+      .from('help_requests')
+      .update({
+        volunteer_id: volunteerId,
+        status: 'connected',
+        matched_at: new Date().toISOString(),
+      })
+      .eq('id', helpRequestId)
+      .eq('status', 'matching')
+      .select('id, volunteer_id, status')
+      .maybeSingle();
+
+    if (error) {
+      throw new Error(`接单失败: ${error.message}`);
+    }
+
+    if (!data) {
+      return jsonResponse({
+        success: false,
+        code: 'ALREADY_CLAIMED',
+        message: '该求助已被其他志愿者接单或已结束',
+      });
+    }
+
+    return jsonResponse({
+      success: true,
+      helpRequestId,
+      volunteerId,
+      status: data.status,
+    });
+  } catch (error) {
+    console.error('接受匹配失败:', error);
+    return jsonResponse({ error: error.message }, 500);
+  }
+}
+
+async function handleReject(req: Request): Promise<Response> {
+  try {
+    const { helpRequestId, volunteerId } = await req.json() as {
+      helpRequestId: string;
+      volunteerId: string;
+    };
+
+    if (!helpRequestId || !volunteerId) {
+      return jsonResponse({ error: '缺少 helpRequestId 或 volunteerId' }, 400);
+    }
+
+    return jsonResponse({
+      success: true,
+      helpRequestId,
+      volunteerId,
+      ignored: true,
+      message: '根 schema 不再维护逐志愿者匹配历史表，拒绝结果仅用于实验性客户端本地状态。',
+    });
+  } catch (error) {
+    console.error('拒绝匹配失败:', error);
+    return jsonResponse({ error: error.message }, 500);
+  }
+}
+
 Deno.serve(async (req: Request) => {
-  // 处理CORS预检
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
@@ -411,8 +300,13 @@ Deno.serve(async (req: Request) => {
     return handleTimeout(req);
   }
 
-  return new Response(
-    JSON.stringify({ error: 'Not Found' }),
-    { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-  );
+  if (url.pathname === '/matching-engine/accept' && req.method === 'POST') {
+    return handleAccept(req);
+  }
+
+  if (url.pathname === '/matching-engine/reject' && req.method === 'POST') {
+    return handleReject(req);
+  }
+
+  return jsonResponse({ error: 'Not Found' }, 404);
 });

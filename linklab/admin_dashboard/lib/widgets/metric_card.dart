@@ -36,31 +36,34 @@ class MetricCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: cardColor.withOpacity(0.1),
+                    color: cardColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(
-                    icon,
-                    color: cardColor,
-                    size: 24,
-                  ),
+                  child: Icon(icon, color: cardColor, size: 24),
                 ),
                 if (change != null)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: isPositive
-                          ? AppTheme.successColor.withOpacity(0.1)
-                          : AppTheme.errorColor.withOpacity(0.1),
+                          ? AppTheme.successColor.withValues(alpha: 0.1)
+                          : AppTheme.errorColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          isPositive ? Icons.arrow_upward : Icons.arrow_downward,
+                          isPositive
+                              ? Icons.arrow_upward
+                              : Icons.arrow_downward,
                           size: 12,
-                          color: isPositive ? AppTheme.successColor : AppTheme.errorColor,
+                          color: isPositive
+                              ? AppTheme.successColor
+                              : AppTheme.errorColor,
                         ),
                         const SizedBox(width: 4),
                         Text(
@@ -68,7 +71,9 @@ class MetricCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: isPositive ? AppTheme.successColor : AppTheme.errorColor,
+                            color: isPositive
+                                ? AppTheme.successColor
+                                : AppTheme.errorColor,
                           ),
                         ),
                       ],
@@ -99,7 +104,7 @@ class MetricCard extends StatelessWidget {
                 subtitle!,
                 style: TextStyle(
                   fontSize: 12,
-                  color: AppTheme.textSecondary.withOpacity(0.7),
+                  color: AppTheme.textSecondary.withValues(alpha: 0.7),
                 ),
               ),
             ],

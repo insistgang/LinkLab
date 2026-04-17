@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:syncfusion_flutter_xlsio/xlsio.dart' hide Column, Row;
@@ -67,9 +66,10 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       });
     } catch (e) {
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('加载数据失败: $e')),
-      );
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('加载数据失败: $e')));
     }
   }
 
@@ -93,9 +93,9 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       for (var i = 0; i < _dailyReports.length; i++) {
         final report = _dailyReports[i];
         final row = i + 2;
-        sheet.getRangeByName('A$row').setText(
-          DateFormat('yyyy-MM-dd').format(report.date),
-        );
+        sheet
+            .getRangeByName('A$row')
+            .setText(DateFormat('yyyy-MM-dd').format(report.date));
         sheet.getRangeByName('B$row').setNumber(report.newUsers.toDouble());
         sheet.getRangeByName('C$row').setNumber(report.activeUsers.toDouble());
         sheet.getRangeByName('D$row').setNumber(report.totalCalls.toDouble());
@@ -106,18 +106,18 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       }
 
       // Save
-      final bytes = workbook.saveAsStream();
+      workbook.saveAsStream();
       workbook.dispose();
 
       // In web, we would use dart:html to download the file
       // For now, show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Excel导出成功')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Excel导出成功')));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('导出失败: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('导出失败: $e')));
     }
   }
 
@@ -184,15 +184,17 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       return const Center(child: Text('暂无数据'));
     }
 
-    final trendData = _dailyReports.map((r) => TrendDataPoint(
-          date: r.date,
-          value: r.activeUsers.toDouble(),
-        )).toList();
+    final trendData = _dailyReports
+        .map(
+          (r) => TrendDataPoint(date: r.date, value: r.activeUsers.toDouble()),
+        )
+        .toList();
 
-    final callData = _dailyReports.map((r) => TrendDataPoint(
-          date: r.date,
-          value: r.totalCalls.toDouble(),
-        )).toList();
+    final callData = _dailyReports
+        .map(
+          (r) => TrendDataPoint(date: r.date, value: r.totalCalls.toDouble()),
+        )
+        .toList();
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
@@ -260,7 +262,9 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                 DataCell(Text(report.newUsers.toString())),
                 DataCell(Text(report.activeUsers.toString())),
                 DataCell(Text(report.totalCalls.toString())),
-                DataCell(Text('${report.avgCallDuration.toStringAsFixed(1)}分钟')),
+                DataCell(
+                  Text('${report.avgCallDuration.toStringAsFixed(1)}分钟'),
+                ),
                 DataCell(Text(report.satisfaction.toStringAsFixed(1))),
                 DataCell(Text('${report.responseRate.toStringAsFixed(1)}%')),
               ],
@@ -276,15 +280,23 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       return const Center(child: Text('暂无数据'));
     }
 
-    final disabledData = _userGrowthReports.map((r) => TrendDataPoint(
-          date: r.date,
-          value: r.newDisabledUsers.toDouble(),
-        )).toList();
+    final disabledData = _userGrowthReports
+        .map(
+          (r) => TrendDataPoint(
+            date: r.date,
+            value: r.newDisabledUsers.toDouble(),
+          ),
+        )
+        .toList();
 
-    final volunteerData = _userGrowthReports.map((r) => TrendDataPoint(
-          date: r.date,
-          value: r.newVolunteerUsers.toDouble(),
-        )).toList();
+    final volunteerData = _userGrowthReports
+        .map(
+          (r) => TrendDataPoint(
+            date: r.date,
+            value: r.newVolunteerUsers.toDouble(),
+          ),
+        )
+        .toList();
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
@@ -352,7 +364,9 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                 DataCell(Text(report.newVolunteerUsers.toString())),
                 DataCell(Text(report.totalDisabledUsers.toString())),
                 DataCell(Text(report.totalVolunteerUsers.toString())),
-                DataCell(Text('${report.volunteerRetentionRate.toStringAsFixed(1)}%')),
+                DataCell(
+                  Text('${report.volunteerRetentionRate.toStringAsFixed(1)}%'),
+                ),
               ],
             );
           }).toList(),
@@ -366,19 +380,15 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       return const Center(child: Text('暂无数据'));
     }
 
-    final distributionData = _helpTypeStats.map((s) => DistributionData(
-          name: s.type,
-          value: s.count.toDouble(),
-        )).toList();
+    final distributionData = _helpTypeStats
+        .map((s) => DistributionData(name: s.type, value: s.count.toDouble()))
+        .toList();
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
-          PieChartWidget(
-            data: distributionData,
-            title: '求助类型分布',
-          ),
+          PieChartWidget(data: distributionData, title: '求助类型分布'),
           const SizedBox(height: 24),
           _buildHelpTypeTable(),
         ],

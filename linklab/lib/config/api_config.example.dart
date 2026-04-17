@@ -1,14 +1,31 @@
-/// API配置文件
-/// 存储所有外部AI服务的API密钥和配置
-/// 注意：此文件不应提交到版本控制，仅作为模板
+/// API 配置示例文件。
+/// 复制此文件为 `api_config.dart` 并按本地实验需要填入真实密钥。
+///
+/// 注意：`api_config.dart` 不应提交到版本控制，仓库已通过 `.gitignore` 忽略该文件。
+///
+/// === 获取API密钥的地址 ===
+///
+/// 百度OCR API：
+/// - 官网：https://ai.baidu.com/tech/ocr
+/// - 注册百度AI开放平台账号，创建应用获取API Key和Secret Key
+///
+/// 通义千问VL API：
+/// - 官网：https://dashscope.aliyun.com/
+/// - 注册阿里云账号，开通DashScope服务获取API Key
+///
+/// 科大讯飞语音API：
+/// - 官网：https://www.xfyun.cn/
+/// - 注册讯飞开放平台账号，创建应用获取AppID、API Key和API Secret
+///
+/// ============================================
+
 class APIConfig {
   // ==================== 百度OCR API配置 ====================
   /// 百度OCR API Key
-  /// 获取地址：https://ai.baidu.com/tech/ocr
-  static String baiduOcrApiKey = '';
+  static String baiduOcrApiKey = 'YOUR_BAIDU_OCR_API_KEY';
 
   /// 百度OCR Secret Key
-  static String baiduOcrSecretKey = '';
+  static String baiduOcrSecretKey = 'YOUR_BAIDU_OCR_SECRET_KEY';
 
   /// 百度OCR Access Token（自动获取，无需手动设置）
   static String? _baiduOcrAccessToken;
@@ -40,8 +57,7 @@ class APIConfig {
 
   // ==================== 通义千问VL API配置 ====================
   /// 通义千问API Key
-  /// 获取地址：https://dashscope.aliyun.com/
-  static String qwenApiKey = '';
+  static String qwenApiKey = 'YOUR_QWEN_API_KEY';
 
   /// 通义千问VL服务端点
   static const String qwenBaseUrl = 'https://dashscope.aliyuncs.com/api/v1';
@@ -57,14 +73,13 @@ class APIConfig {
 
   // ==================== 科大讯飞语音API配置 ====================
   /// 科大讯飞APP ID
-  /// 获取地址：https://www.xfyun.cn/
-  static String xfyunAppId = '';
+  static String xfyunAppId = 'YOUR_XFYUN_APP_ID';
 
   /// 科大讯飞API Key
-  static String xfyunApiKey = '';
+  static String xfyunApiKey = 'YOUR_XFYUN_API_KEY';
 
   /// 科大讯飞API Secret
-  static String xfyunApiSecret = '';
+  static String xfyunApiSecret = 'YOUR_XFYUN_API_SECRET';
 
   /// 科大讯飞语音听写（ASR）WebSocket地址
   static const String xfyunAsrWsUrl = 'wss://iat-api.xfyun.cn/v2/iat';
@@ -77,16 +92,6 @@ class APIConfig {
 
   /// 科大讯飞语音合成HTTP地址（备选）
   static const String xfyunTtsHttpUrl = 'http://api.xfyun.cn/v1/service/v1/tts';
-
-  // ==================== 百度翻译API配置（可选） ====================
-  /// 百度翻译APP ID
-  static String baiduTranslateAppId = '';
-
-  /// 百度翻译密钥
-  static String baiduTranslateSecret = '';
-
-  /// 百度翻译API地址
-  static const String baiduTranslateUrl = 'https://fanyi-api.baidu.com/api/trans/vip/translate';
 
   // ==================== 通用配置 ====================
   /// 请求超时时间（秒）
@@ -108,22 +113,22 @@ class APIConfig {
 
   /// 验证百度OCR配置是否完整
   static bool get isBaiduOcrConfigured {
-    return baiduOcrApiKey.isNotEmpty && baiduOcrSecretKey.isNotEmpty;
+    return baiduOcrApiKey.isNotEmpty &&
+        baiduOcrSecretKey.isNotEmpty &&
+        baiduOcrApiKey != 'YOUR_BAIDU_OCR_API_KEY';
   }
 
   /// 验证通义千问配置是否完整
   static bool get isQwenConfigured {
-    return qwenApiKey.isNotEmpty;
+    return qwenApiKey.isNotEmpty && qwenApiKey != 'YOUR_QWEN_API_KEY';
   }
 
   /// 验证科大讯飞配置是否完整
   static bool get isXfyunConfigured {
-    return xfyunAppId.isNotEmpty && xfyunApiKey.isNotEmpty && xfyunApiSecret.isNotEmpty;
-  }
-
-  /// 验证百度翻译配置是否完整
-  static bool get isBaiduTranslateConfigured {
-    return baiduTranslateAppId.isNotEmpty && baiduTranslateSecret.isNotEmpty;
+    return xfyunAppId.isNotEmpty &&
+        xfyunApiKey.isNotEmpty &&
+        xfyunApiSecret.isNotEmpty &&
+        xfyunAppId != 'YOUR_XFYUN_APP_ID';
   }
 
   /// 获取配置状态摘要
@@ -132,7 +137,6 @@ class APIConfig {
       'baiduOcr': isBaiduOcrConfigured,
       'qwenVL': isQwenConfigured,
       'xfyun': isXfyunConfigured,
-      'baiduTranslate': isBaiduTranslateConfigured,
     };
   }
 
@@ -152,8 +156,6 @@ class APIConfig {
     String? xfyunApp,
     String? xfyunKey,
     String? xfyunSecret,
-    String? translateAppId,
-    String? translateSecret,
   }) {
     if (baiduOcrKey != null) baiduOcrApiKey = baiduOcrKey;
     if (baiduOcrSecret != null) baiduOcrSecretKey = baiduOcrSecret;
@@ -161,8 +163,6 @@ class APIConfig {
     if (xfyunApp != null) xfyunAppId = xfyunApp;
     if (xfyunKey != null) xfyunApiKey = xfyunKey;
     if (xfyunSecret != null) xfyunApiSecret = xfyunSecret;
-    if (translateAppId != null) baiduTranslateAppId = translateAppId;
-    if (translateSecret != null) baiduTranslateSecret = translateSecret;
   }
 
   /// 重置所有配置（用于测试）
@@ -175,8 +175,6 @@ class APIConfig {
     xfyunAppId = '';
     xfyunApiKey = '';
     xfyunApiSecret = '';
-    baiduTranslateAppId = '';
-    baiduTranslateSecret = '';
   }
 }
 

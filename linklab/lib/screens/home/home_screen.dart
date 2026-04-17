@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../config/app_config.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/extensions.dart';
 import '../../demo_flow/demo_flow_controller.dart';
@@ -15,7 +16,6 @@ import '../../services/security/safety_settings_service.dart';
 import '../../services/user_center/help_archive_service.dart';
 import '../../widgets/accessible/index.dart';
 import '../ai_chat/demo_ai_chat_screen.dart';
-import '../call/async_help_request_screen.dart';
 import '../community/story_detail_screen.dart';
 import '../user_center/seeker_center_screen.dart';
 
@@ -41,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isLoading = true;
 
   String get _currentUserId =>
-      AppSessionService.instance.userProfile?.id ?? 'demo-seeker';
+      AppSessionService.instance.currentUser?.id ?? 'demo-user-id';
 
   @override
   void initState() {
@@ -51,10 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadContent() async {
     final results = await Future.wait<dynamic>([
-      _helpArchiveService.getHelpHistory(
-        _currentUserId,
-        limit: 3,
-      ),
+      _helpArchiveService.getHelpHistory(_currentUserId, limit: 3),
       _storyService.getDailyFeatured(limit: 2),
       _safetySettingsService.getSettings(_currentUserId),
       _emergencyContactService.getContactCount(_currentUserId),
@@ -134,6 +131,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
+              const SizedBox(height: AppTheme.spacingM),
+              // AGENTS.md §8：首页只展示可本地复现、可重复执行的 Demo 主线入口。
+              if (AppConfig.demoMode) const _CompetitionDemoNoticeCard(),
               const SizedBox(height: AppTheme.spacingL),
               Row(
                 children: [
@@ -174,8 +174,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   onDoubleTap: () {
                     DemoFlowNavigator.onSOSButtonPressed(context);
                   },
-                  borderRadius:
-                      BorderRadius.circular(AppTheme.borderRadiusLarge),
+                  borderRadius: BorderRadius.circular(
+                    AppTheme.borderRadiusLarge,
+                  ),
                   child: Container(
                     width: double.infinity,
                     height: AppTheme.emergencyButtonHeight,
@@ -188,11 +189,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
-                      borderRadius:
-                          BorderRadius.circular(AppTheme.borderRadiusLarge),
+                      borderRadius: BorderRadius.circular(
+                        AppTheme.borderRadiusLarge,
+                      ),
                       boxShadow: AppTheme.elevatedShadow,
                     ),
                     child: const Column(
+                      mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
@@ -207,6 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             color: AppTheme.textOnPrimary,
                             fontSize: AppTheme.fontSizeXXLarge,
                             fontWeight: FontWeight.bold,
+                            height: 1.1,
                           ),
                         ),
                       ],
@@ -296,9 +300,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       width: AppTheme.minTouchTarget * 1.5,
                       height: AppTheme.minTouchTarget * 1.5,
                       decoration: BoxDecoration(
-                        color: AppTheme.secondaryLight.withOpacity(0.3),
-                        borderRadius:
-                            BorderRadius.circular(AppTheme.borderRadiusMedium),
+                        color: AppTheme.secondaryLight.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.borderRadiusMedium,
+                        ),
                       ),
                       child: const Icon(
                         Icons.volunteer_activism,
@@ -342,9 +347,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 hint: '双击与AI助手对话',
                 onTap: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const DemoAIChatScreen(),
-                    ),
+                    MaterialPageRoute(builder: (_) => const DemoAIChatScreen()),
                   );
                 },
                 margin: EdgeInsets.zero,
@@ -354,9 +357,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       width: AppTheme.minTouchTarget * 1.5,
                       height: AppTheme.minTouchTarget * 1.5,
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryLight.withOpacity(0.3),
-                        borderRadius:
-                            BorderRadius.circular(AppTheme.borderRadiusMedium),
+                        color: AppTheme.primaryLight.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.borderRadiusMedium,
+                        ),
                       ),
                       child: const Icon(
                         Icons.smart_toy,
@@ -395,64 +399,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: AppTheme.spacingL),
-              AccessibleCard(
-                semanticLabel: '异步留言求助',
-                hint: '双击提交一个稍后处理的求助留言',
-                onTap: () async {
-                  await Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const AsyncHelpRequestScreen(),
-                    ),
-                  );
-                  await _loadContent();
-                },
-                margin: EdgeInsets.zero,
-                child: Row(
-                  children: [
-                    Container(
-                      width: AppTheme.minTouchTarget * 1.5,
-                      height: AppTheme.minTouchTarget * 1.5,
-                      decoration: BoxDecoration(
-                        color: AppTheme.accentColor.withOpacity(0.12),
-                        borderRadius:
-                            BorderRadius.circular(AppTheme.borderRadiusMedium),
-                      ),
-                      child: const Icon(
-                        Icons.markunread_outlined,
-                        size: AppTheme.fontSizeXXLarge,
-                        color: AppTheme.accentColor,
-                      ),
-                    ),
-                    const SizedBox(width: AppTheme.spacingL),
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          AccessibleText(
-                            '异步留言求助',
-                            style: TextStyle(
-                              fontSize: AppTheme.fontSizeLarge,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: AppTheme.spacingXS),
-                          AccessibleText(
-                            '不紧急的问题先留言，稍后由志愿者回复',
-                            style: TextStyle(
-                              fontSize: AppTheme.fontSizeNormal,
-                              color: AppTheme.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Icon(
-                      Icons.arrow_forward_ios,
-                      color: AppTheme.textHint,
-                    ),
-                  ],
-                ),
-              ),
               const SizedBox(height: AppTheme.spacingXL),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -550,10 +496,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   margin: EdgeInsets.zero,
                   child: Row(
                     children: const [
-                      Icon(
-                        Icons.auto_stories,
-                        color: AppTheme.accentColor,
-                      ),
+                      Icon(Icons.auto_stories, color: AppTheme.accentColor),
                       SizedBox(width: AppTheme.spacingM),
                       Expanded(
                         child: AccessibleText(
@@ -662,8 +605,8 @@ class _HomeScreenState extends State<HomeScreen> {
         : '将共享${_safetySettings.usePreciseLocation ? '精确' : '大致'}位置';
     final contactText = _safetySettings.shareWithEmergencyContacts
         ? (_emergencyContactCount > 0
-            ? '并通知 $_emergencyContactCount 位紧急联系人'
-            : '但当前还没有可通知的紧急联系人')
+              ? '并通知 $_emergencyContactCount 位紧急联系人'
+              : '但当前还没有可通知的紧急联系人')
         : '且不会同步给紧急联系人';
     return '这将向附近的志愿者发送求助信息，$locationText，$contactText。';
   }
@@ -687,9 +630,9 @@ class _SummaryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppTheme.spacingM),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
-        border: Border.all(color: color.withOpacity(0.18)),
+        border: Border.all(color: color.withValues(alpha: 0.18)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -743,9 +686,9 @@ class _StatusChip extends StatelessWidget {
         vertical: AppTheme.spacingS,
       ),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withOpacity(0.16)),
+        border: Border.all(color: color.withValues(alpha: 0.16)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -758,6 +701,60 @@ class _StatusChip extends StatelessWidget {
               fontSize: AppTheme.fontSizeSmall,
               color: color,
               fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CompetitionDemoNoticeCard extends StatelessWidget {
+  const _CompetitionDemoNoticeCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return AccessibleCard(
+      margin: EdgeInsets.zero,
+      semanticLabel: '竞赛演示模式说明',
+      hint: '当前默认只展示 MVP 主线，真实后端与社群页不进入默认导航',
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: AppTheme.minTouchTarget,
+            height: AppTheme.minTouchTarget,
+            decoration: BoxDecoration(
+              color: AppTheme.secondaryColor.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+            ),
+            child: const Icon(
+              Icons.rocket_launch_outlined,
+              color: AppTheme.secondaryColor,
+            ),
+          ),
+          const SizedBox(width: AppTheme.spacingM),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AccessibleText(
+                  '竞赛演示模式已锁定',
+                  style: TextStyle(
+                    fontSize: AppTheme.fontSizeNormal,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                SizedBox(height: AppTheme.spacingXS),
+                AccessibleText(
+                  '当前默认仅展示 AI 对话、真人匹配、实时通话、SOS、登录偏好与无障碍能力。AppConfig.demoMode 已强制开启，真实后端与社群模块不会进入默认导航或演示脚本。',
+                  style: TextStyle(
+                    fontSize: AppTheme.fontSizeSmall,
+                    color: AppTheme.textSecondary,
+                    height: 1.5,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -820,10 +817,7 @@ class _QuickToolButton extends StatelessWidget {
 }
 
 class _HelpHistoryItem extends StatelessWidget {
-  const _HelpHistoryItem({
-    required this.request,
-    required this.onTap,
-  });
+  const _HelpHistoryItem({required this.request, required this.onTap});
 
   final HelpRequestModel request;
   final VoidCallback onTap;
@@ -894,10 +888,7 @@ class _HelpHistoryItem extends StatelessWidget {
 }
 
 class _FeaturedStoryPreview extends StatelessWidget {
-  const _FeaturedStoryPreview({
-    required this.story,
-    required this.onTap,
-  });
+  const _FeaturedStoryPreview({required this.story, required this.onTap});
 
   final FeaturedStory story;
   final VoidCallback onTap;
@@ -918,9 +909,10 @@ class _FeaturedStoryPreview extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: AppTheme.accentColor.withOpacity(0.1),
-                  borderRadius:
-                      BorderRadius.circular(AppTheme.borderRadiusMedium),
+                  color: AppTheme.accentColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(
+                    AppTheme.borderRadiusMedium,
+                  ),
                 ),
                 child: const Icon(
                   Icons.auto_stories,
@@ -999,10 +991,7 @@ class _FeaturedStoryPreview extends StatelessWidget {
 }
 
 class _SafetyReadyCard extends StatelessWidget {
-  const _SafetyReadyCard({
-    required this.settings,
-    required this.contactCount,
-  });
+  const _SafetyReadyCard({required this.settings, required this.contactCount});
 
   final SafetySettings settings;
   final int contactCount;
@@ -1012,14 +1001,14 @@ class _SafetyReadyCard extends StatelessWidget {
     final title = !settings.autoShareLocation
         ? 'SOS 位置信息未开启'
         : settings.shareWithEmergencyContacts && contactCount == 0
-            ? 'SOS 基础广播已就绪'
-            : 'SOS 演示链路已就绪';
+        ? 'SOS 基础广播已就绪'
+        : 'SOS 演示链路已就绪';
 
     final subtitle = !settings.autoShareLocation
         ? '建议先到“我的 > 位置共享”开启位置同步。'
         : settings.shareWithEmergencyContacts && contactCount == 0
-            ? '已开启位置共享，但联系人通知还没有接收对象。'
-            : '当前位置、联系人通知和志愿者广播都可在演示中展示。';
+        ? '已开启位置共享，但联系人通知还没有接收对象。'
+        : '当前位置、联系人通知和志愿者广播都可在演示中展示。';
 
     return AccessibleCard(
       margin: EdgeInsets.zero,
@@ -1030,7 +1019,7 @@ class _SafetyReadyCard extends StatelessWidget {
             width: AppTheme.minTouchTarget,
             height: AppTheme.minTouchTarget,
             decoration: BoxDecoration(
-              color: AppTheme.emergencyColor.withOpacity(0.08),
+              color: AppTheme.emergencyColor.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
             ),
             child: const Icon(

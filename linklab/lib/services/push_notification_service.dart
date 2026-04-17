@@ -1,9 +1,13 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../core/utils/logger.dart';
 
 /// 推送通知服务
 /// 负责FCM集成、本地通知和后台消息处理
@@ -57,7 +61,7 @@ class PushNotificationService {
       criticalAlert: true, // 允许紧急通知
     );
 
-    print('通知权限状态: ${settings.authorizationStatus}');
+    AppLogger.info('通知权限状态: ${settings.authorizationStatus}');
   }
 
   /// 初始化本地通知
@@ -164,7 +168,7 @@ class PushNotificationService {
     required String body,
     required Map<String, dynamic> data,
   }) async {
-    const androidDetails = AndroidNotificationDetails(
+    final androidDetails = AndroidNotificationDetails(
       'high_priority_channel',
       '高优先级通知',
       channelDescription: '求助和SOS通知',
@@ -185,7 +189,7 @@ class PushNotificationService {
       interruptionLevel: InterruptionLevel.critical,
     );
 
-    const details = NotificationDetails(
+    final details = NotificationDetails(
       android: androidDetails,
       iOS: iosDetails,
     );
@@ -212,7 +216,7 @@ class PushNotificationService {
         await _onTokenRefresh(token);
       }
     } catch (e) {
-      print('获取FCM Token失败: $e');
+      AppLogger.error('获取 FCM Token 失败', e);
     }
   }
 
@@ -222,14 +226,17 @@ class PushNotificationService {
     if (userId == null) return;
 
     try {
-      await _supabase.from('user_devices').upsert({
-        'user_id': userId,
-        'fcm_token': token,
-        'platform': 'flutter',
-        'updated_at': DateTime.now().toIso8601String(),
-      });
+      await _supabase.from('user_devices').upsert(
+        {
+          'user_id': userId,
+          'fcm_token': token,
+          'platform': 'flutter',
+          'updated_at': DateTime.now().toIso8601String(),
+        },
+        onConflict: 'user_id',
+      );
     } catch (e) {
-      print('上传FCM Token失败: $e');
+      AppLogger.error('上传 FCM Token 失败', e);
     }
   }
 
@@ -249,7 +256,7 @@ class PushNotificationService {
     required String body,
     required Map<String, dynamic> data,
   }) async {
-    const androidDetails = AndroidNotificationDetails(
+    final androidDetails = AndroidNotificationDetails(
       'sos_channel',
       'SOS紧急求助',
       channelDescription: 'SOS紧急求助通知',
@@ -275,7 +282,7 @@ class PushNotificationService {
       interruptionLevel: InterruptionLevel.critical,
     );
 
-    const details = NotificationDetails(
+    final details = NotificationDetails(
       android: androidDetails,
       iOS: iosDetails,
     );

@@ -74,12 +74,14 @@ class AppConstants {
   static const int volunteerLevelMax = 7;
 
   // 帮助请求状态
-  static const String statusPending = 'pending';
+  static const String statusCreated = 'created';
+  static const String statusAiProcessing = 'ai_processing';
   static const String statusAiResolved = 'ai_resolved';
   static const String statusMatching = 'matching';
   static const String statusConnected = 'connected';
   static const String statusCompleted = 'completed';
   static const String statusCancelled = 'cancelled';
+  static const String statusExpired = 'expired';
 
   // 紧急程度
   static const String urgencyNormal = 'normal';

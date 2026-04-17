@@ -23,7 +23,7 @@ class AuthenticationService {
           .eq('user_id', userId)
           .single();
 
-      return UserAuthStatus.fromJson(response);
+      return UserAuthStatus.fromJson(Map<String, dynamic>.from(response as Map));
     } catch (e) {
       AppLogger.error('获取用户认证状态失败', e);
       return null;
@@ -174,8 +174,8 @@ class AuthenticationService {
           .eq('user_id', userId)
           .order('created_at', ascending: false);
 
-      return (response as List)
-          .map((json) => CertificationApplication.fromJson(json))
+      return (response as List<dynamic>)
+          .map((json) => CertificationApplication.fromJson(Map<String, dynamic>.from(json as Map)))
           .toList();
     } catch (e) {
       AppLogger.error('获取认证申请列表失败', e);
@@ -204,8 +204,8 @@ class AuthenticationService {
           .eq('user_id', userId)
           .eq('is_verified', true);
 
-      return (response as List)
-          .map((json) => SkillCertification.fromJson(json))
+      return (response as List<dynamic>)
+          .map((json) => SkillCertification.fromJson(Map<String, dynamic>.from(json as Map)))
           .toList();
     } catch (e) {
       AppLogger.error('获取认证技能失败', e);
@@ -227,7 +227,7 @@ class AuthenticationService {
         .eq('user_id', userId)
         .map((rows) {
           if (rows.isEmpty) return null;
-          return UserAuthStatus.fromJson(rows.first);
+          return UserAuthStatus.fromJson(Map<String, dynamic>.from(rows.first as Map));
         });
   }
 }

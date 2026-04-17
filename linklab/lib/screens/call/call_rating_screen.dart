@@ -27,27 +27,15 @@ class _CallRatingScreenState extends State<CallRatingScreen> {
   bool _isSubmitting = false;
 
   // 评价标签
-  final List<String> _positiveTags = [
-    '耐心细致',
-    '专业高效',
-    '态度友好',
-    '解决问题',
-    '沟通顺畅',
-  ];
+  final List<String> _positiveTags = ['耐心细致', '专业高效', '态度友好', '解决问题', '沟通顺畅'];
 
-  final List<String> _negativeTags = [
-    '沟通困难',
-    '未能解决',
-    '态度冷淡',
-    '网络卡顿',
-    '声音不清',
-  ];
+  final List<String> _negativeTags = ['沟通困难', '未能解决', '态度冷淡', '网络卡顿', '声音不清'];
 
   Future<void> _submitRating() async {
     if (_rating == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('请给出评分')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('请给出评分')));
       return;
     }
 
@@ -64,16 +52,16 @@ class _CallRatingScreenState extends State<CallRatingScreen> {
       // });
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('感谢您的评价！')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('感谢您的评价！')));
         Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('提交失败: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('提交失败: $e')));
       }
     } finally {
       setState(() => _isSubmitting = false);
@@ -119,18 +107,12 @@ class _CallRatingScreenState extends State<CallRatingScreen> {
             // 标题
             Text(
               _title,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
               _subtitle,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             ),
             const SizedBox(height: 40),
             // 星级评分
@@ -253,7 +235,7 @@ class _CallRatingScreenState extends State<CallRatingScreen> {
           }
         });
       },
-      selectedColor: Colors.deepPurple.withOpacity(0.2),
+      selectedColor: Colors.deepPurple.withValues(alpha: 0.2),
       checkmarkColor: Colors.deepPurple,
       labelStyle: TextStyle(
         color: isSelected ? Colors.deepPurple : Colors.grey[700],

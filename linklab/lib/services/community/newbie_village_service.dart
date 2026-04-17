@@ -271,7 +271,7 @@ class NewbieVillageService {
         'title': '药品识别场景',
         'description': '视障用户需要识别药品名称和用法用量。请指导用户使用OCR功能识别药品包装上的文字信息。',
         'type': ScenarioType.ocr,
-        'image_url': 'assets/images/training/ocr_scenario.png',
+        'image_url': null,
         'hints': [
           '引导用户对准药品包装',
           '确保光线充足',
@@ -290,7 +290,7 @@ class NewbieVillageService {
         'title': '场景描述场景',
         'description': '视障用户想了解周围环境。请详细描述场景中的关键信息，帮助用户建立空间认知。',
         'type': ScenarioType.sceneDescription,
-        'image_url': 'assets/images/training/scene_scenario.png',
+        'image_url': null,
         'hints': [
           '描述整体环境',
           '指出重要地标',
@@ -309,7 +309,7 @@ class NewbieVillageService {
         'title': '导航指引场景',
         'description': '视障用户需要前往目的地。请提供清晰的导航指引，包括方向、距离和路标。',
         'type': ScenarioType.navigation,
-        'image_url': 'assets/images/training/navigation_scenario.png',
+        'image_url': null,
         'hints': [
           '确认当前位置',
           '明确目的地',

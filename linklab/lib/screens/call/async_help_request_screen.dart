@@ -35,7 +35,7 @@ class _AsyncHelpRequestScreenState extends State<AsyncHelpRequestScreen> {
   bool _isSubmitting = false;
 
   String get _currentUserId =>
-      AppSessionService.instance.userProfile?.id ?? 'demo-seeker';
+      AppSessionService.instance.currentUser?.id ?? 'demo-user-id';
 
   static const List<_ScenarioOption> _scenarios = [
     _ScenarioOption(

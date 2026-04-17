@@ -1,5 +1,5 @@
-/// 演示用志愿者数据
-/// 用于演示版的志愿者匹配功能
+// 演示用志愿者数据
+// 用于演示版的志愿者匹配功能
 
 class DemoVolunteer {
   final String id;
@@ -61,7 +61,7 @@ final List<DemoVolunteer> demoVolunteers = [
     level: '灯塔',
     levelBadge: '🏠',
     distance: '1.2km',
-    avatar: 'assets/avatars/v1.png',
+    avatar: '',
     skills: ['导盲', '日常协助'],
     rating: 4.9,
     helpCount: 128,
@@ -73,7 +73,7 @@ final List<DemoVolunteer> demoVolunteers = [
     level: '星辰',
     levelBadge: '⭐',
     distance: '2.5km',
-    avatar: 'assets/avatars/v2.png',
+    avatar: '',
     skills: ['医疗咨询', '紧急救助'],
     rating: 4.8,
     helpCount: 86,
@@ -85,7 +85,7 @@ final List<DemoVolunteer> demoVolunteers = [
     level: '暖阳',
     levelBadge: '☀️',
     distance: '0.8km',
-    avatar: 'assets/avatars/v3.png',
+    avatar: '',
     skills: ['生活协助', '陪聊'],
     rating: 5.0,
     helpCount: 256,
@@ -97,7 +97,7 @@ final List<DemoVolunteer> demoVolunteers = [
     level: '微光',
     levelBadge: '✨',
     distance: '3.1km',
-    avatar: 'assets/avatars/v4.png',
+    avatar: '',
     skills: ['技术支持', '读屏'],
     rating: 4.7,
     helpCount: 32,
@@ -109,7 +109,7 @@ final List<DemoVolunteer> demoVolunteers = [
     level: '烛光',
     levelBadge: '🕯️',
     distance: '1.8km',
-    avatar: 'assets/avatars/v5.png',
+    avatar: '',
     skills: ['教育辅导', '心理支持'],
     rating: 4.9,
     helpCount: 168,
