@@ -94,164 +94,170 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return DemoStageScaffold(
-      title: '无障碍偏好',
-      subtitle: widget.isEditMode ? '当前修改会立即生效' : '最后一步，完成后进入主线演示',
-      body: DemoAuthFormTheme(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(
-            AppTheme.spacingL,
-            AppTheme.spacingL,
-            AppTheme.spacingL,
-            120,
+    return DemoStageLiveBuilder(
+      builder: (context) {
+        return DemoStageScaffold(
+          title: '无障碍偏好',
+          subtitle: widget.isEditMode ? '当前修改会立即生效' : '最后一步，完成后进入主线演示',
+          body: DemoAuthFormTheme(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(
+                AppTheme.spacingL,
+                AppTheme.spacingL,
+                AppTheme.spacingL,
+                120,
+              ),
+              children: [
+                DemoReveal(
+                  child: DemoAuthBanner(
+                    title: '个性化您的使用体验',
+                    subtitle: widget.isEditMode
+                        ? '这些设置会立即应用到当前会话。'
+                        : '这些设置可以随时在“我的”页面修改。',
+                    icon: Icons.settings_accessibility_rounded,
+                    chips: [
+                      DemoPill(
+                        label: _stageMode == DemoStageMode.day
+                            ? '日间模式'
+                            : '深夜模式',
+                        color: _stageMode == DemoStageMode.day
+                            ? AppTheme.stageInfo
+                            : AppTheme.stageAccent,
+                      ),
+                      DemoPill(
+                        label: _highContrastMode ? '高对比度开启' : '标准显示',
+                        color: _highContrastMode
+                            ? AppTheme.stageWarning
+                            : AppTheme.stageAccent,
+                      ),
+                      DemoPill(
+                        label: '字体 ${_fontScale.toStringAsFixed(1)}x',
+                        color: AppTheme.stageInfo,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppTheme.spacingL),
+                DemoReveal(
+                  delay: const Duration(milliseconds: 80),
+                  child: DemoMetricStrip(
+                    items: [
+                      DemoMetricItem(
+                        label: '界面',
+                        value: _stageMode == DemoStageMode.day ? '白天' : '深夜',
+                        color: _stageMode == DemoStageMode.day
+                            ? AppTheme.stageInfo
+                            : AppTheme.stageAccent,
+                      ),
+                      DemoMetricItem(
+                        label: '朗读',
+                        value: _autoReadResults ? '自动开启' : '手动触发',
+                        color: AppTheme.stageInfo,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppTheme.spacingL),
+                DemoReveal(
+                  delay: const Duration(milliseconds: 110),
+                  child: _StageModeCard(
+                    mode: _stageMode,
+                    onModeChanged: (mode) {
+                      setState(() {
+                        _stageMode = mode;
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(height: AppTheme.spacingM),
+                DemoReveal(
+                  delay: const Duration(milliseconds: 140),
+                  child: _PreferenceSwitchCard(
+                    title: '高对比度模式',
+                    subtitle: '使用更强的明暗对比，提升弱视和读屏用户的识别效率。',
+                    value: _highContrastMode,
+                    onChanged: (value) {
+                      setState(() {
+                        _highContrastMode = value;
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(height: AppTheme.spacingM),
+                DemoReveal(
+                  delay: const Duration(milliseconds: 170),
+                  child: _PreferenceSliderCard(
+                    title: '字体大小',
+                    subtitle: '调整应用内文字显示大小。',
+                    value: _fontScale,
+                    min: 0.8,
+                    max: 1.5,
+                    divisions: 7,
+                    onChanged: (value) {
+                      setState(() {
+                        _fontScale = value;
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(height: AppTheme.spacingM),
+                DemoReveal(
+                  delay: const Duration(milliseconds: 200),
+                  child: _PreferenceSliderCard(
+                    title: '语音播报速度',
+                    subtitle: '调整 AI 语音播报的速度。',
+                    value: _voiceSpeed,
+                    min: 0.5,
+                    max: 2.0,
+                    divisions: 6,
+                    onChanged: (value) {
+                      setState(() {
+                        _voiceSpeed = value;
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(height: AppTheme.spacingM),
+                DemoReveal(
+                  delay: const Duration(milliseconds: 230),
+                  child: _PreferenceSwitchCard(
+                    title: '触觉反馈',
+                    subtitle: '操作时提供振动反馈，帮助确认关键动作已触发。',
+                    value: _hapticFeedback,
+                    onChanged: (value) {
+                      setState(() {
+                        _hapticFeedback = value;
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(height: AppTheme.spacingM),
+                DemoReveal(
+                  delay: const Duration(milliseconds: 260),
+                  child: _PreferenceSwitchCard(
+                    title: '自动朗读结果',
+                    subtitle: 'AI 识别完成后自动语音播报，减少额外点击。',
+                    value: _autoReadResults,
+                    onChanged: (value) {
+                      setState(() {
+                        _autoReadResults = value;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
-          children: [
-            DemoReveal(
-              child: DemoAuthBanner(
-                title: '个性化您的使用体验',
-                subtitle: widget.isEditMode
-                    ? '这些设置会立即应用到当前会话。'
-                    : '这些设置可以随时在“我的”页面修改。',
-                icon: Icons.settings_accessibility_rounded,
-                chips: [
-                  DemoPill(
-                    label: _stageMode == DemoStageMode.day ? '日间模式' : '深夜模式',
-                    color: _stageMode == DemoStageMode.day
-                        ? AppTheme.stageInfo
-                        : AppTheme.stageAccent,
-                  ),
-                  DemoPill(
-                    label: _highContrastMode ? '高对比度开启' : '标准显示',
-                    color: _highContrastMode
-                        ? AppTheme.stageWarning
-                        : AppTheme.stageAccent,
-                  ),
-                  DemoPill(
-                    label: '字体 ${_fontScale.toStringAsFixed(1)}x',
-                    color: AppTheme.stageInfo,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: AppTheme.spacingL),
-            DemoReveal(
-              delay: const Duration(milliseconds: 80),
-              child: DemoMetricStrip(
-                items: [
-                  DemoMetricItem(
-                    label: '界面',
-                    value: _stageMode == DemoStageMode.day ? '白天' : '深夜',
-                    color: _stageMode == DemoStageMode.day
-                        ? AppTheme.stageInfo
-                        : AppTheme.stageAccent,
-                  ),
-                  DemoMetricItem(
-                    label: '朗读',
-                    value: _autoReadResults ? '自动开启' : '手动触发',
-                    color: AppTheme.stageInfo,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: AppTheme.spacingL),
-            DemoReveal(
-              delay: const Duration(milliseconds: 110),
-              child: _StageModeCard(
-                mode: _stageMode,
-                onModeChanged: (mode) {
-                  setState(() {
-                    _stageMode = mode;
-                  });
-                },
-              ),
-            ),
-            const SizedBox(height: AppTheme.spacingM),
-            DemoReveal(
-              delay: const Duration(milliseconds: 140),
-              child: _PreferenceSwitchCard(
-                title: '高对比度模式',
-                subtitle: '使用更强的明暗对比，提升弱视和读屏用户的识别效率。',
-                value: _highContrastMode,
-                onChanged: (value) {
-                  setState(() {
-                    _highContrastMode = value;
-                  });
-                },
-              ),
-            ),
-            const SizedBox(height: AppTheme.spacingM),
-            DemoReveal(
-              delay: const Duration(milliseconds: 170),
-              child: _PreferenceSliderCard(
-                title: '字体大小',
-                subtitle: '调整应用内文字显示大小。',
-                value: _fontScale,
-                min: 0.8,
-                max: 1.5,
-                divisions: 7,
-                onChanged: (value) {
-                  setState(() {
-                    _fontScale = value;
-                  });
-                },
-              ),
-            ),
-            const SizedBox(height: AppTheme.spacingM),
-            DemoReveal(
-              delay: const Duration(milliseconds: 200),
-              child: _PreferenceSliderCard(
-                title: '语音播报速度',
-                subtitle: '调整 AI 语音播报的速度。',
-                value: _voiceSpeed,
-                min: 0.5,
-                max: 2.0,
-                divisions: 6,
-                onChanged: (value) {
-                  setState(() {
-                    _voiceSpeed = value;
-                  });
-                },
-              ),
-            ),
-            const SizedBox(height: AppTheme.spacingM),
-            DemoReveal(
-              delay: const Duration(milliseconds: 230),
-              child: _PreferenceSwitchCard(
-                title: '触觉反馈',
-                subtitle: '操作时提供振动反馈，帮助确认关键动作已触发。',
-                value: _hapticFeedback,
-                onChanged: (value) {
-                  setState(() {
-                    _hapticFeedback = value;
-                  });
-                },
-              ),
-            ),
-            const SizedBox(height: AppTheme.spacingM),
-            DemoReveal(
-              delay: const Duration(milliseconds: 260),
-              child: _PreferenceSwitchCard(
-                title: '自动朗读结果',
-                subtitle: 'AI 识别完成后自动语音播报，减少额外点击。',
-                value: _autoReadResults,
-                onChanged: (value) {
-                  setState(() {
-                    _autoReadResults = value;
-                  });
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-      bottomBar: AccessibleButton(
-        label: widget.isEditMode ? '保存设置' : '开始使用',
-        semanticLabel: widget.isEditMode ? '保存无障碍偏好' : '完成设置，进入应用',
-        hint: widget.isEditMode ? '双击保存偏好设置' : '双击开始使用共感LinkAble',
-        backgroundColor: AppTheme.stageAccent,
-        foregroundColor: AppTheme.stageBackground,
-        onPressed: _onComplete,
-      ),
+          bottomBar: AccessibleButton(
+            label: widget.isEditMode ? '保存设置' : '开始使用',
+            semanticLabel: widget.isEditMode ? '保存无障碍偏好' : '完成设置，进入应用',
+            hint: widget.isEditMode ? '双击保存偏好设置' : '双击开始使用共感LinkAble',
+            backgroundColor: AppTheme.stageAccent,
+            foregroundColor: AppTheme.stageBackground,
+            onPressed: _onComplete,
+          ),
+        );
+      },
     );
   }
 }

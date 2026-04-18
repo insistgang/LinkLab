@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../config/app_config.dart';
 import '../../core/theme/app_theme.dart';
+import '../../services/app_session_service.dart';
 import '../../widgets/demo/demo_motion.dart';
 import 'home_screen.dart';
 import 'ai_chat_screen.dart';
@@ -48,83 +49,94 @@ class _MainScreenState extends State<MainScreen> {
       'AGENTS.md §4.2：竞赛版默认底部导航只允许暴露 Demo 主线入口',
     );
 
-    return Scaffold(
-      backgroundColor: AppTheme.stageBackground,
-      body: Stack(
-        fit: StackFit.expand,
-        children: List.generate(_screens.length, (index) {
-          final isActive = index == _currentIndex;
-          final isBeforeActive = index < _currentIndex;
+    return AnimatedBuilder(
+      animation: AppSessionService.instance,
+      builder: (context, _) {
+        final session = AppSessionService.instance;
+        return KeyedSubtree(
+          key: ValueKey(session.stageMode),
+          child: Scaffold(
+            backgroundColor: AppTheme.stageBackground,
+            body: Stack(
+              fit: StackFit.expand,
+              children: List.generate(_screens.length, (index) {
+                final isActive = index == _currentIndex;
+                final isBeforeActive = index < _currentIndex;
 
-          return IgnorePointer(
-            ignoring: !isActive,
-            child: AnimatedSlide(
-              duration: const Duration(milliseconds: 280),
-              curve: Curves.easeOutCubic,
-              offset: isActive
-                  ? Offset.zero
-                  : Offset(isBeforeActive ? -0.02 : 0.02, 0),
-              child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 220),
-                curve: Curves.easeOutCubic,
-                opacity: isActive ? 1 : 0,
-                child: KeyedSubtree(
-                  key: ValueKey('main-tab-$index'),
-                  child: _screens[index],
-                ),
-              ),
-            ),
-          );
-        }),
-      ),
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-          child: Semantics(
-            label: '底部导航栏',
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: AppTheme.stageCardDecoration(
-                color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.94),
-                borderRadius: BorderRadius.circular(28),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  AnimatedAlign(
-                    duration: const Duration(milliseconds: 240),
+                return IgnorePointer(
+                  ignoring: !isActive,
+                  child: AnimatedSlide(
+                    duration: const Duration(milliseconds: 280),
                     curve: Curves.easeOutCubic,
-                    alignment: _navIndicatorAlignment(),
-                    child: Container(
-                      width: 44,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        gradient: AppTheme.stageAccentGradient,
-                        borderRadius: BorderRadius.circular(999),
+                    offset: isActive
+                        ? Offset.zero
+                        : Offset(isBeforeActive ? -0.02 : 0.02, 0),
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 220),
+                      curve: Curves.easeOutCubic,
+                      opacity: isActive ? 1 : 0,
+                      child: KeyedSubtree(
+                        key: ValueKey('main-tab-$index'),
+                        child: _screens[index],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: List.generate(_navItems.length, (index) {
-                      final item = _navItems[index];
-                      final isActive = index == _currentIndex;
-                      return Expanded(
-                        child: _DemoNavButton(
-                          item: item,
-                          isActive: isActive,
-                          onTap: () => _onTabTapped(index),
+                );
+              }),
+            ),
+            bottomNavigationBar: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                child: Semantics(
+                  label: '底部导航栏',
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: AppTheme.stageCardDecoration(
+                      color: AppTheme.stageSurfaceStrong.withValues(
+                        alpha: 0.94,
+                      ),
+                      borderRadius: BorderRadius.circular(28),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        AnimatedAlign(
+                          duration: const Duration(milliseconds: 240),
+                          curve: Curves.easeOutCubic,
+                          alignment: _navIndicatorAlignment(),
+                          child: Container(
+                            width: 44,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              gradient: AppTheme.stageAccentGradient,
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                          ),
                         ),
-                      );
-                    }),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: List.generate(_navItems.length, (index) {
+                            final item = _navItems[index];
+                            final isActive = index == _currentIndex;
+                            return Expanded(
+                              child: _DemoNavButton(
+                                item: item,
+                                isActive: isActive,
+                                onTap: () => _onTabTapped(index),
+                              ),
+                            );
+                          }),
+                        ),
+                      ],
+                    ),
                   ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 

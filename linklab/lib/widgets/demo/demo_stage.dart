@@ -28,85 +28,109 @@ class DemoStageScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.stageBackground,
-      resizeToAvoidBottomInset: true,
-      extendBody: extendBody,
-      body: Stack(
-        children: [
-          const Positioned.fill(child: _DemoStageBackdrop()),
-          SafeArea(
-            child: Column(
+    final session = AppSessionService.instance;
+
+    return AnimatedBuilder(
+      animation: session,
+      builder: (context, _) {
+        return KeyedSubtree(
+          key: ValueKey(session.stageMode),
+          child: Scaffold(
+            backgroundColor: AppTheme.stageBackground,
+            resizeToAvoidBottomInset: true,
+            extendBody: extendBody,
+            body: Stack(
               children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppTheme.spacingM,
-                    AppTheme.spacingM,
-                    AppTheme.spacingM,
-                    0,
-                  ),
+                const Positioned.fill(child: _DemoStageBackdrop()),
+                SafeArea(
                   child: Column(
                     children: [
-                      const _DemoStageStatusStrip(),
-                      const SizedBox(height: AppTheme.spacingM),
-                      Container(
-                        padding: const EdgeInsets.all(AppTheme.spacingM),
-                        decoration: AppTheme.stageCardDecoration(
-                          color: AppTheme.stageSurfaceStrong.withValues(
-                            alpha: 0.88,
-                          ),
-                          borderRadius: BorderRadius.circular(26),
-                          borderColor: AppTheme.stageBorder.withValues(
-                            alpha: 0.44,
-                          ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          AppTheme.spacingM,
+                          AppTheme.spacingM,
+                          AppTheme.spacingM,
+                          0,
                         ),
-                        child: _DemoStageHeader(
-                          title: title,
-                          subtitle: subtitle,
-                          actions: actions,
-                          showBackButton: showBackButton,
-                          onBackPressed: onBackPressed,
+                        child: Column(
+                          children: [
+                            const _DemoStageStatusStrip(),
+                            const SizedBox(height: AppTheme.spacingM),
+                            Container(
+                              padding: const EdgeInsets.all(AppTheme.spacingM),
+                              decoration: AppTheme.stageCardDecoration(
+                                color: AppTheme.stageSurfaceStrong.withValues(
+                                  alpha: 0.88,
+                                ),
+                                borderRadius: BorderRadius.circular(26),
+                                borderColor: AppTheme.stageBorder.withValues(
+                                  alpha: 0.44,
+                                ),
+                              ),
+                              child: _DemoStageHeader(
+                                title: title,
+                                subtitle: subtitle,
+                                actions: actions,
+                                showBackButton: showBackButton,
+                                onBackPressed: onBackPressed,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            final width = constraints.maxWidth > 520
+                                ? 520.0
+                                : constraints.maxWidth;
+                            return Align(
+                              alignment: Alignment.topCenter,
+                              child: SizedBox(
+                                width: width,
+                                height: constraints.maxHeight,
+                                child: const _DemoStageEntrance().wrap(body),
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ],
                   ),
                 ),
-                Expanded(
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final width = constraints.maxWidth > 520
-                          ? 520.0
-                          : constraints.maxWidth;
-                      return Align(
-                        alignment: Alignment.topCenter,
-                        child: SizedBox(
-                          width: width,
-                          height: constraints.maxHeight,
-                          child: const _DemoStageEntrance().wrap(body),
-                        ),
-                      );
-                    },
-                  ),
-                ),
               ],
             ),
+            bottomNavigationBar: bottomBar == null
+                ? null
+                : SafeArea(
+                    top: false,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppTheme.spacingL,
+                        AppTheme.spacingS,
+                        AppTheme.spacingL,
+                        AppTheme.spacingL,
+                      ),
+                      child: bottomBar,
+                    ),
+                  ),
           ),
-        ],
-      ),
-      bottomNavigationBar: bottomBar == null
-          ? null
-          : SafeArea(
-              top: false,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppTheme.spacingL,
-                  AppTheme.spacingS,
-                  AppTheme.spacingL,
-                  AppTheme.spacingL,
-                ),
-                child: bottomBar,
-              ),
-            ),
+        );
+      },
+    );
+  }
+}
+
+class DemoStageLiveBuilder extends StatelessWidget {
+  const DemoStageLiveBuilder({super.key, required this.builder});
+
+  final WidgetBuilder builder;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: AppSessionService.instance,
+      builder: (context, _) => builder(context),
     );
   }
 }
@@ -570,7 +594,7 @@ class _DemoStagePatternPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
 class _ThemeModeButton extends StatelessWidget {

@@ -70,142 +70,148 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return DemoStageScaffold(
-      title: '产品引导',
-      subtitle: '用 4 页解释清楚竞赛版真正能做什么',
-      showBackButton: false,
-      actions: [
-        TextButton(
-          onPressed: _onSkip,
-          child: Text(
-            '跳过',
-            style: TextStyle(color: AppTheme.stageTextSecondary),
-          ),
-        ),
-      ],
-      body: Column(
-        children: [
-          Expanded(
-            child: PageView.builder(
-              controller: _pageController,
-              itemCount: _pages.length,
-              onPageChanged: (index) {
-                setState(() {
-                  _currentPage = index;
-                });
-              },
-              itemBuilder: (context, index) {
-                final page = _pages[index];
-                return Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppTheme.spacingL,
-                    AppTheme.spacingL,
-                    AppTheme.spacingL,
-                    AppTheme.spacingL,
-                  ),
-                  child: Column(
-                    children: [
-                      DemoReveal(
-                        key: ValueKey('onboarding-banner-$index'),
-                        child: DemoAuthBanner(
-                          title: page.title,
-                          subtitle: page.description,
-                          icon: page.icon,
-                          chips: page.highlights
-                              .map(
-                                (item) => DemoPill(
-                                  label: item,
-                                  color: AppTheme.stageAccent,
-                                ),
-                              )
-                              .toList(),
-                        ),
+    return DemoStageLiveBuilder(
+      builder: (context) {
+        return DemoStageScaffold(
+          title: '产品引导',
+          subtitle: '用 4 页解释清楚竞赛版真正能做什么',
+          showBackButton: false,
+          actions: [
+            TextButton(
+              onPressed: _onSkip,
+              child: Text(
+                '跳过',
+                style: TextStyle(color: AppTheme.stageTextSecondary),
+              ),
+            ),
+          ],
+          body: Column(
+            children: [
+              Expanded(
+                child: PageView.builder(
+                  controller: _pageController,
+                  itemCount: _pages.length,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _currentPage = index;
+                    });
+                  },
+                  itemBuilder: (context, index) {
+                    final page = _pages[index];
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppTheme.spacingL,
+                        AppTheme.spacingL,
+                        AppTheme.spacingL,
+                        AppTheme.spacingL,
                       ),
-                      const SizedBox(height: AppTheme.spacingL),
-                      Expanded(
-                        child: DemoReveal(
-                          key: ValueKey('onboarding-hero-$index'),
-                          delay: const Duration(milliseconds: 90),
-                          child: Center(
-                            child: Container(
-                              width: 230,
-                              height: 230,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: AppTheme.stageAccent.withValues(
-                                  alpha: 0.08,
-                                ),
-                                border: Border.all(
-                                  color: AppTheme.stageAccent.withValues(
-                                    alpha: 0.18,
-                                  ),
-                                ),
-                              ),
+                      child: Column(
+                        children: [
+                          DemoReveal(
+                            key: ValueKey('onboarding-banner-$index'),
+                            child: DemoAuthBanner(
+                              title: page.title,
+                              subtitle: page.description,
+                              icon: page.icon,
+                              chips: page.highlights
+                                  .map(
+                                    (item) => DemoPill(
+                                      label: item,
+                                      color: AppTheme.stageAccent,
+                                    ),
+                                  )
+                                  .toList(),
+                            ),
+                          ),
+                          const SizedBox(height: AppTheme.spacingL),
+                          Expanded(
+                            child: DemoReveal(
+                              key: ValueKey('onboarding-hero-$index'),
+                              delay: const Duration(milliseconds: 90),
                               child: Center(
                                 child: Container(
-                                  width: 140,
-                                  height: 140,
+                                  width: 230,
+                                  height: 230,
                                   decoration: BoxDecoration(
-                                    gradient: AppTheme.stageAccentGradient,
                                     shape: BoxShape.circle,
+                                    color: AppTheme.stageAccent.withValues(
+                                      alpha: 0.08,
+                                    ),
+                                    border: Border.all(
+                                      color: AppTheme.stageAccent.withValues(
+                                        alpha: 0.18,
+                                      ),
+                                    ),
                                   ),
-                                  child: Icon(
-                                    page.icon,
-                                    size: 64,
-                                    color: AppTheme.stageBackground,
+                                  child: Center(
+                                    child: Container(
+                                      width: 140,
+                                      height: 140,
+                                      decoration: BoxDecoration(
+                                        gradient: AppTheme.stageAccentGradient,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(
+                                        page.icon,
+                                        size: 64,
+                                        color: AppTheme.stageBackground,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppTheme.spacingL,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    _pages.length,
+                    (index) => Semantics(
+                      label: '第${index + 1}页，共${_pages.length}页',
+                      selected: index == _currentPage,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 240),
+                        width: index == _currentPage ? 28 : 8,
+                        height: 8,
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: AppTheme.spacingXS,
+                        ),
+                        decoration: BoxDecoration(
+                          gradient: index == _currentPage
+                              ? AppTheme.stageAccentGradient
+                              : null,
+                          color: index == _currentPage
+                              ? null
+                              : AppTheme.stageBorder,
+                          borderRadius: BorderRadius.circular(999),
                         ),
                       ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingL),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                _pages.length,
-                (index) => Semantics(
-                  label: '第${index + 1}页，共${_pages.length}页',
-                  selected: index == _currentPage,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 240),
-                    width: index == _currentPage ? 28 : 8,
-                    height: 8,
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: AppTheme.spacingXS,
-                    ),
-                    decoration: BoxDecoration(
-                      gradient: index == _currentPage
-                          ? AppTheme.stageAccentGradient
-                          : null,
-                      color: index == _currentPage
-                          ? null
-                          : AppTheme.stageBorder,
-                      borderRadius: BorderRadius.circular(999),
                     ),
                   ),
                 ),
               ),
-            ),
+              const SizedBox(height: AppTheme.spacingL),
+            ],
           ),
-          const SizedBox(height: AppTheme.spacingL),
-        ],
-      ),
-      bottomBar: AccessibleButton(
-        label: _currentPage == _pages.length - 1 ? '开始使用' : '下一步',
-        semanticLabel: _currentPage == _pages.length - 1 ? '开始使用' : '下一页',
-        backgroundColor: AppTheme.stageAccent,
-        foregroundColor: AppTheme.stageBackground,
-        onPressed: _onNext,
-      ),
+          bottomBar: AccessibleButton(
+            label: _currentPage == _pages.length - 1 ? '开始使用' : '下一步',
+            semanticLabel: _currentPage == _pages.length - 1 ? '开始使用' : '下一页',
+            backgroundColor: AppTheme.stageAccent,
+            foregroundColor: AppTheme.stageBackground,
+            onPressed: _onNext,
+          ),
+        );
+      },
     );
   }
 }

@@ -214,7 +214,7 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _sosService,
+      animation: Listenable.merge([_sosService, AppSessionService.instance]),
       builder: (context, child) {
         final isActive = _sosService.isActive;
         final isEmergencyFlowActive = isActive || _isUndoWindowActive;

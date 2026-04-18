@@ -79,106 +79,110 @@ class _DisabilitySelectScreenState extends State<DisabilitySelectScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return DemoStageScaffold(
-      title: '障碍类型',
-      subtitle: '这一步只用于改善默认体验，不会阻塞你进入主流程',
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppTheme.spacingL,
-          AppTheme.spacingL,
-          AppTheme.spacingL,
-          140,
-        ),
-        children: [
-          DemoReveal(
-            child: DemoAuthBanner(
-              title: '请选择您的障碍类型',
-              subtitle: '这将帮助我们为您提供更好的服务。您可以多选，也可以稍后再补充。',
-              icon: Icons.tune_rounded,
-              chips: [
-                DemoPill(label: '支持多选', color: AppTheme.stageAccent),
-                DemoPill(label: '可稍后补充', color: AppTheme.stageInfo),
-              ],
+    return DemoStageLiveBuilder(
+      builder: (context) {
+        return DemoStageScaffold(
+          title: '障碍类型',
+          subtitle: '这一步只用于改善默认体验，不会阻塞你进入主流程',
+          body: ListView(
+            padding: const EdgeInsets.fromLTRB(
+              AppTheme.spacingL,
+              AppTheme.spacingL,
+              AppTheme.spacingL,
+              140,
             ),
-          ),
-          const SizedBox(height: AppTheme.spacingL),
-          DemoReveal(
-            delay: const Duration(milliseconds: 80),
-            child: DemoMetricStrip(
-              items: [
-                DemoMetricItem(
-                  label: '已选类型',
-                  value: '${_selectedTypes.length} 项',
-                  color: _selectedTypes.isEmpty
-                      ? AppTheme.stageTextHint
-                      : AppTheme.stageAccent,
+            children: [
+              DemoReveal(
+                child: DemoAuthBanner(
+                  title: '请选择您的障碍类型',
+                  subtitle: '这将帮助我们为您提供更好的服务。您可以多选，也可以稍后再补充。',
+                  icon: Icons.tune_rounded,
+                  chips: [
+                    DemoPill(label: '支持多选', color: AppTheme.stageAccent),
+                    DemoPill(label: '可稍后补充', color: AppTheme.stageInfo),
+                  ],
                 ),
-                DemoMetricItem(
-                  label: '流程策略',
-                  value: '可稍后补充',
-                  color: AppTheme.stageInfo,
+              ),
+              const SizedBox(height: AppTheme.spacingL),
+              DemoReveal(
+                delay: const Duration(milliseconds: 80),
+                child: DemoMetricStrip(
+                  items: [
+                    DemoMetricItem(
+                      label: '已选类型',
+                      value: '${_selectedTypes.length} 项',
+                      color: _selectedTypes.isEmpty
+                          ? AppTheme.stageTextHint
+                          : AppTheme.stageAccent,
+                    ),
+                    DemoMetricItem(
+                      label: '流程策略',
+                      value: '可稍后补充',
+                      color: AppTheme.stageInfo,
+                    ),
+                  ],
                 ),
+              ),
+              const SizedBox(height: AppTheme.spacingL),
+              for (final option in _options) ...[
+                DemoReveal(
+                  delay: Duration(
+                    milliseconds: 120 + (_options.indexOf(option) * 35),
+                  ),
+                  child: _DisabilitySelectionCard(
+                    option: option,
+                    isSelected: _selectedTypes.contains(option.value),
+                    onTap: () {
+                      setState(() {
+                        if (_selectedTypes.contains(option.value)) {
+                          _selectedTypes.remove(option.value);
+                        } else {
+                          _selectedTypes.add(option.value);
+                        }
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(height: AppTheme.spacingM),
               ],
-            ),
-          ),
-          const SizedBox(height: AppTheme.spacingL),
-          for (final option in _options) ...[
-            DemoReveal(
-              delay: Duration(
-                milliseconds: 120 + (_options.indexOf(option) * 35),
-              ),
-              child: _DisabilitySelectionCard(
-                option: option,
-                isSelected: _selectedTypes.contains(option.value),
-                onTap: () {
-                  setState(() {
-                    if (_selectedTypes.contains(option.value)) {
-                      _selectedTypes.remove(option.value);
-                    } else {
-                      _selectedTypes.add(option.value);
-                    }
-                  });
-                },
-              ),
-            ),
-            const SizedBox(height: AppTheme.spacingM),
-          ],
-          if (_selectedTypes.isNotEmpty) ...[
-            DemoReveal(
-              delay: const Duration(milliseconds: 300),
-              child: DemoSurfaceCard(
-                color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.96),
-                child: AccessibleText(
-                  '已选择 ${_selectedTypes.length} 项。后续会基于这些信息给出更合适的默认字体、朗读和提示方式，但不会限制你进入主流程。',
-                  style: TextStyle(
-                    color: AppTheme.stageTextSecondary,
-                    fontSize: AppTheme.fontSizeSmall,
-                    height: 1.5,
+              if (_selectedTypes.isNotEmpty) ...[
+                DemoReveal(
+                  delay: const Duration(milliseconds: 300),
+                  child: DemoSurfaceCard(
+                    color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.96),
+                    child: AccessibleText(
+                      '已选择 ${_selectedTypes.length} 项。后续会基于这些信息给出更合适的默认字体、朗读和提示方式，但不会限制你进入主流程。',
+                      style: TextStyle(
+                        color: AppTheme.stageTextSecondary,
+                        fontSize: AppTheme.fontSizeSmall,
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: AppTheme.spacingM),
+              ],
+              Center(
+                child: TextButton(
+                  onPressed: _onSkip,
+                  child: Text(
+                    '跳过此步骤',
+                    style: TextStyle(color: AppTheme.stageAccent),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: AppTheme.spacingM),
-          ],
-          Center(
-            child: TextButton(
-              onPressed: _onSkip,
-              child: Text(
-                '跳过此步骤',
-                style: TextStyle(color: AppTheme.stageAccent),
-              ),
-            ),
+            ],
           ),
-        ],
-      ),
-      bottomBar: AccessibleButton(
-        label: '继续',
-        semanticLabel: '继续下一步',
-        hint: '双击继续设置无障碍偏好',
-        backgroundColor: AppTheme.stageAccent,
-        foregroundColor: AppTheme.stageBackground,
-        onPressed: _onContinue,
-      ),
+          bottomBar: AccessibleButton(
+            label: '继续',
+            semanticLabel: '继续下一步',
+            hint: '双击继续设置无障碍偏好',
+            backgroundColor: AppTheme.stageAccent,
+            foregroundColor: AppTheme.stageBackground,
+            onPressed: _onContinue,
+          ),
+        );
+      },
     );
   }
 }

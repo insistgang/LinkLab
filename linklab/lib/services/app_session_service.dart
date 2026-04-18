@@ -123,6 +123,7 @@ class AppSessionService extends ChangeNotifier {
   Future<void> setStageMode(DemoStageMode mode) async {
     if (_stageMode == mode) return;
     _stageMode = mode;
+    AppTheme.setStageMode(mode);
     await _storage.setStageThemeMode(mode.name);
     notifyListeners();
   }
@@ -167,6 +168,7 @@ class AppSessionService extends ChangeNotifier {
     _stageMode = _storage.getStageThemeMode() == DemoStageMode.day.name
         ? DemoStageMode.day
         : DemoStageMode.night;
+    AppTheme.setStageMode(_stageMode);
 
     final storedProfile = _storage.getUserProfile();
     if (storedProfile != null) {

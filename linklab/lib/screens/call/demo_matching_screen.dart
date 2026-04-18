@@ -96,8 +96,10 @@ class _DemoMatchingScreenState extends State<DemoMatchingScreen>
 
   @override
   Widget build(BuildContext context) {
+    final session = AppSessionService.instance;
+
     return AnimatedBuilder(
-      animation: _matchingService,
+      animation: Listenable.merge([_matchingService, session]),
       builder: (context, _) {
         final progress = (_matchingService.elapsedSeconds / 4).clamp(0.08, 1.0);
         final candidates = _buildCandidates();
@@ -487,7 +489,7 @@ class _MatchDialPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _MatchDialPainter oldDelegate) {
-    return oldDelegate.progress != progress;
+    return true;
   }
 }
 

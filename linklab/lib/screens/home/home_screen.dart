@@ -80,284 +80,293 @@ class _HomeScreenState extends State<HomeScreen> {
         ? '高对比度已开启'
         : '标准显示模式';
 
-    return DemoStageScaffold(
-      title: '共感 LinkAble',
-      subtitle: 'AI 先处理标准化问题，复杂需求再转真人志愿者',
-      showBackButton: false,
-      body: RefreshIndicator(
-        color: AppTheme.stageAccent,
-        onRefresh: _loadContent,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(
-            AppTheme.spacingL,
-            AppTheme.spacingL,
-            AppTheme.spacingL,
-            112,
-          ),
-          children: [
-            DemoReveal(
-              child: _HeroPanel(
-                session: session,
-                profile: profile,
-                dateLabel: _buildDateLabel(now),
-                weatherLabel: _buildWeatherLabel(now),
-                preferenceSummary: preferenceSummary,
-                onHelpPressed: () {
-                  DemoFlowNavigator.onHomeBigButtonPressed(context);
-                },
-                onVolunteerPressed: () {
-                  DemoMatchingFlow.startMatching(context);
-                },
-                onEmergencyPressed: () {
-                  HapticFeedback.heavyImpact();
-                  _showEmergencyDialog(context);
-                },
+    return DemoStageLiveBuilder(
+      builder: (context) {
+        return DemoStageScaffold(
+          title: '共感 LinkAble',
+          subtitle: 'AI 先处理标准化问题，复杂需求再转真人志愿者',
+          showBackButton: false,
+          body: RefreshIndicator(
+            color: AppTheme.stageAccent,
+            onRefresh: _loadContent,
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(
+                AppTheme.spacingL,
+                AppTheme.spacingL,
+                AppTheme.spacingL,
+                112,
               ),
-            ),
-            const SizedBox(height: AppTheme.spacingL),
-            if (AppConfig.demoMode) ...[
-              DemoReveal(
-                delay: Duration(milliseconds: 80),
-                child: _CompetitionDemoNoticeCard(),
-              ),
-              const SizedBox(height: AppTheme.spacingL),
-            ],
-            DemoReveal(
-              delay: const Duration(milliseconds: 130),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: _SummaryStatCard(
-                      eyebrow: '最近求助',
-                      value: '${_recentHistory.length} 条',
-                      description: '本地演示档案已同步',
-                      color: AppTheme.stageAccent,
-                    ),
+              children: [
+                DemoReveal(
+                  child: _HeroPanel(
+                    session: session,
+                    profile: profile,
+                    dateLabel: _buildDateLabel(now),
+                    weatherLabel: _buildWeatherLabel(now),
+                    preferenceSummary: preferenceSummary,
+                    onHelpPressed: () {
+                      DemoFlowNavigator.onHomeBigButtonPressed(context);
+                    },
+                    onVolunteerPressed: () {
+                      DemoMatchingFlow.startMatching(context);
+                    },
+                    onEmergencyPressed: () {
+                      HapticFeedback.heavyImpact();
+                      _showEmergencyDialog(context);
+                    },
                   ),
-                  const SizedBox(width: AppTheme.spacingM),
-                  Expanded(
-                    child: _SummaryStatCard(
-                      eyebrow: '当前角色',
-                      value: _buildRoleSummary(profile),
-                      description: '可在“我的”调整偏好',
-                      color: AppTheme.stageSuccess,
-                    ),
+                ),
+                const SizedBox(height: AppTheme.spacingL),
+                if (AppConfig.demoMode) ...[
+                  DemoReveal(
+                    delay: Duration(milliseconds: 80),
+                    child: _CompetitionDemoNoticeCard(),
                   ),
+                  const SizedBox(height: AppTheme.spacingL),
                 ],
-              ),
-            ),
-            const SizedBox(height: AppTheme.spacingL),
-            DemoReveal(
-              delay: const Duration(milliseconds: 180),
-              child: _SafetyReadyCard(
-                settings: _safetySettings,
-                contactCount: _emergencyContactCount,
-              ),
-            ),
-            const SizedBox(height: AppTheme.spacingXL),
-            const DemoSectionTitle(
-              title: '快捷工具',
-              subtitle: '保留 3 个最高频入口，避免首屏功能过载。',
-            ),
-            const SizedBox(height: AppTheme.spacingM),
-            DemoReveal(
-              delay: const Duration(milliseconds: 230),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: _QuickToolButton(
-                      label: '文字识别',
-                      description: '读说明书、菜单、票据',
-                      icon: Icons.document_scanner_outlined,
-                      semanticLabel: 'OCR文字识别',
-                      onTap: () {
-                        pushDemoStageRoute(
-                          context,
-                          page: const DemoAIChatScreen(),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: AppTheme.spacingM),
-                  Expanded(
-                    child: _QuickToolButton(
-                      label: '颜色识别',
-                      description: '区分衣物与物品颜色',
-                      icon: Icons.color_lens_outlined,
-                      semanticLabel: '颜色识别',
-                      onTap: () {
-                        pushDemoStageRoute(
-                          context,
-                          page: const DemoAIChatScreen(),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: AppTheme.spacingM),
-                  Expanded(
-                    child: _QuickToolButton(
-                      label: 'AI 对话',
-                      description: '直接输入复杂需求',
-                      icon: Icons.chat_bubble_outline_rounded,
-                      semanticLabel: '智能对话',
-                      onTap: () {
-                        pushDemoStageRoute(
-                          context,
-                          page: const DemoAIChatScreen(),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: AppTheme.spacingXL),
-            DemoReveal(
-              delay: const Duration(milliseconds: 280),
-              child: DemoSurfaceCard(
-                semanticLabel: '连接真人志愿者',
-                hint: '双击进入匹配页',
-                onTap: () {
-                  DemoMatchingFlow.startMatching(context);
-                },
-                child: Row(
-                  children: [
-                    Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        gradient: AppTheme.stageAccentGradient,
-                        borderRadius: BorderRadius.circular(18),
+                DemoReveal(
+                  delay: const Duration(milliseconds: 130),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _SummaryStatCard(
+                          eyebrow: '最近求助',
+                          value: '${_recentHistory.length} 条',
+                          description: '本地演示档案已同步',
+                          color: AppTheme.stageAccent,
+                        ),
                       ),
-                      child: Icon(
-                        Icons.volunteer_activism_outlined,
-                        color: AppTheme.stageBackground,
+                      const SizedBox(width: AppTheme.spacingM),
+                      Expanded(
+                        child: _SummaryStatCard(
+                          eyebrow: '当前角色',
+                          value: _buildRoleSummary(profile),
+                          description: '可在“我的”调整偏好',
+                          color: AppTheme.stageSuccess,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: AppTheme.spacingM),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          AccessibleText(
-                            '呼叫志愿者',
-                            style: TextStyle(
-                              color: AppTheme.stageTextPrimary,
-                              fontSize: AppTheme.fontSizeLarge,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          SizedBox(height: AppTheme.spacingXS),
-                          AccessibleText(
-                            'AI 无法处理时，30 秒内尝试匹配附近在线志愿者。',
-                            style: TextStyle(
-                              color: AppTheme.stageTextSecondary,
-                              fontSize: AppTheme.fontSizeSmall,
-                              height: 1.5,
-                            ),
-                          ),
-                        ],
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppTheme.spacingL),
+                DemoReveal(
+                  delay: const Duration(milliseconds: 180),
+                  child: _SafetyReadyCard(
+                    settings: _safetySettings,
+                    contactCount: _emergencyContactCount,
+                  ),
+                ),
+                const SizedBox(height: AppTheme.spacingXL),
+                const DemoSectionTitle(
+                  title: '快捷工具',
+                  subtitle: '保留 3 个最高频入口，避免首屏功能过载。',
+                ),
+                const SizedBox(height: AppTheme.spacingM),
+                DemoReveal(
+                  delay: const Duration(milliseconds: 230),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _QuickToolButton(
+                          label: '文字识别',
+                          description: '读说明书、菜单、票据',
+                          icon: Icons.document_scanner_outlined,
+                          semanticLabel: 'OCR文字识别',
+                          onTap: () {
+                            pushDemoStageRoute(
+                              context,
+                              page: const DemoAIChatScreen(),
+                            );
+                          },
+                        ),
                       ),
-                    ),
-                    Icon(
-                      Icons.arrow_forward_rounded,
-                      color: AppTheme.stageTextPrimary,
-                    ),
-                  ],
+                      const SizedBox(width: AppTheme.spacingM),
+                      Expanded(
+                        child: _QuickToolButton(
+                          label: '颜色识别',
+                          description: '区分衣物与物品颜色',
+                          icon: Icons.color_lens_outlined,
+                          semanticLabel: '颜色识别',
+                          onTap: () {
+                            pushDemoStageRoute(
+                              context,
+                              page: const DemoAIChatScreen(),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: AppTheme.spacingM),
+                      Expanded(
+                        child: _QuickToolButton(
+                          label: 'AI 对话',
+                          description: '直接输入复杂需求',
+                          icon: Icons.chat_bubble_outline_rounded,
+                          semanticLabel: '智能对话',
+                          onTap: () {
+                            pushDemoStageRoute(
+                              context,
+                              page: const DemoAIChatScreen(),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(height: AppTheme.spacingXL),
-            DemoSectionTitle(
-              title: '最近帮助',
-              subtitle: '展示主链路的终态与回看落点。',
-              trailing: TextButton(
-                onPressed: () {
-                  pushDemoStageRoute(context, page: const SeekerCenterScreen());
-                },
-                child: Text(
-                  '查看全部',
-                  style: TextStyle(color: AppTheme.stageAccent),
-                ),
-              ),
-            ),
-            const SizedBox(height: AppTheme.spacingM),
-            if (_isLoading)
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: AppTheme.spacingL),
-                child: Center(
-                  child: CircularProgressIndicator(color: AppTheme.stageAccent),
-                ),
-              )
-            else if (_recentHistory.isEmpty)
-              const _EmptyHistoryCard()
-            else
-              ..._recentHistory.map(
-                (request) => Padding(
-                  padding: const EdgeInsets.only(bottom: AppTheme.spacingM),
-                  child: _HelpHistoryItem(
-                    request: request,
+                const SizedBox(height: AppTheme.spacingXL),
+                DemoReveal(
+                  delay: const Duration(milliseconds: 280),
+                  child: DemoSurfaceCard(
+                    semanticLabel: '连接真人志愿者',
+                    hint: '双击进入匹配页',
                     onTap: () {
+                      DemoMatchingFlow.startMatching(context);
+                    },
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            gradient: AppTheme.stageAccentGradient,
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          child: Icon(
+                            Icons.volunteer_activism_outlined,
+                            color: AppTheme.stageBackground,
+                          ),
+                        ),
+                        const SizedBox(width: AppTheme.spacingM),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              AccessibleText(
+                                '呼叫志愿者',
+                                style: TextStyle(
+                                  color: AppTheme.stageTextPrimary,
+                                  fontSize: AppTheme.fontSizeLarge,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              SizedBox(height: AppTheme.spacingXS),
+                              AccessibleText(
+                                'AI 无法处理时，30 秒内尝试匹配附近在线志愿者。',
+                                style: TextStyle(
+                                  color: AppTheme.stageTextSecondary,
+                                  fontSize: AppTheme.fontSizeSmall,
+                                  height: 1.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(
+                          Icons.arrow_forward_rounded,
+                          color: AppTheme.stageTextPrimary,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: AppTheme.spacingXL),
+                DemoSectionTitle(
+                  title: '最近帮助',
+                  subtitle: '展示主链路的终态与回看落点。',
+                  trailing: TextButton(
+                    onPressed: () {
                       pushDemoStageRoute(
                         context,
                         page: const SeekerCenterScreen(),
                       );
                     },
+                    child: Text(
+                      '查看全部',
+                      style: TextStyle(color: AppTheme.stageAccent),
+                    ),
                   ),
                 ),
-              ),
-            const SizedBox(height: AppTheme.spacingXL),
-            DemoSectionTitle(
-              title: '每日精选故事',
-              subtitle: '社群已降级为静态精选故事，不进入独立交互主线。',
-              trailing: TextButton(
-                onPressed: _loadContent,
-                child: Text(
-                  '刷新内容',
-                  style: TextStyle(color: AppTheme.stageAccent),
-                ),
-              ),
-            ),
-            const SizedBox(height: AppTheme.spacingM),
-            if (_featuredStories.isEmpty && !_isLoading)
-              DemoSurfaceCard(
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.auto_stories_outlined,
-                      color: AppTheme.stageAccent,
-                    ),
-                    SizedBox(width: AppTheme.spacingM),
-                    Expanded(
-                      child: AccessibleText(
-                        '社区故事正在准备中，稍后会自动展示。',
-                        style: TextStyle(
-                          color: AppTheme.stageTextSecondary,
-                          fontSize: AppTheme.fontSizeNormal,
-                        ),
+                const SizedBox(height: AppTheme.spacingM),
+                if (_isLoading)
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: AppTheme.spacingL),
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: AppTheme.stageAccent,
                       ),
                     ),
-                  ],
-                ),
-              )
-            else
-              ..._featuredStories.map(
-                (story) => Padding(
-                  padding: const EdgeInsets.only(bottom: AppTheme.spacingM),
-                  child: _FeaturedStoryPreview(
-                    story: story,
-                    onTap: () {
-                      pushDemoStageRoute(
-                        context,
-                        page: StoryDetailScreen(story: story),
-                      );
-                    },
+                  )
+                else if (_recentHistory.isEmpty)
+                  const _EmptyHistoryCard()
+                else
+                  ..._recentHistory.map(
+                    (request) => Padding(
+                      padding: const EdgeInsets.only(bottom: AppTheme.spacingM),
+                      child: _HelpHistoryItem(
+                        request: request,
+                        onTap: () {
+                          pushDemoStageRoute(
+                            context,
+                            page: const SeekerCenterScreen(),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: AppTheme.spacingXL),
+                DemoSectionTitle(
+                  title: '每日精选故事',
+                  subtitle: '社群已降级为静态精选故事，不进入独立交互主线。',
+                  trailing: TextButton(
+                    onPressed: _loadContent,
+                    child: Text(
+                      '刷新内容',
+                      style: TextStyle(color: AppTheme.stageAccent),
+                    ),
                   ),
                 ),
-              ),
-          ],
-        ),
-      ),
+                const SizedBox(height: AppTheme.spacingM),
+                if (_featuredStories.isEmpty && !_isLoading)
+                  DemoSurfaceCard(
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.auto_stories_outlined,
+                          color: AppTheme.stageAccent,
+                        ),
+                        SizedBox(width: AppTheme.spacingM),
+                        Expanded(
+                          child: AccessibleText(
+                            '社区故事正在准备中，稍后会自动展示。',
+                            style: TextStyle(
+                              color: AppTheme.stageTextSecondary,
+                              fontSize: AppTheme.fontSizeNormal,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  ..._featuredStories.map(
+                    (story) => Padding(
+                      padding: const EdgeInsets.only(bottom: AppTheme.spacingM),
+                      child: _FeaturedStoryPreview(
+                        story: story,
+                        onTap: () {
+                          pushDemoStageRoute(
+                            context,
+                            page: StoryDetailScreen(story: story),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 

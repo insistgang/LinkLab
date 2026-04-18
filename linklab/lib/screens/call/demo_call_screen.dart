@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_theme.dart';
+import '../../services/app_session_service.dart';
 import '../../services/demo_call_service.dart';
 import '../../widgets/accessible/index.dart';
 import '../../widgets/demo/demo_motion.dart';
@@ -52,7 +53,7 @@ class _DemoCallScreenState extends State<DemoCallScreen> {
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _callService,
+      animation: Listenable.merge([_callService, AppSessionService.instance]),
       builder: (context, child) {
         final volunteer = _callService.currentVolunteer;
         final isConnecting = _callService.isConnecting;

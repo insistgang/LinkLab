@@ -58,113 +58,121 @@ class AIChatScreen extends StatelessWidget {
       ),
     ];
 
-    return DemoStageScaffold(
-      title: 'AI助手',
-      subtitle: '把高频能力收口成一个统一入口，再按场景进入对话',
-      showBackButton: false,
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(AppTheme.spacingL),
-          children: [
-            DemoReveal(
-              child: _HeroCard(
-                onStartChat: () => _openDefaultChat(context),
-                onConnectVolunteer: () =>
-                    DemoMatchingFlow.startMatching(context),
-              ),
-            ),
-            const SizedBox(height: AppTheme.spacingXL),
-            DemoReveal(
-              delay: Duration(milliseconds: 90),
-              child: DemoSectionTitle(
-                title: '高频能力',
-                subtitle: '优先覆盖 PRD 里的智能对话、OCR、场景描述、颜色识别与紧急检测。',
-              ),
-            ),
-            const SizedBox(height: AppTheme.spacingM),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: presets.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: AppTheme.spacingM,
-                mainAxisSpacing: AppTheme.spacingM,
-                childAspectRatio: 0.92,
-              ),
-              itemBuilder: (context, index) {
-                final preset = presets[index];
-                return _CapabilityCard(
-                  preset: preset,
-                  onTap: () => _openPresetChat(context, preset),
-                );
-              },
-            ),
-            const SizedBox(height: AppTheme.spacingXL),
-            const DemoSectionTitle(title: '推荐场景'),
-            const SizedBox(height: AppTheme.spacingM),
-            Wrap(
-              spacing: AppTheme.spacingS,
-              runSpacing: AppTheme.spacingS,
+    return DemoStageLiveBuilder(
+      builder: (context) {
+        return DemoStageScaffold(
+          title: 'AI助手',
+          subtitle: '把高频能力收口成一个统一入口，再按场景进入对话',
+          showBackButton: false,
+          body: SafeArea(
+            child: ListView(
+              padding: const EdgeInsets.all(AppTheme.spacingL),
               children: [
-                for (final preset in presets)
-                  ActionChip(
-                    backgroundColor: AppTheme.stageSurfaceStrong,
-                    side: BorderSide(
-                      color: AppTheme.stageBorder.withValues(alpha: 0.82),
-                    ),
-                    avatar: Icon(preset.icon, size: 18, color: preset.color),
-                    labelStyle: TextStyle(color: AppTheme.stageTextPrimary),
-                    label: Text(preset.quickPrompts.first),
-                    onPressed: () => _openPresetChat(context, preset),
+                DemoReveal(
+                  child: _HeroCard(
+                    onStartChat: () => _openDefaultChat(context),
+                    onConnectVolunteer: () =>
+                        DemoMatchingFlow.startMatching(context),
                   ),
-              ],
-            ),
-            const SizedBox(height: AppTheme.spacingXL),
-            DemoReveal(
-              delay: Duration(milliseconds: 160),
-              child: DemoSurfaceCard(
-                semanticLabel: 'AI处理说明',
-                hint: '双击查看 AI 与真人协作方式',
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                ),
+                const SizedBox(height: AppTheme.spacingXL),
+                DemoReveal(
+                  delay: Duration(milliseconds: 90),
+                  child: DemoSectionTitle(
+                    title: '高频能力',
+                    subtitle: '优先覆盖 PRD 里的智能对话、OCR、场景描述、颜色识别与紧急检测。',
+                  ),
+                ),
+                const SizedBox(height: AppTheme.spacingM),
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: presets.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: AppTheme.spacingM,
+                    mainAxisSpacing: AppTheme.spacingM,
+                    childAspectRatio: 0.92,
+                  ),
+                  itemBuilder: (context, index) {
+                    final preset = presets[index];
+                    return _CapabilityCard(
+                      preset: preset,
+                      onTap: () => _openPresetChat(context, preset),
+                    );
+                  },
+                ),
+                const SizedBox(height: AppTheme.spacingXL),
+                const DemoSectionTitle(title: '推荐场景'),
+                const SizedBox(height: AppTheme.spacingM),
+                Wrap(
+                  spacing: AppTheme.spacingS,
+                  runSpacing: AppTheme.spacingS,
                   children: [
-                    AccessibleText(
-                      'AI 先处理，复杂问题再转真人',
-                      style: TextStyle(
-                        color: AppTheme.stageTextPrimary,
-                        fontSize: AppTheme.fontSizeNormal,
-                        fontWeight: FontWeight.w700,
+                    for (final preset in presets)
+                      ActionChip(
+                        backgroundColor: AppTheme.stageSurfaceStrong,
+                        side: BorderSide(
+                          color: AppTheme.stageBorder.withValues(alpha: 0.82),
+                        ),
+                        avatar: Icon(
+                          preset.icon,
+                          size: 18,
+                          color: preset.color,
+                        ),
+                        labelStyle: TextStyle(color: AppTheme.stageTextPrimary),
+                        label: Text(preset.quickPrompts.first),
+                        onPressed: () => _openPresetChat(context, preset),
                       ),
-                    ),
-                    SizedBox(height: AppTheme.spacingS),
-                    _FlowRow(
-                      icon: Icons.smart_toy_outlined,
-                      color: AppTheme.primaryColor,
-                      title: '标准化问题',
-                      subtitle: 'AI 直接回复，适合读文字、颜色识别、环境描述等场景。',
-                    ),
-                    SizedBox(height: AppTheme.spacingM),
-                    _FlowRow(
-                      icon: Icons.volunteer_activism_outlined,
-                      color: AppTheme.secondaryColor,
-                      title: '复杂或情绪化问题',
-                      subtitle: '当回答不确定时，可一键转真人志愿者继续处理。',
-                    ),
-                    SizedBox(height: AppTheme.spacingM),
-                    _FlowRow(
-                      icon: Icons.emergency_outlined,
-                      color: AppTheme.emergencyColor,
-                      title: '紧急情况',
-                      subtitle: '识别到摔倒、迷路、危险等关键词时，会提示发起 SOS 广播。',
-                    ),
                   ],
                 ),
-              ),
+                const SizedBox(height: AppTheme.spacingXL),
+                DemoReveal(
+                  delay: Duration(milliseconds: 160),
+                  child: DemoSurfaceCard(
+                    semanticLabel: 'AI处理说明',
+                    hint: '双击查看 AI 与真人协作方式',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AccessibleText(
+                          'AI 先处理，复杂问题再转真人',
+                          style: TextStyle(
+                            color: AppTheme.stageTextPrimary,
+                            fontSize: AppTheme.fontSizeNormal,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        SizedBox(height: AppTheme.spacingS),
+                        _FlowRow(
+                          icon: Icons.smart_toy_outlined,
+                          color: AppTheme.primaryColor,
+                          title: '标准化问题',
+                          subtitle: 'AI 直接回复，适合读文字、颜色识别、环境描述等场景。',
+                        ),
+                        SizedBox(height: AppTheme.spacingM),
+                        _FlowRow(
+                          icon: Icons.volunteer_activism_outlined,
+                          color: AppTheme.secondaryColor,
+                          title: '复杂或情绪化问题',
+                          subtitle: '当回答不确定时，可一键转真人志愿者继续处理。',
+                        ),
+                        SizedBox(height: AppTheme.spacingM),
+                        _FlowRow(
+                          icon: Icons.emergency_outlined,
+                          color: AppTheme.emergencyColor,
+                          title: '紧急情况',
+                          subtitle: '识别到摔倒、迷路、危险等关键词时，会提示发起 SOS 广播。',
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
