@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
+import '../core/theme/app_theme.dart';
 import '../models/help_request_model.dart';
 import '../models/user_model.dart';
 import 'local_storage.dart';
@@ -17,14 +18,16 @@ class AppSessionService extends ChangeNotifier {
   bool _isLoggedIn = false;
   bool _isFirstLaunch = true;
   UserModel? _userProfile;
-  AccessibilityPreferences _preferences =
-      const AccessibilityPreferences();
+  DemoStageMode _stageMode = DemoStageMode.night;
+  AccessibilityPreferences _preferences = const AccessibilityPreferences();
 
   bool get isInitialized => _initialized;
   bool get isLoggedIn => _isLoggedIn;
   bool get isFirstLaunch => _isFirstLaunch;
   UserModel? get currentUser => _userProfile;
   UserModel? get userProfile => _userProfile;
+  DemoStageMode get stageMode => _stageMode;
+  bool get isDayStageMode => _stageMode == DemoStageMode.day;
   AccessibilityPreferences get preferences => _preferences;
 
   Future<void> initialize() async {
@@ -105,9 +108,7 @@ class AppSessionService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> updatePreferences(
-    AccessibilityPreferences preferences,
-  ) async {
+  Future<void> updatePreferences(AccessibilityPreferences preferences) async {
     _preferences = preferences;
     _userProfile = _userProfile?.copyWith(preferences: preferences);
 
@@ -117,6 +118,19 @@ class AppSessionService extends ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  Future<void> setStageMode(DemoStageMode mode) async {
+    if (_stageMode == mode) return;
+    _stageMode = mode;
+    await _storage.setStageThemeMode(mode.name);
+    notifyListeners();
+  }
+
+  Future<void> toggleStageMode() async {
+    await setStageMode(
+      _stageMode == DemoStageMode.day ? DemoStageMode.night : DemoStageMode.day,
+    );
   }
 
   Future<void> logout() async {
@@ -150,6 +164,9 @@ class AppSessionService extends ChangeNotifier {
   void _restoreState() {
     _isLoggedIn = _storage.isLoggedIn();
     _isFirstLaunch = _storage.isFirstLaunch();
+    _stageMode = _storage.getStageThemeMode() == DemoStageMode.day.name
+        ? DemoStageMode.day
+        : DemoStageMode.night;
 
     final storedProfile = _storage.getUserProfile();
     if (storedProfile != null) {
@@ -183,14 +200,13 @@ class AppSessionService extends ChangeNotifier {
         'intent': '识别药品说明书',
         'urgency': 'important',
         'status': 'ai_resolved',
-        'aiResponse': {
-          'summary': '已识别药品名称与用法，并建议人工复核关键剂量信息。'
-        },
+        'aiResponse': {'summary': '已识别药品名称与用法，并建议人工复核关键剂量信息。'},
         'durationSeconds': 92,
         'seekerRating': 5,
         'createdAt': now.subtract(const Duration(hours: 4)).toIso8601String(),
-        'completedAt':
-            now.subtract(const Duration(hours: 3, minutes: 58)).toIso8601String(),
+        'completedAt': now
+            .subtract(const Duration(hours: 3, minutes: 58))
+            .toIso8601String(),
       },
       {
         'id': 'help-demo-2',
@@ -202,13 +218,15 @@ class AppSessionService extends ChangeNotifier {
         'volunteerId': 'demo-volunteer-1',
         'durationSeconds': 386,
         'seekerRating': 5,
-        'createdAt': now.subtract(const Duration(days: 1, hours: 2))
+        'createdAt': now
+            .subtract(const Duration(days: 1, hours: 2))
             .toIso8601String(),
-        'matchedAt': now.subtract(const Duration(days: 1, hours: 2, minutes: -1))
+        'matchedAt': now
+            .subtract(const Duration(days: 1, hours: 2, minutes: -1))
             .toIso8601String(),
-        'completedAt':
-            now.subtract(const Duration(days: 1, hours: 1, minutes: 54))
-                .toIso8601String(),
+        'completedAt': now
+            .subtract(const Duration(days: 1, hours: 1, minutes: 54))
+            .toIso8601String(),
       },
       {
         'id': 'help-demo-3',
@@ -220,13 +238,15 @@ class AppSessionService extends ChangeNotifier {
         'volunteerId': 'demo-volunteer-2',
         'durationSeconds': 512,
         'seekerRating': 4,
-        'createdAt': now.subtract(const Duration(days: 3, hours: 6))
+        'createdAt': now
+            .subtract(const Duration(days: 3, hours: 6))
             .toIso8601String(),
-        'matchedAt': now.subtract(const Duration(days: 3, hours: 5, minutes: 58))
+        'matchedAt': now
+            .subtract(const Duration(days: 3, hours: 5, minutes: 58))
             .toIso8601String(),
-        'completedAt':
-            now.subtract(const Duration(days: 3, hours: 5, minutes: 49))
-                .toIso8601String(),
+        'completedAt': now
+            .subtract(const Duration(days: 3, hours: 5, minutes: 49))
+            .toIso8601String(),
       },
     ];
 
@@ -239,7 +259,9 @@ class AppSessionService extends ChangeNotifier {
   }
 
   String _buildDisplayName(String phone, List<String> roles) {
-    final suffix = phone.length >= 4 ? phone.substring(phone.length - 4) : phone;
+    final suffix = phone.length >= 4
+        ? phone.substring(phone.length - 4)
+        : phone;
     if (roles.contains('volunteer') && roles.contains('seeker')) {
       return '互助用户$suffix';
     }

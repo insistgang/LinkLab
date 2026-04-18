@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 
 import '../screens/call/demo_exports.dart';
 import '../services/demo_call_service.dart';
+import '../widgets/demo/demo_routes.dart';
 import 'demo_flow_controller.dart';
 
 /// 演示版匹配流程控制器
@@ -14,11 +15,7 @@ class DemoMatchingFlow {
   /// 开始匹配流程
   static Future<void> startMatching(BuildContext context) async {
     // 1. 进入匹配等待页面
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const DemoMatchingScreen(),
-      ),
-    );
+    await pushDemoStageRoute(context, page: const DemoMatchingScreen());
 
     // 2. 等待匹配完成（由DemoMatchingService控制）
     // 匹配成功后自动导航到通话页面
@@ -52,11 +49,7 @@ class DemoMatchingFlow {
       Navigator.of(context).pop();
 
       // 直接进入通话
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => const DemoCallScreen(),
-        ),
-      );
+      pushDemoStageRoute(context, page: const DemoCallScreen());
     }
   }
 
@@ -86,7 +79,7 @@ class DemoCallFlow {
     // 设置自动结束（演示模式）
     _autoEndTimer?.cancel();
     _autoEndTimer = Timer(
-      Duration(seconds: DemoFlowConfig.callAutoEndDuration),
+      const Duration(seconds: DemoFlowConfig.callAutoEndDuration),
       () => endCall(context),
     );
   }
@@ -104,11 +97,8 @@ class DemoCallFlow {
     if (context.mounted && volunteer != null) {
       // 进入评价页面
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => DemoCallRatingScreen(
-            volunteer: volunteer,
-            duration: duration,
-          ),
+        buildDemoStageRoute(
+          page: DemoCallRatingScreen(volunteer: volunteer, duration: duration),
         ),
       );
     }
@@ -123,11 +113,8 @@ class DemoCallFlow {
     final duration = const Duration(seconds: 10); // 模拟10秒通话
 
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => DemoCallRatingScreen(
-          volunteer: volunteer,
-          duration: duration,
-        ),
+      buildDemoStageRoute(
+        page: DemoCallRatingScreen(volunteer: volunteer, duration: duration),
       ),
     );
   }
@@ -213,9 +200,7 @@ class DemoQuickActions {
     await Future.delayed(const Duration(seconds: 1));
 
     if (context.mounted) {
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const DemoMatchingScreen()),
-      );
+      pushDemoStageRoute(context, page: const DemoMatchingScreen());
     }
   }
 
@@ -226,15 +211,11 @@ class DemoQuickActions {
 
   /// 直接演示通话中
   static void showCallDemo(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const DemoCallScreen()),
-    );
+    pushDemoStageRoute(context, page: const DemoCallScreen());
   }
 
   /// 直接演示SOS
   static void showSOSDemo(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const DemoSOSScreen()),
-    );
+    pushDemoStageRoute(context, page: const DemoSOSScreen());
   }
 }

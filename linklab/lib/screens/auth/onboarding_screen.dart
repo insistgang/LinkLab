@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_theme.dart';
 import '../../widgets/accessible/index.dart';
+import '../../widgets/demo/demo_auth.dart';
+import '../../widgets/demo/demo_motion.dart';
+import '../../widgets/demo/demo_routes.dart';
+import '../../widgets/demo/demo_stage.dart';
 import 'phone_login_screen.dart';
 
 /// 首次引导页面
@@ -18,23 +23,27 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final List<_OnboardingPage> _pages = const [
     _OnboardingPage(
       title: '欢迎来到共感LinkAble',
-      description: 'AI驱动的视障人士智能互助平台，让科技成为您的眼睛',
-      icon: Icons.accessibility_new,
+      description: 'AI 驱动的无障碍互助平台，让标准化需求先被快速解决。',
+      icon: Icons.accessibility_new_rounded,
+      highlights: ['AI 先响应', '真人可兜底'],
     ),
     _OnboardingPage(
       title: 'AI智能助手',
-      description: '文字识别、场景描述、颜色识别，AI助手随时为您解答',
-      icon: Icons.smart_toy,
+      description: '文字识别、场景描述、颜色识别等高频场景，都可以在手机端快速完成。',
+      icon: Icons.smart_toy_outlined,
+      highlights: ['OCR', '场景描述', '颜色识别'],
     ),
     _OnboardingPage(
       title: '志愿者互助',
-      description: '遇到复杂问题？一键呼叫志愿者，真人语音实时帮助',
-      icon: Icons.people,
+      description: '遇到复杂问题时，一键转接志愿者，保持状态清晰、流程可回看。',
+      icon: Icons.volunteer_activism_outlined,
+      highlights: ['30 秒内尝试匹配', '语音协助'],
     ),
     _OnboardingPage(
       title: '紧急求助',
-      description: '紧急情况下，快速触发SOS，通知附近志愿者和紧急联系人',
-      icon: Icons.emergency,
+      description: 'SOS 支持 10 秒误触撤销窗口，并展示广播、联系人通知与演示响应。',
+      icon: Icons.emergency_outlined,
+      highlights: ['10 秒撤销', 'Mock 广播'],
     ),
   ];
 
@@ -45,16 +54,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         curve: Curves.easeInOut,
       );
     } else {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const PhoneLoginScreen()),
-      );
+      replaceWithDemoStageRoute(context, page: const PhoneLoginScreen());
     }
   }
 
   void _onSkip() {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => const PhoneLoginScreen()),
-    );
+    replaceWithDemoStageRoute(context, page: const PhoneLoginScreen());
   }
 
   @override
@@ -65,129 +70,156 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return AccessibleScaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            // 跳过按钮
-            Align(
-              alignment: Alignment.topRight,
-              child: Padding(
-                padding: const EdgeInsets.all(AppTheme.spacingM),
-                child: TextButton(
-                  onPressed: _onSkip,
-                  child: const AccessibleText(
-                    '跳过',
-                    style: TextStyle(fontSize: AppTheme.fontSizeNormal),
+    return DemoStageScaffold(
+      title: '产品引导',
+      subtitle: '用 4 页解释清楚竞赛版真正能做什么',
+      showBackButton: false,
+      actions: [
+        TextButton(
+          onPressed: _onSkip,
+          child: Text(
+            '跳过',
+            style: TextStyle(color: AppTheme.stageTextSecondary),
+          ),
+        ),
+      ],
+      body: Column(
+        children: [
+          Expanded(
+            child: PageView.builder(
+              controller: _pageController,
+              itemCount: _pages.length,
+              onPageChanged: (index) {
+                setState(() {
+                  _currentPage = index;
+                });
+              },
+              itemBuilder: (context, index) {
+                final page = _pages[index];
+                return Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppTheme.spacingL,
+                    AppTheme.spacingL,
+                    AppTheme.spacingL,
+                    AppTheme.spacingL,
                   ),
-                ),
-              ),
+                  child: Column(
+                    children: [
+                      DemoReveal(
+                        key: ValueKey('onboarding-banner-$index'),
+                        child: DemoAuthBanner(
+                          title: page.title,
+                          subtitle: page.description,
+                          icon: page.icon,
+                          chips: page.highlights
+                              .map(
+                                (item) => DemoPill(
+                                  label: item,
+                                  color: AppTheme.stageAccent,
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ),
+                      const SizedBox(height: AppTheme.spacingL),
+                      Expanded(
+                        child: DemoReveal(
+                          key: ValueKey('onboarding-hero-$index'),
+                          delay: const Duration(milliseconds: 90),
+                          child: Center(
+                            child: Container(
+                              width: 230,
+                              height: 230,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: AppTheme.stageAccent.withValues(
+                                  alpha: 0.08,
+                                ),
+                                border: Border.all(
+                                  color: AppTheme.stageAccent.withValues(
+                                    alpha: 0.18,
+                                  ),
+                                ),
+                              ),
+                              child: Center(
+                                child: Container(
+                                  width: 140,
+                                  height: 140,
+                                  decoration: BoxDecoration(
+                                    gradient: AppTheme.stageAccentGradient,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    page.icon,
+                                    size: 64,
+                                    color: AppTheme.stageBackground,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
-            // 页面内容
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: _pages.length,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentPage = index;
-                  });
-                },
-                itemBuilder: (context, index) {
-                  final page = _pages[index];
-                  return Padding(
-                    padding: const EdgeInsets.all(AppTheme.spacingXL),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // 图标
-                        Container(
-                          width: 150,
-                          height: 150,
-                          decoration: BoxDecoration(
-                            color: AppTheme.primaryLight.withValues(alpha: 0.3),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            page.icon,
-                            size: 80,
-                            color: AppTheme.primaryColor,
-                          ),
-                        ),
-                        const SizedBox(height: AppTheme.spacingXXL),
-                        // 标题
-                        AccessibleHeading(
-                          page.title,
-                          level: 2,
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: AppTheme.spacingL),
-                        // 描述
-                        AccessibleText(
-                          page.description,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: AppTheme.fontSizeNormal,
-                            color: AppTheme.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-            // 指示器
-            Row(
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingL),
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
                 _pages.length,
                 (index) => Semantics(
                   label: '第${index + 1}页，共${_pages.length}页',
                   selected: index == _currentPage,
-                  child: Container(
-                    width: index == _currentPage ? 24 : 8,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 240),
+                    width: index == _currentPage ? 28 : 8,
                     height: 8,
                     margin: const EdgeInsets.symmetric(
                       horizontal: AppTheme.spacingXS,
                     ),
                     decoration: BoxDecoration(
+                      gradient: index == _currentPage
+                          ? AppTheme.stageAccentGradient
+                          : null,
                       color: index == _currentPage
-                          ? AppTheme.primaryColor
-                          : AppTheme.dividerColor,
-                      borderRadius: BorderRadius.circular(4),
+                          ? null
+                          : AppTheme.stageBorder,
+                      borderRadius: BorderRadius.circular(999),
                     ),
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: AppTheme.spacingXL),
-            // 下一步按钮
-            Padding(
-              padding: const EdgeInsets.all(AppTheme.spacingL),
-              child: AccessibleButton(
-                label: _currentPage == _pages.length - 1 ? '开始使用' : '下一步',
-                semanticLabel: _currentPage == _pages.length - 1
-                    ? '开始使用'
-                    : '下一页',
-                onPressed: _onNext,
-              ),
-            ),
-          ],
-        ),
+          ),
+          const SizedBox(height: AppTheme.spacingL),
+        ],
+      ),
+      bottomBar: AccessibleButton(
+        label: _currentPage == _pages.length - 1 ? '开始使用' : '下一步',
+        semanticLabel: _currentPage == _pages.length - 1 ? '开始使用' : '下一页',
+        backgroundColor: AppTheme.stageAccent,
+        foregroundColor: AppTheme.stageBackground,
+        onPressed: _onNext,
       ),
     );
   }
 }
 
 class _OnboardingPage {
-  final String title;
-  final String description;
-  final IconData icon;
-
   const _OnboardingPage({
     required this.title,
     required this.description,
     required this.icon,
+    required this.highlights,
   });
+
+  final String title;
+  final String description;
+  final IconData icon;
+  final List<String> highlights;
 }

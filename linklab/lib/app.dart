@@ -27,6 +27,7 @@ class LinkLabApp extends StatelessWidget {
       animation: session,
       builder: (context, _) {
         final preferences = session.preferences;
+        AppTheme.setStageMode(session.stageMode);
 
         return MaterialApp(
           title: '共感LinkAble',

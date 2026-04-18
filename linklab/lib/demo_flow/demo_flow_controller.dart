@@ -5,18 +5,17 @@ import 'package:flutter/material.dart';
 
 import '../screens/ai_chat/demo_ai_chat_screen.dart';
 import '../screens/call/demo_exports.dart';
-import '../services/demo_call_service.dart';
-import 'demo_ai_service.dart';
+import '../widgets/demo/demo_routes.dart';
 import 'demo_matching_flow.dart';
 
 /// 演示流程步骤
 enum DemoFlowStep {
-  home,           // 首页
-  aiChat,         // AI对话
-  matching,       // 匹配等待
-  call,           // 通话中
-  rating,         // 评价
-  sos,            // SOS紧急
+  home, // 首页
+  aiChat, // AI对话
+  matching, // 匹配等待
+  call, // 通话中
+  rating, // 评价
+  sos, // SOS紧急
 }
 
 /// 演示流程控制器
@@ -38,11 +37,7 @@ class DemoFlowController extends ChangeNotifier {
     notifyListeners();
 
     if (_context != null) {
-      Navigator.of(_context!).push(
-        MaterialPageRoute(
-          builder: (_) => const DemoAIChatScreen(),
-        ),
-      );
+      pushDemoStageRoute(_context!, page: const DemoAIChatScreen());
     }
   }
 
@@ -62,9 +57,7 @@ class DemoFlowController extends ChangeNotifier {
     notifyListeners();
 
     if (_context != null) {
-      Navigator.of(_context!).push(
-        MaterialPageRoute(builder: (_) => const DemoSOSScreen()),
-      );
+      pushDemoStageRoute(_context!, page: const DemoSOSScreen());
     }
   }
 

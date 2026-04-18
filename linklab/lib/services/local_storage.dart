@@ -16,6 +16,7 @@ class StorageKeys {
   static const String asyncTasks = 'async_tasks';
   static const String demoHelpRequests = 'demo_help_requests';
   static const String currentDemoHelpRequestId = 'current_demo_help_request_id';
+  static const String stageThemeMode = 'stage_theme_mode';
 
   static String safetySettings(String userId) => 'safety_settings_$userId';
 }
@@ -163,6 +164,18 @@ class LocalStorage {
     } catch (e) {
       return {};
     }
+  }
+
+  // ==================== 演示主题模式 ====================
+
+  String getStageThemeMode() {
+    _ensureInitialized();
+    return _prefs!.getString(StorageKeys.stageThemeMode) ?? 'night';
+  }
+
+  Future<bool> setStageThemeMode(String value) async {
+    _ensureInitialized();
+    return await _prefs!.setString(StorageKeys.stageThemeMode, value);
   }
 
   // ==================== 求助历史 ====================
