@@ -1,5 +1,6 @@
 /// 演示数据模块导出文件
 /// 统一导出所有演示数据
+library;
 
 export 'ocr_samples.dart';
 export 'scene_samples.dart';

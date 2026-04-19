@@ -40,9 +40,9 @@ class LoginScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(height: AppTheme.spacingL),
+              const SizedBox(height: AppTheme.spacingL),
               DemoReveal(
-                delay: Duration(milliseconds: 90),
+                delay: const Duration(milliseconds: 90),
                 child: DemoSurfaceCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,20 +55,20 @@ class LoginScreen extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      SizedBox(height: AppTheme.spacingM),
-                      _BenefitRow(
+                      const SizedBox(height: AppTheme.spacingM),
+                      const _BenefitRow(
                         icon: Icons.smart_toy_outlined,
                         title: 'AI 快速响应',
                         subtitle: '适合文字识别、场景描述、颜色识别等高频需求。',
                       ),
-                      SizedBox(height: AppTheme.spacingM),
-                      _BenefitRow(
+                      const SizedBox(height: AppTheme.spacingM),
+                      const _BenefitRow(
                         icon: Icons.hearing_outlined,
                         title: '读屏友好',
                         subtitle: '高对比、明确语义和大触控目标贯穿整个主流程。',
                       ),
-                      SizedBox(height: AppTheme.spacingM),
-                      _BenefitRow(
+                      const SizedBox(height: AppTheme.spacingM),
+                      const _BenefitRow(
                         icon: Icons.volunteer_activism_outlined,
                         title: '真人可兜底',
                         subtitle: '复杂需求随时转志愿者，不让 AI 失败后无路可走。',

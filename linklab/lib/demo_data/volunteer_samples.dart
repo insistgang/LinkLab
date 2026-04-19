@@ -204,7 +204,7 @@ class VolunteerSamples {
       'inQueue': true,
       'queuePosition': queuePosition,
       'estimatedWaitSeconds': estimatedWaitSeconds,
-      'message': '您当前排在第$queuePosition位，预计等待${estimatedWaitSeconds}秒',
+      'message': '您当前排在第$queuePosition位，预计等待$estimatedWaitSeconds秒',
     };
   }
 }

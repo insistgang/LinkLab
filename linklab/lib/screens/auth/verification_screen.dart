@@ -93,7 +93,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
               foregroundColor: AppTheme.stageBackground,
             ),
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text('我知道了'),
+            child: const Text('我知道了'),
           ),
         ],
       ),

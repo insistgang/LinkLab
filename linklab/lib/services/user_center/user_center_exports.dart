@@ -1,5 +1,6 @@
 /// 用户中心服务导出文件
 /// 包含求助者中心和志愿者中心的所有服务
+library;
 
 // 求助者中心服务
 export 'help_archive_service.dart';

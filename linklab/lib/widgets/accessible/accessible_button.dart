@@ -57,7 +57,7 @@ class AccessibleButton extends StatelessWidget {
 
     // 语义标签
     final effectiveSemanticLabel = semanticLabel ?? label;
-    final effectiveHint = hint ?? (isEmergency ? '双击触发紧急求助' : '双击执行${label}操作');
+    final effectiveHint = hint ?? (isEmergency ? '双击触发紧急求助' : '双击执行$label操作');
 
     return Semantics(
       button: true,
@@ -153,7 +153,7 @@ class AccessibleIconButton extends StatelessWidget {
     return Semantics(
       button: true,
       label: semanticLabel,
-      hint: hint ?? '双击执行${semanticLabel}',
+      hint: hint ?? '双击执行$semanticLabel',
       enabled: onPressed != null,
       child: Material(
         color: backgroundColor ?? Colors.transparent,
@@ -207,7 +207,7 @@ class AccessibleFloatingButton extends StatelessWidget {
     return Semantics(
       button: true,
       label: semanticLabel,
-      hint: hint ?? '双击${semanticLabel}',
+      hint: hint ?? '双击$semanticLabel',
       enabled: onPressed != null,
       child: FloatingActionButton(
         onPressed: onPressed != null

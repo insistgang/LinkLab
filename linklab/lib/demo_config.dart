@@ -1,5 +1,6 @@
 /// 演示模式配置文件
 /// 用于控制演示版的行为和数据
+library;
 
 /// 演示场景模型
 class DemoScenario {
@@ -60,7 +61,7 @@ class DemoConfig {
 
   /// 演示场景列表
   static final List<DemoScenario> scenarios = [
-    DemoScenario(
+    const DemoScenario(
       id: 'ocr_medicine',
       name: '药品识别',
       description: '拍照识别药品说明书，AI建议转人工确认',
@@ -82,7 +83,7 @@ class DemoConfig {
         '返回首页',
       ],
     ),
-    DemoScenario(
+    const DemoScenario(
       id: 'ocr_menu',
       name: '菜单识别',
       description: '识别餐厅菜单，AI直接读出菜品',
@@ -96,7 +97,7 @@ class DemoConfig {
         '用户满意，结束对话',
       ],
     ),
-    DemoScenario(
+    const DemoScenario(
       id: 'scene_navigation',
       name: '场景描述',
       description: '描述周围环境辅助导航',
@@ -110,7 +111,7 @@ class DemoConfig {
         '用户满意，结束对话',
       ],
     ),
-    DemoScenario(
+    const DemoScenario(
       id: 'color_recognition',
       name: '颜色识别',
       description: '识别物体颜色',
@@ -124,7 +125,7 @@ class DemoConfig {
         '用户满意，结束对话',
       ],
     ),
-    DemoScenario(
+    const DemoScenario(
       id: 'sos_emergency',
       name: 'SOS紧急求助',
       description: '紧急情况下快速求助',

@@ -118,7 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: AppTheme.spacingL),
                 if (AppConfig.demoMode) ...[
-                  DemoReveal(
+                  const DemoReveal(
                     delay: Duration(milliseconds: 80),
                     child: _CompetitionDemoNoticeCard(),
                   ),
@@ -249,7 +249,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
-                              SizedBox(height: AppTheme.spacingXS),
+                              const SizedBox(height: AppTheme.spacingXS),
                               AccessibleText(
                                 'AI 无法处理时，30 秒内尝试匹配附近在线志愿者。',
                                 style: TextStyle(
@@ -289,7 +289,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: AppTheme.spacingM),
                 if (_isLoading)
                   Padding(
-                    padding: EdgeInsets.symmetric(vertical: AppTheme.spacingL),
+                    padding: const EdgeInsets.symmetric(vertical: AppTheme.spacingL),
                     child: Center(
                       child: CircularProgressIndicator(
                         color: AppTheme.stageAccent,
@@ -334,7 +334,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           Icons.auto_stories_outlined,
                           color: AppTheme.stageAccent,
                         ),
-                        SizedBox(width: AppTheme.spacingM),
+                        const SizedBox(width: AppTheme.spacingM),
                         Expanded(
                           child: AccessibleText(
                             '社区故事正在准备中，稍后会自动展示。',
@@ -396,7 +396,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.of(context).pop();
               DemoFlowNavigator.onSOSButtonPressed(context);
             },
-            child: Text('确认求助'),
+            child: const Text('确认求助'),
           ),
         ],
       ),
@@ -538,7 +538,7 @@ class _HeroPanel extends StatelessWidget {
                     color: AppTheme.stageAccentLight,
                   ),
                 ),
-                SizedBox(width: AppTheme.spacingM),
+                const SizedBox(width: AppTheme.spacingM),
                 Expanded(
                   child: _HeroMetric(
                     label: '无障碍',
@@ -566,8 +566,8 @@ class _HeroPanel extends StatelessWidget {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: onVolunteerPressed,
-                  icon: Icon(Icons.volunteer_activism_outlined),
-                  label: Text('直接匹配志愿者'),
+                  icon: const Icon(Icons.volunteer_activism_outlined),
+                  label: const Text('直接匹配志愿者'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppTheme.stageTextPrimary,
                     side: BorderSide(
@@ -741,7 +741,7 @@ class _CompetitionDemoNoticeCard extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                SizedBox(height: AppTheme.spacingXS),
+                const SizedBox(height: AppTheme.spacingXS),
                 AccessibleText(
                   '当前默认仅展示 AI 对话、真人匹配、实时通话、SOS、登录偏好与无障碍能力。真实后端与社群模块不会进入默认导航或演示脚本。',
                   style: TextStyle(
@@ -873,7 +873,7 @@ class _EmptyHistoryCard extends StatelessWidget {
             size: AppTheme.fontSizeXXLarge,
             color: AppTheme.stageTextHint,
           ),
-          SizedBox(height: AppTheme.spacingS),
+          const SizedBox(height: AppTheme.spacingS),
           AccessibleText(
             '还没有历史求助记录',
             style: TextStyle(
@@ -882,7 +882,7 @@ class _EmptyHistoryCard extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
-          SizedBox(height: AppTheme.spacingXS),
+          const SizedBox(height: AppTheme.spacingXS),
           AccessibleText(
             '完成一次 AI 或志愿者协助后，这里会自动更新。',
             style: TextStyle(

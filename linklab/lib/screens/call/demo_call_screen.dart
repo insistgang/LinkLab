@@ -256,7 +256,7 @@ class _DemoCallScreenState extends State<DemoCallScreen> {
               ),
               const SizedBox(height: AppTheme.spacingL),
               DemoReveal(
-                delay: Duration(milliseconds: 120),
+                delay: const Duration(milliseconds: 120),
                 child: DemoSurfaceCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -269,20 +269,20 @@ class _DemoCallScreenState extends State<DemoCallScreen> {
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      SizedBox(height: AppTheme.spacingM),
-                      _CallInfoRow(
+                      const SizedBox(height: AppTheme.spacingM),
+                      const _CallInfoRow(
                         icon: Icons.sync_alt_rounded,
                         title: '状态完整可见',
                         subtitle: '连接态、已接通和结束评价都在当前链路可回看。',
                       ),
-                      SizedBox(height: AppTheme.spacingM),
-                      _CallInfoRow(
+                      const SizedBox(height: AppTheme.spacingM),
+                      const _CallInfoRow(
                         icon: Icons.hearing_rounded,
                         title: '仅保留语音主线',
                         subtitle: '视频与屏幕共享已从竞赛版主交付中移出。',
                       ),
-                      SizedBox(height: AppTheme.spacingM),
-                      _CallInfoRow(
+                      const SizedBox(height: AppTheme.spacingM),
+                      const _CallInfoRow(
                         icon: Icons.shield_outlined,
                         title: '可回退 Demo',
                         subtitle: '不依赖真实 WebRTC，适合 3 分钟演示闭环。',

@@ -205,7 +205,7 @@ class UnifiedCallService extends ChangeNotifier {
 
     _autoEndTimer?.cancel();
     _autoEndTimer = Timer(
-      Duration(seconds: DemoConfig.callAutoEndDuration),
+      const Duration(seconds: DemoConfig.callAutoEndDuration),
       () => endCall(),
     );
   }

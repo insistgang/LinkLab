@@ -290,7 +290,7 @@ class _CountdownButtonState extends State<_CountdownButton> {
     return TextButton(
       onPressed: _isCounting ? null : _startCountdown,
       child: AccessibleText(
-        _isCounting ? '${_remainingSeconds}秒后重发' : '获取验证码',
+        _isCounting ? '$_remainingSeconds秒后重发' : '获取验证码',
         style: TextStyle(
           fontSize: AppTheme.fontSizeSmall,
           color: _isCounting ? AppTheme.textHint : AppTheme.primaryColor,

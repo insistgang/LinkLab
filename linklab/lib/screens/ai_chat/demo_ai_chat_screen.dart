@@ -218,7 +218,7 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
               Navigator.pop(context);
               _startMatchingFlow();
             },
-            child: Text('连接志愿者'),
+            child: const Text('连接志愿者'),
           ),
         ],
       ),
@@ -250,7 +250,7 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
               Navigator.pop(context);
               DemoFlowNavigator.onSOSButtonPressed(context);
             },
-            child: Text('发起 SOS'),
+            child: const Text('发起 SOS'),
           ),
         ],
       ),
@@ -367,7 +367,7 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
                                   label: 'AI 助手在线',
                                   color: AppTheme.stageAccent,
                                 ),
-                                SizedBox(width: AppTheme.spacingS),
+                                const SizedBox(width: AppTheme.spacingS),
                                 DemoPill(
                                   icon: Icons.headset_mic_outlined,
                                   label: '可转真人',

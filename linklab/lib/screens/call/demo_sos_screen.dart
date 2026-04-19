@@ -314,7 +314,7 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             gradient: isEmergencyFlowActive
-                                ? LinearGradient(
+                                ? const LinearGradient(
                                     colors: [
                                       Color(0xFFFFE5E5),
                                       Color(0xFFFFF3F0),
@@ -325,7 +325,7 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
                                 : LinearGradient(
                                     colors: [
                                       AppTheme.stageDanger,
-                                      Color(0xFFFF8A5B),
+                                      const Color(0xFFFF8A5B),
                                     ],
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
@@ -518,7 +518,7 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
               const SizedBox(height: AppTheme.spacingL),
               if (_isLoadingReadiness)
                 Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24),
+                  padding: const EdgeInsets.symmetric(vertical: 24),
                   child: Center(
                     child: CircularProgressIndicator(
                       color: AppTheme.stageAccent,
@@ -575,8 +575,8 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
           Expanded(
             child: OutlinedButton.icon(
               onPressed: _cancelPendingSOS,
-              icon: Icon(Icons.undo_rounded),
-              label: Text('撤销误触'),
+              icon: const Icon(Icons.undo_rounded),
+              label: const Text('撤销误触'),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppTheme.stageTextPrimary,
                 side: BorderSide(
@@ -593,8 +593,8 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
           Expanded(
             child: ElevatedButton.icon(
               onPressed: _activateSOSFlow,
-              icon: Icon(Icons.campaign_rounded),
-              label: Text('立即发送'),
+              icon: const Icon(Icons.campaign_rounded),
+              label: const Text('立即发送'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.stageWarning,
                 foregroundColor: AppTheme.stageBackground,
@@ -620,8 +620,8 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
                 if (!mounted) return;
                 Navigator.pop(context);
               },
-              icon: Icon(Icons.check_circle_outline),
-              label: Text('安全了'),
+              icon: const Icon(Icons.check_circle_outline),
+              label: const Text('安全了'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.stageSuccess,
                 foregroundColor: AppTheme.stageBackground,
@@ -641,8 +641,8 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
                 if (!mounted) return;
                 Navigator.pop(context);
               },
-              icon: Icon(Icons.close_rounded),
-              label: Text('取消求助'),
+              icon: const Icon(Icons.close_rounded),
+              label: const Text('取消求助'),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppTheme.stageTextPrimary,
                 side: BorderSide(

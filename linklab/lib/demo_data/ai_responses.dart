@@ -1,5 +1,6 @@
 /// AI演示回复数据
 /// 用于演示版的AI功能，替代真实API调用
+library;
 
 /// AI回复数据模型
 class AIResponse {

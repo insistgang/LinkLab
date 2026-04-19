@@ -14,7 +14,7 @@ class DemoDataLoader {
     if (decoded is! Map) {
       throw const FormatException('演示数据格式错误，根节点必须是对象');
     }
-    return Map<String, dynamic>.from(decoded as Map);
+    return Map<String, dynamic>.from(decoded);
   }
 
   static List<Map<String, dynamic>> _mapList(dynamic raw) {

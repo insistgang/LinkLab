@@ -95,7 +95,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               const SizedBox(height: AppTheme.spacingXL),
-              DemoReveal(
+              const DemoReveal(
                 delay: Duration(milliseconds: 110),
                 child: DemoSectionTitle(
                   title: '无障碍设置',
@@ -152,8 +152,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               const SizedBox(height: AppTheme.spacingXL),
-              DemoReveal(
-                delay: const Duration(milliseconds: 230),
+              const DemoReveal(
+                delay: Duration(milliseconds: 230),
                 child: DemoSectionTitle(
                   title: '安全与记录',
                   subtitle: 'SOS 就绪度、联系人和帮助档案的统一入口。',
@@ -373,7 +373,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 backgroundColor: AppTheme.stageAccent,
                 foregroundColor: AppTheme.stageBackground,
               ),
-              child: Text('知道了'),
+              child: const Text('知道了'),
             ),
           ),
         ],
@@ -412,7 +412,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 predicate: (route) => false,
               );
             },
-            child: Text('确认退出'),
+            child: const Text('确认退出'),
           ),
         ],
       ),
@@ -569,7 +569,7 @@ class _SafetyReadinessCard extends StatelessWidget {
           Row(
             children: [
               Icon(Icons.shield_outlined, color: AppTheme.stageAccent),
-              SizedBox(width: AppTheme.spacingS),
+              const SizedBox(width: AppTheme.spacingS),
               AccessibleText(
                 '安全就绪度',
                 style: TextStyle(

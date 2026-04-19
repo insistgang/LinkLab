@@ -76,7 +76,7 @@ class AIChatScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: AppTheme.spacingXL),
-                DemoReveal(
+                const DemoReveal(
                   delay: Duration(milliseconds: 90),
                   child: DemoSectionTitle(
                     title: '高频能力',
@@ -128,7 +128,7 @@ class AIChatScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: AppTheme.spacingXL),
                 DemoReveal(
-                  delay: Duration(milliseconds: 160),
+                  delay: const Duration(milliseconds: 160),
                   child: DemoSurfaceCard(
                     semanticLabel: 'AI处理说明',
                     hint: '双击查看 AI 与真人协作方式',
@@ -143,22 +143,22 @@ class AIChatScreen extends StatelessWidget {
                             fontWeight: FontWeight.w700,
                           ),
                         ),
-                        SizedBox(height: AppTheme.spacingS),
-                        _FlowRow(
+                        const SizedBox(height: AppTheme.spacingS),
+                        const _FlowRow(
                           icon: Icons.smart_toy_outlined,
                           color: AppTheme.primaryColor,
                           title: '标准化问题',
                           subtitle: 'AI 直接回复，适合读文字、颜色识别、环境描述等场景。',
                         ),
-                        SizedBox(height: AppTheme.spacingM),
-                        _FlowRow(
+                        const SizedBox(height: AppTheme.spacingM),
+                        const _FlowRow(
                           icon: Icons.volunteer_activism_outlined,
                           color: AppTheme.secondaryColor,
                           title: '复杂或情绪化问题',
                           subtitle: '当回答不确定时，可一键转真人志愿者继续处理。',
                         ),
-                        SizedBox(height: AppTheme.spacingM),
-                        _FlowRow(
+                        const SizedBox(height: AppTheme.spacingM),
+                        const _FlowRow(
                           icon: Icons.emergency_outlined,
                           color: AppTheme.emergencyColor,
                           title: '紧急情况',
@@ -281,7 +281,7 @@ class _HeroCard extends StatelessWidget {
             width: double.infinity,
             child: OutlinedButton.icon(
               onPressed: onConnectVolunteer,
-              icon: Icon(Icons.volunteer_activism_outlined),
+              icon: const Icon(Icons.volunteer_activism_outlined),
               label: const Text('复杂问题直接连接志愿者'),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppTheme.textOnPrimary,

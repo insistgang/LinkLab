@@ -29,7 +29,7 @@ class DemoLocalStorage {
     if (decoded is! Map) {
       return null;
     }
-    return Map<String, dynamic>.from(decoded as Map);
+    return Map<String, dynamic>.from(decoded);
   }
 
   List<Map<String, dynamic>> _decodeMapList(String jsonString) {

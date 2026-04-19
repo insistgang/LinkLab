@@ -57,7 +57,7 @@ class _IdentitySelectScreenState extends State<IdentitySelectScreen> {
               ),
               const SizedBox(height: AppTheme.spacingL),
               DemoReveal(
-                delay: Duration(milliseconds: 80),
+                delay: const Duration(milliseconds: 80),
                 child: DemoMetricStrip(
                   items: [
                     DemoMetricItem(

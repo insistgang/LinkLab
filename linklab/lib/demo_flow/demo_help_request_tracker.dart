@@ -260,14 +260,14 @@ class DemoHelpRequestTracker {
       'intent': intent,
       'urgency': urgency,
       'status': status,
-      if (volunteerId != null) 'volunteerId': volunteerId,
-      if (createdAt != null) 'createdAt': createdAt,
+      'volunteerId': ?volunteerId,
+      'createdAt': ?createdAt,
       if (matchedAt != null) 'matchedAt': matchedAt.toIso8601String(),
       if (completedAt != null) 'completedAt': completedAt.toIso8601String(),
-      if (durationSeconds != null) 'durationSeconds': durationSeconds,
-      if (seekerRating != null) 'seekerRating': seekerRating,
-      if (cancelReason != null) 'cancelReason': cancelReason,
-      if (aiResponse != null) 'aiResponse': aiResponse,
+      'durationSeconds': ?durationSeconds,
+      'seekerRating': ?seekerRating,
+      'cancelReason': ?cancelReason,
+      'aiResponse': ?aiResponse,
     });
   }
 

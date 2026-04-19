@@ -373,7 +373,7 @@ class _CountdownDial extends StatelessWidget {
                         letterSpacing: -1.5,
                       ),
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
                       '秒',
                       style: TextStyle(

@@ -1,5 +1,6 @@
 /// 演示场景数据
 /// 用于演示版的5个核心场景
+library;
 
 class DemoScenario {
   final String id;

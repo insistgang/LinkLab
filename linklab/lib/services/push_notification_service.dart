@@ -176,7 +176,7 @@ class PushNotificationService {
       priority: Priority.max,
       fullScreenIntent: true,
       category: AndroidNotificationCategory.call,
-      sound: RawResourceAndroidNotificationSound('emergency'),
+      sound: const RawResourceAndroidNotificationSound('emergency'),
       enableVibration: true,
       vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
     );
@@ -266,10 +266,10 @@ class PushNotificationService {
       ongoing: true,
       autoCancel: false,
       category: AndroidNotificationCategory.call,
-      sound: RawResourceAndroidNotificationSound('sos_alarm'),
+      sound: const RawResourceAndroidNotificationSound('sos_alarm'),
       enableVibration: true,
       vibrationPattern: Int64List.fromList([0, 500, 500, 500, 500, 500, 500, 500]),
-      ledColor: Color.fromARGB(255, 255, 0, 0),
+      ledColor: const Color.fromARGB(255, 255, 0, 0),
       ledOnMs: 1000,
       ledOffMs: 500,
     );

@@ -276,7 +276,7 @@ class _DemoCallRatingScreenState extends State<DemoCallRatingScreen> {
                             strokeWidth: 2,
                           ),
                         )
-                      : Text(
+                      : const Text(
                           '提交评价',
                           style: TextStyle(
                             fontSize: 18,
