@@ -91,7 +91,8 @@ class AppTheme {
     warning: Color(0xFFFFD75C),
     info: Color(0xFF8CF5C4),
     heroGradient: LinearGradient(
-      colors: [Color(0xFF11170F), Color(0xFF0A1008), Color(0xFF040704)],
+      colors: [Color(0xFFE9FF2B), Color(0xFF8AFF4B), Color(0xFF3EDFD3)],
+      stops: [0.0, 0.55, 1.0],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     ),
@@ -123,7 +124,8 @@ class AppTheme {
     warning: Color(0xFFD2A116),
     info: Color(0xFF2C9664),
     heroGradient: LinearGradient(
-      colors: [Color(0xFFFFFFFF), Color(0xFFF5FAEA), Color(0xFFEAF3D4)],
+      colors: [Color(0xFFF5FF4D), Color(0xFFA8FF58), Color(0xFF48E6DC)],
+      stops: [0.0, 0.55, 1.0],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     ),

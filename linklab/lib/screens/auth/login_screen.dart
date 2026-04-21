@@ -139,15 +139,7 @@ class _BenefitRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: 42,
-          height: 42,
-          decoration: BoxDecoration(
-            color: AppTheme.stageAccent.withValues(alpha: 0.14),
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: Icon(icon, color: AppTheme.stageAccent),
-        ),
+        DemoGlassIconBadge(icon: icon, size: 44, iconSize: 22),
         const SizedBox(width: AppTheme.spacingM),
         Expanded(
           child: Column(

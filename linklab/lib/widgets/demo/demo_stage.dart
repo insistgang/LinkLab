@@ -4,6 +4,8 @@ import '../../core/theme/app_theme.dart';
 import '../../services/app_session_service.dart';
 import '../accessible/index.dart';
 
+enum DemoGlassIconShape { rounded, circle }
+
 class DemoStageScaffold extends StatelessWidget {
   const DemoStageScaffold({
     super.key,
@@ -237,6 +239,112 @@ class DemoPill extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class DemoGlassIconBadge extends StatelessWidget {
+  const DemoGlassIconBadge({
+    super.key,
+    required this.icon,
+    this.size = 56,
+    this.iconSize,
+    this.iconColor = const Color(0xFFFDFBFF),
+    this.shape = DemoGlassIconShape.rounded,
+    this.semanticLabel,
+  });
+
+  final IconData icon;
+  final double size;
+  final double? iconSize;
+  final Color iconColor;
+  final DemoGlassIconShape shape;
+  final String? semanticLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final radius = shape == DemoGlassIconShape.circle ? size / 2 : size * 0.34;
+
+    final badge = Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFF8F2FF), Color(0xFFD9C4FF), Color(0xFF6C2CFF)],
+          stops: [0.0, 0.46, 1.0],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(radius),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.56)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0x804822E2).withValues(alpha: 0.34),
+            blurRadius: size * 0.34,
+            offset: Offset(size * 0.12, size * 0.18),
+          ),
+          BoxShadow(
+            color: Colors.white.withValues(alpha: 0.18),
+            blurRadius: size * 0.18,
+            offset: Offset(-size * 0.08, -size * 0.08),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(radius),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.white.withValues(alpha: 0.46),
+                    Colors.white.withValues(alpha: 0.08),
+                    Colors.black.withValues(alpha: 0.12),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+            ),
+            Positioned(
+              left: size * 0.12,
+              top: size * 0.12,
+              child: IgnorePointer(
+                child: Container(
+                  width: size * 0.42,
+                  height: size * 0.18,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(size),
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.white.withValues(alpha: 0.52),
+                        Colors.white.withValues(alpha: 0.0),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Center(
+              child: Icon(
+                icon,
+                size: iconSize ?? size * 0.42,
+                color: iconColor,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (semanticLabel == null) {
+      return badge;
+    }
+
+    return Semantics(image: true, label: semanticLabel, child: badge);
   }
 }
 
@@ -480,55 +588,78 @@ class _DemoStageBackdrop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDayMode = AppTheme.isDayStageMode;
     return DecoratedBox(
       decoration: BoxDecoration(gradient: AppTheme.stageHeroGradient),
       child: Stack(
         children: [
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.white.withValues(alpha: isDayMode ? 0.08 : 0.0),
+                    const Color(
+                      0xFF04140D,
+                    ).withValues(alpha: isDayMode ? 0.0 : 0.74),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+            ),
+          ),
           Positioned.fill(
             child: IgnorePointer(
               child: CustomPaint(painter: _DemoStagePatternPainter()),
             ),
           ),
           Positioned(
-            top: -90,
-            right: -40,
-            child: IgnorePointer(
-              child: Container(
-                width: 220,
-                height: 220,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppTheme.stageAccent.withValues(alpha: 0.18),
-                ),
-              ),
+            top: -120,
+            left: -90,
+            child: _BackdropGlow(
+              width: 320,
+              height: 320,
+              angle: -0.42,
+              color: const Color(
+                0xFFFFFFE6,
+              ).withValues(alpha: isDayMode ? 0.36 : 0.14),
             ),
           ),
           Positioned(
-            top: 120,
-            left: -120,
-            child: IgnorePointer(
-              child: Container(
-                width: 260,
-                height: 260,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppTheme.stageInfo.withValues(alpha: 0.12),
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: -120,
+            top: 180,
             right: -70,
-            child: IgnorePointer(
-              child: Container(
-                width: 240,
-                height: 240,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppTheme.stageSuccess.withValues(alpha: 0.08),
-                ),
-              ),
+            child: _BackdropGlow(
+              width: 250,
+              height: 300,
+              angle: 0.58,
+              color: const Color(
+                0xFFF5FF9B,
+              ).withValues(alpha: isDayMode ? 0.24 : 0.12),
+            ),
+          ),
+          Positioned(
+            bottom: -140,
+            right: -40,
+            child: _BackdropGlow(
+              width: 320,
+              height: 360,
+              angle: 0.3,
+              color: const Color(
+                0xFF5DE4E0,
+              ).withValues(alpha: isDayMode ? 0.26 : 0.18),
+            ),
+          ),
+          Positioned(
+            bottom: 120,
+            left: -120,
+            child: _BackdropGlow(
+              width: 280,
+              height: 240,
+              angle: -0.2,
+              color: const Color(
+                0xFFB8FF69,
+              ).withValues(alpha: isDayMode ? 0.18 : 0.1),
             ),
           ),
         ],
@@ -541,60 +672,111 @@ class _DemoStagePatternPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final linePaint = Paint()
-      ..color = AppTheme.stageBorder.withValues(alpha: 0.12)
+      ..color = Colors.white.withValues(
+        alpha: AppTheme.isDayStageMode ? 0.08 : 0.04,
+      )
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
+      ..strokeWidth = 1.2;
 
-    final accentPaint = Paint()
-      ..color = AppTheme.stageAccent.withValues(alpha: 0.08)
+    final mistPaint = Paint()
+      ..color = Colors.white.withValues(
+        alpha: AppTheme.isDayStageMode ? 0.18 : 0.08,
+      )
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.4;
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = size.shortestSide * 0.12
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 86);
 
-    for (var i = 0; i < 7; i++) {
-      final dy = size.height * 0.14 + (i * size.height * 0.12);
-      canvas.drawLine(
-        Offset(size.width * 0.08, dy),
-        Offset(size.width * 0.92, dy),
-        linePaint,
-      );
-    }
+    final cyanMistPaint = Paint()
+      ..color = const Color(
+        0xFFA8FFF7,
+      ).withValues(alpha: AppTheme.isDayStageMode ? 0.16 : 0.08)
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = size.shortestSide * 0.1
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 72);
 
-    final topArc = Path()
-      ..moveTo(size.width * 0.58, 0)
+    final upperFlow = Path()
+      ..moveTo(size.width * 0.02, size.height * 0.08)
       ..quadraticBezierTo(
-        size.width * 0.96,
-        size.height * 0.12,
-        size.width * 0.82,
-        size.height * 0.36,
+        size.width * 0.3,
+        size.height * 0.02,
+        size.width * 0.68,
+        size.height * 0.22,
       );
-    canvas.drawPath(topArc, accentPaint);
+    canvas.drawPath(upperFlow, mistPaint);
 
-    final bottomArc = Path()
-      ..moveTo(0, size.height * 0.62)
+    final lowerFlow = Path()
+      ..moveTo(size.width * 0.12, size.height * 0.76)
       ..quadraticBezierTo(
-        size.width * 0.26,
-        size.height * 0.74,
-        size.width * 0.42,
-        size.height,
+        size.width * 0.4,
+        size.height * 0.66,
+        size.width * 0.72,
+        size.height * 0.82,
       );
-    canvas.drawPath(bottomArc, linePaint);
+    canvas.drawPath(lowerFlow, cyanMistPaint);
 
-    final glowPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.04)
-      ..style = PaintingStyle.fill;
+    final diagonalLine = Path()
+      ..moveTo(size.width * 0.6, -20)
+      ..quadraticBezierTo(
+        size.width * 0.86,
+        size.height * 0.22,
+        size.width * 0.92,
+        size.height * 0.58,
+      );
+    canvas.drawPath(diagonalLine, linePaint);
 
-    for (final point in [
-      Offset(size.width * 0.18, size.height * 0.2),
-      Offset(size.width * 0.76, size.height * 0.28),
-      Offset(size.width * 0.34, size.height * 0.66),
-      Offset(size.width * 0.82, size.height * 0.78),
-    ]) {
-      canvas.drawCircle(point, 2.2, glowPaint);
-    }
+    final outlineArc = Path()
+      ..moveTo(-12, size.height * 0.64)
+      ..quadraticBezierTo(
+        size.width * 0.22,
+        size.height * 0.72,
+        size.width * 0.5,
+        size.height * 0.98,
+      );
+    canvas.drawPath(outlineArc, linePaint);
   }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
+
+class _BackdropGlow extends StatelessWidget {
+  const _BackdropGlow({
+    required this.width,
+    required this.height,
+    required this.color,
+    required this.angle,
+  });
+
+  final double width;
+  final double height;
+  final Color color;
+  final double angle;
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Transform.rotate(
+        angle: angle,
+        child: Container(
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(width),
+            color: color,
+            boxShadow: [
+              BoxShadow(
+                color: color,
+                blurRadius: width * 0.44,
+                spreadRadius: width * 0.1,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _ThemeModeButton extends StatelessWidget {

@@ -146,21 +146,18 @@ class AIChatScreen extends StatelessWidget {
                         const SizedBox(height: AppTheme.spacingS),
                         const _FlowRow(
                           icon: Icons.smart_toy_outlined,
-                          color: AppTheme.primaryColor,
                           title: '标准化问题',
                           subtitle: 'AI 直接回复，适合读文字、颜色识别、环境描述等场景。',
                         ),
                         const SizedBox(height: AppTheme.spacingM),
                         const _FlowRow(
                           icon: Icons.volunteer_activism_outlined,
-                          color: AppTheme.secondaryColor,
                           title: '复杂或情绪化问题',
                           subtitle: '当回答不确定时，可一键转真人志愿者继续处理。',
                         ),
                         const SizedBox(height: AppTheme.spacingM),
                         const _FlowRow(
                           icon: Icons.emergency_outlined,
-                          color: AppTheme.emergencyColor,
                           title: '紧急情况',
                           subtitle: '识别到摔倒、迷路、危险等关键词时，会提示发起 SOS 广播。',
                         ),
@@ -221,20 +218,11 @@ class _HeroCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              gradient: AppTheme.stageAccentGradient,
-              borderRadius: BorderRadius.circular(
-                AppTheme.borderRadiusLarge + 4,
-              ),
-            ),
-            child: Icon(
-              Icons.multitrack_audio,
-              color: AppTheme.stageBackground,
-              size: 30,
-            ),
+          const DemoGlassIconBadge(
+            icon: Icons.multitrack_audio,
+            size: 58,
+            iconSize: 28,
+            shape: DemoGlassIconShape.circle,
           ),
           const SizedBox(height: AppTheme.spacingL),
           AccessibleText(
@@ -358,15 +346,7 @@ class _CapabilityCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: preset.color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
-            ),
-            child: Icon(preset.icon, color: preset.color, size: 28),
-          ),
+          DemoGlassIconBadge(icon: preset.icon, size: 54, iconSize: 26),
           const Spacer(),
           AccessibleText(
             preset.label,
@@ -409,13 +389,11 @@ class _CapabilityCard extends StatelessWidget {
 class _FlowRow extends StatelessWidget {
   const _FlowRow({
     required this.icon,
-    required this.color,
     required this.title,
     required this.subtitle,
   });
 
   final IconData icon;
-  final Color color;
   final String title;
   final String subtitle;
 
@@ -424,14 +402,11 @@ class _FlowRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
-          ),
-          child: Icon(icon, color: color),
+        DemoGlassIconBadge(
+          icon: icon,
+          size: 46,
+          iconSize: 22,
+          shape: DemoGlassIconShape.circle,
         ),
         const SizedBox(width: AppTheme.spacingM),
         Expanded(

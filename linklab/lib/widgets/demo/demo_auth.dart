@@ -25,14 +25,11 @@ class DemoAuthBanner extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 62,
-            height: 62,
-            decoration: BoxDecoration(
-              gradient: AppTheme.stageAccentGradient,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: AppTheme.stageBackground, size: 30),
+          DemoGlassIconBadge(
+            icon: icon,
+            size: 62,
+            iconSize: 30,
+            shape: DemoGlassIconShape.circle,
           ),
           const SizedBox(height: AppTheme.spacingL),
           AccessibleText(
@@ -250,25 +247,11 @@ class DemoSelectionCard extends StatelessWidget {
           constraints: const BoxConstraints(minHeight: 112),
           child: Row(
             children: [
-              Container(
-                width: 54,
-                height: 54,
-                decoration: BoxDecoration(
-                  gradient: isSelected ? AppTheme.stageAccentGradient : null,
-                  color: isSelected ? null : AppTheme.stageSurface,
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(
-                    color: isSelected
-                        ? Colors.transparent
-                        : AppTheme.stageBorder.withValues(alpha: 0.42),
-                  ),
-                ),
-                child: Icon(
-                  icon,
-                  color: isSelected
-                      ? AppTheme.stageBackground
-                      : AppTheme.stageAccent,
-                ),
+              AnimatedScale(
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOutCubic,
+                scale: isSelected ? 1 : 0.96,
+                child: DemoGlassIconBadge(icon: icon, size: 54, iconSize: 24),
               ),
               const SizedBox(width: AppTheme.spacingM),
               Expanded(

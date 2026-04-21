@@ -41,7 +41,7 @@ class HelpArchiveService {
     }
 
     try {
-      final query = _supabase.from('help_requests').select();
+      var query = _supabase.from('help_requests').select();
       query = query.eq('seeker_id', userId);
 
       if (filter?.type != null) {

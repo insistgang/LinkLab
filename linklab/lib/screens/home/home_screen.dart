@@ -224,17 +224,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                     child: Row(
                       children: [
-                        Container(
-                          width: 56,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            gradient: AppTheme.stageAccentGradient,
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                          child: Icon(
-                            Icons.volunteer_activism_outlined,
-                            color: AppTheme.stageBackground,
-                          ),
+                        const DemoGlassIconBadge(
+                          icon: Icons.volunteer_activism_outlined,
+                          size: 56,
+                          iconSize: 26,
                         ),
                         const SizedBox(width: AppTheme.spacingM),
                         Expanded(
@@ -289,7 +282,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: AppTheme.spacingM),
                 if (_isLoading)
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: AppTheme.spacingL),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppTheme.spacingL,
+                    ),
                     child: Center(
                       child: CircularProgressIndicator(
                         color: AppTheme.stageAccent,
@@ -330,9 +325,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   DemoSurfaceCard(
                     child: Row(
                       children: [
-                        Icon(
-                          Icons.auto_stories_outlined,
-                          color: AppTheme.stageAccent,
+                        const DemoGlassIconBadge(
+                          icon: Icons.auto_stories_outlined,
+                          size: 44,
+                          iconSize: 20,
+                          shape: DemoGlassIconShape.circle,
                         ),
                         const SizedBox(width: AppTheme.spacingM),
                         Expanded(
@@ -716,17 +713,10 @@ class _CompetitionDemoNoticeCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: AppTheme.minTouchTarget,
-            height: AppTheme.minTouchTarget,
-            decoration: BoxDecoration(
-              gradient: AppTheme.stageAccentGradient,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Icon(
-              Icons.rocket_launch_outlined,
-              color: AppTheme.stageBackground,
-            ),
+          const DemoGlassIconBadge(
+            icon: Icons.rocket_launch_outlined,
+            size: AppTheme.minTouchTarget,
+            iconSize: 22,
           ),
           const SizedBox(width: AppTheme.spacingM),
           Expanded(
@@ -788,25 +778,7 @@ class _QuickToolButton extends StatelessWidget {
           children: [
             Row(
               children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppTheme.stageAccent.withValues(alpha: 0.26),
-                        AppTheme.stageAccentLight.withValues(alpha: 0.08),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: AppTheme.stageAccent.withValues(alpha: 0.22),
-                    ),
-                  ),
-                  child: Icon(icon, color: AppTheme.stageAccent),
-                ),
+                DemoGlassIconBadge(icon: icon, size: 48, iconSize: 22),
                 const Spacer(),
                 Container(
                   width: 30,
@@ -1017,17 +989,10 @@ class _FeaturedStoryPreview extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  gradient: AppTheme.stageAccentGradient,
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: Icon(
-                  Icons.auto_stories_outlined,
-                  color: AppTheme.stageBackground,
-                ),
+              const DemoGlassIconBadge(
+                icon: Icons.auto_stories_outlined,
+                size: 52,
+                iconSize: 24,
               ),
               const SizedBox(width: AppTheme.spacingM),
               Expanded(
