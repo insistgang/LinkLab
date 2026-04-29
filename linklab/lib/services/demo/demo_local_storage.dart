@@ -26,7 +26,7 @@ class DemoLocalStorage {
 
   Map<String, dynamic>? _decodeMap(String jsonString) {
     final decoded = jsonDecode(jsonString);
-    if (decoded is! Map) {
+    if (decoded is! Map<String, dynamic>) {
       return null;
     }
     return Map<String, dynamic>.from(decoded);
@@ -39,7 +39,7 @@ class DemoLocalStorage {
     }
 
     return decoded
-        .whereType<Map>()
+        .whereType<Map<String, dynamic>>()
         .map((item) => Map<String, dynamic>.from(item))
         .toList();
   }

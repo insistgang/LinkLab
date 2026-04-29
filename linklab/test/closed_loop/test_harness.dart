@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:linklab/app.dart';
 import 'package:linklab/config/app_config.dart';
+import 'package:linklab/core/theme/app_theme.dart';
 import 'package:linklab/demo_flow/demo_help_request_tracker.dart';
 import 'package:linklab/models/help_request_model.dart';
 import 'package:linklab/models/user_model.dart';
@@ -18,7 +19,7 @@ Future<void> prepareEmptyDemoEnvironment() async {
   SharedPreferences.setMockInitialValues({});
 
   AppConfig.demoMode = true;
-  AppConfig.lockCompetitionDemoMode();
+  AppConfig.configureCompetitionDemoDefaults(enablePresenterSession: false);
   await DemoDataLoader.initialize();
 
   final storage = LocalStorage();
@@ -29,6 +30,7 @@ Future<void> prepareEmptyDemoEnvironment() async {
   if (!session.isInitialized) {
     await session.initialize();
   }
+  await session.setStageMode(DemoStageMode.day);
 
   DemoCallService().reset();
   DemoMatchingService().cancelMatching();

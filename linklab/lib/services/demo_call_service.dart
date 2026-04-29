@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 
 import '../demo_flow/demo_help_request_tracker.dart';
 import '../config/app_config.dart';
+import '../models/help_request_status.dart';
 import 'app_session_service.dart';
 import 'local_storage.dart';
 import 'user_center/favorite_volunteer_service.dart';
@@ -189,7 +190,7 @@ class DemoCallService extends ChangeNotifier {
     );
 
     await _upsertCurrentHelpRecord(
-      status: 'completed',
+      status: HelpRequestStatus.completed.wireName,
       durationSeconds: _callDuration.inSeconds,
       completedAt: DateTime.now(),
       seekerRating: rating,
@@ -235,7 +236,7 @@ class DemoCallService extends ChangeNotifier {
     );
 
     await _upsertCurrentHelpRecord(
-      status: 'connected',
+      status: HelpRequestStatus.connected.wireName,
       completedAt: null,
       aiResponse: {
         'summary': '已为您接通真人志愿者，正在进行语音协助。',

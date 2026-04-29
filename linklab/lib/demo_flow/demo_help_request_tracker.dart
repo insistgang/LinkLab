@@ -1,5 +1,7 @@
 import '../services/app_session_service.dart';
 import '../services/local_storage.dart';
+import '../core/utils/logger.dart';
+import '../models/help_request_status.dart';
 
 /// 记录 Demo 主线中的 help_request 状态流转。
 /// 仅服务竞赛版本地闭环，不依赖真实后端。
@@ -28,21 +30,51 @@ class DemoHelpRequestTracker {
     await _storage.remove(StorageKeys.currentDemoHelpRequestId);
   }
 
-  static Future<String> startAIProcessing({
+  static Future<String> startCreated({
     required String intent,
     String urgency = 'normal',
+    String type = 'ai_auto',
   }) async {
     final requestId = _newRequestId();
     await _storage.setString(StorageKeys.currentDemoHelpRequestId, requestId);
     await _upsertRecord(
       id: requestId,
-      type: 'ai_auto',
+      type: type,
       intent: intent,
       urgency: urgency,
-      status: 'ai_processing',
-      aiResponse: const {'source': 'demo_ai', 'stage': 'ai_processing'},
+      status: HelpRequestStatus.created,
+      aiResponse: const {'source': 'demo_flow', 'stage': 'created'},
     );
     return requestId;
+  }
+
+  static Future<String> startAIProcessing({
+    required String intent,
+    String urgency = 'normal',
+  }) async {
+    final requestId = await startCreated(intent: intent, urgency: urgency);
+    await markAIProcessing(requestId: requestId, intent: intent);
+    return requestId;
+  }
+
+  static Future<void> markAIProcessing({
+    String? requestId,
+    required String intent,
+  }) async {
+    final id = requestId ?? await _ensureCurrentRequestId();
+    final existing = await _getRecord(id);
+    await _upsertRecord(
+      id: id,
+      type: existing?['type']?.toString() ?? 'ai_auto',
+      intent: intent,
+      urgency: existing?['urgency']?.toString() ?? 'normal',
+      status: HelpRequestStatus.aiProcessing,
+      createdAt: existing?['createdAt']?.toString(),
+      aiResponse: _mergeAiResponse(existing, {
+        'source': 'demo_ai',
+        'stage': HelpRequestStatus.aiProcessing.wireName,
+      }),
+    );
   }
 
   static Future<String> ensureMatchingRequest({
@@ -58,11 +90,11 @@ class DemoHelpRequestTracker {
       type: existing?['type']?.toString() == 'sos' ? 'sos' : type,
       intent: intent,
       urgency: existing?['urgency']?.toString() ?? urgency,
-      status: 'matching',
+      status: HelpRequestStatus.matching,
       createdAt: existing?['createdAt']?.toString(),
       aiResponse: _mergeAiResponse(existing, {
         'source': 'demo_matching',
-        'stage': 'matching',
+        'stage': HelpRequestStatus.matching.wireName,
       }),
     );
     return requestId;
@@ -76,7 +108,7 @@ class DemoHelpRequestTracker {
       type: 'sos',
       intent: intent,
       urgency: 'emergency',
-      status: 'created',
+      status: HelpRequestStatus.created,
       aiResponse: const {
         'source': 'demo_sos',
         'stage': 'undo_window',
@@ -98,12 +130,12 @@ class DemoHelpRequestTracker {
       type: existing?['type']?.toString() ?? 'ai_auto',
       intent: existing?['intent']?.toString() ?? 'AI已处理当前问题',
       urgency: existing?['urgency']?.toString() ?? 'normal',
-      status: 'ai_resolved',
+      status: HelpRequestStatus.aiResolved,
       createdAt: existing?['createdAt']?.toString(),
       completedAt: DateTime.now(),
       aiResponse: _mergeAiResponse(existing, {
         'summary': summary,
-        'stage': 'ai_resolved',
+        'stage': HelpRequestStatus.aiResolved.wireName,
       }),
     );
     await clearCurrentRequest();
@@ -122,7 +154,7 @@ class DemoHelpRequestTracker {
       type: existing?['type']?.toString() ?? 'realtime_voice',
       intent: existing?['intent']?.toString() ?? '连接真人志愿者获取帮助',
       urgency: existing?['urgency']?.toString() ?? 'normal',
-      status: 'connected',
+      status: HelpRequestStatus.connected,
       volunteerId: volunteerId,
       createdAt: existing?['createdAt']?.toString(),
       matchedAt: DateTime.now(),
@@ -130,7 +162,7 @@ class DemoHelpRequestTracker {
         'summary': '已为您接通真人志愿者，正在进行语音协助。',
         'volunteerName': volunteerName,
         'volunteerSkills': volunteerSkills,
-        'stage': 'connected',
+        'stage': HelpRequestStatus.connected.wireName,
       }),
     );
   }
@@ -149,7 +181,7 @@ class DemoHelpRequestTracker {
     final existing = await _getRecord(requestId);
     final mergedAiResponse = <String, dynamic>{
       ..._readAiResponse(existing),
-      'stage': 'completed',
+      'stage': HelpRequestStatus.completed.wireName,
       if (feedback != null && feedback.isNotEmpty) 'feedback': feedback,
       if (ratingTags.isNotEmpty) 'ratingTags': ratingTags,
     };
@@ -159,7 +191,7 @@ class DemoHelpRequestTracker {
       type: existing?['type']?.toString() ?? 'realtime_voice',
       intent: existing?['intent']?.toString() ?? '真人语音协助',
       urgency: existing?['urgency']?.toString() ?? 'normal',
-      status: 'completed',
+      status: HelpRequestStatus.completed,
       volunteerId: existing?['volunteerId']?.toString(),
       createdAt: existing?['createdAt']?.toString(),
       matchedAt: _parseDate(existing?['matchedAt']),
@@ -182,13 +214,15 @@ class DemoHelpRequestTracker {
       type: existing?['type']?.toString() ?? 'realtime_voice',
       intent: existing?['intent']?.toString() ?? '已取消的求助',
       urgency: existing?['urgency']?.toString() ?? 'normal',
-      status: 'cancelled',
+      status: HelpRequestStatus.cancelled,
       volunteerId: existing?['volunteerId']?.toString(),
       createdAt: existing?['createdAt']?.toString(),
       matchedAt: _parseDate(existing?['matchedAt']),
       completedAt: DateTime.now(),
       cancelReason: reason,
-      aiResponse: _mergeAiResponse(existing, {'stage': 'cancelled'}),
+      aiResponse: _mergeAiResponse(existing, {
+        'stage': HelpRequestStatus.cancelled.wireName,
+      }),
     );
     await clearCurrentRequest();
   }
@@ -205,11 +239,13 @@ class DemoHelpRequestTracker {
       type: existing?['type']?.toString() ?? 'realtime_voice',
       intent: existing?['intent']?.toString() ?? '匹配超时',
       urgency: existing?['urgency']?.toString() ?? 'normal',
-      status: 'expired',
+      status: HelpRequestStatus.expired,
       volunteerId: existing?['volunteerId']?.toString(),
       createdAt: existing?['createdAt']?.toString(),
       completedAt: DateTime.now(),
-      aiResponse: _mergeAiResponse(existing, {'stage': 'expired'}),
+      aiResponse: _mergeAiResponse(existing, {
+        'stage': HelpRequestStatus.expired.wireName,
+      }),
     );
     await clearCurrentRequest();
   }
@@ -242,7 +278,7 @@ class DemoHelpRequestTracker {
     required String type,
     required String intent,
     required String urgency,
-    required String status,
+    required HelpRequestStatus status,
     String? volunteerId,
     String? createdAt,
     DateTime? matchedAt,
@@ -259,7 +295,7 @@ class DemoHelpRequestTracker {
       'type': type,
       'intent': intent,
       'urgency': urgency,
-      'status': status,
+      'status': status.wireName,
       'volunteerId': ?volunteerId,
       'createdAt': ?createdAt,
       if (matchedAt != null) 'matchedAt': matchedAt.toIso8601String(),
@@ -269,6 +305,7 @@ class DemoHelpRequestTracker {
       'cancelReason': ?cancelReason,
       'aiResponse': ?aiResponse,
     });
+    AppLogger.info('Demo help_request $id -> ${status.wireName}');
   }
 
   static Map<String, dynamic> _mergeAiResponse(

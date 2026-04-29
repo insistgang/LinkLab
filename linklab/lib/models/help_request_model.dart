@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'help_request_status.dart';
+
 part 'help_request_model.freezed.dart';
 part 'help_request_model.g.dart';
 
@@ -9,10 +11,12 @@ class HelpRequestModel with _$HelpRequestModel {
   const factory HelpRequestModel({
     required String id,
     required String seekerId,
-    String? type, // 'ai_auto', 'async', 'realtime_voice', 'realtime_video', 'sos'
+    String?
+    type, // 'ai_auto', 'async', 'realtime_voice', 'realtime_video', 'sos'
     String? intent,
     String? urgency, // 'normal', 'important', 'urgent', 'emergency'
-    String? status, // 'created', 'ai_processing', 'ai_resolved', 'matching', 'connected', 'completed', 'cancelled', 'expired'
+    String?
+    status, // 'created', 'ai_processing', 'ai_resolved', 'matching', 'connected', 'completed', 'cancelled', 'expired'
     Map<String, dynamic>? aiResponse,
     String? volunteerId,
     double? latitude,
@@ -35,14 +39,13 @@ class HelpRequestModel with _$HelpRequestModel {
   bool get isEmergency => urgency == 'emergency' || type == 'sos';
 
   /// 是否已完成
-  bool get isCompleted => status == 'completed';
+  bool get isCompleted => requestStatus == HelpRequestStatus.completed;
 
   /// 是否进行中
-  bool get isActive =>
-      status == 'created' ||
-      status == 'ai_processing' ||
-      status == 'matching' ||
-      status == 'connected';
+  bool get isActive => requestStatus.isActive;
+
+  /// AGENTS.md 唯一允许的主状态。
+  HelpRequestStatus get requestStatus => HelpRequestStatus.fromWireName(status);
 
   /// 紧急程度标签
   String get urgencyLabel {
@@ -60,26 +63,7 @@ class HelpRequestModel with _$HelpRequestModel {
 
   /// 状态标签
   String get statusLabel {
-    switch (status) {
-      case 'created':
-        return '等待中';
-      case 'ai_processing':
-        return 'AI分析中';
-      case 'ai_resolved':
-        return 'AI已解决';
-      case 'matching':
-        return '匹配中';
-      case 'connected':
-        return '通话中';
-      case 'completed':
-        return '已完成';
-      case 'cancelled':
-        return '已取消';
-      case 'expired':
-        return '已超时';
-      default:
-        return '未知';
-    }
+    return requestStatus.label;
   }
 }
 
@@ -94,7 +78,8 @@ class AsyncTaskModel with _$AsyncTaskModel {
     required String taskType,
     required String description,
     String? imageUrl,
-    String? status, // 'pending', 'assigned', 'processing', 'completed', 'cancelled'
+    String?
+    status, // 'pending', 'assigned', 'processing', 'completed', 'cancelled'
     String? result,
     DateTime? createdAt,
     DateTime? assignedAt,

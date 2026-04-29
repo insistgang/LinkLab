@@ -13,9 +13,9 @@ import '../../widgets/demo/demo_routes.dart';
 import '../../widgets/demo/demo_stage.dart';
 import '../auth/login_screen.dart';
 import '../auth/preference_screen.dart';
+import '../demo/demo_help_archive_screen.dart';
 import '../security/emergency_contacts_screen.dart';
 import '../security/location_sharing_screen.dart';
-import '../user_center/seeker_center_screen.dart';
 
 /// 个人中心页面
 class ProfileScreen extends StatefulWidget {
@@ -77,7 +77,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       icon: session.isDayStageMode
                           ? Icons.light_mode_outlined
                           : Icons.dark_mode_outlined,
-                      label: session.isDayStageMode ? '日间模式' : '深夜模式',
+                      label: session.isDayStageMode ? '荧光日间' : '深夜模式',
                     ),
                     _ProfileTag(
                       icon: Icons.contrast_outlined,
@@ -123,14 +123,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       : Icons.light_mode_outlined,
                   title: '切换界面模式',
                   subtitle: session.isDayStageMode
-                      ? '当前为日间模式，点击切回深夜模式'
-                      : '当前为深夜模式，点击切到日间模式',
+                      ? '当前为页面稿的荧光日间风格，点击切回深夜模式'
+                      : '当前为深夜模式，点击切到荧光日间风格',
                   onTap: () async {
                     await session.toggleStageMode();
                     if (!context.mounted) return;
                     showDemoStageSnackBar(
                       context,
-                      message: session.isDayStageMode ? '已切换到日间模式' : '已切换到深夜模式',
+                      message: session.isDayStageMode
+                          ? '已切换到荧光日间风格'
+                          : '已切换到深夜模式',
                       icon: session.isDayStageMode
                           ? Icons.light_mode_outlined
                           : Icons.dark_mode_outlined,
@@ -191,10 +193,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: AppTheme.spacingM),
               _MenuItem(
                 icon: Icons.history_rounded,
-                title: '帮助档案与积分',
-                subtitle: '最近已保存 $helpCount 条记录，进入求助者中心查看',
+                title: '帮助档案',
+                subtitle: '最近已保存 $helpCount 条主线记录，进入帮助档案查看',
                 onTap: () {
-                  pushDemoStageRoute(context, page: const SeekerCenterScreen());
+                  pushDemoStageRoute(
+                    context,
+                    page: const DemoHelpArchiveScreen(),
+                  );
                 },
               ),
               const SizedBox(height: AppTheme.spacingM),

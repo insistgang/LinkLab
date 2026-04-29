@@ -18,8 +18,10 @@ import 'volunteer_detail_screen.dart';
 String _resolveCurrentUserId() =>
     AppSessionService.instance.userProfile?.id ?? 'demo-user-id';
 
-/// 求助者中心页面 (F14-F17)
-/// 整合帮助档案、安心积分、常用志愿者、无障碍偏好
+const int _mvpSeekerTabCount = 2;
+
+/// 求助者中心页面
+/// 当前默认只暴露 MVP 允许的档案与状态回看两项能力。
 class SeekerCenterScreen extends StatefulWidget {
   const SeekerCenterScreen({super.key, this.initialTabIndex = 0});
 
@@ -33,19 +35,18 @@ class _SeekerCenterScreenState extends State<SeekerCenterScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final HelpArchiveService _helpArchiveService = HelpArchiveService();
-  final AsyncTaskService _asyncTaskService = AsyncTaskService();
   final DemoHelpRequestService _demoHelpRequestService =
       DemoHelpRequestService();
-  final PointsService _pointsService = PointsService();
-  final FavoriteVolunteerService _favoriteService = FavoriteVolunteerService();
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(
-      length: 6,
+      length: _mvpSeekerTabCount,
       vsync: this,
-      initialIndex: widget.initialTabIndex.clamp(0, 5).toInt(),
+      initialIndex: widget.initialTabIndex
+          .clamp(0, _mvpSeekerTabCount - 1)
+          .toInt(),
     );
   }
 
@@ -65,11 +66,7 @@ class _SeekerCenterScreenState extends State<SeekerCenterScreen>
           isScrollable: true,
           tabs: const [
             Tab(icon: Icon(Icons.history), text: '帮助档案'),
-            Tab(icon: Icon(Icons.markunread_outlined), text: '异步留言'),
-            Tab(icon: Icon(Icons.assignment_turned_in_outlined), text: '我的求助'),
-            Tab(icon: Icon(Icons.stars), text: '安心积分'),
-            Tab(icon: Icon(Icons.favorite), text: '常用志愿者'),
-            Tab(icon: Icon(Icons.settings_accessibility), text: '偏好设置'),
+            Tab(icon: Icon(Icons.assignment_turned_in_outlined), text: '求助状态'),
           ],
         ),
       ),
@@ -77,11 +74,7 @@ class _SeekerCenterScreenState extends State<SeekerCenterScreen>
         controller: _tabController,
         children: [
           HelpArchiveTab(service: _helpArchiveService),
-          AsyncRequestsTab(service: _asyncTaskService),
           MyHelpRequestsTab(service: _demoHelpRequestService),
-          PointsTab(service: _pointsService),
-          FavoriteVolunteersTab(service: _favoriteService),
-          const AccessibilityPreferencesTab(),
         ],
       ),
     );

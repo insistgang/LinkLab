@@ -2,16 +2,18 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 
 import '../../config/app_config.dart';
+import '../../core/utils/logger.dart';
 
 /// 演示数据加载器
 class DemoDataLoader {
   static Map<String, dynamic>? _volunteersData;
+  static Map<String, dynamic>? _matchingVolunteersData;
   static Map<String, dynamic>? _aiResponsesData;
   static Map<String, dynamic>? _scenariosData;
 
   static Map<String, dynamic> _decodeJsonMap(String jsonString) {
     final decoded = json.decode(jsonString);
-    if (decoded is! Map) {
+    if (decoded is! Map<String, dynamic>) {
       throw const FormatException('演示数据格式错误，根节点必须是对象');
     }
     return Map<String, dynamic>.from(decoded);
@@ -23,7 +25,7 @@ class DemoDataLoader {
     }
 
     return raw
-        .whereType<Map>()
+        .whereType<Map<String, dynamic>>()
         .map((item) => Map<String, dynamic>.from(item))
         .toList();
   }
@@ -45,6 +47,7 @@ class DemoDataLoader {
 
     await Future.wait([
       _loadVolunteers(),
+      _loadMatchingVolunteers(),
       _loadAIResponses(),
       _loadScenarios(),
     ]);
@@ -52,26 +55,54 @@ class DemoDataLoader {
 
   /// 加载志愿者数据
   static Future<void> _loadVolunteers() async {
-    final jsonString = await rootBundle.loadString(
-      'assets/demo_data/volunteers.json',
-    );
-    _volunteersData = _decodeJsonMap(jsonString);
+    try {
+      final jsonString = await rootBundle.loadString(
+        'assets/demo_data/volunteers.json',
+      );
+      _volunteersData = _decodeJsonMap(jsonString);
+    } catch (error) {
+      AppLogger.warning('志愿者 demo 数据加载失败，使用空数据降级：$error');
+      _volunteersData = const <String, dynamic>{};
+    }
+  }
+
+  /// 加载 F9 demo 匹配志愿者数据
+  static Future<void> _loadMatchingVolunteers() async {
+    try {
+      final jsonString = await rootBundle.loadString(
+        'assets/demo_data/demo_volunteers.json',
+      );
+      _matchingVolunteersData = _decodeJsonMap(jsonString);
+    } catch (error) {
+      AppLogger.warning('F9 匹配 demo 志愿者数据加载失败，使用空数据降级：$error');
+      _matchingVolunteersData = const <String, dynamic>{};
+    }
   }
 
   /// 加载AI回复数据
   static Future<void> _loadAIResponses() async {
-    final jsonString = await rootBundle.loadString(
-      'assets/demo_data/ai_responses.json',
-    );
-    _aiResponsesData = _decodeJsonMap(jsonString);
+    try {
+      final jsonString = await rootBundle.loadString(
+        'assets/demo_data/ai_responses.json',
+      );
+      _aiResponsesData = _decodeJsonMap(jsonString);
+    } catch (error) {
+      AppLogger.warning('AI demo 数据加载失败，使用空数据降级：$error');
+      _aiResponsesData = const <String, dynamic>{};
+    }
   }
 
   /// 加载演示场景数据
   static Future<void> _loadScenarios() async {
-    final jsonString = await rootBundle.loadString(
-      'assets/demo_data/help_scenarios.json',
-    );
-    _scenariosData = _decodeJsonMap(jsonString);
+    try {
+      final jsonString = await rootBundle.loadString(
+        'assets/demo_data/help_scenarios.json',
+      );
+      _scenariosData = _decodeJsonMap(jsonString);
+    } catch (error) {
+      AppLogger.warning('场景 demo 数据加载失败，使用空数据降级：$error');
+      _scenariosData = const <String, dynamic>{};
+    }
   }
 
   /// 获取所有演示志愿者
@@ -80,11 +111,17 @@ class DemoDataLoader {
     return _mapList(_volunteersData!['demoVolunteers']);
   }
 
+  /// 获取 F9 本地匹配引擎使用的 demo 志愿者
+  static List<Map<String, dynamic>> getMatchingDemoVolunteers() {
+    if (_matchingVolunteersData == null) return [];
+    return _mapList(_matchingVolunteersData!['demoVolunteers']);
+  }
+
   /// 获取默认匹配的志愿者
   static Map<String, dynamic>? getDefaultMatchedVolunteer() {
     if (_volunteersData == null) return null;
     final volunteer = _volunteersData!['defaultMatchedVolunteer'];
-    if (volunteer is! Map) {
+    if (volunteer is! Map<String, dynamic>) {
       return null;
     }
     return Map<String, dynamic>.from(volunteer);
@@ -155,7 +192,7 @@ class DemoDataLoader {
   static List<Map<String, dynamic>> getDemoFlow() {
     if (_scenariosData == null) return [];
     final demoFlow = _scenariosData!['demoFlow'];
-    if (demoFlow is! Map) {
+    if (demoFlow is! Map<String, dynamic>) {
       return const [];
     }
     return _mapList(demoFlow['steps']);
@@ -165,7 +202,7 @@ class DemoDataLoader {
   static Map<String, dynamic> getEmergencyDetection() {
     if (_aiResponsesData == null) return {};
     final detection = _aiResponsesData!['emergencyDetection'];
-    if (detection is! Map) {
+    if (detection is! Map<String, dynamic>) {
       return const {};
     }
     return Map<String, dynamic>.from(detection);
@@ -182,6 +219,10 @@ class DemoDataLoader {
       ...urgentKeywords,
       ...emergencyKeywords,
       ...autoTriggerPhrases,
+      '晕倒',
+      '摔倒',
+      '紧急',
+      '救命',
     ];
 
     for (final keyword in allKeywords) {

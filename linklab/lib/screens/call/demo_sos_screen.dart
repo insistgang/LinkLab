@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 
 import '../../core/theme/app_theme.dart';
-import '../../demo_flow/demo_help_request_tracker.dart';
 import '../../models/emergency_contact_model.dart';
+import '../../providers/demo_help_request_flow_provider.dart';
+import '../../providers/demo_services_provider.dart';
 import '../../services/app_session_service.dart';
 import '../../services/demo_call_service.dart';
 import '../../services/security/emergency_contact_service.dart';
@@ -19,16 +21,18 @@ import 'demo_call_screen.dart';
 
 /// 演示版SOS紧急求助页面
 /// 简化版：模拟SOS流程，固定5秒匹配成功
-class DemoSOSScreen extends StatefulWidget {
-  const DemoSOSScreen({super.key});
+class DemoSOSScreen extends ConsumerStatefulWidget {
+  const DemoSOSScreen({super.key, this.autoStartUndoWindow = false});
+
+  final bool autoStartUndoWindow;
 
   @override
-  State<DemoSOSScreen> createState() => _DemoSOSScreenState();
+  ConsumerState<DemoSOSScreen> createState() => _DemoSOSScreenState();
 }
 
-class _DemoSOSScreenState extends State<DemoSOSScreen>
+class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
     with TickerProviderStateMixin {
-  final DemoSOSService _sosService = DemoSOSService();
+  late final DemoSOSService _sosService;
   final EmergencyContactService _contactService = EmergencyContactService();
   final SafetySettingsService _safetySettingsService = SafetySettingsService();
 
@@ -53,9 +57,16 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
   @override
   void initState() {
     super.initState();
+    _sosService = ref.read(demoSOSServiceProvider);
     _initAnimations();
     _sosService.addListener(_onSOSStateChanged);
     _loadSafetyContext();
+    if (widget.autoStartUndoWindow) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _triggerSOS();
+      });
+    }
   }
 
   void _initAnimations() {
@@ -147,7 +158,7 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
       _isUndoWindowActive = true;
       _undoCountdownSeconds = _undoWindowSeconds;
     });
-    await DemoHelpRequestTracker.startSOSUndoWindow();
+    await ref.read(demoHelpRequestFlowProvider.notifier).startSOSUndoWindow();
     _startUndoWindow();
   }
 
@@ -194,11 +205,9 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
       );
     }
 
-    await DemoHelpRequestTracker.ensureMatchingRequest(
-      intent: 'SOS紧急求助',
-      type: 'sos',
-      urgency: 'emergency',
-    );
+    await ref
+        .read(demoHelpRequestFlowProvider.notifier)
+        .enterMatching(intent: 'SOS紧急求助', type: 'sos', urgency: 'emergency');
     await _sosService.triggerSOS();
   }
 
@@ -208,7 +217,9 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
       _isUndoWindowActive = false;
       _undoCountdownSeconds = _undoWindowSeconds;
     });
-    await DemoHelpRequestTracker.markCancelled(reason: 'SOS 误触撤销');
+    await ref
+        .read(demoHelpRequestFlowProvider.notifier)
+        .markCancelled(reason: 'SOS 误触撤销');
   }
 
   @override
@@ -616,7 +627,9 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
             child: ElevatedButton.icon(
               onPressed: () async {
                 _sosService.resolveSOS();
-                await DemoHelpRequestTracker.markCompleted();
+                await ref
+                    .read(demoHelpRequestFlowProvider.notifier)
+                    .markCompleted();
                 if (!mounted) return;
                 Navigator.pop(context);
               },
@@ -637,7 +650,9 @@ class _DemoSOSScreenState extends State<DemoSOSScreen>
             child: OutlinedButton.icon(
               onPressed: () async {
                 _sosService.cancelSOS();
-                await DemoHelpRequestTracker.markCancelled(reason: '用户取消SOS');
+                await ref
+                    .read(demoHelpRequestFlowProvider.notifier)
+                    .markCancelled(reason: '用户取消SOS');
                 if (!mounted) return;
                 Navigator.pop(context);
               },

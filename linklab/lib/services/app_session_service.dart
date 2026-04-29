@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
+import '../config/app_config.dart';
 import '../core/theme/app_theme.dart';
+import '../core/utils/logger.dart';
 import '../models/help_request_model.dart';
 import '../models/user_model.dart';
 import 'local_storage.dart';
@@ -18,7 +20,7 @@ class AppSessionService extends ChangeNotifier {
   bool _isLoggedIn = false;
   bool _isFirstLaunch = true;
   UserModel? _userProfile;
-  DemoStageMode _stageMode = DemoStageMode.night;
+  DemoStageMode _stageMode = DemoStageMode.day;
   AccessibilityPreferences _preferences = const AccessibilityPreferences();
 
   bool get isInitialized => _initialized;
@@ -141,6 +143,45 @@ class AppSessionService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> ensureCompetitionPresenterSession() async {
+    if (!AppConfig.presenterMode) {
+      return;
+    }
+
+    if (!_initialized) {
+      await initialize();
+    }
+
+    if (_isLoggedIn) {
+      await setStageMode(DemoStageMode.day);
+      return;
+    }
+
+    final currentProfile = _userProfile;
+    if (currentProfile != null) {
+      await loginExistingUser(currentProfile.phone);
+      await setStageMode(DemoStageMode.day);
+      AppLogger.info('已恢复本地演示账号，直接进入竞赛主演示');
+      return;
+    }
+
+    const presenterPreferences = AccessibilityPreferences(
+      fontScale: 1.1,
+      autoReadResults: true,
+      voiceGuidance: true,
+      hapticFeedback: true,
+    );
+
+    await completeOnboarding(
+      phone: '13800138000',
+      role: 'seeker',
+      disabilityTypes: const ['visual'],
+      preferences: presenterPreferences,
+    );
+    await setStageMode(DemoStageMode.day);
+    AppLogger.info('已注入竞赛演示员会话，默认直达 Demo 主线');
+  }
+
   List<HelpRequestModel> getRecentHelpHistory({int limit = 3}) {
     final history = _storage.getHelpHistory();
     return history
@@ -165,9 +206,9 @@ class AppSessionService extends ChangeNotifier {
   void _restoreState() {
     _isLoggedIn = _storage.isLoggedIn();
     _isFirstLaunch = _storage.isFirstLaunch();
-    _stageMode = _storage.getStageThemeMode() == DemoStageMode.day.name
-        ? DemoStageMode.day
-        : DemoStageMode.night;
+    _stageMode = _storage.getStageThemeMode() == DemoStageMode.night.name
+        ? DemoStageMode.night
+        : DemoStageMode.day;
     AppTheme.setStageMode(_stageMode);
 
     final storedProfile = _storage.getUserProfile();

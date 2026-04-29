@@ -73,7 +73,7 @@ class AppTheme {
   static const Color surfaceColor = Color(0xFFF5F5F5); // 浅灰表面
   static const Color cardColor = Color(0xFFFFFFFF);
 
-  static DemoStageMode _stageMode = DemoStageMode.night;
+  static DemoStageMode _stageMode = DemoStageMode.day;
 
   static const _StagePalette _nightStagePalette = _StagePalette(
     background: Color(0xFF040704),
@@ -84,8 +84,8 @@ class AppTheme {
     textPrimary: Color(0xFFF4F8EC),
     textSecondary: Color(0xFFC0CDB8),
     textHint: Color(0xFF899784),
-    accent: Color(0xFFB8FF2D),
-    accentLight: Color(0xFFE8FF9F),
+    accent: Color(0xFF9A46FF),
+    accentLight: Color(0xFFD7B8FF),
     success: Color(0xFF79F072),
     danger: Color(0xFFFF6868),
     warning: Color(0xFFFFD75C),
@@ -102,40 +102,40 @@ class AppTheme {
       end: Alignment.bottomRight,
     ),
     accentGradient: LinearGradient(
-      colors: [Color(0xFFB8FF2D), Color(0xFFCFFF52), Color(0xFFE8FF9F)],
+      colors: [Color(0xFFB96BFF), Color(0xFF913DFF), Color(0xFF6D28D9)],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     ),
   );
 
   static const _StagePalette _dayStagePalette = _StagePalette(
-    background: Color(0xFFF6F9EC),
-    backgroundSoft: Color(0xFFEFF5DE),
-    surface: Color(0xFFFFFFFF),
-    surfaceStrong: Color(0xFFF1F7E2),
-    border: Color(0xFFD0DBBE),
-    textPrimary: Color(0xFF1A2514),
-    textSecondary: Color(0xFF485442),
-    textHint: Color(0xFF738068),
-    accent: Color(0xFF7BC400),
-    accentLight: Color(0xFFB8EC62),
-    success: Color(0xFF3E9B4B),
-    danger: Color(0xFFD94B4B),
-    warning: Color(0xFFD2A116),
-    info: Color(0xFF2C9664),
+    background: Color(0xFFFFFFFF),
+    backgroundSoft: Color(0xFFF3FFD9),
+    surface: Color(0xEAF4FFE8),
+    surfaceStrong: Color(0xF2EFFFF0),
+    border: Color(0x99D4F5C8),
+    textPrimary: Color(0xFF071006),
+    textSecondary: Color(0xFF33422F),
+    textHint: Color(0xFF5C6D55),
+    accent: Color(0xFF5F1ACF),
+    accentLight: Color(0xFF8D3DFF),
+    success: Color(0xFF146F30),
+    danger: Color(0xFFC82432),
+    warning: Color(0xFF875900),
+    info: Color(0xFF006E66),
     heroGradient: LinearGradient(
-      colors: [Color(0xFFF5FF4D), Color(0xFFA8FF58), Color(0xFF48E6DC)],
-      stops: [0.0, 0.55, 1.0],
+      colors: [Color(0xFFDFFF00), Color(0xFF6DFF58), Color(0xFF38E9D3)],
+      stops: [0.0, 0.5, 1.0],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     ),
     panelGradient: LinearGradient(
-      colors: [Color(0xFFFFFFFF), Color(0xFFF3F9E6), Color(0xFFE7F1D3)],
+      colors: [Color(0xF8F7FFE9), Color(0xEAF2FFE3), Color(0xDDF0FFF5)],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     ),
     accentGradient: LinearGradient(
-      colors: [Color(0xFF7BC400), Color(0xFF99DA28), Color(0xFFC9F27D)],
+      colors: [Color(0xFFB96BFF), Color(0xFF8D3DFF), Color(0xFF6D28D9)],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     ),
@@ -223,9 +223,9 @@ class AppTheme {
 
   static const List<BoxShadow> stageShadow = [
     BoxShadow(
-      color: Color(0x66000000),
-      blurRadius: 24.0,
-      offset: Offset(0, 16),
+      color: Color(0x26000000),
+      blurRadius: 18.0,
+      offset: Offset(0, 10),
     ),
   ];
 

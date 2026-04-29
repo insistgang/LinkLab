@@ -64,7 +64,8 @@ class AccessibleTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 构建语义标签
-    final effectiveSemanticLabel = semanticLabel ??
+    final effectiveSemanticLabel =
+        semanticLabel ??
         '${label ?? '文本输入框'}，${hint ?? ''}'
             '${keyboardType == TextInputType.phone ? '，请输入数字' : ''}';
 
@@ -165,12 +166,14 @@ class AccessiblePhoneField extends StatelessWidget {
       autofocus: autofocus,
       onChanged: onChanged,
       onSubmitted: onSubmitted,
-      validator: validator ??
+      validator:
+          validator ??
           (value) {
             if (value == null || value.isEmpty) {
               return '请输入手机号';
             }
-            if (value.length != 11 || !RegExp(r'^1[3-9]\d{9}$').hasMatch(value)) {
+            if (value.length != 11 ||
+                !RegExp(r'^1[3-9]\d{9}$').hasMatch(value)) {
               return '请输入正确的11位手机号';
             }
             return null;
@@ -326,34 +329,38 @@ class AccessibleRadioGroup<T> extends StatelessWidget {
         children: [
           AccessibleText(
             title,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: AppTheme.spacingS),
-          ...options.map((option) {
-            return Semantics(
-              label: option.label,
-              selected: value == option.value,
-              child: RadioListTile<T>(
-                title: AccessibleText(option.label),
-                subtitle: option.description != null
-                    ? AccessibleText(
-                        option.description!,
-                        style: const TextStyle(
-                          fontSize: AppTheme.fontSizeSmall,
-                          color: AppTheme.textHint,
-                        ),
-                      )
-                    : null,
-                value: option.value,
-                groupValue: value,
-                onChanged: onChanged,
-                contentPadding: EdgeInsets.zero,
-                visualDensity: VisualDensity.compact,
-              ),
-            );
-          }),
+          RadioGroup<T>(
+            groupValue: value,
+            onChanged: onChanged,
+            child: Column(
+              children: options.map((option) {
+                return Semantics(
+                  label: option.label,
+                  selected: value == option.value,
+                  child: RadioListTile<T>(
+                    title: AccessibleText(option.label),
+                    subtitle: option.description != null
+                        ? AccessibleText(
+                            option.description!,
+                            style: const TextStyle(
+                              fontSize: AppTheme.fontSizeSmall,
+                              color: AppTheme.textHint,
+                            ),
+                          )
+                        : null,
+                    value: option.value,
+                    contentPadding: EdgeInsets.zero,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
         ],
       ),
     );
@@ -395,9 +402,9 @@ class AccessibleCheckboxGroup extends StatelessWidget {
       children: [
         AccessibleText(
           title,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: AppTheme.spacingS),
         Wrap(
@@ -432,10 +439,7 @@ class AccessibleCheckboxOption {
   final String value;
   final String label;
 
-  const AccessibleCheckboxOption({
-    required this.value,
-    required this.label,
-  });
+  const AccessibleCheckboxOption({required this.value, required this.label});
 }
 
 /// AccessibleInput 别名

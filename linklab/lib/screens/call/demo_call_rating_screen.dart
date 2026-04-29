@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/app_theme.dart';
+import '../../providers/demo_help_request_flow_provider.dart';
+import '../../providers/demo_services_provider.dart';
 import '../../services/demo_call_service.dart';
 import '../../widgets/accessible/index.dart';
 import '../../widgets/demo/demo_motion.dart';
@@ -10,7 +13,7 @@ import '../../widgets/demo/demo_stage.dart';
 import '../home/main_screen.dart';
 
 /// 演示版通话评价页面
-class DemoCallRatingScreen extends StatefulWidget {
+class DemoCallRatingScreen extends ConsumerStatefulWidget {
   const DemoCallRatingScreen({
     super.key,
     required this.volunteer,
@@ -21,11 +24,12 @@ class DemoCallRatingScreen extends StatefulWidget {
   final Duration duration;
 
   @override
-  State<DemoCallRatingScreen> createState() => _DemoCallRatingScreenState();
+  ConsumerState<DemoCallRatingScreen> createState() =>
+      _DemoCallRatingScreenState();
 }
 
-class _DemoCallRatingScreenState extends State<DemoCallRatingScreen> {
-  final DemoCallService _callService = DemoCallService();
+class _DemoCallRatingScreenState extends ConsumerState<DemoCallRatingScreen> {
+  late final DemoCallService _callService;
   final TextEditingController _feedbackController = TextEditingController();
 
   int _rating = 0;
@@ -34,6 +38,12 @@ class _DemoCallRatingScreenState extends State<DemoCallRatingScreen> {
 
   final List<String> _positiveTags = ['耐心细致', '专业高效', '态度友好', '解决问题', '沟通顺畅'];
   final List<String> _negativeTags = ['沟通困难', '未能解决', '态度冷淡', '网络卡顿', '声音不清'];
+
+  @override
+  void initState() {
+    super.initState();
+    _callService = ref.read(demoCallServiceProvider);
+  }
 
   Future<void> _submitRating() async {
     if (_rating == 0) {
@@ -48,16 +58,19 @@ class _DemoCallRatingScreenState extends State<DemoCallRatingScreen> {
 
     setState(() => _isSubmitting = true);
 
-    await _callService.submitSeekerRating(
-      rating: _rating,
-      tags: _selectedTags,
-      feedback: _feedbackController.text.trim(),
-    );
+    await ref
+        .read(demoHelpRequestFlowProvider.notifier)
+        .markCompleted(
+          durationSeconds: widget.duration.inSeconds,
+          seekerRating: _rating,
+          feedback: _feedbackController.text.trim(),
+          ratingTags: List<String>.unmodifiable(_selectedTags),
+        );
 
     if (mounted) {
       showDemoStageSnackBar(
         context,
-        message: _rating >= 4 ? '感谢您的评价，已同步到帮助档案和常用志愿者。' : '感谢您的评价，已同步到帮助档案。',
+        message: '感谢您的评价，已写入本地 Demo 帮助回看。',
         icon: Icons.favorite_border,
         accentColor: AppTheme.stageSuccess,
       );
@@ -83,8 +96,8 @@ class _DemoCallRatingScreenState extends State<DemoCallRatingScreen> {
     return DemoStageLiveBuilder(
       builder: (context) {
         return DemoStageScaffold(
-          title: '评价本次帮助',
-          subtitle: '评分会回写帮助档案，并影响常用志愿者列表',
+          title: '帮助已完成',
+          subtitle: '当前为 Demo 记录，不代表真实积分或真实志愿者档案',
           onBackPressed: _skipRating,
           actions: [
             TextButton(
@@ -137,6 +150,15 @@ class _DemoCallRatingScreenState extends State<DemoCallRatingScreen> {
               ),
               const SizedBox(height: AppTheme.spacingXS),
               AccessibleText(
+                '本次帮助类型: ${widget.volunteer.skills.take(2).join(' / ')}',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppTheme.stageTextSecondary,
+                  fontSize: AppTheme.fontSizeSmall,
+                ),
+              ),
+              const SizedBox(height: AppTheme.spacingXS),
+              AccessibleText(
                 '通话时长: ${_formatDuration(widget.duration)}',
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -145,10 +167,20 @@ class _DemoCallRatingScreenState extends State<DemoCallRatingScreen> {
                 ),
               ),
               const SizedBox(height: AppTheme.spacingM),
+              AccessibleText(
+                '感谢你完成本次互助。你可以快速评分后返回首页，或查看本地结果回看。',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppTheme.stageTextSecondary,
+                  fontSize: AppTheme.fontSizeNormal,
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: AppTheme.spacingM),
               Center(
                 child: DemoPill(
-                  label: '4 星及以上会加入“常用志愿者”',
-                  icon: Icons.workspace_premium_outlined,
+                  label: 'Demo 记录，不产生真实积分',
+                  icon: Icons.info_outline,
                   color: AppTheme.stageAccent,
                 ),
               ),
@@ -283,6 +315,39 @@ class _DemoCallRatingScreenState extends State<DemoCallRatingScreen> {
                             fontWeight: FontWeight.w800,
                           ),
                         ),
+                ),
+              ),
+              const SizedBox(height: AppTheme.spacingM),
+              SizedBox(
+                width: double.infinity,
+                height: 54,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    showDemoStageSnackBar(
+                      context,
+                      message: '本地 Demo 已保留帮助完成记录，可在首页最近求助中回看。',
+                      icon: Icons.history_outlined,
+                      accentColor: AppTheme.stageInfo,
+                    );
+                  },
+                  icon: const Icon(Icons.history_outlined),
+                  label: const Text('查看帮助档案 / 结果回看'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppTheme.stageTextPrimary,
+                    side: BorderSide(color: AppTheme.stageBorder),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppTheme.spacingS),
+              SizedBox(
+                width: double.infinity,
+                height: 54,
+                child: TextButton(
+                  onPressed: _skipRating,
+                  child: const Text('返回首页'),
                 ),
               ),
             ],

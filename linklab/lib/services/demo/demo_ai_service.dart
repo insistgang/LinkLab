@@ -1,5 +1,8 @@
 import 'dart:math';
+
 import '../../config/app_config.dart';
+import '../../core/utils/logger.dart';
+import '../../models/demo_ai_intent.dart';
 import 'demo_data_loader.dart';
 
 /// AI服务类型
@@ -30,6 +33,14 @@ class AIResult {
   }
 }
 
+class _DemoIntentResolution {
+  const _DemoIntentResolution(this.intent, {this.contextIntent, this.reason});
+
+  final DemoAiIntent intent;
+  final DemoAiIntent? contextIntent;
+  final String? reason;
+}
+
 /// 演示版AI服务
 /// 用于替代真实的AI API调用
 class DemoAIService {
@@ -46,8 +57,9 @@ class DemoAIService {
       AIResult.error('DemoAIService 当前未启用 Demo fallback');
 
   /// 模拟处理延迟
-  Future<void> _simulateDelay({int minMs = 500, int maxMs = 2000}) async {
-    final delay = minMs + _random.nextInt(maxMs - minMs);
+  Future<void> _simulateDelay({int minMs = 250, int maxMs = 800}) async {
+    final safeMax = maxMs <= minMs ? minMs + 1 : maxMs;
+    final delay = minMs + _random.nextInt(safeMax - minMs);
     await Future.delayed(Duration(milliseconds: delay));
   }
 
@@ -58,16 +70,25 @@ class DemoAIService {
 
     final scenarios = DemoDataLoader.getOCRScenarios();
     if (scenarios.isEmpty) {
-      return AIResult.error('演示数据未加载');
+      AppLogger.warning('OCR demo 数据为空，使用内置降级文案');
+      return _fixedResult(
+        DemoAiIntent.ocrText,
+        '我可以读出文字内容。当前资源未加载，演示降级为：这是药品盒/通知单读取结果，请复核关键信息，也可以转人工确认。',
+        extra: {'fallback': true},
+      );
     }
 
-    // 随机选择一个场景
-    final scenario = scenarios[_random.nextInt(scenarios.length)];
-    final summary = scenario['summary'] as String? ?? '识别失败';
+    final scenario = scenarios.firstWhere(
+      (item) => '${item['scenario']}${item['imageDescription']}'.contains('药'),
+      orElse: () => scenarios.first,
+    );
+    final summary =
+        scenario['summary'] as String? ?? '我识别到一段文字，但内容不完整。请复核图片，也可以转人工确认。';
 
-    return AIResult.success(
-      summary,
-      data: {
+    return _fixedResult(
+      DemoAiIntent.ocrText,
+      '$summary 请复核药名、剂量和有效期；不确定时可以转人工确认。',
+      extra: {
         'recognizedText': scenario['recognizedText'],
         'scenario': scenario['scenario'],
         'confidence': 0.95,
@@ -78,38 +99,58 @@ class DemoAIService {
   /// 场景描述
   Future<AIResult> describeScene(String imagePath) async {
     if (!_demoFallbackEnabled) return _demoModeDisabledResult;
-    await _simulateDelay(minMs: 800, maxMs: 2500);
+    await _simulateDelay(minMs: 350, maxMs: 900);
 
     final descriptions = DemoDataLoader.getSceneDescriptions();
     if (descriptions.isEmpty) {
-      return AIResult.error('演示数据未加载');
+      AppLogger.warning('场景描述 demo 数据为空，使用内置降级文案');
+      return _fixedResult(
+        DemoAiIntent.sceneDescription,
+        '我看到前方环境较开阔，右侧像是柜台或门口，地面基本平整。请慢速前进，必要时转人工陪同。',
+        extra: {'fallback': true},
+      );
     }
 
-    final description = descriptions[_random.nextInt(descriptions.length)];
-    final descriptionText = description['description'] as String? ?? '描述失败';
+    final description = descriptions.firstWhere(
+      (item) => '${item['scenario']}${item['description']}'.contains('街道'),
+      orElse: () => descriptions.first,
+    );
+    final descriptionText =
+        description['description'] as String? ??
+        '我看到前方有通行空间，但画面信息不完整。请慢速前进，也可以转人工确认。';
 
-    return AIResult.success(
-      descriptionText,
-      data: {'scenario': description['scenario'], 'confidence': 0.92},
+    return _fixedResult(
+      DemoAiIntent.sceneDescription,
+      '$descriptionText 请慢速前进，遇到台阶、门口或柜台时建议停下复核。',
+      extra: {'scenario': description['scenario'], 'confidence': 0.92},
     );
   }
 
   /// 颜色识别
   Future<AIResult> recognizeColor(String imagePath) async {
     if (!_demoFallbackEnabled) return _demoModeDisabledResult;
-    await _simulateDelay(minMs: 300, maxMs: 1000);
+    await _simulateDelay(minMs: 250, maxMs: 650);
 
     final colors = DemoDataLoader.getColorRecognitions();
     if (colors.isEmpty) {
-      return AIResult.error('演示数据未加载');
+      AppLogger.warning('颜色识别 demo 数据为空，使用内置降级文案');
+      return _fixedResult(
+        DemoAiIntent.colorRecognition,
+        '我识别到主体颜色偏深蓝，适合用于衣物、药盒或指示牌颜色确认。光线会影响判断，请复核。',
+        extra: {'fallback': true},
+      );
     }
 
-    final color = colors[_random.nextInt(colors.length)];
-    final colorText = color['description'] as String? ?? '识别失败';
+    final color = colors.firstWhere(
+      (item) => '${item['description']}${item['dominantColor']}'.contains('蓝'),
+      orElse: () => colors.first,
+    );
+    final colorText = color['description'] as String? ?? '主体颜色偏深色。光线会影响判断，请复核。';
 
-    return AIResult.success(
-      colorText,
-      data: {
+    return _fixedResult(
+      DemoAiIntent.colorRecognition,
+      '$colorText 如果用于服药、出行指示或付款，请再请身边人或志愿者复核。',
+      extra: {
         'dominantColor': color['dominantColor'],
         'colorHex': color['colorHex'],
       },
@@ -122,49 +163,57 @@ class DemoAIService {
     List<Map<String, String>>? history,
   }) async {
     if (!_demoFallbackEnabled) return _demoModeDisabledResult;
-    await _simulateDelay(minMs: 300, maxMs: 1500);
+    await _simulateDelay(minMs: 250, maxMs: 700);
 
-    // 检测意图
-    final intent = DemoDataLoader.detectIntent(userMessage);
+    final intent = _detectDemoIntent(userMessage, history: history);
+    if (intent.intent != DemoAiIntent.fallback) {
+      return _buildIntentResult(userMessage, intent, history: history);
+    }
 
-    // 获取对应回复
-    final response = DemoDataLoader.getChatResponseByIntent(intent);
+    final legacyIntent = DemoDataLoader.detectIntent(userMessage);
+    final response = DemoDataLoader.getChatResponseByIntent(legacyIntent);
 
-    return AIResult.success(
-      response,
-      data: {'intent': intent, 'confidence': 0.88},
+    return _fixedResult(
+      DemoAiIntent.fallback,
+      '$response 如果你愿意，我可以帮你转接真人志愿者继续处理。',
+      requiresHumanFallback: true,
+      extra: {'legacyIntent': legacyIntent, 'confidence': 0.72},
     );
   }
 
   /// 意图识别
-  Future<AIResult> detectIntent(String input) async {
+  Future<AIResult> detectIntent(
+    String input, {
+    List<Map<String, String>>? history,
+  }) async {
     if (!_demoFallbackEnabled) return _demoModeDisabledResult;
-    await _simulateDelay(minMs: 200, maxMs: 500);
+    await _simulateDelay(minMs: 80, maxMs: 180);
 
-    final intent = DemoDataLoader.detectIntent(input);
+    final resolution = _detectDemoIntent(input, history: history);
 
     return AIResult.success(
       '意图识别完成',
-      data: {'intent': intent, 'confidence': 0.90},
+      data: {
+        'intent': resolution.intent.wireName,
+        'demoIntent': resolution.intent.wireName,
+        'contextIntent': resolution.contextIntent?.wireName,
+        'confidence': 0.90,
+      },
     );
   }
 
   /// 紧急检测
   Future<AIResult> detectEmergency(String input) async {
     if (!_demoFallbackEnabled) return _demoModeDisabledResult;
-    await _simulateDelay(minMs: 100, maxMs: 300);
+    await _simulateDelay(minMs: 80, maxMs: 180);
 
-    final isEmergency = DemoDataLoader.detectEmergency(input);
+    final normalizedInput = _normalize(input);
+    final isEmergency =
+        DemoDataLoader.detectEmergency(input) ||
+        _matchesAny(normalizedInput, _emergencyKeywords);
 
     if (isEmergency) {
-      return AIResult.success(
-        '检测到紧急情况！正在为您联系志愿者和紧急联系人。',
-        data: {
-          'isEmergency': true,
-          'urgencyLevel': 'high',
-          'action': 'sos_triggered',
-        },
-      );
+      return _emergencyResult();
     }
 
     return AIResult.success(
@@ -174,27 +223,257 @@ class DemoAIService {
   }
 
   /// 综合AI处理（根据输入自动选择服务）
-  Future<AIResult> process(String input, {String? imagePath}) async {
+  Future<AIResult> process(
+    String input, {
+    String? imagePath,
+    List<Map<String, String>>? history,
+  }) async {
     if (!_demoFallbackEnabled) return _demoModeDisabledResult;
-    // 如果有图片路径，优先进行图像识别
+
+    final resolution = _detectDemoIntent(
+      input,
+      imagePath: imagePath,
+      history: history,
+    );
+    AppLogger.info('Demo AI intent recognized: ${resolution.intent.wireName}');
+    return _buildIntentResult(
+      input,
+      resolution,
+      imagePath: imagePath,
+      history: history,
+    );
+  }
+
+  DemoAiIntent resolveIntent(
+    String input, {
+    String? imagePath,
+    List<Map<String, String>>? history,
+  }) {
+    return _detectDemoIntent(
+      input,
+      imagePath: imagePath,
+      history: history,
+    ).intent;
+  }
+
+  _DemoIntentResolution _detectDemoIntent(
+    String input, {
+    String? imagePath,
+    List<Map<String, String>>? history,
+  }) {
+    final normalizedInput = _normalize(input);
+    final hasMedicationContext = _historyMentionsMedication(history);
+
+    if (_matchesAny(normalizedInput, _emergencyKeywords) ||
+        DemoDataLoader.detectEmergency(input)) {
+      return const _DemoIntentResolution(DemoAiIntent.emergency);
+    }
+
+    if (_matchesAny(normalizedInput, _humanKeywords)) {
+      return _DemoIntentResolution(
+        DemoAiIntent.needHuman,
+        contextIntent: hasMedicationContext
+            ? DemoAiIntent.medicationCheck
+            : DemoAiIntent.navigation,
+        reason: 'explicit_human_request',
+      );
+    }
+
     if (imagePath != null) {
-      // 根据输入内容判断使用OCR还是场景描述
-      if (input.contains('字') || input.contains('文字') || input.contains('读')) {
-        return recognizeText(imagePath);
-      } else if (input.contains('颜色') || input.contains('色')) {
-        return recognizeColor(imagePath);
-      } else {
-        return describeScene(imagePath);
+      if (_matchesAny(normalizedInput, _colorKeywords)) {
+        return const _DemoIntentResolution(DemoAiIntent.colorRecognition);
       }
+      if (_matchesAny(normalizedInput, _ocrKeywords)) {
+        return const _DemoIntentResolution(DemoAiIntent.ocrText);
+      }
+      if (_matchesAny(normalizedInput, _environmentKeywords)) {
+        return const _DemoIntentResolution(DemoAiIntent.environmentDescription);
+      }
+      return const _DemoIntentResolution(DemoAiIntent.sceneDescription);
     }
 
-    // 纯文本输入，进行对话或紧急检测
-    final emergencyResult = await detectEmergency(input);
-    if (emergencyResult.data?['isEmergency'] == true) {
-      return emergencyResult;
+    if (_matchesAny(normalizedInput, _medicationKeywords) ||
+        (hasMedicationContext &&
+            _matchesAny(normalizedInput, _dosageFollowUpKeywords))) {
+      return const _DemoIntentResolution(DemoAiIntent.medicationCheck);
     }
 
-    return chat(input);
+    if (_matchesAny(normalizedInput, _colorKeywords)) {
+      return const _DemoIntentResolution(DemoAiIntent.colorRecognition);
+    }
+
+    if (_matchesAny(normalizedInput, _moneyKeywords)) {
+      return const _DemoIntentResolution(DemoAiIntent.moneyRecognition);
+    }
+
+    if (_matchesAny(normalizedInput, _translationKeywords)) {
+      return const _DemoIntentResolution(DemoAiIntent.translation);
+    }
+
+    if (_matchesAny(normalizedInput, _navigationKeywords)) {
+      return const _DemoIntentResolution(DemoAiIntent.navigation);
+    }
+
+    if (_matchesAny(normalizedInput, _ocrKeywords)) {
+      return const _DemoIntentResolution(DemoAiIntent.ocrText);
+    }
+
+    if (_matchesAny(normalizedInput, _sceneKeywords)) {
+      return const _DemoIntentResolution(DemoAiIntent.sceneDescription);
+    }
+
+    if (_matchesAny(normalizedInput, _environmentKeywords)) {
+      return const _DemoIntentResolution(DemoAiIntent.environmentDescription);
+    }
+
+    return const _DemoIntentResolution(DemoAiIntent.fallback);
+  }
+
+  Future<AIResult> _buildIntentResult(
+    String input,
+    _DemoIntentResolution resolution, {
+    String? imagePath,
+    List<Map<String, String>>? history,
+  }) async {
+    switch (resolution.intent) {
+      case DemoAiIntent.ocrText:
+        return recognizeText(imagePath ?? 'demo-text');
+      case DemoAiIntent.sceneDescription:
+        return describeScene(imagePath ?? 'demo-scene');
+      case DemoAiIntent.colorRecognition:
+        return recognizeColor(imagePath ?? 'demo-color');
+      case DemoAiIntent.moneyRecognition:
+        await _simulateDelay(minMs: 220, maxMs: 520);
+        return _fixedResult(
+          DemoAiIntent.moneyRecognition,
+          '我模拟识别到这像是一张 20 元人民币纸币。面额识别可能受光线影响，请用收款设备、触摸特征或转人工复核。',
+          extra: {'amount': 20, 'currency': 'CNY', 'confidence': 0.91},
+        );
+      case DemoAiIntent.translation:
+        await _simulateDelay(minMs: 220, maxMs: 520);
+        return _fixedResult(
+          DemoAiIntent.translation,
+          '转译演示：我会把你的意思整理成短句：“您好，我听不清电话内容，请用文字告诉我取件码或外卖位置。” 可转人工协助沟通。',
+          extra: {'source': 'hearing_accessibility_demo', 'confidence': 0.89},
+        );
+      case DemoAiIntent.environmentDescription:
+        await _simulateDelay(minMs: 220, maxMs: 620);
+        return _fixedResult(
+          DemoAiIntent.environmentDescription,
+          '周围环境提示：前方通道基本可走，右前方可能有人流，脚下请留意障碍物和台阶。若要继续移动，建议转人工陪同确认。',
+          requiresHumanFallback: true,
+          extra: {'riskLevel': 'medium', 'confidence': 0.88},
+        );
+      case DemoAiIntent.navigation:
+        await _simulateDelay(minMs: 220, maxMs: 620);
+        return _fixedResult(
+          DemoAiIntent.navigation,
+          '方向提示：请先停在原地，确认你要去的地点。医院科室、出口、电梯等复杂动线建议转人工陪同，我可以马上为你找志愿者。',
+          requiresHumanFallback: true,
+          extra: {'riskLevel': 'high', 'confidence': 0.90},
+        );
+      case DemoAiIntent.medicationCheck:
+        await _simulateDelay(minMs: 220, maxMs: 620);
+        return _fixedResult(
+          DemoAiIntent.medicationCheck,
+          '根据刚才识别到的药品说明，我只能帮你读取药名、剂量、用法和禁忌提醒，不做医疗诊断。一次吃几片请以说明书、医生或药师建议为准，可转人工确认。',
+          requiresHumanFallback: true,
+          extra: {
+            'safetyNotice': 'not_medical_diagnosis',
+            'hasMedicationContext': _historyMentionsMedication(history),
+            'confidence': 0.90,
+          },
+        );
+      case DemoAiIntent.emergency:
+        await _simulateDelay(minMs: 120, maxMs: 260);
+        return _emergencyResult();
+      case DemoAiIntent.needHuman:
+        await _simulateDelay(minMs: 180, maxMs: 420);
+        final contextIntent = resolution.contextIntent;
+        final text = contextIntent == DemoAiIntent.medicationCheck
+            ? '可以，我将为你转接附近具备药品说明协助经验的志愿者。本 Demo 只进入 Mock 匹配，不会连接真实外部服务。'
+            : '这个需求需要真人确认，我将为你转接附近志愿者继续协助。本 Demo 会进入本地匹配流程。';
+        return _fixedResult(
+          DemoAiIntent.needHuman,
+          text,
+          requiresHumanFallback: true,
+          extra: {
+            'contextIntent': contextIntent?.wireName,
+            'reason': resolution.reason,
+          },
+        );
+      case DemoAiIntent.fallback:
+        await _simulateDelay(minMs: 180, maxMs: 420);
+        return _fixedResult(
+          DemoAiIntent.fallback,
+          '这个问题我还不能稳定判断。你可以换个说法，或直接转人工找志愿者继续处理。',
+          requiresHumanFallback: true,
+          extra: {'confidence': 0.58},
+        );
+    }
+  }
+
+  AIResult _emergencyResult() {
+    return _fixedResult(
+      DemoAiIntent.emergency,
+      '已进入紧急模式，可在 10 秒内撤销。演示版只启动 SOS Mock，不会真实报警、发短信或推送。',
+      isEmergency: true,
+      extra: {
+        'isEmergency': true,
+        'urgencyLevel': 'high',
+        'action': 'sos_triggered',
+      },
+    );
+  }
+
+  AIResult _fixedResult(
+    DemoAiIntent intent,
+    String text, {
+    bool requiresHumanFallback = false,
+    bool isEmergency = false,
+    Map<String, dynamic> extra = const {},
+  }) {
+    final data = <String, dynamic>{
+      'intent': intent == DemoAiIntent.needHuman
+          ? DemoAiIntent.needHuman.wireName
+          : intent.wireName,
+      'demoIntent': intent.wireName,
+      'intentLabel': intent.label,
+      'canTransferToHuman': !isEmergency,
+      if (requiresHumanFallback) ...{
+        'requiresHumanFallback': true,
+        'nextStatus': 'matching',
+      },
+      if (isEmergency) ...{'isEmergency': true, 'action': 'sos_triggered'},
+      ...extra,
+    };
+    return AIResult.success(text, data: data);
+  }
+
+  String _normalize(String input) {
+    return input.trim().toLowerCase().replaceAll(RegExp(r'\s+'), '');
+  }
+
+  bool _matchesAny(String input, List<String> keywords) {
+    return keywords.any((keyword) => input.contains(_normalize(keyword)));
+  }
+
+  bool _historyMentionsMedication(List<Map<String, String>>? history) {
+    if (history == null || history.isEmpty) return false;
+    final text = _normalize(
+      history
+          .map((item) => '${item['role'] ?? ''}:${item['content'] ?? ''}')
+          .join(' '),
+    );
+    return _matchesAny(text, const [
+      '药',
+      '药品盒',
+      '说明书',
+      '阿莫西林',
+      '布洛芬',
+      '剂量',
+      '用法',
+    ]);
   }
 
   /// 流式对话（模拟）
@@ -222,3 +501,47 @@ class DemoAIService {
     }
   }
 }
+
+const _ocrKeywords = [
+  '读一下',
+  '帮我读',
+  '看不清',
+  '文字',
+  '说明书',
+  '药品盒',
+  '通知单',
+  '路牌',
+  '读药',
+  '药盒',
+];
+
+const _sceneKeywords = ['我面前是什么', '前面有什么', '帮我看看', '场景', '画面'];
+
+const _colorKeywords = ['什么颜色', '颜色', '红色', '蓝色', '衣服颜色', '药盒颜色'];
+
+const _moneyKeywords = ['多少钱', '面额', '钞票', '纸币', '人民币', '硬币'];
+
+const _translationKeywords = ['翻译', '帮我说', '听不清', '听障', '转译', '外卖电话', '快递电话'];
+
+const _environmentKeywords = ['周围', '环境', '安全', '障碍物', '有没有人', '路况'];
+
+const _navigationKeywords = ['怎么走', '在哪里', '找不到', '科室', '挂号', '出口', '厕所', '电梯'];
+
+const _medicationKeywords = ['怎么吃', '一次几片', '药名', '剂量', '用法', '禁忌'];
+
+const _dosageFollowUpKeywords = ['一次吃几片', '一次几片', '几片', '剂量', '怎么吃'];
+
+const _emergencyKeywords = ['救命', '晕倒', '摔倒', '胸口痛', '迷路了', '我很害怕', '紧急'];
+
+const _humanKeywords = [
+  '需要人帮忙',
+  '人工协助',
+  '真人帮助',
+  '真人',
+  '志愿者',
+  '转人工',
+  '找人确认',
+  '找人',
+  '帮我找人',
+  '陪同',
+];

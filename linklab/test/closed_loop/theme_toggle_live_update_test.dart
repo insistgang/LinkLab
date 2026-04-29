@@ -1,4 +1,6 @@
 @Tags(['demo', 'closed-loop'])
+library;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -17,6 +19,13 @@ void main() {
       return tester.widget<Text>(titleFinder).style?.color;
     }
 
+    expect(AppSessionService.instance.isDayStageMode, isTrue);
+    expect(readTitleColor(), const Color(0xFF071006));
+    expect(find.bySemanticsLabel('切换到深夜模式').first, findsOneWidget);
+
+    await tester.tap(find.bySemanticsLabel('切换到深夜模式').first);
+    await tester.pumpAndSettle();
+
     expect(AppSessionService.instance.isDayStageMode, isFalse);
     expect(readTitleColor(), const Color(0xFFF4F8EC));
     expect(find.bySemanticsLabel('切换到日间模式').first, findsOneWidget);
@@ -25,13 +34,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(AppSessionService.instance.isDayStageMode, isTrue);
-    expect(readTitleColor(), const Color(0xFF1A2514));
-    expect(find.bySemanticsLabel('切换到深夜模式').first, findsOneWidget);
-
-    await tester.tap(find.bySemanticsLabel('切换到深夜模式').first);
-    await tester.pumpAndSettle();
-
-    expect(AppSessionService.instance.isDayStageMode, isFalse);
-    expect(readTitleColor(), const Color(0xFFF4F8EC));
+    expect(readTitleColor(), const Color(0xFF071006));
   });
 }

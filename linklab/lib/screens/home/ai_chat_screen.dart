@@ -272,12 +272,12 @@ class _HeroCard extends StatelessWidget {
               icon: const Icon(Icons.volunteer_activism_outlined),
               label: const Text('复杂问题直接连接志愿者'),
               style: OutlinedButton.styleFrom(
-                foregroundColor: AppTheme.textOnPrimary,
+                foregroundColor: AppTheme.stageTextPrimary,
                 side: BorderSide(
-                  color: AppTheme.stageTextPrimary.withValues(alpha: 0.22),
+                  color: AppTheme.stageBorder.withValues(alpha: 0.82),
                   width: 1.5,
                 ),
-                backgroundColor: AppTheme.stageSurface,
+                backgroundColor: AppTheme.stageSurfaceStrong,
                 minimumSize: const Size(double.infinity, 56),
               ),
             ),

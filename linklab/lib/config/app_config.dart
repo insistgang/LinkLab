@@ -19,6 +19,7 @@ class AppConfig {
 
   // 当前运行模式
   static AppMode _mode = AppMode.demo;
+  static bool _presenterMode = false;
 
   /// 获取当前模式
   static AppMode get mode => _mode;
@@ -37,6 +38,34 @@ class AppConfig {
 
   /// 是否为真实模式
   static bool get isRealMode => !demoMode;
+
+  /// 是否启用竞赛演示员预置会话。
+  /// 默认关闭，仅由竞赛入口显式开启，避免污染测试和开发流。
+  static bool get presenterMode => _presenterMode;
+
+  /// 竞赛 Demo 默认配置。
+  /// 主入口与需要演示员直达首页的测试应调用此方法，避免散落的入口遗漏
+  /// demo mode / presenter mode 任一开关。
+  static void configureCompetitionDemoDefaults({
+    bool enablePresenterSession = true,
+  }) {
+    lockCompetitionDemoMode();
+    if (enablePresenterSession) {
+      enablePresenterMode();
+    } else {
+      disablePresenterMode();
+    }
+  }
+
+  static void enablePresenterMode() {
+    _presenterMode = true;
+    AppLogger.info('竞赛演示员预置会话已启用');
+  }
+
+  static void disablePresenterMode() {
+    _presenterMode = false;
+    AppLogger.info('竞赛演示员预置会话已关闭');
+  }
 
   /// 竞赛版启动入口
   static void lockCompetitionDemoMode() {
@@ -104,25 +133,61 @@ class AppConfig {
 /// 功能开关配置
 class FeatureFlags {
   /// WebRTC通话
-  static bool get enableWebRTC => AppConfig.isRealMode;
+  static bool get enableWebRTC =>
+      !AppConfig.isCompetitionDemoOnly && AppConfig.isRealMode;
 
   /// 真实匹配引擎
-  static bool get enableRealMatching => AppConfig.isRealMode;
+  static bool get enableRealMatching =>
+      !AppConfig.isCompetitionDemoOnly && AppConfig.isRealMode;
 
   /// 推送通知
-  static bool get enablePushNotification => AppConfig.isRealMode;
+  static bool get enablePushNotification =>
+      !AppConfig.isCompetitionDemoOnly && AppConfig.isRealMode;
 
   /// 真实AI API调用
-  static bool get enableRealAI => AppConfig.isRealMode;
+  static bool get enableRealAI =>
+      !AppConfig.isCompetitionDemoOnly && AppConfig.isRealMode;
 
   /// 数据库同步
-  static bool get enableDatabaseSync => AppConfig.isRealMode;
+  static bool get enableDatabaseSync =>
+      !AppConfig.isCompetitionDemoOnly && AppConfig.isRealMode;
 
   /// 位置服务
-  static bool get enableLocationService => AppConfig.isRealMode;
+  static bool get enableLocationService =>
+      !AppConfig.isCompetitionDemoOnly && AppConfig.isRealMode;
 
   /// SOS真实短信
-  static bool get enableRealSMS => AppConfig.isRealMode;
+  static bool get enableRealSMS =>
+      !AppConfig.isCompetitionDemoOnly && AppConfig.isRealMode;
+
+  /// 交互式社群 / 社区入口
+  static bool get enableCommunity =>
+      !AppConfig.isCompetitionDemoOnly && AppConfig.isRealMode;
+
+  /// 首页精选故事卡片。AGENTS.md 允许静态故事作为降级展示，
+  /// 但当前竞赛默认首页只服务 6 项 MVP，所以默认不加载社区故事服务。
+  static bool get enableStaticStoryCards =>
+      !AppConfig.isCompetitionDemoOnly && AppConfig.demoMode;
+
+  /// 安心积分
+  static bool get enablePoints =>
+      !AppConfig.isCompetitionDemoOnly && AppConfig.isRealMode;
+
+  /// 徽章
+  static bool get enableBadges =>
+      !AppConfig.isCompetitionDemoOnly && AppConfig.isRealMode;
+
+  /// 排班
+  static bool get enableSchedule =>
+      !AppConfig.isCompetitionDemoOnly && AppConfig.isRealMode;
+
+  /// 后台入口
+  static bool get enableAdminDashboard =>
+      !AppConfig.isCompetitionDemoOnly && AppConfig.isRealMode;
+
+  /// 通话录音
+  static bool get enableCallRecording =>
+      !AppConfig.isCompetitionDemoOnly && AppConfig.isRealMode;
 }
 
 /// 演示模式配置

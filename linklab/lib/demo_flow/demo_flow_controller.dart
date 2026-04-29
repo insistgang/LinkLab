@@ -52,12 +52,15 @@ class DemoFlowController extends ChangeNotifier {
   }
 
   /// 直接开始SOS流程
-  void startSOSFlow() {
+  void startSOSFlow({bool autoStartUndoWindow = false}) {
     _currentStep = DemoFlowStep.sos;
     notifyListeners();
 
     if (_context != null) {
-      pushDemoStageRoute(_context!, page: const DemoSOSScreen());
+      pushDemoStageRoute(
+        _context!,
+        page: DemoSOSScreen(autoStartUndoWindow: autoStartUndoWindow),
+      );
     }
   }
 
@@ -94,9 +97,12 @@ class DemoFlowNavigator {
   }
 
   /// SOS按钮点击 → SOS页面
-  static void onSOSButtonPressed(BuildContext context) {
+  static void onSOSButtonPressed(
+    BuildContext context, {
+    bool autoStartUndoWindow = false,
+  }) {
     DemoFlowController().setContext(context);
-    DemoFlowController().startSOSFlow();
+    DemoFlowController().startSOSFlow(autoStartUndoWindow: autoStartUndoWindow);
   }
 
   /// AI对话中触发匹配 → 匹配等待

@@ -58,16 +58,9 @@ class DemoStageScaffold extends StatelessWidget {
                           children: [
                             const _DemoStageStatusStrip(),
                             const SizedBox(height: AppTheme.spacingM),
-                            Container(
-                              padding: const EdgeInsets.all(AppTheme.spacingM),
-                              decoration: AppTheme.stageCardDecoration(
-                                color: AppTheme.stageSurfaceStrong.withValues(
-                                  alpha: 0.88,
-                                ),
-                                borderRadius: BorderRadius.circular(26),
-                                borderColor: AppTheme.stageBorder.withValues(
-                                  alpha: 0.44,
-                                ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppTheme.spacingXS,
                               ),
                               child: _DemoStageHeader(
                                 title: title,
@@ -211,28 +204,39 @@ class DemoPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final effectiveColor = color ?? AppTheme.stageAccent;
+    final filled = backgroundColor == null;
+    final foregroundColor = filled
+        ? effectiveColor.computeLuminance() > 0.55
+              ? AppTheme.stageTextPrimary
+              : Colors.white
+        : effectiveColor;
+
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppTheme.spacingM,
         vertical: AppTheme.spacingS,
       ),
       decoration: BoxDecoration(
-        color: backgroundColor ?? effectiveColor.withValues(alpha: 0.14),
+        color: backgroundColor ?? effectiveColor,
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: effectiveColor.withValues(alpha: 0.32)),
+        border: Border.all(
+          color: filled
+              ? Colors.white.withValues(alpha: 0.44)
+              : effectiveColor.withValues(alpha: 0.32),
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(icon, size: 16, color: effectiveColor),
+            Icon(icon, size: 16, color: foregroundColor),
             const SizedBox(width: AppTheme.spacingXS),
           ],
           AccessibleText(
             label,
             style: TextStyle(
               fontSize: AppTheme.fontSizeSmall,
-              color: effectiveColor,
+              color: foregroundColor,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -448,24 +452,23 @@ class _DemoStageHeader extends StatelessWidget {
                 width: AppTheme.minTouchTarget + 8,
                 height: AppTheme.minTouchTarget + 8,
                 decoration: BoxDecoration(
-                  color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.92),
-                  borderRadius: BorderRadius.circular(
-                    AppTheme.borderRadiusLarge,
-                  ),
+                  gradient: AppTheme.stageAccentGradient,
+                  shape: BoxShape.circle,
                   border: Border.all(
-                    color: AppTheme.stageBorder.withValues(alpha: 0.78),
+                    color: Colors.white.withValues(alpha: 0.56),
                   ),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.arrow_back_rounded,
-                  color: AppTheme.stageTextPrimary,
+                  color: Colors.white,
                 ),
               ),
             ),
           )
-        else
+        else if (showBackButton)
           const SizedBox(width: AppTheme.minTouchTarget + 8),
-        const SizedBox(width: AppTheme.spacingM),
+        if (showBackButton && Navigator.of(context).canPop())
+          const SizedBox(width: AppTheme.spacingM),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.only(top: AppTheme.spacingXS),
@@ -486,7 +489,7 @@ class _DemoStageHeader extends StatelessWidget {
                   width: 46,
                   height: 4,
                   decoration: BoxDecoration(
-                    gradient: AppTheme.stageAccentGradient,
+                    color: AppTheme.stageAccent,
                     borderRadius: BorderRadius.circular(999),
                   ),
                 ),
@@ -524,7 +527,7 @@ class _DemoStageStatusStrip extends StatelessWidget {
       child: Row(
         children: [
           AccessibleText(
-            '09:41',
+            '13:31',
             style: TextStyle(
               color: AppTheme.stageTextPrimary,
               fontSize: AppTheme.fontSizeSmall,
@@ -533,49 +536,18 @@ class _DemoStageStatusStrip extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          _StatusChip(label: 'Demo 主线', dotColor: AppTheme.stageAccent),
-          const SizedBox(width: AppTheme.spacingS),
-          _StatusChip(label: '无障碍已就绪', dotColor: AppTheme.stageSuccess),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatusChip extends StatelessWidget {
-  const _StatusChip({required this.label, required this.dotColor});
-
-  final String label;
-  final Color dotColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppTheme.spacingS,
-        vertical: 6,
-      ),
-      decoration: BoxDecoration(
-        color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.8),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: AppTheme.stageBorder.withValues(alpha: 0.42)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
+          Icon(
+            Icons.signal_cellular_alt_rounded,
+            size: 18,
+            color: AppTheme.stageTextPrimary,
           ),
-          const SizedBox(width: AppTheme.spacingXS),
-          AccessibleText(
-            label,
-            style: TextStyle(
-              color: AppTheme.stageTextSecondary,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-            ),
+          const SizedBox(width: 4),
+          Icon(Icons.wifi_rounded, size: 18, color: AppTheme.stageTextPrimary),
+          const SizedBox(width: 4),
+          Icon(
+            Icons.battery_full_rounded,
+            size: 20,
+            color: AppTheme.stageTextPrimary,
           ),
         ],
       ),
@@ -804,13 +776,11 @@ class _ThemeModeButton extends StatelessWidget {
               width: AppTheme.minTouchTarget + 8,
               height: AppTheme.minTouchTarget + 8,
               decoration: BoxDecoration(
-                color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.92),
-                borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
-                border: Border.all(
-                  color: AppTheme.stageBorder.withValues(alpha: 0.78),
-                ),
+                gradient: AppTheme.stageAccentGradient,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white.withValues(alpha: 0.56)),
               ),
-              child: Icon(icon, color: AppTheme.stageAccent),
+              child: Icon(icon, color: Colors.white),
             ),
           ),
         );

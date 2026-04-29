@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/app_config.dart';
 import '../../core/theme/app_theme.dart';
-import '../../services/app_session_service.dart';
+import '../../providers/app_session_provider.dart';
 import '../../widgets/demo/demo_motion.dart';
 import 'home_screen.dart';
 import 'ai_chat_screen.dart';
 import 'profile_screen.dart';
 
 /// 主页面（带底部导航）
-class MainScreen extends StatefulWidget {
+class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  ConsumerState<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends ConsumerState<MainScreen> {
   int _currentIndex = 0;
 
   // AGENTS.md: 竞赛版默认导航只保留 MVP 主线入口。
@@ -49,94 +50,88 @@ class _MainScreenState extends State<MainScreen> {
       'AGENTS.md §4.2：竞赛版默认底部导航只允许暴露 Demo 主线入口',
     );
 
-    return AnimatedBuilder(
-      animation: AppSessionService.instance,
-      builder: (context, _) {
-        final session = AppSessionService.instance;
-        return KeyedSubtree(
-          key: ValueKey(session.stageMode),
-          child: Scaffold(
-            backgroundColor: AppTheme.stageBackground,
-            body: Stack(
-              fit: StackFit.expand,
-              children: List.generate(_screens.length, (index) {
-                final isActive = index == _currentIndex;
-                final isBeforeActive = index < _currentIndex;
+    final session = ref.watch(appSessionProvider);
 
-                return IgnorePointer(
-                  ignoring: !isActive,
-                  child: AnimatedSlide(
-                    duration: const Duration(milliseconds: 280),
-                    curve: Curves.easeOutCubic,
-                    offset: isActive
-                        ? Offset.zero
-                        : Offset(isBeforeActive ? -0.02 : 0.02, 0),
-                    child: AnimatedOpacity(
-                      duration: const Duration(milliseconds: 220),
+    return KeyedSubtree(
+      key: ValueKey(session.stageMode),
+      child: Scaffold(
+        backgroundColor: AppTheme.stageBackground,
+        body: Stack(
+          fit: StackFit.expand,
+          children: List.generate(_screens.length, (index) {
+            final isActive = index == _currentIndex;
+            final isBeforeActive = index < _currentIndex;
+
+            return IgnorePointer(
+              ignoring: !isActive,
+              child: AnimatedSlide(
+                duration: const Duration(milliseconds: 280),
+                curve: Curves.easeOutCubic,
+                offset: isActive
+                    ? Offset.zero
+                    : Offset(isBeforeActive ? -0.02 : 0.02, 0),
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeOutCubic,
+                  opacity: isActive ? 1 : 0,
+                  child: KeyedSubtree(
+                    key: ValueKey('main-tab-$index'),
+                    child: _screens[index],
+                  ),
+                ),
+              ),
+            );
+          }),
+        ),
+        bottomNavigationBar: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            child: Semantics(
+              label: '底部导航栏',
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: AppTheme.stageCardDecoration(
+                  color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.94),
+                  borderRadius: BorderRadius.circular(28),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AnimatedAlign(
+                      duration: const Duration(milliseconds: 240),
                       curve: Curves.easeOutCubic,
-                      opacity: isActive ? 1 : 0,
-                      child: KeyedSubtree(
-                        key: ValueKey('main-tab-$index'),
-                        child: _screens[index],
+                      alignment: _navIndicatorAlignment(),
+                      child: Container(
+                        width: 44,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          gradient: AppTheme.stageAccentGradient,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
                       ),
                     ),
-                  ),
-                );
-              }),
-            ),
-            bottomNavigationBar: SafeArea(
-              top: false,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                child: Semantics(
-                  label: '底部导航栏',
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: AppTheme.stageCardDecoration(
-                      color: AppTheme.stageSurfaceStrong.withValues(
-                        alpha: 0.94,
-                      ),
-                      borderRadius: BorderRadius.circular(28),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        AnimatedAlign(
-                          duration: const Duration(milliseconds: 240),
-                          curve: Curves.easeOutCubic,
-                          alignment: _navIndicatorAlignment(),
-                          child: Container(
-                            width: 44,
-                            height: 4,
-                            decoration: BoxDecoration(
-                              gradient: AppTheme.stageAccentGradient,
-                              borderRadius: BorderRadius.circular(999),
-                            ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: List.generate(_navItems.length, (index) {
+                        final item = _navItems[index];
+                        final isActive = index == _currentIndex;
+                        return Expanded(
+                          child: _DemoNavButton(
+                            item: item,
+                            isActive: isActive,
+                            onTap: () => _onTabTapped(index),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: List.generate(_navItems.length, (index) {
-                            final item = _navItems[index];
-                            final isActive = index == _currentIndex;
-                            return Expanded(
-                              child: _DemoNavButton(
-                                item: item,
-                                isActive: isActive,
-                                onTap: () => _onTabTapped(index),
-                              ),
-                            );
-                          }),
-                        ),
-                      ],
+                        );
+                      }),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -221,7 +216,7 @@ class _DemoNavButton extends StatelessWidget {
                   child: Icon(
                     isActive ? item.activeIcon : item.icon,
                     color: isActive
-                        ? AppTheme.stageBackground
+                        ? Colors.white
                         : AppTheme.stageTextSecondary,
                   ),
                 ),
@@ -230,7 +225,7 @@ class _DemoNavButton extends StatelessWidget {
                   item.label,
                   style: TextStyle(
                     color: isActive
-                        ? AppTheme.stageBackground
+                        ? Colors.white
                         : AppTheme.stageTextSecondary,
                     fontSize: 12,
                     fontWeight: FontWeight.w700,

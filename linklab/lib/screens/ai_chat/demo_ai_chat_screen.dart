@@ -1,11 +1,14 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../demo_flow/demo_flow_controller.dart';
-import '../../demo_flow/demo_help_request_tracker.dart';
+import '../../models/help_request_status.dart';
+import '../../providers/demo_help_request_flow_provider.dart';
+import '../../providers/demo_services_provider.dart';
 import '../../services/demo/demo_ai_service.dart';
 import '../../widgets/accessible/index.dart';
 import '../../widgets/demo/demo_motion.dart';
@@ -14,7 +17,7 @@ import '../../widgets/demo/demo_stage.dart';
 
 /// 演示版 AI 对话页面
 /// 支持文字、图片、语音预填充，以及转人工与 SOS 演示衔接。
-class DemoAIChatScreen extends StatefulWidget {
+class DemoAIChatScreen extends ConsumerStatefulWidget {
   const DemoAIChatScreen({
     super.key,
     this.title = 'AI助手',
@@ -31,14 +34,14 @@ class DemoAIChatScreen extends StatefulWidget {
   final bool autoSendInitialPrompt;
 
   @override
-  State<DemoAIChatScreen> createState() => _DemoAIChatScreenState();
+  ConsumerState<DemoAIChatScreen> createState() => _DemoAIChatScreenState();
 }
 
-class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
+class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
   final List<ChatMessage> _messages = [];
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final DemoAIService _aiService = DemoAIService();
+  late final DemoAIService _aiService;
 
   bool _isProcessing = false;
   Uint8List? _selectedImageBytes;
@@ -47,6 +50,7 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
   @override
   void initState() {
     super.initState();
+    _aiService = ref.read(demoAIServiceProvider);
     _addBotMessage(widget.introMessage ?? _defaultIntroMessage);
 
     if (widget.initialPrompt != null && widget.autoSendInitialPrompt) {
@@ -65,7 +69,7 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
   }
 
   String get _defaultIntroMessage =>
-      '您好！我是 AI 助手“智动”。\n\n我可以帮您：\n• 识别文字和说明书\n• 描述周围环境\n• 分辨衣物或物品颜色\n• 判断是否需要转接志愿者\n\n您可以直接输入问题，或点击下方相机、语音按钮开始。';
+      '您好！我是 AI 助手“智动”。\n\n我可以帮您：\n• 读文字、说明书、路牌和通知单\n• 描述场景、环境和颜色\n• 模拟面额识别、翻译转译和找路提示\n• 检测紧急词并进入 SOS Mock\n\n不确定时，每个回答都可以转接志愿者。';
 
   void _addUserMessage(
     String text, {
@@ -148,10 +152,17 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
       _isProcessing = true;
     });
 
-    await DemoHelpRequestTracker.startAIProcessing(intent: input);
-    _addBotMessage('思考中...');
+    await ref
+        .read(demoHelpRequestFlowProvider.notifier)
+        .startAiProcessing(intent: input);
+    final history = _buildAIHistory();
+    _addBotMessage('AI 正在分析...');
 
-    final result = await _aiService.process(input, imagePath: imagePath);
+    final result = await _aiService.process(
+      input,
+      imagePath: imagePath,
+      history: history,
+    );
 
     if (!mounted) return;
 
@@ -163,16 +174,20 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
       _addBotMessage(result.text, data: result.data);
 
       if (_isEmergencyResult(result)) {
-        _showEmergencyAssistOption();
+        _startSOSFlowFromAI();
       } else if (_shouldTransferToHuman(result)) {
         _showTransferToHumanOption();
       }
       if (!_isEmergencyResult(result) && !_shouldTransferToHuman(result)) {
-        await DemoHelpRequestTracker.markAIResolved(summary: result.text);
+        await ref
+            .read(demoHelpRequestFlowProvider.notifier)
+            .resolveByAI(summary: result.text);
       }
     } else {
       _addBotMessage('抱歉，处理出错了：${result.error}');
-      await DemoHelpRequestTracker.markCancelled(reason: result.error);
+      await ref
+          .read(demoHelpRequestFlowProvider.notifier)
+          .markCancelled(reason: result.error);
     }
 
     if (!mounted) return;
@@ -182,11 +197,9 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
   }
 
   bool _shouldTransferToHuman(AIResult result) {
-    final text = result.text.toLowerCase();
-    return text.contains('无法') ||
-        text.contains('不清楚') ||
-        text.contains('志愿者') ||
-        result.data?['intent'] == 'need_human';
+    return result.data?['requiresHumanFallback'] == true ||
+        result.data?['intent'] == 'need_human' ||
+        result.data?['nextStatus'] == 'matching';
   }
 
   bool _isEmergencyResult(AIResult result) {
@@ -203,7 +216,12 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
         description: 'AI 可能无法完全解决您的问题。是否现在为您连接志愿者？',
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () async {
+              Navigator.pop(context);
+              await ref
+                  .read(demoHelpRequestFlowProvider.notifier)
+                  .markCancelled(reason: '用户选择继续 AI 对话');
+            },
             child: Text(
               '继续 AI 对话',
               style: TextStyle(color: AppTheme.stageTextSecondary),
@@ -225,39 +243,14 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
     );
   }
 
-  void _showEmergencyAssistOption() {
-    showDemoStageDialog<void>(
-      context,
-      builder: (context) => DemoDialog(
-        title: '检测到紧急情况',
-        icon: Icons.warning_amber_rounded,
-        accentColor: AppTheme.stageDanger,
-        description: '是否立即发起 SOS 广播，并同步通知志愿者与紧急联系人？',
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              '暂不发起',
-              style: TextStyle(color: AppTheme.stageTextSecondary),
-            ),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.stageDanger,
-              foregroundColor: AppTheme.stageTextPrimary,
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-              DemoFlowNavigator.onSOSButtonPressed(context);
-            },
-            child: const Text('发起 SOS'),
-          ),
-        ],
-      ),
-    );
+  void _startSOSFlowFromAI() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      DemoFlowNavigator.onSOSButtonPressed(context, autoStartUndoWindow: true);
+    });
   }
 
-  void _startMatchingFlow() {
+  Future<void> _startMatchingFlow() async {
     final lastUserMessage = _messages.lastWhere(
       (message) => message.isUser,
       orElse: () => ChatMessage(
@@ -266,11 +259,32 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
         timestamp: DateTime.now(),
       ),
     );
-    DemoHelpRequestTracker.ensureMatchingRequest(
-      intent: lastUserMessage.text,
-      type: 'realtime_voice',
-    );
+    final flowState = ref.read(demoHelpRequestFlowProvider);
+    if (flowState.status.isTerminal ||
+        flowState.status == HelpRequestStatus.cancelled ||
+        flowState.status == HelpRequestStatus.expired) {
+      ref.read(demoHelpRequestFlowProvider.notifier).reset();
+    }
+    await ref
+        .read(demoHelpRequestFlowProvider.notifier)
+        .enterMatching(
+          intent: '连接真人志愿者：${lastUserMessage.text}',
+          type: 'realtime_voice',
+        );
+    if (!mounted) return;
     DemoFlowNavigator.onAIRequestMatching(context);
+  }
+
+  List<Map<String, String>> _buildAIHistory() {
+    return _messages
+        .where((message) => message.text.trim().isNotEmpty)
+        .map(
+          (message) => {
+            'role': message.isUser ? 'user' : 'assistant',
+            'content': message.text,
+          },
+        )
+        .toList(growable: false);
   }
 
   Future<void> _pickImage(ImageSource source) async {
@@ -463,6 +477,7 @@ class _DemoAIChatScreenState extends State<DemoAIChatScreen> {
                     return _ChatMessageBubble(
                       message: _messages[index],
                       onTransferToHuman: _startMatchingFlow,
+                      onStartSOS: _startSOSFlowFromAI,
                     );
                   },
                 ),
@@ -612,16 +627,32 @@ class _ChatMessageBubble extends StatelessWidget {
   const _ChatMessageBubble({
     required this.message,
     required this.onTransferToHuman,
+    required this.onStartSOS,
   });
 
   final ChatMessage message;
   final VoidCallback onTransferToHuman;
+  final VoidCallback onStartSOS;
+
+  bool get _isFinalBotResult {
+    return !message.isUser &&
+        message.data != null &&
+        !message.text.contains('AI 正在分析');
+  }
+
+  bool get _isEmergencyResult {
+    return message.data?['isEmergency'] == true ||
+        message.data?['action'] == 'sos_triggered';
+  }
 
   bool get _showTransferAction {
-    return !message.isUser &&
-        (message.text.contains('无法') ||
-            message.text.contains('志愿者') ||
-            message.text.contains('真人'));
+    return _isFinalBotResult &&
+        !_isEmergencyResult &&
+        message.data?['canTransferToHuman'] != false;
+  }
+
+  bool get _showSOSAction {
+    return _isFinalBotResult && _isEmergencyResult;
   }
 
   @override
@@ -697,7 +728,7 @@ class _ChatMessageBubble extends StatelessWidget {
                         ),
                       ),
                     ),
-                  if (!message.isUser && !message.text.contains('思考中')) ...[
+                  if (!message.isUser && !message.text.contains('AI 正在分析')) ...[
                     const SizedBox(height: AppTheme.spacingXS),
                     Row(
                       mainAxisSize: MainAxisSize.min,
@@ -717,6 +748,14 @@ class _ChatMessageBubble extends StatelessWidget {
                             child: Text(
                               '转人工',
                               style: TextStyle(color: AppTheme.stageAccent),
+                            ),
+                          ),
+                        if (_showSOSAction)
+                          TextButton(
+                            onPressed: onStartSOS,
+                            child: Text(
+                              '进入 SOS',
+                              style: TextStyle(color: AppTheme.stageDanger),
                             ),
                           ),
                       ],

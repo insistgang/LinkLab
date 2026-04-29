@@ -6,11 +6,9 @@ import '../../core/theme/app_theme.dart';
 import '../../core/utils/extensions.dart';
 import '../../demo_flow/demo_flow_controller.dart';
 import '../../demo_flow/demo_matching_flow.dart';
-import '../../models/community_models.dart';
 import '../../models/help_request_model.dart';
 import '../../models/user_model.dart';
 import '../../services/app_session_service.dart';
-import '../../services/community/featured_story_service.dart';
 import '../../services/security/emergency_contact_service.dart';
 import '../../services/security/safety_settings_service.dart';
 import '../../services/user_center/help_archive_service.dart';
@@ -20,8 +18,7 @@ import '../../widgets/demo/demo_overlays.dart';
 import '../../widgets/demo/demo_routes.dart';
 import '../../widgets/demo/demo_stage.dart';
 import '../ai_chat/demo_ai_chat_screen.dart';
-import '../community/story_detail_screen.dart';
-import '../user_center/seeker_center_screen.dart';
+import '../demo/demo_help_archive_screen.dart';
 
 /// 首页
 class HomeScreen extends StatefulWidget {
@@ -32,14 +29,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final FeaturedStoryService _storyService = FeaturedStoryService();
   final HelpArchiveService _helpArchiveService = HelpArchiveService();
   final SafetySettingsService _safetySettingsService = SafetySettingsService();
   final EmergencyContactService _emergencyContactService =
       EmergencyContactService();
 
   List<HelpRequestModel> _recentHistory = const [];
-  List<FeaturedStory> _featuredStories = const [];
   SafetySettings _safetySettings = const SafetySettings();
   int _emergencyContactCount = 0;
   bool _isLoading = true;
@@ -56,7 +51,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadContent() async {
     final results = await Future.wait<dynamic>([
       _helpArchiveService.getHelpHistory(_currentUserId, limit: 3),
-      _storyService.getDailyFeatured(limit: 2),
       _safetySettingsService.getSettings(_currentUserId),
       _emergencyContactService.getContactCount(_currentUserId),
     ]);
@@ -64,9 +58,8 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!mounted) return;
     setState(() {
       _recentHistory = results[0] as List<HelpRequestModel>;
-      _featuredStories = results[1] as List<FeaturedStory>;
-      _safetySettings = results[2] as SafetySettings;
-      _emergencyContactCount = results[3] as int;
+      _safetySettings = results[1] as SafetySettings;
+      _emergencyContactCount = results[2] as int;
       _isLoading = false;
     });
   }
@@ -270,7 +263,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     onPressed: () {
                       pushDemoStageRoute(
                         context,
-                        page: const SeekerCenterScreen(),
+                        page: const DemoHelpArchiveScreen(),
                       );
                     },
                     child: Text(
@@ -302,58 +295,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTap: () {
                           pushDemoStageRoute(
                             context,
-                            page: const SeekerCenterScreen(),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                const SizedBox(height: AppTheme.spacingXL),
-                DemoSectionTitle(
-                  title: '每日精选故事',
-                  subtitle: '社群已降级为静态精选故事，不进入独立交互主线。',
-                  trailing: TextButton(
-                    onPressed: _loadContent,
-                    child: Text(
-                      '刷新内容',
-                      style: TextStyle(color: AppTheme.stageAccent),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: AppTheme.spacingM),
-                if (_featuredStories.isEmpty && !_isLoading)
-                  DemoSurfaceCard(
-                    child: Row(
-                      children: [
-                        const DemoGlassIconBadge(
-                          icon: Icons.auto_stories_outlined,
-                          size: 44,
-                          iconSize: 20,
-                          shape: DemoGlassIconShape.circle,
-                        ),
-                        const SizedBox(width: AppTheme.spacingM),
-                        Expanded(
-                          child: AccessibleText(
-                            '社区故事正在准备中，稍后会自动展示。',
-                            style: TextStyle(
-                              color: AppTheme.stageTextSecondary,
-                              fontSize: AppTheme.fontSizeNormal,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                else
-                  ..._featuredStories.map(
-                    (story) => Padding(
-                      padding: const EdgeInsets.only(bottom: AppTheme.spacingM),
-                      child: _FeaturedStoryPreview(
-                        story: story,
-                        onTap: () {
-                          pushDemoStageRoute(
-                            context,
-                            page: StoryDetailScreen(story: story),
+                            page: const DemoHelpArchiveScreen(),
                           );
                         },
                       ),
@@ -519,43 +461,76 @@ class _HeroPanel extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppTheme.spacingL),
-          Container(
-            padding: const EdgeInsets.all(AppTheme.spacingM),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.06),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _HeroMetric(
-                    label: 'Demo 主线',
-                    value: '100% 可跑通',
-                    color: AppTheme.stageAccentLight,
+          Center(
+            child: Semantics(
+              button: true,
+              label: '我需要帮助按钮，进入AI对话',
+              hint: '双击进入AI助手对话界面',
+              child: InkWell(
+                onTap: onHelpPressed,
+                customBorder: const CircleBorder(),
+                child: Ink(
+                  width: 210,
+                  height: 210,
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.stageAccentGradient,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.62),
+                      width: 2,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.stageAccent.withValues(alpha: 0.34),
+                        blurRadius: 28,
+                        offset: const Offset(0, 16),
+                      ),
+                    ],
+                  ),
+                  child: const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.touch_app_rounded,
+                        color: Colors.white,
+                        size: 42,
+                      ),
+                      SizedBox(height: AppTheme.spacingM),
+                      AccessibleText(
+                        '我需要帮助',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w800,
+                          height: 1.15,
+                        ),
+                      ),
+                      SizedBox(height: AppTheme.spacingS),
+                      Text(
+                        'AI 先处理',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: AppTheme.fontSizeSmall,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: AppTheme.spacingM),
-                Expanded(
-                  child: _HeroMetric(
-                    label: '无障碍',
-                    value: '语义 + 高对比',
-                    color: AppTheme.stageSuccess,
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
-          const SizedBox(height: AppTheme.spacingL),
-          AccessibleButton(
-            label: '我需要帮助',
-            semanticLabel: '我需要帮助按钮，进入AI对话',
-            hint: '双击进入AI助手对话界面',
-            height: 84,
-            icon: Icons.arrow_outward_rounded,
-            backgroundColor: AppTheme.stageAccent,
-            foregroundColor: AppTheme.stageBackground,
-            onPressed: onHelpPressed,
+          const SizedBox(height: AppTheme.spacingS),
+          Center(
+            child: AccessibleText(
+              '点击启动求助',
+              style: TextStyle(
+                color: AppTheme.stageTextSecondary,
+                fontSize: AppTheme.fontSizeSmall,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ),
           const SizedBox(height: AppTheme.spacingM),
           Row(
@@ -566,9 +541,10 @@ class _HeroPanel extends StatelessWidget {
                   icon: const Icon(Icons.volunteer_activism_outlined),
                   label: const Text('直接匹配志愿者'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AppTheme.stageTextPrimary,
+                    foregroundColor: Colors.white,
+                    backgroundColor: AppTheme.stageAccent,
                     side: BorderSide(
-                      color: Colors.white.withValues(alpha: 0.22),
+                      color: Colors.white.withValues(alpha: 0.5),
                     ),
                     minimumSize: const Size(double.infinity, 56),
                     shape: RoundedRectangleBorder(
@@ -606,44 +582,6 @@ class _HeroPanel extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _HeroMetric extends StatelessWidget {
-  const _HeroMetric({
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  final String label;
-  final String value;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AccessibleText(
-          label,
-          style: TextStyle(
-            color: color,
-            fontSize: AppTheme.fontSizeSmall,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        const SizedBox(height: AppTheme.spacingXS),
-        AccessibleText(
-          value,
-          style: TextStyle(
-            color: AppTheme.stageTextPrimary,
-            fontSize: AppTheme.fontSizeNormal,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ],
     );
   }
 }
@@ -969,107 +907,6 @@ class _HelpHistoryItem extends StatelessWidget {
       default:
         return AppTheme.stageAccent;
     }
-  }
-}
-
-class _FeaturedStoryPreview extends StatelessWidget {
-  const _FeaturedStoryPreview({required this.story, required this.onTap});
-
-  final FeaturedStory story;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return DemoSurfaceCard(
-      semanticLabel: '精选故事 ${story.title}',
-      hint: '双击查看故事详情',
-      onTap: onTap,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const DemoGlassIconBadge(
-                icon: Icons.auto_stories_outlined,
-                size: 52,
-                iconSize: 24,
-              ),
-              const SizedBox(width: AppTheme.spacingM),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AccessibleText(
-                      story.title,
-                      style: TextStyle(
-                        color: AppTheme.stageTextPrimary,
-                        fontSize: AppTheme.fontSizeLarge,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: AppTheme.spacingXS),
-                    AccessibleText(
-                      '${story.authorType == 'anonymous' ? '匿名用户' : (story.authorName ?? '社区用户')} · ${story.createdAt?.toDateString() ?? '今天'}',
-                      style: TextStyle(
-                        color: AppTheme.stageTextSecondary,
-                        fontSize: AppTheme.fontSizeSmall,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppTheme.spacingM),
-          AccessibleText(
-            (story.summary ?? story.content).truncate(72),
-            style: TextStyle(
-              color: AppTheme.stageTextSecondary,
-              fontSize: AppTheme.fontSizeNormal,
-              height: 1.6,
-            ),
-          ),
-          const SizedBox(height: AppTheme.spacingM),
-          Row(
-            children: [
-              _StoryMetric(
-                icon: Icons.favorite_border,
-                value: '${story.likeCount}',
-              ),
-              const SizedBox(width: AppTheme.spacingM),
-              _StoryMetric(
-                icon: Icons.remove_red_eye_outlined,
-                value: '${story.readCount}',
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StoryMetric extends StatelessWidget {
-  const _StoryMetric({required this.icon, required this.value});
-
-  final IconData icon;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, size: 18, color: AppTheme.stageTextHint),
-        const SizedBox(width: AppTheme.spacingXS),
-        AccessibleText(
-          value,
-          style: TextStyle(
-            color: AppTheme.stageTextHint,
-            fontSize: AppTheme.fontSizeSmall,
-          ),
-        ),
-      ],
-    );
   }
 }
 

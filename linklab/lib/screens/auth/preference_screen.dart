@@ -31,7 +31,7 @@ class PreferenceScreen extends StatefulWidget {
 }
 
 class _PreferenceScreenState extends State<PreferenceScreen> {
-  DemoStageMode _stageMode = DemoStageMode.night;
+  DemoStageMode _stageMode = DemoStageMode.day;
   bool _highContrastMode = false;
   double _fontScale = 1.0;
   double _voiceSpeed = 1.0;
@@ -118,7 +118,7 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
                     chips: [
                       DemoPill(
                         label: _stageMode == DemoStageMode.day
-                            ? '日间模式'
+                            ? '荧光日间'
                             : '深夜模式',
                         color: _stageMode == DemoStageMode.day
                             ? AppTheme.stageInfo
@@ -144,7 +144,7 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
                     items: [
                       DemoMetricItem(
                         label: '界面',
-                        value: _stageMode == DemoStageMode.day ? '白天' : '深夜',
+                        value: _stageMode == DemoStageMode.day ? '日间' : '深夜',
                         color: _stageMode == DemoStageMode.day
                             ? AppTheme.stageInfo
                             : AppTheme.stageAccent,
@@ -284,7 +284,7 @@ class _StageModeCard extends StatelessWidget {
           ),
           const SizedBox(height: AppTheme.spacingXS),
           AccessibleText(
-            '白天模式更适合明亮环境，深夜模式保留当前黑底荧光绿演示风格。',
+            '日间模式采用页面稿的荧光渐变与紫色主按钮；深夜模式适合低光环境。',
             style: TextStyle(
               color: AppTheme.stageTextSecondary,
               fontSize: AppTheme.fontSizeSmall,
@@ -297,7 +297,7 @@ class _StageModeCard extends StatelessWidget {
               Expanded(
                 child: _StageModeOptionButton(
                   icon: Icons.light_mode_outlined,
-                  label: '白天',
+                  label: '日间',
                   isSelected: mode == DemoStageMode.day,
                   onTap: () => onModeChanged(DemoStageMode.day),
                 ),

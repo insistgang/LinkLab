@@ -1,6 +1,6 @@
 # AGENTS.md - 共感 LinkAble 工程 Agent 实施准则（竞赛 MVP 优化版 v2026.04）
 
-> 适用范围：`E:\vscode_project\LinkLab` 整个 workspace
+> 适用范围：`E:\project\LinkLab` 整个 workspace
 > 依据文档：`上海工程技术大学_共感LinkAble_企划书 (2).pdf`、原 `AGENTS(5).md`、`共感LinkAble_PRD_v1_2.md`、`项目深度分析报告.md`
 > Agent 定位：竞赛交付工程代理 + 无障碍产品守门人 + Demo 稳定性负责人。
 > 核心目标：把企划书中的「AI Agent × 人类互助网络」落成一个 **3 分钟 100% 可跑通、读屏可用、范围克制** 的 MVP，而不是一次性实现完整愿景。
@@ -38,14 +38,6 @@
   3. 是否不依赖外部不可控服务也能稳定演示？
   4. 是否读屏、动态字体、高对比可用？
   任一答案为「否」，不得作为 P0/P1 推进。
-
-### 1.1 三轮对齐口径
-
-后续所有工程审视和实现必须经过三轮对齐：
-
-1. **产品范围对齐**：企划书愿景先映射到 `F1/F9/F11/F13/F33/F36`，其余内容默认进入 V1.0、静态蓝图或归档。
-2. **主链路对齐**：Flutter 默认启动、首页、AI、匹配、通话、SOS、个人偏好必须只服务 3 分钟 Demo 主线，不让真实 Supabase、真实 WebRTC、社群、积分、后台等非 MVP 模块污染入口。
-3. **验收证据对齐**：每项完成都必须能落到代码入口、可见 UI 状态、Demo fallback、无障碍要求和 `flutter analyze` / `flutter test` / 手动 3 分钟脚本。
 
 ---
 
@@ -251,11 +243,13 @@ stateDiagram-v2
     created --> ai_processing: AI 开始处理
     ai_processing --> ai_resolved: AI 直接解决
     ai_processing --> matching: AI 无法处理 / 转人工
+    ai_processing --> sos_triggered: 紧急意图
     matching --> connected: 志愿者接单（乐观锁）
     matching --> expired: 60s 无人接单
     matching --> cancelled: 用户取消
     connected --> completed: 通话结束
     connected --> matching: 掉线 10s 未恢复，重新分配
+    sos_triggered --> completed: 演示流程完成 / 已通知
     ai_resolved --> [*]
     expired --> [*]
     cancelled --> [*]
@@ -267,7 +261,7 @@ stateDiagram-v2
 | `created` | AI 开始处理 | `ai_processing` | 显示「AI 正在分析」 |
 | `ai_processing` | AI 能处理 | `ai_resolved` | 展示答案、朗读按钮、转人工兜底 |
 | `ai_processing` | AI 低信心 / 无法处理 | `matching` | 进入匹配页，允许取消 |
-| `ai_processing` | 紧急意图 | F13 SOS 内部流程 | 显示 10 秒撤销窗口和后续通知状态；不新增 `help_request` 主状态 |
+| `ai_processing` | 紧急意图 | `sos_triggered` | 显示 10 秒撤销窗口和后续通知状态 |
 | `matching` | 志愿者接单 | `connected` | 只能有 1 个成功接单者 |
 | `matching` | 60s 无人接单 | `expired` | 明确提示「暂未匹配到，可留言或稍后再试」 |
 | `matching` | 用户取消 | `cancelled` | 有取消成功反馈 |
@@ -277,7 +271,6 @@ stateDiagram-v2
 状态机铁律：
 
 - 不允许新增 PRD 未定义的主状态挂到 UI 主链路。
-- SOS 在竞赛 Demo 中由 `F13` 页面内部 phase 承接，可通过 `intent` / `urgency` / `metadata` 记录紧急语义，但不得把 `sos_triggered` 加回 Flutter 主状态机。
 - 所有状态必须能对应 UI 文案、日志、数据表记录。
 - `ai_resolved / completed / cancelled / expired` 是终态。
 
@@ -580,12 +573,11 @@ ai_processing
 ai_resolved
 matching
 connected
+sos_triggered
 completed
 expired
 cancelled
 ```
-
-说明：`emergency` / `SOS` 是意图与流程类型，不是当前 Flutter Demo 的 `help_request` 主状态；竞赛版以 F13 内部 UI phase 展示撤销、广播、联系人通知和完成态。
 
 ### 14.2 `volunteer_profiles`
 

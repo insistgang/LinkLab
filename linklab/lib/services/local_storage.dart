@@ -170,7 +170,7 @@ class LocalStorage {
 
   String getStageThemeMode() {
     _ensureInitialized();
-    return _prefs!.getString(StorageKeys.stageThemeMode) ?? 'night';
+    return _prefs!.getString(StorageKeys.stageThemeMode) ?? 'day';
   }
 
   Future<bool> setStageThemeMode(String value) async {
