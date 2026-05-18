@@ -6,6 +6,7 @@ import '../../widgets/accessible/index.dart';
 import '../../widgets/demo/demo_motion.dart';
 import '../../widgets/demo/demo_routes.dart';
 import '../../widgets/demo/demo_stage.dart';
+import '../../widgets/demo/linkable_icon.dart';
 import '../ai_chat/demo_ai_chat_screen.dart';
 
 /// AI助手主入口
@@ -115,10 +116,11 @@ class AIChatScreen extends StatelessWidget {
                         side: BorderSide(
                           color: AppTheme.stageBorder.withValues(alpha: 0.82),
                         ),
-                        avatar: Icon(
-                          preset.icon,
+                        avatar: LinkableMaterialIcon(
+                          icon: preset.icon,
                           size: 18,
                           color: preset.color,
+                          semanticLabel: preset.label,
                         ),
                         labelStyle: TextStyle(color: AppTheme.stageTextPrimary),
                         label: Text(preset.quickPrompts.first),
@@ -269,7 +271,11 @@ class _HeroCard extends StatelessWidget {
             width: double.infinity,
             child: OutlinedButton.icon(
               onPressed: onConnectVolunteer,
-              icon: const Icon(Icons.volunteer_activism_outlined),
+              icon: const LinkableSvgIcon(
+                icon: LinkableIconName.volunteerMatch,
+                size: 24,
+                semanticLabel: '志愿者匹配',
+              ),
               label: const Text('复杂问题直接连接志愿者'),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppTheme.stageTextPrimary,
@@ -377,7 +383,12 @@ class _CapabilityCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: AppTheme.spacingXS),
-              Icon(Icons.arrow_forward, size: 18, color: preset.color),
+              LinkableMaterialIcon(
+                icon: Icons.arrow_forward,
+                size: 18,
+                color: preset.color,
+                semanticLabel: '进入演示',
+              ),
             ],
           ),
         ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
+import '../demo/linkable_icon.dart';
 
 /// 无障碍Scaffold组件
 /// 提供统一的页面结构和焦点管理
@@ -53,15 +54,20 @@ class AccessibleScaffold extends StatelessWidget {
                   ),
                 ),
               ),
-              leading: leading ??
+              leading:
+                  leading ??
                   (Navigator.canPop(context)
                       ? Semantics(
                           button: true,
                           label: '返回',
                           hint: '双击返回上一页',
                           child: IconButton(
-                            icon: const Icon(Icons.arrow_back),
-                            onPressed: onBackPressed ??
+                            icon: const LinkableMaterialIcon(
+                              icon: Icons.arrow_back,
+                              semanticLabel: '返回',
+                            ),
+                            onPressed:
+                                onBackPressed ??
                                 () {
                                   Navigator.of(context).pop();
                                 },
@@ -96,10 +102,7 @@ class AccessiblePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       label: semanticLabel,
-      child: Focus(
-        autofocus: autofocus,
-        child: child,
-      ),
+      child: Focus(autofocus: autofocus, child: child),
     );
   }
 }

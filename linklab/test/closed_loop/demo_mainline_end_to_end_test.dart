@@ -1,8 +1,8 @@
 @Tags(['demo', 'closed-loop'])
 library;
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/widgets.dart';
 
 import 'test_harness.dart';
 
@@ -21,7 +21,7 @@ void main() {
       find.byType(EditableText).first,
       '这个问题太复杂了，我需要更可靠的人工协助',
     );
-    await tester.tap(find.byIcon(Icons.send));
+    await tester.testTextInput.receiveAction(TextInputAction.send);
     await tester.pump();
     await tester.pump(const Duration(seconds: 3));
     await tester.pumpAndSettle();
@@ -38,12 +38,12 @@ void main() {
     await tester.pump();
     expect(find.textContaining('通话中'), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.call_end));
+    await tester.tap(find.bySemanticsLabel('结束通话按钮'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 200));
     expect(find.text('为这次帮助评分'), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.star_border).at(4));
+    await tester.tap(find.byTooltip('评分5星'));
     await tester.pump();
     await tester.enterText(find.byType(EditableText).first, '谢谢你帮我确认现场环境');
     await tester.tap(find.text('提交评价'));

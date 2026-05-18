@@ -4,13 +4,11 @@ import '../../core/theme/app_theme.dart';
 import '../../services/security/emergency_contact_service.dart';
 import '../../services/security/safety_settings_service.dart';
 import '../../widgets/accessible/index.dart';
+import '../../widgets/demo/linkable_icon.dart';
 import 'emergency_contacts_screen.dart';
 
 class LocationSharingScreen extends StatefulWidget {
-  const LocationSharingScreen({
-    super.key,
-    required this.userId,
-  });
+  const LocationSharingScreen({super.key, required this.userId});
 
   final String userId;
 
@@ -53,12 +51,15 @@ class _LocationSharingScreenState extends State<LocationSharingScreen> {
     setState(() => _isSaving = true);
 
     try {
-      final saved = await _settingsService.saveSettings(widget.userId, _settings);
+      final saved = await _settingsService.saveSettings(
+        widget.userId,
+        _settings,
+      );
       if (!mounted) return;
       setState(() => _settings = saved);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('位置共享设置已保存')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('位置共享设置已保存')));
     } finally {
       if (mounted) {
         setState(() => _isSaving = false);
@@ -134,8 +135,8 @@ class _LocationSharingScreenState extends State<LocationSharingScreen> {
                                 : '本次不通知紧急联系人',
                             description: _settings.shareWithEmergencyContacts
                                 ? _contactCount == 0
-                                    ? '你已开启此选项，但还没有联系人可通知。'
-                                    : '当前将同步通知 $_contactCount 位联系人。'
+                                      ? '你已开启此选项，但还没有联系人可通知。'
+                                      : '当前将同步通知 $_contactCount 位联系人。'
                                 : 'SOS 只展示志愿者广播与响应流程。',
                           ),
                           const _PreviewStep(
@@ -179,8 +180,9 @@ class _LocationSharingScreenState extends State<LocationSharingScreen> {
                               setState(() {
                                 _settings = _settings.copyWith(
                                   autoShareLocation: value,
-                                  usePreciseLocation:
-                                      value ? _settings.usePreciseLocation : false,
+                                  usePreciseLocation: value
+                                      ? _settings.usePreciseLocation
+                                      : false,
                                 );
                               });
                             },
@@ -254,9 +256,9 @@ class _LocationSharingScreenState extends State<LocationSharingScreen> {
                             ),
                           ),
                           const SizedBox(height: AppTheme.spacingS),
-                          AccessibleText(
+                          const AccessibleText(
                             '系统级定位权限、短信发送和真实后台告警仍属于后续能力，当前页面聚焦主前端演示闭环。',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: AppTheme.fontSizeSmall,
                               color: AppTheme.textHint,
                               height: 1.5,
@@ -268,7 +270,10 @@ class _LocationSharingScreenState extends State<LocationSharingScreen> {
                     const SizedBox(height: AppTheme.spacingL),
                     OutlinedButton.icon(
                       onPressed: _openEmergencyContacts,
-                      icon: const Icon(Icons.contact_phone_outlined),
+                      icon: const LinkableMaterialIcon(
+                        icon: Icons.contact_phone_outlined,
+                        semanticLabel: '管理紧急联系人',
+                      ),
                       label: const Text('管理紧急联系人'),
                     ),
                     const SizedBox(height: AppTheme.spacingM),
@@ -288,10 +293,7 @@ class _LocationSharingScreenState extends State<LocationSharingScreen> {
 }
 
 class _ReadinessBanner extends StatelessWidget {
-  const _ReadinessBanner({
-    required this.settings,
-    required this.contactCount,
-  });
+  const _ReadinessBanner({required this.settings, required this.contactCount});
 
   final SafetySettings settings;
   final int contactCount;
@@ -301,14 +303,14 @@ class _ReadinessBanner extends StatelessWidget {
     final title = !settings.autoShareLocation
         ? '位置共享未开启'
         : contactCount == 0 && settings.shareWithEmergencyContacts
-            ? '基础 SOS 已就绪'
-            : 'SOS 安全配置已就绪';
+        ? '基础 SOS 已就绪'
+        : 'SOS 安全配置已就绪';
 
     final summary = !settings.autoShareLocation
         ? '当前触发 SOS 时不会自动附带位置。'
         : contactCount == 0 && settings.shareWithEmergencyContacts
-            ? '位置共享可用，但建议先补充至少 1 位紧急联系人。'
-            : '当前会共享${settings.usePreciseLocation ? '精确' : '大致'}位置，并展示联系人通知流程。';
+        ? '位置共享可用，但建议先补充至少 1 位紧急联系人。'
+        : '当前会共享${settings.usePreciseLocation ? '精确' : '大致'}位置，并展示联系人通知流程。';
 
     return Container(
       padding: const EdgeInsets.all(AppTheme.spacingL),
@@ -380,9 +382,7 @@ class _ReadinessBanner extends StatelessWidget {
 }
 
 class _StatusChip extends StatelessWidget {
-  const _StatusChip({
-    required this.label,
-  });
+  const _StatusChip({required this.label});
 
   final String label;
 
@@ -394,9 +394,9 @@ class _StatusChip extends StatelessWidget {
         vertical: AppTheme.spacingS,
       ),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.16),
+        color: Colors.white.withValues(alpha: 0.16),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: Colors.white.withOpacity(0.24)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.24)),
       ),
       child: AccessibleText(
         label,
@@ -432,10 +432,14 @@ class _PreviewStep extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: AppTheme.primaryColor.withOpacity(0.08),
+              color: AppTheme.primaryColor.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
             ),
-            child: Icon(icon, color: AppTheme.primaryColor),
+            child: LinkableMaterialIcon(
+              icon: icon,
+              color: AppTheme.primaryColor,
+              semanticLabel: title,
+            ),
           ),
           const SizedBox(width: AppTheme.spacingM),
           Expanded(

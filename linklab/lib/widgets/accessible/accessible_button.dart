@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/theme/app_theme.dart';
+import '../demo/linkable_icon.dart';
 
 /// 无障碍大按钮组件
 /// 适用于视障用户，具有以下特点：
@@ -97,10 +98,11 @@ class AccessibleButton extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       if (icon != null) ...[
-                        Icon(
-                          icon,
-                          color: fgColor,
+                        LinkableMaterialIcon(
+                          icon: icon!,
                           size: AppTheme.fontSizeXLarge,
+                          color: fgColor,
+                          semanticLabel: label,
                         ),
                         const SizedBox(width: AppTheme.spacingM),
                       ],
@@ -171,10 +173,11 @@ class AccessibleIconButton extends StatelessWidget {
           child: SizedBox(
             width: size,
             height: size,
-            child: Icon(
-              icon,
+            child: LinkableMaterialIcon(
+              icon: icon,
               size: iconSize,
               color: iconColor ?? AppTheme.primaryColor,
+              semanticLabel: semanticLabel,
             ),
           ),
         ),
@@ -223,7 +226,12 @@ class AccessibleFloatingButton extends StatelessWidget {
             : AppTheme.primaryColor,
         foregroundColor: AppTheme.textOnPrimary,
         elevation: 6,
-        child: Icon(icon, size: AppTheme.fontSizeXLarge),
+        child: LinkableMaterialIcon(
+          icon: icon,
+          size: AppTheme.fontSizeXLarge,
+          color: AppTheme.textOnPrimary,
+          semanticLabel: semanticLabel,
+        ),
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../accessible/index.dart';
+import 'linkable_icon.dart';
 import 'demo_stage.dart';
 
 class DemoAuthBanner extends StatelessWidget {
@@ -283,13 +284,14 @@ class DemoSelectionCard extends StatelessWidget {
               ),
               const SizedBox(width: AppTheme.spacingS),
               trailing ??
-                  Icon(
-                    isSelected
+                  LinkableMaterialIcon(
+                    icon: isSelected
                         ? Icons.check_circle_rounded
                         : Icons.radio_button_unchecked_rounded,
                     color: isSelected
                         ? AppTheme.stageAccent
                         : AppTheme.stageTextHint,
+                    semanticLabel: isSelected ? '已选择' : '未选择',
                   ),
             ],
           ),

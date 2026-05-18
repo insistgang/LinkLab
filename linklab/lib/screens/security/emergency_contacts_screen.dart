@@ -5,18 +5,17 @@ import '../../core/utils/extensions.dart';
 import '../../models/emergency_contact_model.dart';
 import '../../services/security/emergency_contact_service.dart';
 import '../../widgets/accessible/index.dart';
+import '../../widgets/demo/linkable_icon.dart';
 
 /// 紧急联系人管理页面
 class EmergencyContactsScreen extends StatefulWidget {
-  const EmergencyContactsScreen({
-    super.key,
-    required this.userId,
-  });
+  const EmergencyContactsScreen({super.key, required this.userId});
 
   final String userId;
 
   @override
-  State<EmergencyContactsScreen> createState() => _EmergencyContactsScreenState();
+  State<EmergencyContactsScreen> createState() =>
+      _EmergencyContactsScreenState();
 }
 
 class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
@@ -47,9 +46,9 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
   Future<void> _openEditor({EmergencyContactModel? contact}) async {
     if (contact == null && _contacts.length >= 3) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('最多只能添加3个紧急联系人')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('最多只能添加3个紧急联系人')));
       return;
     }
 
@@ -84,20 +83,19 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
       await _loadContacts();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(contact == null ? '紧急联系人已添加' : '紧急联系人已更新'),
-        ),
+        SnackBar(content: Text(contact == null ? '紧急联系人已添加' : '紧急联系人已更新')),
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('操作失败: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('操作失败: $e')));
     }
   }
 
   Future<void> _deleteContact(EmergencyContactModel contact) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed =
+        await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
             title: const AccessibleText(
@@ -135,14 +133,14 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
       await _contactService.deleteContact(contact.id);
       await _loadContacts();
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('联系人已删除')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('联系人已删除')));
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('删除失败: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('删除失败: $e')));
     }
   }
 
@@ -164,9 +162,7 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
                   child: Center(child: CircularProgressIndicator()),
                 )
               else if (_contacts.isEmpty)
-                _EmptyState(
-                  onAddPressed: () => _openEditor(),
-                )
+                _EmptyState(onAddPressed: () => _openEditor())
               else ...[
                 const AccessibleText(
                   '已设置联系人',
@@ -196,13 +192,14 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
                     onPressed: () => _openEditor(),
                   )
                 else
-                  AccessibleCard(
+                  const AccessibleCard(
                     margin: EdgeInsets.zero,
                     child: Row(
-                      children: const [
-                        Icon(
-                          Icons.verified_user_outlined,
+                      children: [
+                        LinkableMaterialIcon(
+                          icon: Icons.verified_user_outlined,
                           color: AppTheme.secondaryColor,
+                          semanticLabel: '联系人上限',
                         ),
                         SizedBox(width: AppTheme.spacingM),
                         Expanded(
@@ -227,9 +224,7 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
 }
 
 class _SummaryBanner extends StatelessWidget {
-  const _SummaryBanner({
-    required this.contactCount,
-  });
+  const _SummaryBanner({required this.contactCount});
 
   final int contactCount;
 
@@ -239,10 +234,7 @@ class _SummaryBanner extends StatelessWidget {
       padding: const EdgeInsets.all(AppTheme.spacingL),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [
-            AppTheme.emergencyColor,
-            AppTheme.warningColor,
-          ],
+          colors: [AppTheme.emergencyColor, AppTheme.warningColor],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -277,9 +269,7 @@ class _SummaryBanner extends StatelessWidget {
 }
 
 class _EmptyState extends StatelessWidget {
-  const _EmptyState({
-    required this.onAddPressed,
-  });
+  const _EmptyState({required this.onAddPressed});
 
   final VoidCallback onAddPressed;
 
@@ -290,10 +280,11 @@ class _EmptyState extends StatelessWidget {
       padding: const EdgeInsets.all(AppTheme.spacingXL),
       child: Column(
         children: [
-          const Icon(
-            Icons.contact_emergency_outlined,
+          const LinkableMaterialIcon(
+            icon: Icons.contact_emergency_outlined,
             size: 72,
             color: AppTheme.textHint,
+            semanticLabel: '暂无紧急联系人',
           ),
           const SizedBox(height: AppTheme.spacingM),
           const AccessibleText(
@@ -354,9 +345,10 @@ class _ContactCard extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: AppTheme.emergencyColor.withOpacity(0.1),
-                  borderRadius:
-                      BorderRadius.circular(AppTheme.borderRadiusMedium),
+                  color: AppTheme.emergencyColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(
+                    AppTheme.borderRadiusMedium,
+                  ),
                 ),
                 child: Center(
                   child: AccessibleText(
@@ -397,7 +389,7 @@ class _ContactCard extends StatelessWidget {
                           vertical: AppTheme.spacingXS,
                         ),
                         decoration: BoxDecoration(
-                          color: AppTheme.primaryColor.withOpacity(0.08),
+                          color: AppTheme.primaryColor.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(999),
                         ),
                         child: AccessibleText(
@@ -418,14 +410,18 @@ class _ContactCard extends StatelessWidget {
                 children: [
                   IconButton(
                     onPressed: onEdit,
-                    icon: const Icon(Icons.edit_outlined),
+                    icon: const LinkableMaterialIcon(
+                      icon: Icons.edit_outlined,
+                      semanticLabel: '编辑联系人',
+                    ),
                     tooltip: '编辑联系人',
                   ),
                   IconButton(
                     onPressed: onDelete,
-                    icon: const Icon(
-                      Icons.delete_outline,
+                    icon: const LinkableMaterialIcon(
+                      icon: Icons.delete_outline,
                       color: AppTheme.emergencyColor,
+                      semanticLabel: '删除联系人',
                     ),
                     tooltip: '删除联系人',
                   ),
@@ -473,10 +469,12 @@ class _ContactEditorDialogState extends State<_ContactEditorDialog> {
   @override
   void initState() {
     super.initState();
-    _nameController =
-        TextEditingController(text: widget.initialContact?.name ?? '');
-    _phoneController =
-        TextEditingController(text: widget.initialContact?.phone ?? '');
+    _nameController = TextEditingController(
+      text: widget.initialContact?.name ?? '',
+    );
+    _phoneController = TextEditingController(
+      text: widget.initialContact?.phone ?? '',
+    );
     _relationship = widget.initialContact?.relationship;
   }
 
@@ -521,7 +519,10 @@ class _ContactEditorDialogState extends State<_ContactEditorDialog> {
                 controller: _nameController,
                 label: '姓名',
                 hint: '请输入联系人姓名',
-                prefixIcon: const Icon(Icons.person_outline),
+                prefixIcon: const LinkableMaterialIcon(
+                  icon: Icons.person_outline,
+                  semanticLabel: '姓名',
+                ),
                 textInputAction: TextInputAction.next,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -531,16 +532,17 @@ class _ContactEditorDialogState extends State<_ContactEditorDialog> {
                 },
               ),
               const SizedBox(height: AppTheme.spacingM),
-              AccessiblePhoneField(
-                controller: _phoneController,
-              ),
+              AccessiblePhoneField(controller: _phoneController),
               const SizedBox(height: AppTheme.spacingM),
               DropdownButtonFormField<String>(
-                value: _relationship,
+                initialValue: _relationship,
                 decoration: const InputDecoration(
                   labelText: '关系',
                   hintText: '请选择关系（可选）',
-                  prefixIcon: Icon(Icons.people_outline),
+                  prefixIcon: LinkableMaterialIcon(
+                    icon: Icons.people_outline,
+                    semanticLabel: '关系',
+                  ),
                 ),
                 items: widget.relationshipOptions
                     .map(

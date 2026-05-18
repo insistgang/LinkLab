@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_theme.dart';
 import '../../models/community_models.dart';
 import '../../services/community/featured_story_service.dart';
 import '../../widgets/accessible/index.dart';
-import '../community/community_screens_exports.dart';
+import '../../widgets/demo/demo_motion.dart';
+import '../../widgets/demo/demo_stage.dart';
+import '../../widgets/demo/linkable_icon.dart';
+import '../community/story_detail_screen.dart';
 
-/// 社群页面
+/// 社群降级页：仅展示精选故事和未来蓝图，不开放互动社区入口。
 class CommunityScreen extends StatefulWidget {
   const CommunityScreen({super.key});
 
@@ -15,7 +19,7 @@ class CommunityScreen extends StatefulWidget {
 
 class _CommunityScreenState extends State<CommunityScreen> {
   final _storyService = FeaturedStoryService();
-  List<FeaturedStory> _featuredStories = [];
+  List<FeaturedStory> _featuredStories = const [];
   bool _isLoading = true;
 
   @override
@@ -27,6 +31,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
   Future<void> _loadStories() async {
     setState(() => _isLoading = true);
     final stories = await _storyService.getDailyFeatured(limit: 3);
+    if (!mounted) return;
     setState(() {
       _featuredStories = stories;
       _isLoading = false;
@@ -35,440 +40,501 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return AccessibleScaffold(
+    return DemoStageScaffold(
       title: '社群',
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppTheme.spacingL),
+      subtitle: '精选故事只做价值展示，互动社群作为 V1.0 蓝图',
+      showBackButton: false,
+      body: RefreshIndicator(
+        color: AppTheme.stageAccent,
+        onRefresh: _loadStories,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(
+            AppTheme.spacingL,
+            AppTheme.spacingL,
+            AppTheme.spacingL,
+            112,
+          ),
+          children: [
+            const DemoReveal(child: _CommunityHero()),
+            const SizedBox(height: AppTheme.spacingL),
+            DemoReveal(
+              delay: const Duration(milliseconds: 80),
+              child: _SectionHeader(
+                title: '精选故事',
+                subtitle: '3 条真实互助场景，用于竞赛展示与价值说明',
+                trailing: IconButton(
+                  tooltip: '刷新精选故事',
+                  onPressed: _loadStories,
+                  icon: const LinkableSvgIcon(
+                    icon: LinkableIconName.processing,
+                    size: 28,
+                    semanticLabel: '刷新精选故事',
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppTheme.spacingS),
+            DemoReveal(
+              delay: const Duration(milliseconds: 120),
+              child: _buildStoriesList(),
+            ),
+            const SizedBox(height: AppTheme.spacingL),
+            const DemoReveal(
+              delay: Duration(milliseconds: 160),
+              child: _BlueprintPanel(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStoriesList() {
+    if (_isLoading) {
+      return Semantics(
+        label: '正在加载精选故事',
+        liveRegion: true,
+        child: const Padding(
+          padding: EdgeInsets.symmetric(vertical: AppTheme.spacingXL),
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      );
+    }
+
+    if (_featuredStories.isEmpty) {
+      return const _EmptyStoriesCard();
+    }
+
+    return Column(
+      children: [
+        for (final story in _featuredStories)
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppTheme.spacingM),
+            child: _StoryCard(
+              story: story,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => StoryDetailScreen(story: story),
+                  ),
+                );
+              },
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _CommunityHero extends StatelessWidget {
+  const _CommunityHero();
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: '社群页，展示精选互助故事和未来蓝图',
+      child: Container(
+        padding: const EdgeInsets.all(AppTheme.spacingL),
+        decoration: AppTheme.stageCardDecoration(
+          color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.96),
+          borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge + 4),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: AppTheme.minTouchTarget,
+              height: AppTheme.minTouchTarget,
+              decoration: BoxDecoration(
+                gradient: AppTheme.stageAccentGradient,
+                borderRadius: BorderRadius.circular(
+                  AppTheme.borderRadiusMedium,
+                ),
+              ),
+              child: const LinkableSvgIcon(
+                icon: LinkableIconName.featuredStory,
+                size: 44,
+                semanticLabel: '社群',
+              ),
+            ),
+            const SizedBox(height: AppTheme.spacingM),
+            Text(
+              '社群',
+              style: TextStyle(
+                color: AppTheme.stageTextPrimary,
+                fontSize: AppTheme.fontSizeXLarge,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: AppTheme.spacingS),
+            Text(
+              '这里先展示精选互助故事。群聊、地区社区和积分互动属于后续版本，不进入当前 3 分钟 Demo 主线。',
+              style: TextStyle(
+                color: AppTheme.stageTextSecondary,
+                fontSize: AppTheme.fontSizeNormal,
+                height: 1.5,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({
+    required this.title,
+    required this.subtitle,
+    this.trailing,
+  });
+
+  final String title;
+  final String subtitle;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 功能入口网格
-              _buildFeatureGrid(),
-              const SizedBox(height: AppTheme.spacingXL),
-              // 精选故事
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const AccessibleText(
-                    '精选故事',
-                    style: TextStyle(
-                      fontSize: AppTheme.fontSizeLarge,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      // TODO: 查看全部故事
-                    },
-                    child: const AccessibleText('查看更多'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppTheme.spacingM),
-              _buildStoriesList(),
-              const SizedBox(height: AppTheme.spacingXL),
-              // 新手村
-              const AccessibleText(
-                '新手村',
-                style: TextStyle(
-                  fontSize: AppTheme.fontSizeLarge,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: AppTheme.spacingM),
-              AccessibleCard(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const NewbieVillageScreen(),
-                    ),
-                  );
-                },
-                child: Row(
-                  children: [
-                    Container(
-                      width: AppTheme.minTouchTarget * 1.2,
-                      height: AppTheme.minTouchTarget * 1.2,
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryLight.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
-                      ),
-                      child: const Icon(
-                        Icons.school,
-                        size: AppTheme.fontSizeXLarge,
-                        color: AppTheme.primaryColor,
-                      ),
-                    ),
-                    const SizedBox(width: AppTheme.spacingL),
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          AccessibleText(
-                            '新手指南',
-                            style: TextStyle(
-                              fontSize: AppTheme.fontSizeLarge,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: AppTheme.spacingXS),
-                          AccessibleText(
-                            '完成3个模拟场景，成为正式志愿者',
-                            style: TextStyle(
-                              fontSize: AppTheme.fontSizeNormal,
-                              color: AppTheme.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Icon(
-                      Icons.arrow_forward_ios,
-                      color: AppTheme.textHint,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: AppTheme.spacingXL),
-              // 志愿者招募
               Semantics(
-                label: '志愿者招募',
-                child: Container(
-                  padding: const EdgeInsets.all(AppTheme.spacingL),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [
-                        AppTheme.secondaryColor,
-                        AppTheme.secondaryLight,
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
+                header: true,
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    color: AppTheme.stageTextPrimary,
+                    fontSize: AppTheme.fontSizeLarge,
+                    fontWeight: FontWeight.w800,
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const AccessibleText(
-                        '成为志愿者',
-                        style: TextStyle(
-                          fontSize: AppTheme.fontSizeXLarge,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.textOnPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: AppTheme.spacingS),
-                      const AccessibleText(
-                        '用您的眼睛，帮助需要的人',
-                        style: TextStyle(
-                          fontSize: AppTheme.fontSizeNormal,
-                          color: AppTheme.textOnPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: AppTheme.spacingL),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const NewbieVillageScreen(),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.textOnPrimary,
-                          foregroundColor: AppTheme.secondaryColor,
-                          minimumSize: const Size(double.infinity, AppTheme.buttonHeight),
-                        ),
-                        child: const AccessibleText(
-                          '立即申请',
-                          style: TextStyle(
-                            fontSize: AppTheme.fontSizeLarge,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                ),
+              ),
+              const SizedBox(height: AppTheme.spacingXS),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  color: AppTheme.stageTextSecondary,
+                  fontSize: AppTheme.fontSizeSmall,
+                  height: 1.4,
                 ),
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  /// 构建功能入口网格
-  Widget _buildFeatureGrid() {
-    final features = [
-      {
-        'icon': Icons.group,
-        'label': '兴趣小组',
-        'color': AppTheme.primaryColor,
-        'onTap': () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const InterestGroupsScreen(),
-            ),
-          );
-        },
-      },
-      {
-        'icon': Icons.location_city,
-        'label': '地区社群',
-        'color': AppTheme.secondaryColor,
-        'onTap': () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const RegionalCommunityScreen(),
-            ),
-          );
-        },
-      },
-      {
-        'icon': Icons.auto_stories,
-        'label': '精选故事',
-        'color': Colors.orange,
-        'onTap': () {
-          // TODO: 打开故事列表
-        },
-      },
-      {
-        'icon': Icons.school,
-        'label': '新手村',
-        'color': Colors.green,
-        'onTap': () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const NewbieVillageScreen(),
-            ),
-          );
-        },
-      },
-    ];
-
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        childAspectRatio: 0.8,
-      ),
-      itemCount: features.length,
-      itemBuilder: (context, index) {
-        final feature = features[index];
-        return _FeatureItem(
-          icon: feature['icon'] as IconData,
-          label: feature['label'] as String,
-          color: feature['color'] as Color,
-          onTap: feature['onTap'] as VoidCallback,
-        );
-      },
-    );
-  }
-
-  /// 构建故事列表
-  Widget _buildStoriesList() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_featuredStories.isEmpty) {
-      return const Center(
-        child: AccessibleText(
-          '暂无精选故事',
-          style: TextStyle(color: AppTheme.textSecondary),
-        ),
-      );
-    }
-
-    return Column(
-      children: _featuredStories.map((story) {
-        return Padding(
-          padding: const EdgeInsets.only(bottom: AppTheme.spacingM),
-          child: _StoryCard(
-            title: story.title,
-            excerpt: story.summary ?? story.content.substring(0, story.content.length > 50 ? 50 : story.content.length),
-            author: story.authorType == 'anonymous'
-                ? '匿名用户'
-                : (story.authorName ?? '用户'),
-            readTime: '${story.readCount}次阅读',
-            coverImage: story.coverImage,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => StoryDetailScreen(story: story),
-                ),
-              );
-            },
-          ),
-        );
-      }).toList(),
+        ?trailing,
+      ],
     );
   }
 }
 
-/// 功能入口项
-class _FeatureItem extends StatelessWidget {
-  const _FeatureItem({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.onTap,
-  });
+class _StoryCard extends StatelessWidget {
+  const _StoryCard({required this.story, required this.onTap});
 
-  final IconData icon;
-  final String label;
-  final Color color;
+  final FeaturedStory story;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    final author = story.authorType == 'anonymous'
+        ? '匿名用户'
+        : (story.authorName ?? '用户');
+    final excerpt = story.summary ?? _shorten(story.content);
+
+    return AccessibleCard(
+      semanticLabel: '精选故事，${story.title}',
+      hint: '双击查看故事详情',
       onTap: onTap,
-      borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+      margin: EdgeInsets.zero,
+      padding: EdgeInsets.zero,
+      elevation: 0,
+      child: Container(
+        padding: const EdgeInsets.all(AppTheme.spacingM),
+        decoration: AppTheme.stageCardDecoration(
+          color: AppTheme.stageSurface.withValues(alpha: 0.92),
+          borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
+          borderColor: AppTheme.stageBorder.withValues(alpha: 0.58),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: AppTheme.minTouchTarget,
+              height: AppTheme.minTouchTarget,
+              decoration: BoxDecoration(
+                color: AppTheme.stageAccent.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(
+                  AppTheme.borderRadiusMedium,
+                ),
+                border: Border.all(
+                  color: AppTheme.stageAccent.withValues(alpha: 0.32),
+                ),
+              ),
+              child: const LinkableSvgIcon(
+                icon: LinkableIconName.featuredStory,
+                size: 44,
+              ),
             ),
-            child: Icon(
-              icon,
+            const SizedBox(width: AppTheme.spacingM),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    story.title,
+                    style: TextStyle(
+                      color: AppTheme.stageTextPrimary,
+                      fontSize: AppTheme.fontSizeLarge,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: AppTheme.spacingS),
+                  Text(
+                    excerpt,
+                    style: TextStyle(
+                      color: AppTheme.stageTextSecondary,
+                      fontSize: AppTheme.fontSizeNormal,
+                      height: 1.45,
+                    ),
+                  ),
+                  const SizedBox(height: AppTheme.spacingM),
+                  Wrap(
+                    spacing: AppTheme.spacingS,
+                    runSpacing: AppTheme.spacingS,
+                    children: [
+                      _StoryMeta(icon: LinkableIconName.profile, label: author),
+                      _StoryMeta(
+                        icon: LinkableIconName.sceneDescribe,
+                        label: '${story.readCount} 次阅读',
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: AppTheme.spacingS),
+            const LinkableSvgIcon(
+              icon: LinkableIconName.navigationGuide,
               size: 28,
-              color: color,
+              semanticLabel: '查看详情',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _shorten(String value) {
+    if (value.length <= 54) return value;
+    return '${value.substring(0, 54)}...';
+  }
+}
+
+class _StoryMeta extends StatelessWidget {
+  const _StoryMeta({required this.icon, required this.label});
+
+  final LinkableIconName icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: label,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppTheme.spacingS,
+          vertical: AppTheme.spacingXS,
+        ),
+        decoration: BoxDecoration(
+          color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.78),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(
+            color: AppTheme.stageBorder.withValues(alpha: 0.46),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            LinkableSvgIcon(icon: icon, size: 18, semanticLabel: label),
+            const SizedBox(width: AppTheme.spacingXS),
+            Text(
+              label,
+              style: TextStyle(
+                color: AppTheme.stageTextSecondary,
+                fontSize: AppTheme.fontSizeSmall,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BlueprintPanel extends StatelessWidget {
+  const _BlueprintPanel();
+
+  @override
+  Widget build(BuildContext context) {
+    final items = const [
+      _BlueprintItem(
+        icon: LinkableIconName.volunteerMatch,
+        title: '地区社群',
+        body: '后续用于同城志愿者互助与活动组织。',
+      ),
+      _BlueprintItem(
+        icon: LinkableIconName.completed,
+        title: '公益成长',
+        body: '后续再评估积分、徽章和志愿者成长体系。',
+      ),
+      _BlueprintItem(
+        icon: LinkableIconName.emergencyContact,
+        title: '安全治理',
+        body: '举报、黑名单、内容审核会先服务主求助链路。',
+      ),
+    ];
+
+    return Container(
+      padding: const EdgeInsets.all(AppTheme.spacingL),
+      decoration: AppTheme.stageCardDecoration(
+        color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Semantics(
+            header: true,
+            child: Text(
+              '未来蓝图',
+              style: TextStyle(
+                color: AppTheme.stageTextPrimary,
+                fontSize: AppTheme.fontSizeLarge,
+                fontWeight: FontWeight.w800,
+              ),
             ),
           ),
           const SizedBox(height: AppTheme.spacingS),
-          AccessibleText(
-            label,
-            style: const TextStyle(
-              fontSize: AppTheme.fontSizeSmall,
-              fontWeight: FontWeight.w500,
+          Text(
+            '这些能力仅作为 V1.0 展示，不会影响当前 AI、匹配、通话和 SOS 演示闭环。',
+            style: TextStyle(
+              color: AppTheme.stageTextSecondary,
+              fontSize: AppTheme.fontSizeNormal,
+              height: 1.45,
             ),
-            textAlign: TextAlign.center,
           ),
+          const SizedBox(height: AppTheme.spacingM),
+          for (final item in items) ...[
+            item,
+            if (item != items.last) const SizedBox(height: AppTheme.spacingS),
+          ],
         ],
       ),
     );
   }
 }
 
-/// 故事卡片
-class _StoryCard extends StatelessWidget {
-  const _StoryCard({
+class _BlueprintItem extends StatelessWidget {
+  const _BlueprintItem({
+    required this.icon,
     required this.title,
-    required this.excerpt,
-    required this.author,
-    required this.readTime,
-    this.coverImage,
-    required this.onTap,
+    required this.body,
   });
 
+  final LinkableIconName icon;
   final String title;
-  final String excerpt;
-  final String author;
-  final String readTime;
-  final String? coverImage;
-  final VoidCallback onTap;
+  final String body;
 
   @override
   Widget build(BuildContext context) {
-    return AccessibleCard(
-      semanticLabel: title,
-      hint: excerpt,
-      onTap: onTap,
+    return Semantics(
+      label: '$title，$body',
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          SizedBox(
+            width: AppTheme.minTouchTarget,
+            height: AppTheme.minTouchTarget,
+            child: LinkableSvgIcon(icon: icon, size: 42, semanticLabel: title),
+          ),
+          const SizedBox(width: AppTheme.spacingS),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                AccessibleText(
+                Text(
                   title,
-                  style: const TextStyle(
-                    fontSize: AppTheme.fontSizeLarge,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: AppTheme.spacingS),
-                AccessibleText(
-                  excerpt,
-                  style: const TextStyle(
+                  style: TextStyle(
+                    color: AppTheme.stageTextPrimary,
                     fontSize: AppTheme.fontSizeNormal,
-                    color: AppTheme.textSecondary,
+                    fontWeight: FontWeight.w800,
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: AppTheme.spacingM),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.person,
-                      size: AppTheme.fontSizeNormal,
-                      color: AppTheme.textHint,
-                    ),
-                    const SizedBox(width: AppTheme.spacingXS),
-                    AccessibleText(
-                      author,
-                      style: const TextStyle(
-                        fontSize: AppTheme.fontSizeSmall,
-                        color: AppTheme.textHint,
-                      ),
-                    ),
-                    const SizedBox(width: AppTheme.spacingL),
-                    Icon(
-                      Icons.remove_red_eye,
-                      size: AppTheme.fontSizeNormal,
-                      color: AppTheme.textHint,
-                    ),
-                    const SizedBox(width: AppTheme.spacingXS),
-                    AccessibleText(
-                      readTime,
-                      style: const TextStyle(
-                        fontSize: AppTheme.fontSizeSmall,
-                        color: AppTheme.textHint,
-                      ),
-                    ),
-                  ],
+                const SizedBox(height: AppTheme.spacingXS),
+                Text(
+                  body,
+                  style: TextStyle(
+                    color: AppTheme.stageTextSecondary,
+                    fontSize: AppTheme.fontSizeSmall,
+                    height: 1.4,
+                  ),
                 ),
               ],
             ),
           ),
-          if (coverImage != null) ...[
-            const SizedBox(width: AppTheme.spacingM),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
-              child: Image.network(
-                coverImage!,
-                width: 80,
-                height: 80,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  width: 80,
-                  height: 80,
-                  color: AppTheme.backgroundGrey,
-                  child: const Icon(Icons.image, color: AppTheme.textHint),
-                ),
+        ],
+      ),
+    );
+  }
+}
+
+class _EmptyStoriesCard extends StatelessWidget {
+  const _EmptyStoriesCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: '暂无精选故事，可稍后刷新',
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(AppTheme.spacingL),
+        decoration: AppTheme.stageCardDecoration(
+          color: AppTheme.stageSurface.withValues(alpha: 0.86),
+          borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
+        ),
+        child: Column(
+          children: [
+            const LinkableSvgIcon(
+              icon: LinkableIconName.processing,
+              size: AppTheme.minTouchTarget,
+              semanticLabel: '暂无精选故事',
+            ),
+            const SizedBox(height: AppTheme.spacingM),
+            Text(
+              '暂无精选故事',
+              style: TextStyle(
+                color: AppTheme.stageTextPrimary,
+                fontSize: AppTheme.fontSizeLarge,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: AppTheme.spacingS),
+            Text(
+              '可以稍后刷新，或继续完成 AI 求助主流程演示。',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppTheme.stageTextSecondary,
+                fontSize: AppTheme.fontSizeNormal,
+                height: 1.4,
               ),
             ),
           ],
-        ],
+        ),
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../../services/app_session_service.dart';
 import '../accessible/index.dart';
+import 'linkable_icon.dart';
 
 enum DemoGlassIconShape { rounded, circle }
 
@@ -229,7 +230,12 @@ class DemoPill extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(icon, size: 16, color: foregroundColor),
+            LinkableMaterialIcon(
+              icon: icon!,
+              size: 18,
+              color: foregroundColor,
+              semanticLabel: label,
+            ),
             const SizedBox(width: AppTheme.spacingXS),
           ],
           AccessibleText(
@@ -266,6 +272,16 @@ class DemoGlassIconBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final linkableIcon = linkableIconForMaterial(icon);
+    if (linkableIcon != null) {
+      final badge = LinkableSvgIcon(
+        icon: linkableIcon,
+        size: size,
+        semanticLabel: semanticLabel,
+      );
+      return semanticLabel == null ? ExcludeSemantics(child: badge) : badge;
+    }
+
     final radius = shape == DemoGlassIconShape.circle ? size / 2 : size * 0.34;
 
     final badge = Container(
@@ -333,10 +349,11 @@ class DemoGlassIconBadge extends StatelessWidget {
               ),
             ),
             Center(
-              child: Icon(
-                icon,
+              child: LinkableMaterialIcon(
+                icon: icon,
                 size: iconSize ?? size * 0.42,
                 color: iconColor,
+                semanticLabel: semanticLabel,
               ),
             ),
           ],
@@ -458,9 +475,10 @@ class _DemoStageHeader extends StatelessWidget {
                     color: Colors.white.withValues(alpha: 0.56),
                   ),
                 ),
-                child: const Icon(
-                  Icons.arrow_back_rounded,
-                  color: Colors.white,
+                child: const LinkableSvgIcon(
+                  icon: LinkableIconName.navigationGuide,
+                  size: 44,
+                  semanticLabel: '返回',
                 ),
               ),
             ),
@@ -536,18 +554,22 @@ class _DemoStageStatusStrip extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          Icon(
-            Icons.signal_cellular_alt_rounded,
+          const LinkableSvgIcon(
+            icon: LinkableIconName.weakSignal,
             size: 18,
-            color: AppTheme.stageTextPrimary,
+            semanticLabel: '网络信号',
           ),
           const SizedBox(width: 4),
-          Icon(Icons.wifi_rounded, size: 18, color: AppTheme.stageTextPrimary),
+          const LinkableSvgIcon(
+            icon: LinkableIconName.weakSignal,
+            size: 18,
+            semanticLabel: '无线网络',
+          ),
           const SizedBox(width: 4),
-          Icon(
-            Icons.battery_full_rounded,
+          const LinkableSvgIcon(
+            icon: LinkableIconName.completed,
             size: 20,
-            color: AppTheme.stageTextPrimary,
+            semanticLabel: '电量充足',
           ),
         ],
       ),
@@ -780,7 +802,14 @@ class _ThemeModeButton extends StatelessWidget {
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white.withValues(alpha: 0.56)),
               ),
-              child: Icon(icon, color: Colors.white),
+              child: ExcludeSemantics(
+                child: LinkableMaterialIcon(
+                  icon: icon,
+                  size: 44,
+                  color: Colors.white,
+                  semanticLabel: label,
+                ),
+              ),
             ),
           ),
         );

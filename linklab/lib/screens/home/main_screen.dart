@@ -4,8 +4,10 @@ import '../../config/app_config.dart';
 import '../../core/theme/app_theme.dart';
 import '../../providers/app_session_provider.dart';
 import '../../widgets/demo/demo_motion.dart';
+import '../../widgets/demo/linkable_icon.dart';
 import 'home_screen.dart';
 import 'ai_chat_screen.dart';
+import 'community_screen.dart';
 import 'profile_screen.dart';
 
 /// 主页面（带底部导航）
@@ -19,11 +21,11 @@ class MainScreen extends ConsumerStatefulWidget {
 class _MainScreenState extends ConsumerState<MainScreen> {
   int _currentIndex = 0;
 
-  // AGENTS.md: 竞赛版默认导航只保留 MVP 主线入口。
-  // 社群/社区模块已降级，不再进入默认底部导航。
+  // AGENTS.md: 社群入口只承载静态精选故事/未来蓝图，不进入互动社区能力。
   final List<Widget> _screens = const [
     HomeScreen(),
     AIChatScreen(),
+    CommunityScreen(),
     ProfileScreen(),
   ];
 
@@ -34,6 +36,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       icon: Icons.smart_toy_outlined,
       activeIcon: Icons.smart_toy,
     ),
+    _NavItem(label: '社群', icon: Icons.forum_outlined, activeIcon: Icons.forum),
     _NavItem(label: '我的', icon: Icons.person_outline, activeIcon: Icons.person),
   ];
 
@@ -136,16 +139,11 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   }
 
   Alignment _navIndicatorAlignment() {
-    switch (_currentIndex) {
-      case 0:
-        return Alignment.centerLeft;
-      case 1:
-        return Alignment.center;
-      case 2:
-        return Alignment.centerRight;
-      default:
-        return Alignment.center;
-    }
+    final itemCount = _navItems.length;
+    final x = itemCount <= 1
+        ? 0.0
+        : -1.0 + (2.0 * _currentIndex / (itemCount - 1));
+    return Alignment(x, 0);
   }
 }
 
@@ -213,11 +211,13 @@ class _DemoNavButton extends StatelessWidget {
                         : Colors.transparent,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    isActive ? item.activeIcon : item.icon,
+                  child: LinkableMaterialIcon(
+                    icon: isActive ? item.activeIcon : item.icon,
+                    size: isActive ? 34 : 30,
                     color: isActive
                         ? Colors.white
                         : AppTheme.stageTextSecondary,
+                    semanticLabel: item.label,
                   ),
                 ),
                 const SizedBox(height: 4),

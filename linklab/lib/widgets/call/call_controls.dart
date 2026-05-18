@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/call_models.dart';
 import '../../providers/webrtc_call_provider.dart';
+import '../demo/linkable_icon.dart';
 
 /// 通话控制按钮配置
 class CallControlButton {
@@ -80,10 +81,11 @@ class CallControls extends ConsumerWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(
-          getNetworkQualityIcon(callState.networkQuality),
-          color: getNetworkQualityColor(callState.networkQuality),
+        LinkableMaterialIcon(
+          icon: getNetworkQualityIcon(callState.networkQuality),
           size: compact ? 14 : 16,
+          color: getNetworkQualityColor(callState.networkQuality),
+          semanticLabel: getNetworkQualityDescription(callState.networkQuality),
         ),
         const SizedBox(width: 4),
         Text(
@@ -202,10 +204,11 @@ class CallControls extends ConsumerWidget {
                     ? Border.all(color: activeColor ?? Colors.white, width: 2)
                     : null,
               ),
-              child: Icon(
-                icon,
-                color: isActive ? (activeColor ?? Colors.white) : Colors.white,
+              child: LinkableMaterialIcon(
+                icon: icon,
                 size: iconSize,
+                color: isActive ? (activeColor ?? Colors.white) : Colors.white,
+                semanticLabel: label,
               ),
             ),
           ),
@@ -242,7 +245,12 @@ class CallControls extends ConsumerWidget {
               width: size,
               height: size,
               decoration: const BoxDecoration(shape: BoxShape.circle),
-              child: Icon(Icons.call_end, color: Colors.white, size: iconSize),
+              child: LinkableMaterialIcon(
+                icon: Icons.call_end,
+                color: Colors.white,
+                size: iconSize,
+                semanticLabel: '挂断',
+              ),
             ),
           ),
         ),

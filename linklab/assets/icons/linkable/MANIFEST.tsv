@@ -1,0 +1,48 @@
+home	首页	home · F1 入口
+ai_chat	AI 对话	ai chat · F1
+volunteer_match	志愿者匹配	match · F9
+voice_call	语音通话	call · F11
+profile	个人中心	profile · F33
+featured_story	精选故事	stories
+need_help	我需要帮助	help · primary cta
+photo_help	拍照求助	photo
+text_help	文字求助	text
+voice_help	语音求助	voice
+location_share	位置共享	location
+human_handoff	转人工	handoff
+ocr_text	读文字	ocr_text
+scene_describe	场景描述	scene_describe
+object_identify	物体识别	object_identify
+color_identify	颜色识别	color_identify
+money_identify	钞票识别	money_identify
+translate_relay	翻译代述	translate_or_relay
+navigation_guide	导航导诊	navigation_guide
+medicine_check	药品确认	medicine_check
+emergency	紧急求助	emergency · F13
+unknown	不确定	unknown · low conf
+deaf_relay	听障转译	deaf relay
+scan	扫一扫	scan
+emergency_contact	紧急联系人	emergency contact
+cancel	撤销	cancel · 10s window
+broadcast	广播	broadcast
+answer	接听	answer · connected
+hang_up	挂断	hang up
+mute	静音	mute
+font_size	字体调节	font size · 200%
+high_contrast	高对比度	contrast ≥ 7:1
+screen_reader	读屏	screen reader
+tts	语音输出	tts · spoken
+haptic	触觉反馈	haptic
+dark_mode	夜间模式	dark mode
+visual_impairment	视力障碍	visual
+hearing_impairment	听力障碍	hearing
+mobility_impairment	肢体障碍	mobility
+elderly	老年人	elderly
+speech_impairment	言语障碍	speech
+volunteer_role	我是志愿者	volunteer role
+processing	处理中	ai_processing
+matching	匹配中	matching
+completed	已完成	completed
+expired	超时	expired · 60s
+async_note	留言	async note
+weak_signal	弱网	weak signal

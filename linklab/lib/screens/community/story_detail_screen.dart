@@ -4,13 +4,12 @@ import '../../models/community_models.dart';
 import '../../services/app_session_service.dart';
 import '../../services/community/featured_story_service.dart';
 import '../../widgets/accessible/index.dart';
+import '../../widgets/demo/demo_stage.dart';
+import '../../widgets/demo/linkable_icon.dart';
 
 /// 故事详情页面
 class StoryDetailScreen extends StatefulWidget {
-  const StoryDetailScreen({
-    super.key,
-    required this.story,
-  });
+  const StoryDetailScreen({super.key, required this.story});
 
   final FeaturedStory story;
 
@@ -67,19 +66,25 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('操作失败: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('操作失败: $e')));
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return AccessibleScaffold(
+    return DemoStageScaffold(
       title: '故事详情',
+      subtitle: '精选故事只做静态展示，不开放互动社区',
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppTheme.spacingL),
+        padding: const EdgeInsets.fromLTRB(
+          AppTheme.spacingL,
+          AppTheme.spacingL,
+          AppTheme.spacingL,
+          96,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -101,7 +106,10 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
                       ? NetworkImage(_story.authorAvatar!)
                       : null,
                   child: _story.authorAvatar == null
-                      ? const Icon(Icons.person)
+                      ? const LinkableMaterialIcon(
+                          icon: Icons.person,
+                          semanticLabel: '作者头像',
+                        )
                       : null,
                 ),
                 const SizedBox(width: AppTheme.spacingM),
@@ -134,8 +142,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
             // 封面图
             if (_story.coverImage != null)
               ClipRRect(
-                borderRadius:
-                    BorderRadius.circular(AppTheme.borderRadiusLarge),
+                borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
                 child: Image.network(
                   _story.coverImage!,
                   width: double.infinity,
@@ -159,8 +166,9 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
               padding: const EdgeInsets.all(AppTheme.spacingM),
               decoration: BoxDecoration(
                 color: AppTheme.backgroundGrey,
-                borderRadius:
-                    BorderRadius.circular(AppTheme.borderRadiusMedium),
+                borderRadius: BorderRadius.circular(
+                  AppTheme.borderRadiusMedium,
+                ),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -223,7 +231,12 @@ class _ActionButton extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(icon, size: 24, color: color ?? AppTheme.textHint),
+            LinkableMaterialIcon(
+              icon: icon,
+              size: 24,
+              color: color ?? AppTheme.textHint,
+              semanticLabel: label,
+            ),
             const SizedBox(width: AppTheme.spacingXS),
             AccessibleText(
               label,

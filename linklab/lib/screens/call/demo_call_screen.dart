@@ -9,6 +9,7 @@ import '../../widgets/accessible/index.dart';
 import '../../widgets/demo/demo_overlays.dart';
 import '../../widgets/demo/demo_routes.dart';
 import '../../widgets/demo/demo_stage.dart';
+import '../../widgets/demo/linkable_icon.dart';
 import 'demo_call_rating_screen.dart';
 import 'demo_matching_screen.dart';
 
@@ -646,7 +647,12 @@ class _ActionButton extends StatelessWidget {
       hint: semanticHint,
       child: ElevatedButton.icon(
         onPressed: onPressed,
-        icon: Icon(icon),
+        icon: LinkableMaterialIcon(
+          icon: icon,
+          size: 24,
+          color: Colors.black,
+          semanticLabel: label,
+        ),
         label: Text(label),
         style: ElevatedButton.styleFrom(
           minimumSize: const Size(48, 56),
@@ -690,7 +696,12 @@ class _SecondaryActionButton extends StatelessWidget {
       hint: semanticHint,
       child: OutlinedButton.icon(
         onPressed: onPressed,
-        icon: Icon(icon, size: 18),
+        icon: LinkableMaterialIcon(
+          icon: icon,
+          size: 20,
+          color: AppTheme.stageTextPrimary,
+          semanticLabel: label,
+        ),
         label: Text(label),
         style: OutlinedButton.styleFrom(
           minimumSize: const Size(48, 48),
@@ -721,7 +732,12 @@ class _InfoLine extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: AppTheme.stageAccent, size: 20),
+        LinkableMaterialIcon(
+          icon: icon,
+          color: AppTheme.stageAccent,
+          size: 22,
+          semanticLabel: text,
+        ),
         const SizedBox(width: AppTheme.spacingS),
         Expanded(
           child: AccessibleText(

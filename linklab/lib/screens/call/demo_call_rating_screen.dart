@@ -10,6 +10,7 @@ import '../../widgets/demo/demo_motion.dart';
 import '../../widgets/demo/demo_overlays.dart';
 import '../../widgets/demo/demo_routes.dart';
 import '../../widgets/demo/demo_stage.dart';
+import '../../widgets/demo/linkable_icon.dart';
 import '../home/main_screen.dart';
 
 /// 演示版通话评价页面
@@ -205,12 +206,16 @@ class _DemoCallRatingScreenState extends ConsumerState<DemoCallRatingScreen> {
                           return IconButton(
                             onPressed: () =>
                                 setState(() => _rating = index + 1),
-                            icon: Icon(
-                              index < _rating ? Icons.star : Icons.star_border,
+                            tooltip: '评分${index + 1}星',
+                            icon: LinkableMaterialIcon(
+                              icon: index < _rating
+                                  ? Icons.star
+                                  : Icons.star_border,
                               color: index < _rating
                                   ? AppTheme.stageAccent
                                   : AppTheme.stageTextHint,
                               size: 42,
+                              semanticLabel: '评分${index + 1}星',
                             ),
                           );
                         }),
@@ -330,7 +335,10 @@ class _DemoCallRatingScreenState extends ConsumerState<DemoCallRatingScreen> {
                       accentColor: AppTheme.stageInfo,
                     );
                   },
-                  icon: const Icon(Icons.history_outlined),
+                  icon: const LinkableMaterialIcon(
+                    icon: Icons.history_outlined,
+                    semanticLabel: '查看帮助档案',
+                  ),
                   label: const Text('查看帮助档案 / 结果回看'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppTheme.stageTextPrimary,

@@ -14,6 +14,7 @@ import '../../widgets/accessible/index.dart';
 import '../../widgets/demo/demo_motion.dart';
 import '../../widgets/demo/demo_overlays.dart';
 import '../../widgets/demo/demo_stage.dart';
+import '../../widgets/demo/linkable_icon.dart';
 
 /// 演示版 AI 对话页面
 /// 支持文字、图片、语音预填充，以及转人工与 SOS 演示衔接。
@@ -312,9 +313,10 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
-            leading: Icon(
-              Icons.camera_alt_outlined,
-              color: AppTheme.stageAccent,
+            leading: const LinkableSvgIcon(
+              icon: LinkableIconName.photoHelp,
+              size: 32,
+              semanticLabel: '拍照',
             ),
             title: AccessibleText(
               '拍照',
@@ -326,9 +328,10 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
             },
           ),
           ListTile(
-            leading: Icon(
-              Icons.photo_library_outlined,
-              color: AppTheme.stageAccent,
+            leading: const LinkableSvgIcon(
+              icon: LinkableIconName.photoHelp,
+              size: 32,
+              semanticLabel: '从相册选择',
             ),
             title: AccessibleText(
               '从相册选择',
@@ -682,10 +685,10 @@ class _ChatMessageBubble extends StatelessWidget {
                   gradient: AppTheme.stageAccentGradient,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  Icons.smart_toy_outlined,
-                  color: AppTheme.stageBackground,
-                  size: 22,
+                child: const LinkableSvgIcon(
+                  icon: LinkableIconName.aiChat,
+                  size: 32,
+                  semanticLabel: 'AI 助手',
                 ),
               ),
               const SizedBox(width: AppTheme.spacingS),
@@ -776,10 +779,10 @@ class _ChatMessageBubble extends StatelessWidget {
                     color: AppTheme.stageInfo.withValues(alpha: 0.32),
                   ),
                 ),
-                child: Icon(
-                  Icons.person_outline,
-                  color: AppTheme.stageTextPrimary,
-                  size: 22,
+                child: const LinkableSvgIcon(
+                  icon: LinkableIconName.profile,
+                  size: 32,
+                  semanticLabel: '我',
                 ),
               ),
             ],

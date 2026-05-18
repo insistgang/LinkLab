@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../accessible/index.dart';
+import 'linkable_icon.dart';
 
 class DemoDialog extends StatelessWidget {
   const DemoDialog({
@@ -47,7 +48,12 @@ class DemoDialog extends StatelessWidget {
                     color: effectiveAccentColor.withValues(alpha: 0.16),
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: Icon(icon, color: effectiveAccentColor),
+                  child: LinkableMaterialIcon(
+                    icon: icon!,
+                    size: 30,
+                    color: effectiveAccentColor,
+                    semanticLabel: title,
+                  ),
                 ),
                 const SizedBox(width: 12),
               ],
@@ -168,7 +174,12 @@ void showDemoStageSnackBar(
       ),
       content: Row(
         children: [
-          Icon(icon, color: effectiveAccentColor),
+          LinkableMaterialIcon(
+            icon: icon,
+            size: 24,
+            color: effectiveAccentColor,
+            semanticLabel: message,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

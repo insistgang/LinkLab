@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/theme/app_theme.dart';
+import '../demo/linkable_icon.dart';
 import 'accessible_text.dart';
 
 /// 无障碍文本输入框
@@ -160,7 +161,11 @@ class AccessiblePhoneField extends StatelessWidget {
       semanticLabel: '$label，$hint，请逐位输入数字',
       keyboardType: TextInputType.phone,
       textInputAction: TextInputAction.next,
-      prefixIcon: const Icon(Icons.phone),
+      prefixIcon: const LinkableSvgIcon(
+        icon: LinkableIconName.voiceCall,
+        size: 28,
+        semanticLabel: '手机号',
+      ),
       maxLength: 11,
       enabled: enabled,
       autofocus: autofocus,

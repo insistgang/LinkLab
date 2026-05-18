@@ -9,6 +9,7 @@ import '../../widgets/demo/demo_motion.dart';
 import '../../widgets/demo/demo_overlays.dart';
 import '../../widgets/demo/demo_routes.dart';
 import '../../widgets/demo/demo_stage.dart';
+import '../../widgets/demo/linkable_icon.dart';
 import '../home/main_screen.dart';
 
 /// 无障碍偏好设置页面
@@ -357,11 +358,12 @@ class _StageModeOptionButton extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                icon,
+              LinkableMaterialIcon(
+                icon: icon,
                 color: isSelected
                     ? AppTheme.stageBackground
                     : AppTheme.stageTextPrimary,
+                semanticLabel: '$label模式',
               ),
               const SizedBox(height: AppTheme.spacingS),
               AccessibleText(

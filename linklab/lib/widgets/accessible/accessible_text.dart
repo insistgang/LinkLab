@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
+import '../demo/linkable_icon.dart';
 
 /// 无障碍文本组件
 /// 支持动态字体缩放，确保屏幕阅读器可以正确读取
@@ -116,8 +117,7 @@ class AccessibleLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveLabel = semanticLabel ??
-        (required ? '$data，必填项' : data);
+    final effectiveLabel = semanticLabel ?? (required ? '$data，必填项' : data);
 
     return Semantics(
       label: effectiveLabel,
@@ -126,9 +126,9 @@ class AccessibleLabel extends StatelessWidget {
         children: [
           AccessibleText(
             data,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
           ),
           if (required)
             const AccessibleText(
@@ -147,11 +147,7 @@ class AccessibleLabel extends StatelessWidget {
 
 /// 无障碍错误文本组件
 class AccessibleErrorText extends StatelessWidget {
-  const AccessibleErrorText(
-    this.data, {
-    super.key,
-    this.semanticLabel,
-  });
+  const AccessibleErrorText(this.data, {super.key, this.semanticLabel});
 
   final String data;
   final String? semanticLabel;
@@ -165,10 +161,10 @@ class AccessibleErrorText extends StatelessWidget {
         padding: const EdgeInsets.only(top: AppTheme.spacingS),
         child: Row(
           children: [
-            const Icon(
-              Icons.error_outline,
-              color: AppTheme.emergencyColor,
+            const LinkableSvgIcon(
+              icon: LinkableIconName.emergency,
               size: AppTheme.fontSizeNormal,
+              semanticLabel: '错误',
             ),
             const SizedBox(width: AppTheme.spacingXS),
             AccessibleText(

@@ -11,6 +11,7 @@ import '../../widgets/demo/demo_motion.dart';
 import '../../widgets/demo/demo_overlays.dart';
 import '../../widgets/demo/demo_routes.dart';
 import '../../widgets/demo/demo_stage.dart';
+import '../../widgets/demo/linkable_icon.dart';
 import '../auth/login_screen.dart';
 import '../auth/preference_screen.dart';
 import '../demo/demo_help_archive_screen.dart';
@@ -455,10 +456,11 @@ class _ProfileHero extends StatelessWidget {
               gradient: AppTheme.stageAccentGradient,
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              Icons.person_outline,
+            child: LinkableMaterialIcon(
+              icon: Icons.person_outline,
               size: 42,
               color: AppTheme.stageBackground,
+              semanticLabel: '演示用户',
             ),
           ),
           const SizedBox(width: AppTheme.spacingL),
@@ -573,7 +575,11 @@ class _SafetyReadinessCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.shield_outlined, color: AppTheme.stageAccent),
+              LinkableMaterialIcon(
+                icon: Icons.shield_outlined,
+                color: AppTheme.stageAccent,
+                semanticLabel: '安全就绪度',
+              ),
               const SizedBox(width: AppTheme.spacingS),
               AccessibleText(
                 '安全就绪度',
@@ -649,7 +655,11 @@ class _MenuItem extends StatelessWidget {
               color: AppTheme.stageAccent.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(icon, color: AppTheme.stageAccent),
+            child: LinkableMaterialIcon(
+              icon: icon,
+              color: AppTheme.stageAccent,
+              semanticLabel: title,
+            ),
           ),
           const SizedBox(width: AppTheme.spacingM),
           Expanded(
@@ -677,7 +687,11 @@ class _MenuItem extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AppTheme.spacingS),
-          Icon(Icons.arrow_forward_rounded, color: AppTheme.stageTextPrimary),
+          LinkableMaterialIcon(
+            icon: Icons.arrow_forward_rounded,
+            color: AppTheme.stageTextPrimary,
+            semanticLabel: '进入$title',
+          ),
         ],
       ),
     );

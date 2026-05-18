@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_theme.dart';
+import '../demo/linkable_icon.dart';
 import 'accessible_text.dart';
 
 /// 可访问图片组件。
@@ -51,10 +52,7 @@ class AccessibleImage extends StatelessWidget {
     final image = _buildImage();
     final clippedImage = borderRadius == null
         ? image
-        : ClipRRect(
-            borderRadius: borderRadius!,
-            child: image,
-          );
+        : ClipRRect(borderRadius: borderRadius!, child: image);
 
     return Semantics(
       image: true,
@@ -97,15 +95,18 @@ class AccessibleImage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            fallbackIcon,
+          LinkableMaterialIcon(
+            icon: fallbackIcon,
             size: 48,
             color: AppTheme.textHint,
+            semanticLabel: fallbackText ?? semanticLabel,
           ),
           if (fallbackText != null && fallbackText!.trim().isNotEmpty) ...[
             const SizedBox(height: AppTheme.spacingS),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingM),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppTheme.spacingM,
+              ),
               child: AccessibleText(
                 fallbackText!,
                 textAlign: TextAlign.center,

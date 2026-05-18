@@ -6,6 +6,7 @@ import '../../models/help_request_model.dart';
 import '../../services/app_session_service.dart';
 import '../../widgets/accessible/index.dart';
 import '../../widgets/demo/demo_stage.dart';
+import '../../widgets/demo/linkable_icon.dart';
 
 /// 竞赛 Demo 默认档案页。
 ///
@@ -120,7 +121,12 @@ class _ArchiveMetricCard extends StatelessWidget {
       semanticLabel: '$label $value',
       child: Column(
         children: [
-          Icon(icon, color: color, size: 28),
+          LinkableMaterialIcon(
+            icon: icon,
+            color: color,
+            size: 28,
+            semanticLabel: label,
+          ),
           const SizedBox(height: AppTheme.spacingS),
           AccessibleText(
             value,
@@ -164,7 +170,11 @@ class _ArchiveRequestCard extends StatelessWidget {
               color: _color.withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(18),
             ),
-            child: Icon(_icon, color: _color),
+            child: LinkableMaterialIcon(
+              icon: _icon,
+              color: _color,
+              semanticLabel: _title,
+            ),
           ),
           const SizedBox(width: AppTheme.spacingM),
           Expanded(
@@ -250,10 +260,11 @@ class _EmptyArchiveCard extends StatelessWidget {
     return DemoSurfaceCard(
       child: Column(
         children: [
-          Icon(
-            Icons.history_toggle_off,
+          LinkableMaterialIcon(
+            icon: Icons.history_toggle_off,
             color: AppTheme.stageTextHint,
             size: 44,
+            semanticLabel: '还没有帮助记录',
           ),
           const SizedBox(height: AppTheme.spacingM),
           AccessibleText(

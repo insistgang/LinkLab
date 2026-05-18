@@ -17,6 +17,7 @@ import '../../widgets/demo/demo_motion.dart';
 import '../../widgets/demo/demo_overlays.dart';
 import '../../widgets/demo/demo_routes.dart';
 import '../../widgets/demo/demo_stage.dart';
+import '../../widgets/demo/linkable_icon.dart';
 import '../ai_chat/demo_ai_chat_screen.dart';
 import '../demo/demo_help_archive_screen.dart';
 
@@ -247,9 +248,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             ],
                           ),
                         ),
-                        Icon(
-                          Icons.arrow_forward_rounded,
-                          color: AppTheme.stageTextPrimary,
+                        const LinkableSvgIcon(
+                          icon: LinkableIconName.navigationGuide,
+                          size: 34,
+                          semanticLabel: '进入演示故事',
                         ),
                       ],
                     ),
@@ -490,10 +492,10 @@ class _HeroPanel extends StatelessWidget {
                   child: const Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.touch_app_rounded,
-                        color: Colors.white,
-                        size: 42,
+                      LinkableSvgIcon(
+                        icon: LinkableIconName.needHelp,
+                        size: 52,
+                        semanticLabel: '我需要帮助',
                       ),
                       SizedBox(height: AppTheme.spacingM),
                       AccessibleText(
@@ -538,7 +540,11 @@ class _HeroPanel extends StatelessWidget {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: onVolunteerPressed,
-                  icon: const Icon(Icons.volunteer_activism_outlined),
+                  icon: const LinkableSvgIcon(
+                    icon: LinkableIconName.volunteerMatch,
+                    size: 24,
+                    semanticLabel: '志愿者匹配',
+                  ),
                   label: const Text('直接匹配志愿者'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.white,
@@ -571,9 +577,10 @@ class _HeroPanel extends StatelessWidget {
                         color: AppTheme.stageDanger.withValues(alpha: 0.32),
                       ),
                     ),
-                    child: Icon(
-                      Icons.emergency_outlined,
-                      color: AppTheme.stageDanger,
+                    child: const LinkableSvgIcon(
+                      icon: LinkableIconName.emergency,
+                      size: 58,
+                      semanticLabel: 'SOS 紧急求助',
                     ),
                   ),
                 ),
@@ -645,7 +652,7 @@ class _CompetitionDemoNoticeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return DemoSurfaceCard(
       semanticLabel: '竞赛演示模式说明',
-      hint: '当前默认只展示 MVP 主线，真实后端与社群页不进入默认导航',
+      hint: '当前默认只展示 MVP 主线，社群入口仅展示精选故事',
       color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.94),
       borderColor: AppTheme.stageAccent.withValues(alpha: 0.28),
       child: Row(
@@ -671,7 +678,7 @@ class _CompetitionDemoNoticeCard extends StatelessWidget {
                 ),
                 const SizedBox(height: AppTheme.spacingXS),
                 AccessibleText(
-                  '当前默认仅展示 AI 对话、真人匹配、实时通话、SOS、登录偏好与无障碍能力。真实后端与社群模块不会进入默认导航或演示脚本。',
+                  '当前默认仅展示 AI 对话、真人匹配、实时通话、SOS、登录偏好与无障碍能力。社群入口只展示精选故事和未来蓝图，不开放群聊或积分互动。',
                   style: TextStyle(
                     color: AppTheme.stageTextSecondary,
                     fontSize: AppTheme.fontSizeSmall,
@@ -709,9 +716,10 @@ class _QuickToolButton extends StatelessWidget {
       hint: '双击打开$label',
       onTap: onTap,
       padding: const EdgeInsets.all(AppTheme.spacingM),
-      child: SizedBox(
-        height: 160,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 160),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
@@ -728,10 +736,10 @@ class _QuickToolButton extends StatelessWidget {
                       color: AppTheme.stageBorder.withValues(alpha: 0.32),
                     ),
                   ),
-                  child: Icon(
-                    Icons.arrow_outward_rounded,
-                    size: 16,
-                    color: AppTheme.stageTextSecondary,
+                  child: const LinkableSvgIcon(
+                    icon: LinkableIconName.navigationGuide,
+                    size: 24,
+                    semanticLabel: '点击进入',
                   ),
                 ),
               ],
@@ -754,7 +762,7 @@ class _QuickToolButton extends StatelessWidget {
                 height: 1.4,
               ),
             ),
-            const Spacer(),
+            const SizedBox(height: AppTheme.spacingM),
             AccessibleText(
               '点击进入',
               style: TextStyle(
@@ -778,10 +786,10 @@ class _EmptyHistoryCard extends StatelessWidget {
     return DemoSurfaceCard(
       child: Column(
         children: [
-          Icon(
-            Icons.history_toggle_off,
+          const LinkableSvgIcon(
+            icon: LinkableIconName.featuredStory,
             size: AppTheme.fontSizeXXLarge,
-            color: AppTheme.stageTextHint,
+            semanticLabel: '暂无历史求助记录',
           ),
           const SizedBox(height: AppTheme.spacingS),
           AccessibleText(
@@ -827,7 +835,12 @@ class _HelpHistoryItem extends StatelessWidget {
               color: _typeColor(request).withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(18),
             ),
-            child: Icon(_buildTypeIcon(request), color: _typeColor(request)),
+            child: LinkableMaterialIcon(
+              icon: _buildTypeIcon(request),
+              size: 42,
+              color: _typeColor(request),
+              semanticLabel: _buildTypeLabel(request),
+            ),
           ),
           const SizedBox(width: AppTheme.spacingM),
           Expanded(
@@ -942,7 +955,11 @@ class _SafetyReadyCard extends StatelessWidget {
               color: AppTheme.stageDanger.withValues(alpha: 0.16),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(Icons.shield_outlined, color: AppTheme.stageDanger),
+            child: const LinkableSvgIcon(
+              icon: LinkableIconName.emergencyContact,
+              size: 42,
+              semanticLabel: 'SOS 安全设置',
+            ),
           ),
           const SizedBox(width: AppTheme.spacingM),
           Expanded(

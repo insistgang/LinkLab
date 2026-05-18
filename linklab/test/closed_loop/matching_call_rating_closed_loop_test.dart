@@ -1,7 +1,6 @@
 @Tags(['demo', 'closed-loop'])
 library;
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:linklab/screens/call/demo_matching_screen.dart';
@@ -19,7 +18,7 @@ void main() {
 
     await tester.pump(const Duration(seconds: 4));
     await tester.pump(const Duration(milliseconds: 300));
-    expect(find.byIcon(Icons.call_end), findsOneWidget);
+    expect(find.bySemanticsLabel('结束通话按钮'), findsOneWidget);
 
     await tester.pump(const Duration(seconds: 3));
     await tester.pump();
@@ -28,12 +27,12 @@ void main() {
     final connectedHistory = readLocalHelpHistoryModels();
     expect(connectedHistory.first.status, 'connected');
 
-    await tester.tap(find.byIcon(Icons.call_end));
+    await tester.tap(find.bySemanticsLabel('结束通话按钮'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 200));
     expect(find.text('为这次帮助评分'), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.star_border).at(4));
+    await tester.tap(find.byTooltip('评分5星'));
     await tester.pump();
     await tester.tap(find.text('提交评价'));
     await tester.pumpAndSettle();

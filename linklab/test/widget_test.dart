@@ -36,8 +36,12 @@ void main() {
     expect(find.textContaining('请输入您的手机号'), findsNothing);
     expect(find.text('首页'), findsWidgets);
     expect(find.text('AI助手'), findsWidgets);
+    expect(find.text('社群'), findsWidgets);
     expect(find.text('我的'), findsWidgets);
-    expect(find.text('社群'), findsNothing);
+    expect(find.text('精选故事'), findsWidgets);
+    expect(find.text('我的社群'), findsNothing);
+    expect(find.text('推荐社群'), findsNothing);
+    expect(find.text('群聊'), findsNothing);
     expect(find.text('安心积分'), findsNothing);
     expect(find.text('徽章'), findsNothing);
     expect(find.text('排班'), findsNothing);

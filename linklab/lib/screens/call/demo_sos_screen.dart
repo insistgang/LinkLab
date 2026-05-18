@@ -16,6 +16,7 @@ import '../../widgets/accessible/index.dart';
 import '../../widgets/demo/demo_motion.dart';
 import '../../widgets/demo/demo_routes.dart';
 import '../../widgets/demo/demo_stage.dart';
+import '../../widgets/demo/linkable_icon.dart';
 import '../security/location_sharing_screen.dart';
 import 'demo_call_screen.dart';
 
@@ -256,9 +257,10 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
                     ),
                     child: Row(
                       children: [
-                        Icon(
-                          Icons.warning_amber_rounded,
-                          color: AppTheme.stageDanger,
+                        const LinkableSvgIcon(
+                          icon: LinkableIconName.emergency,
+                          size: 28,
+                          semanticLabel: 'SOS紧急求助',
                         ),
                         const SizedBox(width: AppTheme.spacingS),
                         Expanded(
@@ -371,14 +373,12 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
                               Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(
-                                    isEmergencyFlowActive
-                                        ? Icons.sos_rounded
-                                        : Icons.emergency_outlined,
+                                  LinkableSvgIcon(
+                                    icon: LinkableIconName.emergency,
                                     size: 64,
-                                    color: isEmergencyFlowActive
-                                        ? AppTheme.stageDanger
-                                        : AppTheme.stageTextPrimary,
+                                    semanticLabel: isEmergencyFlowActive
+                                        ? 'SOS进行中'
+                                        : 'SOS紧急求助',
                                   ),
                                   const SizedBox(height: AppTheme.spacingS),
                                   Text(
@@ -542,7 +542,11 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
                 const SizedBox(height: AppTheme.spacingM),
                 TextButton.icon(
                   onPressed: _openSafetySettings,
-                  icon: Icon(Icons.tune, color: AppTheme.stageAccent),
+                  icon: const LinkableSvgIcon(
+                    icon: LinkableIconName.screenReader,
+                    size: 24,
+                    semanticLabel: '完善位置共享设置',
+                  ),
                   label: Text(
                     '完善位置共享设置',
                     style: TextStyle(color: AppTheme.stageAccent),
@@ -586,7 +590,11 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
           Expanded(
             child: OutlinedButton.icon(
               onPressed: _cancelPendingSOS,
-              icon: const Icon(Icons.undo_rounded),
+              icon: const LinkableSvgIcon(
+                icon: LinkableIconName.cancel,
+                size: 24,
+                semanticLabel: '撤销误触',
+              ),
               label: const Text('撤销误触'),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppTheme.stageTextPrimary,
@@ -604,7 +612,11 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
           Expanded(
             child: ElevatedButton.icon(
               onPressed: _activateSOSFlow,
-              icon: const Icon(Icons.campaign_rounded),
+              icon: const LinkableSvgIcon(
+                icon: LinkableIconName.broadcast,
+                size: 24,
+                semanticLabel: '立即发送',
+              ),
               label: const Text('立即发送'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.stageWarning,
@@ -633,7 +645,11 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
                 if (!mounted) return;
                 Navigator.pop(context);
               },
-              icon: const Icon(Icons.check_circle_outline),
+              icon: const LinkableSvgIcon(
+                icon: LinkableIconName.completed,
+                size: 24,
+                semanticLabel: '安全了',
+              ),
               label: const Text('安全了'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.stageSuccess,
@@ -656,7 +672,11 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
                 if (!mounted) return;
                 Navigator.pop(context);
               },
-              icon: const Icon(Icons.close_rounded),
+              icon: const LinkableSvgIcon(
+                icon: LinkableIconName.cancel,
+                size: 24,
+                semanticLabel: '取消求助',
+              ),
               label: const Text('取消求助'),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppTheme.stageTextPrimary,
@@ -762,17 +782,20 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
 
   Widget _buildSafetyStepRow({required _SafetyStep step}) {
     final (icon, color) = switch (step.state) {
-      _SafetyStepState.completed => (Icons.check_circle, AppTheme.stageSuccess),
+      _SafetyStepState.completed => (
+        LinkableIconName.completed,
+        AppTheme.stageSuccess,
+      ),
       _SafetyStepState.active => (
-        Icons.radio_button_checked,
+        LinkableIconName.processing,
         AppTheme.stageAccent,
       ),
       _SafetyStepState.skipped => (
-        Icons.remove_circle_outline,
+        LinkableIconName.cancel,
         AppTheme.stageTextHint,
       ),
       _SafetyStepState.pending => (
-        Icons.radio_button_unchecked,
+        LinkableIconName.unknown,
         AppTheme.stageTextHint,
       ),
     };
@@ -780,7 +803,7 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: color, size: 20),
+        LinkableSvgIcon(icon: icon, size: 22, semanticLabel: step.title),
         const SizedBox(width: 10),
         Expanded(
           child: Column(
@@ -886,7 +909,11 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Icon(Icons.info_outline, size: 16, color: AppTheme.stageTextHint),
+          const LinkableSvgIcon(
+            icon: LinkableIconName.unknown,
+            size: 18,
+            semanticLabel: '提示',
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: RichText(

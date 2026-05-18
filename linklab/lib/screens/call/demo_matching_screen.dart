@@ -11,6 +11,7 @@ import '../../providers/demo_matching_flow_provider.dart';
 import '../../widgets/accessible/index.dart';
 import '../../widgets/demo/demo_routes.dart';
 import '../../widgets/demo/demo_stage.dart';
+import '../../widgets/demo/linkable_icon.dart';
 import 'demo_call_screen.dart';
 
 /// 演示版匹配等待页面。
@@ -323,7 +324,12 @@ class _StatusIcon extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: color.withValues(alpha: 0.34)),
       ),
-      child: Icon(icon, color: color, size: 28),
+      child: LinkableMaterialIcon(
+        icon: icon,
+        color: color,
+        size: 42,
+        semanticLabel: '匹配状态',
+      ),
     );
   }
 }
@@ -344,7 +350,12 @@ class _InlineNotice extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: color, size: 22),
+        LinkableMaterialIcon(
+          icon: icon,
+          color: color,
+          size: 24,
+          semanticLabel: text,
+        ),
         const SizedBox(width: AppTheme.spacingS),
         Expanded(
           child: AccessibleText(
@@ -376,10 +387,10 @@ class _PhaseTimeline extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  Icons.check_circle,
-                  color: AppTheme.stageSuccess,
-                  size: 18,
+                const LinkableSvgIcon(
+                  icon: LinkableIconName.completed,
+                  size: 20,
+                  semanticLabel: '已完成',
                 ),
                 const SizedBox(width: AppTheme.spacingS),
                 Expanded(
@@ -827,12 +838,13 @@ class _DemoActionButton extends StatelessWidget {
                 mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    icon,
+                  LinkableMaterialIcon(
+                    icon: icon,
                     color: enabled
                         ? effectiveColor
                         : AppTheme.stageTextSecondary,
                     size: 22,
+                    semanticLabel: label,
                   ),
                   const SizedBox(width: AppTheme.spacingS),
                   Flexible(
