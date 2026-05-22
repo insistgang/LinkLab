@@ -34,6 +34,7 @@ class LoginScreen extends StatelessWidget {
                   title: '共感LinkAble',
                   subtitle: 'AI 驱动的无障碍互助平台。先解决 80% 标准化问题，再把复杂场景交给真人。',
                   icon: Icons.accessibility_new_rounded,
+                  useLogo: true,
                   chips: [
                     DemoPill(label: 'Demo 主线锁定', color: AppTheme.stageAccent),
                     DemoPill(label: '无障碍优先', color: AppTheme.stageSuccess),

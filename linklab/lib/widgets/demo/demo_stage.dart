@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../../services/app_session_service.dart';
 import '../accessible/index.dart';
+import '../brand/app_logo.dart';
 import 'linkable_icon.dart';
 
 enum DemoGlassIconShape { rounded, circle }
@@ -487,6 +488,10 @@ class _DemoStageHeader extends StatelessWidget {
           const SizedBox(width: AppTheme.minTouchTarget + 8),
         if (showBackButton && Navigator.of(context).canPop())
           const SizedBox(width: AppTheme.spacingM),
+        if (!showBackButton) ...[
+          const AppLogo(size: 48, borderRadius: 12),
+          const SizedBox(width: AppTheme.spacingM),
+        ],
         Expanded(
           child: Padding(
             padding: const EdgeInsets.only(top: AppTheme.spacingXS),

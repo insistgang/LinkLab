@@ -13,6 +13,7 @@ import '../../services/security/emergency_contact_service.dart';
 import '../../services/security/safety_settings_service.dart';
 import '../../services/user_center/help_archive_service.dart';
 import '../../widgets/accessible/index.dart';
+import '../../widgets/brand/app_logo.dart';
 import '../../widgets/demo/demo_motion.dart';
 import '../../widgets/demo/demo_overlays.dart';
 import '../../widgets/demo/demo_routes.dart';
@@ -442,6 +443,39 @@ class _HeroPanel extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppTheme.spacingL),
+          Row(
+            children: [
+              const AppLogo(size: 56, borderRadius: 14),
+              const SizedBox(width: AppTheme.spacingM),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AccessibleText(
+                      '共感 LinkAble',
+                      isHeader: true,
+                      style: TextStyle(
+                        color: AppTheme.stageTextPrimary,
+                        fontSize: AppTheme.fontSizeXLarge,
+                        fontWeight: FontWeight.w800,
+                        height: 1.1,
+                      ),
+                    ),
+                    const SizedBox(height: AppTheme.spacingXS),
+                    AccessibleText(
+                      'AI Agent × 真人互助',
+                      style: TextStyle(
+                        color: AppTheme.stageAccentLight,
+                        fontSize: AppTheme.fontSizeSmall,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppTheme.spacingL),
           AccessibleText(
             '您好，${session.greetingName}',
             style: TextStyle(
@@ -492,9 +526,9 @@ class _HeroPanel extends StatelessWidget {
                   child: const Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      LinkableSvgIcon(
-                        icon: LinkableIconName.needHelp,
-                        size: 52,
+                      AppLogo(
+                        size: 64,
+                        borderRadius: 16,
                         semanticLabel: '我需要帮助',
                       ),
                       SizedBox(height: AppTheme.spacingM),

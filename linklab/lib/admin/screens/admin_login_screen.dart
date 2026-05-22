@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/brand/app_logo.dart';
 import '../services/admin_auth_service.dart';
 import 'admin_layout.dart';
 
@@ -88,25 +89,18 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Logo
-                        Icon(
-                          Icons.admin_panel_settings,
-                          size: 64,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
+                        const AppLogo(size: 72, borderRadius: 16),
                         const SizedBox(height: 16),
                         Text(
                           'LinkLab 运营后台',
-                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Theme.of(context).textTheme.headlineMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           '管理员登录',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: Colors.grey[600],
-                          ),
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(color: Colors.grey[600]),
                         ),
                         const SizedBox(height: 32),
 
@@ -136,7 +130,9 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                             prefixIcon: const Icon(Icons.lock),
                             suffixIcon: IconButton(
                               icon: Icon(
-                                _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                                _obscurePassword
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
                               ),
                               onPressed: () {
                                 setState(() {
@@ -162,7 +158,9 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                           child: ElevatedButton(
                             onPressed: _authService.isLoading ? null : _login,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).colorScheme.primary,
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.primary,
                               foregroundColor: Colors.white,
                             ),
                             child: _authService.isLoading
@@ -171,7 +169,9 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                                     height: 20,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation(Colors.white),
+                                      valueColor: AlwaysStoppedAnimation(
+                                        Colors.white,
+                                      ),
                                     ),
                                   )
                                 : const Text(

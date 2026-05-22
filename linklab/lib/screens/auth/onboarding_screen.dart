@@ -113,6 +113,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               title: page.title,
                               subtitle: page.description,
                               icon: page.icon,
+                              useLogo: index == 0,
                               chips: page.highlights
                                   .map(
                                     (item) => DemoPill(

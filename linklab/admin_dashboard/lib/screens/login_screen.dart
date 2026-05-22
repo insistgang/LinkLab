@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../bloc/auth_bloc.dart';
 import '../constants/app_constants.dart';
 import '../constants/theme.dart';
+import '../widgets/app_logo.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -88,21 +89,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            // Logo
-                            Container(
-                              width: 80,
-                              height: 80,
-                              decoration: BoxDecoration(
-                                color: AppTheme.primaryColor.withValues(
-                                  alpha: 0.1,
-                                ),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: const Icon(
-                                Icons.admin_panel_settings,
-                                size: 48,
-                                color: AppTheme.primaryColor,
-                              ),
+                            const Center(
+                              child: AppLogo(size: 80, borderRadius: 16),
                             ),
                             const SizedBox(height: 24),
                             // Title

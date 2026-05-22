@@ -65,8 +65,8 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
-      if (!context.mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('加载数据失败: $e')));

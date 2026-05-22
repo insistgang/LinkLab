@@ -54,6 +54,7 @@ dependencies:
   shared_preferences: ^2.5.2
   flutter_screenutil: ^5.9.3
   responsive_framework: ^1.5.1
+  flutter_svg: ^2.3.0
 
   # Export
   pdf: ^3.11.3
@@ -82,8 +83,8 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # admin_dashboard 当前未使用 Flutter asset bundle。
-  # `web/` 下的 favicon 和 icons 由 Web 静态资源直接提供，不进入 pubspec assets。
+  assets:
+    - assets/brand/logo.svg
 
   # To add assets to your application, add an assets section, like this:
   # assets:

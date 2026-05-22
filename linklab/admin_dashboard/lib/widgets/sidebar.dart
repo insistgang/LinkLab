@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../bloc/auth_bloc.dart';
 import '../constants/app_constants.dart';
 import '../constants/theme.dart';
+import 'app_logo.dart';
 
 class Sidebar extends StatelessWidget {
   final String currentRoute;
@@ -22,18 +23,7 @@ class Sidebar extends StatelessWidget {
             padding: const EdgeInsets.all(24),
             child: Row(
               children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryColor,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(
-                    Icons.admin_panel_settings,
-                    color: Colors.white,
-                  ),
-                ),
+                const AppLogo(size: 40, borderRadius: 8),
                 const SizedBox(width: 12),
                 const Expanded(
                   child: Column(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/brand/app_logo.dart';
 import '../services/admin_auth_service.dart';
 import 'admin_login_screen.dart';
 import 'dashboard_page.dart';
@@ -131,11 +132,7 @@ class _AdminLayoutState extends State<AdminLayout> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  Icon(
-                    Icons.admin_panel_settings,
-                    size: 40,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+                  const AppLogo(size: 42, borderRadius: 10),
                   const SizedBox(height: 8),
                   if (MediaQuery.of(context).size.width > 1200)
                     Text(
@@ -153,10 +150,12 @@ class _AdminLayoutState extends State<AdminLayout> {
               tooltip: '退出登录',
             ),
             destinations: visibleItems
-                .map((item) => NavigationRailDestination(
-                      icon: Icon(item.icon),
-                      label: Text(item.label),
-                    ))
+                .map(
+                  (item) => NavigationRailDestination(
+                    icon: Icon(item.icon),
+                    label: Text(item.label),
+                  ),
+                )
                 .toList(),
           ),
 
@@ -171,9 +170,7 @@ class _AdminLayoutState extends State<AdminLayout> {
                 _buildAppBar(),
 
                 // 页面内容
-                Expanded(
-                  child: currentPage,
-                ),
+                Expanded(child: currentPage),
               ],
             ),
           ),
@@ -189,19 +186,16 @@ class _AdminLayoutState extends State<AdminLayout> {
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 4,
-          ),
+          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4),
         ],
       ),
       child: Row(
         children: [
           Text(
             _visibleNavItems[_selectedIndex].label,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
           const Spacer(),
           // 管理员信息
@@ -210,7 +204,10 @@ class _AdminLayoutState extends State<AdminLayout> {
               CircleAvatar(
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 child: Text(
-                  _authService.currentUser?.username.substring(0, 1).toUpperCase() ?? 'A',
+                  _authService.currentUser?.username
+                          .substring(0, 1)
+                          .toUpperCase() ??
+                      'A',
                   style: const TextStyle(color: Colors.white),
                 ),
               ),
@@ -225,10 +222,7 @@ class _AdminLayoutState extends State<AdminLayout> {
                   ),
                   Text(
                     _getRoleName(_authService.currentUser?.role),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                 ],
               ),

@@ -256,37 +256,30 @@ class _ReportsContent extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 StatefulBuilder(
-                  builder: (context, setState) => Column(
-                    children: [
-                      RadioListTile<String>(
-                        title: const Text('警告用户'),
-                        value: 'warn',
-                        groupValue: selectedAction,
-                        onChanged: (value) =>
-                            setState(() => selectedAction = value),
-                      ),
-                      RadioListTile<String>(
-                        title: const Text('封禁用户'),
-                        value: 'ban',
-                        groupValue: selectedAction,
-                        onChanged: (value) =>
-                            setState(() => selectedAction = value),
-                      ),
-                      RadioListTile<String>(
-                        title: const Text('删除内容'),
-                        value: 'delete',
-                        groupValue: selectedAction,
-                        onChanged: (value) =>
-                            setState(() => selectedAction = value),
-                      ),
-                      RadioListTile<String>(
-                        title: const Text('驳回举报'),
-                        value: 'dismiss',
-                        groupValue: selectedAction,
-                        onChanged: (value) =>
-                            setState(() => selectedAction = value),
-                      ),
-                    ],
+                  builder: (context, setState) => RadioGroup<String>(
+                    groupValue: selectedAction,
+                    onChanged: (value) =>
+                        setState(() => selectedAction = value),
+                    child: const Column(
+                      children: [
+                        RadioListTile<String>(
+                          title: Text('警告用户'),
+                          value: 'warn',
+                        ),
+                        RadioListTile<String>(
+                          title: Text('封禁用户'),
+                          value: 'ban',
+                        ),
+                        RadioListTile<String>(
+                          title: Text('删除内容'),
+                          value: 'delete',
+                        ),
+                        RadioListTile<String>(
+                          title: Text('驳回举报'),
+                          value: 'dismiss',
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),

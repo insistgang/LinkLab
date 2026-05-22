@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../accessible/index.dart';
+import '../brand/app_logo.dart';
 import 'linkable_icon.dart';
 import 'demo_stage.dart';
 
@@ -12,12 +13,14 @@ class DemoAuthBanner extends StatelessWidget {
     required this.subtitle,
     required this.icon,
     this.chips = const [],
+    this.useLogo = false,
   });
 
   final String title;
   final String subtitle;
   final IconData icon;
   final List<Widget> chips;
+  final bool useLogo;
 
   @override
   Widget build(BuildContext context) {
@@ -26,12 +29,14 @@ class DemoAuthBanner extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          DemoGlassIconBadge(
-            icon: icon,
-            size: 62,
-            iconSize: 30,
-            shape: DemoGlassIconShape.circle,
-          ),
+          useLogo
+              ? const AppLogo(size: 62, borderRadius: 18)
+              : DemoGlassIconBadge(
+                  icon: icon,
+                  size: 62,
+                  iconSize: 30,
+                  shape: DemoGlassIconShape.circle,
+                ),
           const SizedBox(height: AppTheme.spacingL),
           AccessibleText(
             title,
