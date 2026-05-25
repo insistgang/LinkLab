@@ -120,11 +120,12 @@ class DemoCallFlow {
   }
 }
 
-/// 演示流程状态管理
-class DemoFlowState extends ChangeNotifier {
-  static final DemoFlowState _instance = DemoFlowState._internal();
-  factory DemoFlowState() => _instance;
-  DemoFlowState._internal();
+/// 演示流程状态管理（旧版 ChangeNotifier，已被 Riverpod 版本替代）
+@Deprecated('使用 providers/demo_flow_provider.dart 中的 Riverpod DemoFlowState 替代')
+class _LegacyDemoFlowState extends ChangeNotifier {
+  static final _LegacyDemoFlowState _instance = _LegacyDemoFlowState._internal();
+  factory _LegacyDemoFlowState() => _instance;
+  _LegacyDemoFlowState._internal();
 
   // 当前流程状态
   bool _isInDemoFlow = false;
@@ -189,7 +190,7 @@ class DemoFlowState extends ChangeNotifier {
 class DemoQuickActions {
   /// 一键演示完整流程
   static Future<void> runFullDemo(BuildContext context) async {
-    final flowState = DemoFlowState();
+    final flowState = _LegacyDemoFlowState();
     flowState.startFlow();
 
     // 1. AI对话

@@ -4,10 +4,11 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 > 一个专为视障人士设计的智能互助平台，结合AI识别与志愿者实时协助，让科技更有温度。
+> 当前状态：Demo-first MVP。Web / Chrome 是首选演示路径；真实 WebRTC、真实 Supabase、真实推送和生产级 SOS 仍是实验或后续能力，不作为当前生产完成项。
 
 ## 项目简介
 
-共感LinkAble是一款面向视障人士的AI无障碍互助应用，通过AI图像识别、语音识别和实时音视频通话技术，帮助视障用户解决日常生活中的视觉信息获取难题。当AI无法准确识别或用户需要进一步帮助时，可一键连接志愿者进行实时协助。
+共感LinkAble是一款面向视障人士的AI无障碍互助应用。当前仓库优先服务竞赛 Demo：通过本地 AI 场景、Demo 通话状态机和志愿者兜底流程，帮助视障用户完成可演示的求助闭环。当AI无法准确识别或用户需要进一步帮助时，可进入志愿者匹配和 Demo Call 演示。
 
 ## 当前 Demo 与 PRD 对齐范围
 
@@ -30,7 +31,7 @@
 - 真实定位权限、短信/Push 通知、生产级 SOS 升级链路
 - 推送通知、内容审核后台与更完整的志愿者运营能力
 
-因此，当前版本更适合做主前端产品演示，而不是生产环境部署。
+因此，当前版本更适合做 Web / Chrome 主前端产品演示，而不是生产环境部署。
 
 ## 功能特性
 
@@ -42,14 +43,14 @@
 
 ### 志愿者匹配
 - **智能匹配** - 根据用户需求匹配最合适的志愿者
-- **实时通话** - 基于WebRTC的低延迟音视频通话
+- **Demo通话** - 基于本地状态机展示连接、接通、结束与评价；真实 WebRTC 仍是实验链路
 - **异步留言** - 非紧急问题先留言，稍后由志愿者回复
 - **志愿者等级** - 灯塔、星辰、暖阳、微光、烛光五级认证体系
 
 ### SOS紧急求助
 - **快速触发** - 长按3秒启动紧急求助
-- **位置共享设置** - 可配置精确/大致位置、联系人同步与语音提示
-- **阶段状态反馈** - 展示位置同步、联系人通知、志愿者广播与响应进度
+- **Mock SOS展示** - 竞赛 Demo 展示误触撤销、模拟广播和联系人通知状态
+- **阶段状态反馈** - 展示位置同步、联系人通知、志愿者广播与响应进度；真实短信、真实推送、系统级触发和报警联通未生产化
 
 ### 无障碍设计
 - **WCAG 2.1 AAA标准** - 高对比度配色，对比度>=7:1
@@ -62,7 +63,9 @@
 ### 环境要求
 - Flutter SDK >= 3.11.4
 - Dart SDK >= 3.0.0
-- Android SDK 或 Xcode (iOS)
+- Chrome（首选演示路径）
+- Android SDK 或 Xcode (iOS) 可用于移动端验证
+- Windows 桌面端需要 Visual Studio C++ 桌面开发工具链，非首选演示路径
 
 ### 安装步骤
 
@@ -77,11 +80,13 @@ flutter pub get
 # 3. 运行代码生成 (用于生成freezed模型)
 flutter pub run build_runner build --delete-conflicting-outputs
 
-# 4. 运行应用
-flutter run
+# 4. 运行应用（首选 Web / Chrome）
+flutter run -d chrome
 ```
 
-### 配置Supabase
+### 配置Supabase（实验真实链路，非 Demo 必需）
+
+竞赛 Demo 默认不需要真实 Supabase。只有在本地实验真实链路时，才配置以下信息。
 
 1. 在 `lib/config/app_config.dart` 中配置Supabase信息：
 ```dart
@@ -89,7 +94,7 @@ static const String supabaseUrl = 'YOUR_SUPABASE_URL';
 static const String supabaseAnonKey = 'YOUR_SUPABASE_ANON_KEY';
 ```
 
-2. 如需使用推送通知，配置Firebase并下载 `google-services.json` (Android) 或 `GoogleService-Info.plist` (iOS)
+2. 如需实验推送通知，配置Firebase并下载 `google-services.json` (Android) 或 `GoogleService-Info.plist` (iOS)。真实推送不属于当前 Demo 验收依赖。
 
 ## 项目结构
 
@@ -127,6 +132,8 @@ lib/
 应用默认运行在演示模式，使用模拟数据，无需后端服务即可体验完整功能。
 
 ### 切换模式
+
+真实模式仅用于本地实验，不用于竞赛 Demo。当前 Demo-first 口径下，不建议现场切换到真实模式。
 
 在 `lib/config/app_config.dart` 中修改：
 
@@ -210,8 +217,8 @@ Semantics(
 | **Flutter** | 跨平台UI框架 |
 | **Riverpod** | 状态管理 |
 | **Supabase** | 后端服务（数据库、认证、实时通信） |
-| **WebRTC** | 实时音视频通话 |
-| **Firebase** | 推送通知 |
+| **WebRTC** | 实验性真实通话；竞赛默认使用 Demo Call |
+| **Firebase** | 实验性推送通知；竞赛默认不依赖 |
 | **flutter_tts** | 文字转语音 |
 | **speech_to_text** | 语音识别 |
 | **camera** | 相机访问 |

@@ -1,37 +1,107 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 import 'app.dart';
 import 'config/app_config.dart';
-import 'services/demo/demo_data_loader.dart';
+import 'core/utils/logger.dart';
 import 'services/app_session_service.dart';
+import 'services/demo/demo_data_loader.dart';
 
-Widget buildCompetitionDemoApp() {
+Widget buildLinkLabApp() {
   return const ProviderScope(child: LinkLabApp());
 }
 
-Future<void> initializeCompetitionDemoApp() async {
-  // AGENTS.md §4.2 / §8：竞赛版启动时先显式强制 demoMode=true，
-  // 再锁定 Demo-only，避免真实依赖阻塞 3 分钟演示闭环。
-  // AGENTS.md §4.4：若未来启用真实 Supabase，根目录 supabase/ 才是唯一 schema source of truth，
-  // linklab/supabase 历史目录不得再作为初始化依据。
-  AppConfig.demoMode = true;
-  AppConfig.configureCompetitionDemoDefaults(enablePresenterSession: true);
-  assert(AppConfig.isCompetitionDemoOnly, '竞赛版必须锁定 Demo-only');
-  assert(AppConfig.demoMode, '竞赛版必须强制开启 demoMode');
-  assert(AppConfig.isDemoMode, '演示模式必须开启');
+/// 兼容旧测试入口。当前默认启动已切到 RealMode Phase-1。
+Widget buildCompetitionDemoApp() => buildLinkLabApp();
 
-  // 加载演示数据与预置会话。这里不能初始化真实 Supabase / Firebase / WebRTC。
+Future<void> initializeLinkLabApp({
+  bool preferRealMode = true,
+  bool enablePresenterSessionOnFallback = true,
+  bool enableAuthAutoRefresh = true,
+}) async {
+  await _loadDotEnv();
+  AppConfig.configureFromEnvironment(
+    dotenv.env,
+    preferRealMode: preferRealMode,
+    enablePresenterSessionOnFallback: enablePresenterSessionOnFallback,
+  );
+
+  if (AppConfig.isRealMode) {
+    final initialized = await _initializeSupabase(
+      enableAuthAutoRefresh: enableAuthAutoRefresh,
+    );
+    if (!initialized) {
+      AppConfig.configureDemoFallback(
+        reason: 'Supabase.initialize 失败',
+        enablePresenterSession: enablePresenterSessionOnFallback,
+      );
+    }
+  }
+
+  // Demo 数据作为 fallback 资产始终可用；Phase-1 不触发真实业务表查询。
   await DemoDataLoader.initialize();
+
+  // 注意：此处 ProviderScope 尚未创建，只能直接操作底层服务实例。
+  // Riverpod provider 在 runApp 后由 AppSessionNotifier.build() 自动同步。
+  // ignore: deprecated_member_use_from_same_package
   await AppSessionService.instance.initialize();
+
+  if (AppConfig.presenterMode) {
+    // ignore: deprecated_member_use_from_same_package
+    await AppSessionService.instance.ensureCompetitionPresenterSession();
+  }
+}
+
+/// 显式 Demo 初始化入口，供闭环测试和现场 fallback 使用。
+Future<void> initializeCompetitionDemoApp() async {
+  AppConfig.configureCompetitionDemoDefaults(enablePresenterSession: true);
+  await DemoDataLoader.initialize();
+
+  // ignore: deprecated_member_use_from_same_package
+  await AppSessionService.instance.initialize();
+  // ignore: deprecated_member_use_from_same_package
   await AppSessionService.instance.ensureCompetitionPresenterSession();
 }
 
-/// 演示模式入口
-/// 用于竞赛演示，使用模拟数据
+Future<void> _loadDotEnv() async {
+  try {
+    await dotenv.load(fileName: '.env');
+    AppLogger.info('.env 加载完成');
+  } catch (error, stackTrace) {
+    AppLogger.warning('.env 加载失败，将按缺少配置处理', error, stackTrace);
+  }
+}
+
+Future<bool> _initializeSupabase({required bool enableAuthAutoRefresh}) async {
+  if (!AppConfig.canInitializeSupabase) {
+    return false;
+  }
+
+  try {
+    await Supabase.initialize(
+      url: AppConfig.supabaseUrl,
+      anonKey: AppConfig.supabaseAnonKey,
+      authOptions: FlutterAuthClientOptions(
+        autoRefreshToken: enableAuthAutoRefresh,
+        detectSessionInUri: false,
+      ),
+    );
+    AppConfig.markSupabaseInitialized();
+    AppLogger.info('Supabase client 初始化完成');
+    return true;
+  } catch (error, stackTrace) {
+    AppConfig.markSupabaseUnavailable();
+    AppLogger.error('Supabase client 初始化失败', error, stackTrace);
+    return false;
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeCompetitionDemoApp();
+  await initializeLinkLabApp();
 
   // 设置首选方向
   await SystemChrome.setPreferredOrientations([
@@ -50,30 +120,5 @@ void main() async {
   );
 
   // AGENTS.md 要求全局提供 Riverpod 容器。
-  // 竞赛版仍强制走 Demo 主线，但所有 Consumer 页面必须有统一状态作用域。
-  runApp(buildCompetitionDemoApp());
+  runApp(buildLinkLabApp());
 }
-
-/// 生产模式入口（未来使用）
-/// 用于真实环境，连接Supabase和真实API
-// void main() async {
-//   WidgetsFlutterBinding.ensureInitialized();
-//
-//   // 初始化Supabase
-//   await Supabase.initialize(
-//     url: AppConstants.supabaseUrl,
-//     anonKey: AppConstants.supabaseAnonKey,
-//   );
-//
-//   // 初始化Firebase
-//   await Firebase.initializeApp();
-//
-//   // 初始化TTS
-//   await TTSService().initialize();
-//
-//   runApp(
-//     const ProviderScope(
-//       child: LinkLabApp(),
-//     ),
-//   );
-// }

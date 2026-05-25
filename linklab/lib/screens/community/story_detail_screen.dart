@@ -1,76 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_theme.dart';
 import '../../models/community_models.dart';
-import '../../services/app_session_service.dart';
+import '../../providers/community_provider.dart';
 import '../../services/community/featured_story_service.dart';
 import '../../widgets/accessible/index.dart';
 import '../../widgets/demo/demo_stage.dart';
 import '../../widgets/demo/linkable_icon.dart';
 
-/// 故事详情页面
-class StoryDetailScreen extends StatefulWidget {
+/// 故事详情页面 —— 纯静态展示，不开放互动功能（AGENTS.md §4 F24-F27 降级）
+class StoryDetailScreen extends ConsumerStatefulWidget {
   const StoryDetailScreen({super.key, required this.story});
 
   final FeaturedStory story;
 
   @override
-  State<StoryDetailScreen> createState() => _StoryDetailScreenState();
+  ConsumerState<StoryDetailScreen> createState() => _StoryDetailScreenState();
 }
 
-class _StoryDetailScreenState extends State<StoryDetailScreen> {
-  final _storyService = FeaturedStoryService();
+class _StoryDetailScreenState extends ConsumerState<StoryDetailScreen> {
   late FeaturedStory _story;
-  bool _isLiked = false;
+
+  FeaturedStoryService get _storyService => ref.read(featuredStoryProvider);
 
   @override
   void initState() {
     super.initState();
     _story = widget.story;
     _loadStory();
-    _checkLikeStatus();
   }
-
-  String get _currentUserId =>
-      AppSessionService.instance.currentUser?.id ?? 'demo-user-id';
 
   Future<void> _loadStory() async {
     final detail = await _storyService.getStoryDetail(_story.id);
     if (!mounted || detail == null) return;
     setState(() => _story = detail);
-  }
-
-  Future<void> _checkLikeStatus() async {
-    final hasLiked = await _storyService.hasLiked(_story.id, _currentUserId);
-    if (!mounted) return;
-    setState(() => _isLiked = hasLiked);
-  }
-
-  Future<void> _toggleLike() async {
-    try {
-      if (_isLiked) {
-        await _storyService.unlikeStory(_story.id, _currentUserId);
-        if (!mounted) return;
-        setState(() {
-          _isLiked = false;
-          _story = _story.copyWith(
-            likeCount: _story.likeCount > 0 ? _story.likeCount - 1 : 0,
-          );
-        });
-      } else {
-        await _storyService.likeStory(_story.id, _currentUserId);
-        if (!mounted) return;
-        setState(() {
-          _isLiked = true;
-          _story = _story.copyWith(likeCount: _story.likeCount + 1);
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('操作失败: $e')));
-      }
-    }
   }
 
   @override
@@ -88,7 +51,6 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 标题
             AccessibleText(
               _story.title,
               style: const TextStyle(
@@ -97,7 +59,6 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
               ),
             ),
             const SizedBox(height: AppTheme.spacingM),
-            // 作者信息
             Row(
               children: [
                 CircleAvatar(
@@ -139,7 +100,6 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
               ],
             ),
             const SizedBox(height: AppTheme.spacingL),
-            // 封面图
             if (_story.coverImage != null)
               ClipRRect(
                 borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
@@ -152,7 +112,6 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
               ),
             if (_story.coverImage != null)
               const SizedBox(height: AppTheme.spacingL),
-            // 内容
             AccessibleText(
               _story.content,
               style: const TextStyle(
@@ -161,37 +120,36 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
               ),
             ),
             const SizedBox(height: AppTheme.spacingXL),
-            // 互动栏
-            Container(
-              padding: const EdgeInsets.all(AppTheme.spacingM),
-              decoration: BoxDecoration(
-                color: AppTheme.backgroundGrey,
-                borderRadius: BorderRadius.circular(
-                  AppTheme.borderRadiusMedium,
+            // 静态统计栏：仅展示阅读数，不含点赞/分享等互动功能
+            Semantics(
+              label: '阅读 ${_story.readCount} 次',
+              child: Container(
+                padding: const EdgeInsets.all(AppTheme.spacingM),
+                decoration: BoxDecoration(
+                  color: AppTheme.backgroundGrey,
+                  borderRadius: BorderRadius.circular(
+                    AppTheme.borderRadiusMedium,
+                  ),
                 ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _ActionButton(
-                    icon: _isLiked ? Icons.favorite : Icons.favorite_border,
-                    label: '${_story.likeCount}',
-                    color: _isLiked ? AppTheme.errorColor : AppTheme.textHint,
-                    onTap: _toggleLike,
-                  ),
-                  _ActionButton(
-                    icon: Icons.remove_red_eye,
-                    label: '${_story.readCount}',
-                    onTap: () {},
-                  ),
-                  _ActionButton(
-                    icon: Icons.share,
-                    label: '分享',
-                    onTap: () {
-                      // TODO: 分享功能
-                    },
-                  ),
-                ],
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    LinkableMaterialIcon(
+                      icon: Icons.remove_red_eye,
+                      size: 24,
+                      color: AppTheme.textHint,
+                      semanticLabel: '阅读次数',
+                    ),
+                    const SizedBox(width: AppTheme.spacingXS),
+                    AccessibleText(
+                      '${_story.readCount} 次阅读',
+                      style: TextStyle(
+                        fontSize: AppTheme.fontSizeNormal,
+                        color: AppTheme.textHint,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -203,51 +161,5 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
   String _formatDate(DateTime? date) {
     if (date == null) return '';
     return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-  }
-}
-
-/// 操作按钮
-class _ActionButton extends StatelessWidget {
-  const _ActionButton({
-    required this.icon,
-    required this.label,
-    this.color,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final Color? color;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppTheme.spacingM,
-          vertical: AppTheme.spacingS,
-        ),
-        child: Row(
-          children: [
-            LinkableMaterialIcon(
-              icon: icon,
-              size: 24,
-              color: color ?? AppTheme.textHint,
-              semanticLabel: label,
-            ),
-            const SizedBox(width: AppTheme.spacingXS),
-            AccessibleText(
-              label,
-              style: TextStyle(
-                fontSize: AppTheme.fontSizeNormal,
-                color: color ?? AppTheme.textHint,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

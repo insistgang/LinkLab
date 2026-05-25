@@ -37,7 +37,8 @@ void main() {
     await tester.tap(find.text('提交评价'));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('您好，'), findsOneWidget);
+    expect(find.text('共感 LinkAble'), findsWidgets);
+    expect(find.text('长按求助'), findsOneWidget);
 
     final completedHistory = readLocalHelpHistoryModels();
     expect(completedHistory.first.status, 'completed');

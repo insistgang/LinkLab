@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_theme.dart';
+// ignore: deprecated_member_use_from_same_package
 import '../../services/app_session_service.dart';
 import '../accessible/index.dart';
 import '../brand/app_logo.dart';
@@ -194,12 +195,14 @@ class DemoPill extends StatelessWidget {
     super.key,
     required this.label,
     this.icon,
+    this.svgIcon,
     this.color,
     this.backgroundColor,
   });
 
   final String label;
   final IconData? icon;
+  final LinkableIconName? svgIcon;
   final Color? color;
   final Color? backgroundColor;
 
@@ -230,7 +233,10 @@ class DemoPill extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (icon != null) ...[
+          if (svgIcon != null) ...[
+            LinkableSvgIcon(icon: svgIcon!, size: 18, semanticLabel: label),
+            const SizedBox(width: AppTheme.spacingXS),
+          ] else if (icon != null) ...[
             LinkableMaterialIcon(
               icon: icon!,
               size: 18,
@@ -257,6 +263,7 @@ class DemoGlassIconBadge extends StatelessWidget {
   const DemoGlassIconBadge({
     super.key,
     required this.icon,
+    this.svgIcon,
     this.size = 56,
     this.iconSize,
     this.iconColor = const Color(0xFFFDFBFF),
@@ -265,6 +272,7 @@ class DemoGlassIconBadge extends StatelessWidget {
   });
 
   final IconData icon;
+  final LinkableIconName? svgIcon;
   final double size;
   final double? iconSize;
   final Color iconColor;
@@ -273,6 +281,15 @@ class DemoGlassIconBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (svgIcon != null) {
+      final badge = LinkableSvgIcon(
+        icon: svgIcon!,
+        size: size,
+        semanticLabel: semanticLabel,
+      );
+      return semanticLabel == null ? ExcludeSemantics(child: badge) : badge;
+    }
+
     final linkableIcon = linkableIconForMaterial(icon);
     if (linkableIcon != null) {
       final badge = LinkableSvgIcon(
@@ -477,7 +494,7 @@ class _DemoStageHeader extends StatelessWidget {
                   ),
                 ),
                 child: const LinkableSvgIcon(
-                  icon: LinkableIconName.navigationGuide,
+                  icon: LinkableIconName.back,
                   size: 44,
                   semanticLabel: '返回',
                 ),
@@ -546,32 +563,23 @@ class _DemoStageStatusStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ExcludeSemantics(
+    return const ExcludeSemantics(
       child: Row(
         children: [
-          AccessibleText(
-            '13:31',
-            style: TextStyle(
-              color: AppTheme.stageTextPrimary,
-              fontSize: AppTheme.fontSizeSmall,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.6,
-            ),
-          ),
-          const Spacer(),
-          const LinkableSvgIcon(
+          Spacer(),
+          LinkableSvgIcon(
             icon: LinkableIconName.weakSignal,
             size: 18,
             semanticLabel: '网络信号',
           ),
-          const SizedBox(width: 4),
-          const LinkableSvgIcon(
+          SizedBox(width: 4),
+          LinkableSvgIcon(
             icon: LinkableIconName.weakSignal,
             size: 18,
             semanticLabel: '无线网络',
           ),
-          const SizedBox(width: 4),
-          const LinkableSvgIcon(
+          SizedBox(width: 4),
+          LinkableSvgIcon(
             icon: LinkableIconName.completed,
             size: 20,
             semanticLabel: '电量充足',

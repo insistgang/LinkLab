@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../config/app_config.dart';
 import '../../core/theme/app_theme.dart';
 import '../../widgets/accessible/index.dart';
 import '../../widgets/demo/demo_auth.dart';
 import '../../widgets/demo/demo_motion.dart';
 import '../../widgets/demo/demo_routes.dart';
 import '../../widgets/demo/demo_stage.dart';
+import 'email_login_screen.dart';
 import 'onboarding_screen.dart';
 import 'phone_login_screen.dart';
 
@@ -15,11 +17,15 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isRealMode = AppConfig.isRealMode;
+
     return DemoStageLiveBuilder(
       builder: (context) {
         return DemoStageScaffold(
           title: '欢迎使用',
-          subtitle: '竞赛版默认从手机号登录或首次引导进入',
+          subtitle: isRealMode
+              ? 'RealMode 使用 Supabase Auth 登录'
+              : 'DemoMode 使用本地登录流程',
           showBackButton: false,
           body: ListView(
             padding: const EdgeInsets.fromLTRB(
@@ -36,7 +42,10 @@ class LoginScreen extends StatelessWidget {
                   icon: Icons.accessibility_new_rounded,
                   useLogo: true,
                   chips: [
-                    DemoPill(label: 'Demo 主线锁定', color: AppTheme.stageAccent),
+                    DemoPill(
+                      label: isRealMode ? 'RealMode' : 'DemoMode',
+                      color: AppTheme.stageAccent,
+                    ),
                     DemoPill(label: '无障碍优先', color: AppTheme.stageSuccess),
                   ],
                 ),
@@ -84,26 +93,42 @@ class LoginScreen extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               AccessibleButton(
-                label: '手机号登录',
-                semanticLabel: '使用手机号和验证码登录',
-                hint: '双击进入手机号登录页面',
-                icon: Icons.phone_android_rounded,
+                label: isRealMode ? '邮箱登录' : '手机号登录',
+                semanticLabel: isRealMode ? '使用邮箱和密码登录' : '使用手机号和验证码登录',
+                hint: isRealMode ? '双击进入邮箱登录页面' : '双击进入手机号登录页面',
+                icon: isRealMode
+                    ? Icons.alternate_email_rounded
+                    : Icons.phone_android_rounded,
                 backgroundColor: AppTheme.stageAccent,
                 foregroundColor: AppTheme.stageBackground,
                 onPressed: () {
-                  pushDemoStageRoute(context, page: const PhoneLoginScreen());
+                  pushDemoStageRoute(
+                    context,
+                    page: isRealMode
+                        ? const EmailLoginScreen()
+                        : const PhoneLoginScreen(),
+                  );
                 },
               ),
               const SizedBox(height: AppTheme.spacingM),
               AccessibleButton(
-                label: '首次使用',
-                semanticLabel: '首次使用，查看功能引导',
-                hint: '双击查看应用功能引导',
-                icon: Icons.arrow_outward_rounded,
+                label: isRealMode ? '手机号界面保留' : '首次使用',
+                semanticLabel: isRealMode
+                    ? '手机号验证码界面保留，本阶段不接真实短信'
+                    : '首次使用，查看功能引导',
+                hint: isRealMode ? '双击查看保留的手机号界面' : '双击查看应用功能引导',
+                icon: isRealMode
+                    ? Icons.phone_android_rounded
+                    : Icons.arrow_outward_rounded,
                 backgroundColor: AppTheme.stageSurfaceStrong,
                 foregroundColor: AppTheme.stageTextPrimary,
                 onPressed: () {
-                  pushDemoStageRoute(context, page: const OnboardingScreen());
+                  pushDemoStageRoute(
+                    context,
+                    page: isRealMode
+                        ? const PhoneLoginScreen()
+                        : const OnboardingScreen(),
+                  );
                 },
               ),
               const SizedBox(height: AppTheme.spacingM),

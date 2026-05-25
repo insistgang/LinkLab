@@ -1,0 +1,974 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>共感 LinkAble · 图标集</title>
+<style>
+  :root {
+    --bg: #faf7ff;
+    --ink: #2a1854;
+    --ink-soft: #6b5b8f;
+    --line: #ece2ff;
+    --accent: #9448ff;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink);
+    font-family: -apple-system, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+    font-feature-settings: "tnum" 1;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 1320px; margin: 0 auto; padding: 56px 48px 96px; }
+  header { display: flex; align-items: flex-end; justify-content: space-between; gap: 48px;
+    padding-bottom: 32px; border-bottom: 1px solid var(--line); margin-bottom: 56px; }
+  header h1 { font-size: 32px; margin: 0 0 8px; letter-spacing: -0.01em; }
+  header .sub { color: var(--ink-soft); font-size: 14px; line-height: 1.6; max-width: 480px; }
+  header .meta { color: var(--ink-soft); font-size: 12px; font-family: ui-monospace, Menlo, monospace; text-align: right; line-height: 1.7; }
+  header .meta .chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: #f3eaff; color: #6322c8; font-size: 11px; margin-left: 6px; }
+  header .meta .swatch { width: 10px; height: 10px; border-radius: 2px; background: #9448ff; }
+
+  section { margin-top: 56px; }
+  section:first-of-type { margin-top: 0; }
+  .section-head { display: flex; align-items: baseline; gap: 16px; margin-bottom: 24px; }
+  .section-head .idx { font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: var(--accent); letter-spacing: 0.08em; }
+  .section-head h2 { font-size: 18px; margin: 0; font-weight: 600; letter-spacing: -0.005em; }
+  .section-head .map { font-size: 12px; color: var(--ink-soft); margin-left: auto; font-family: ui-monospace, Menlo, monospace; }
+
+  .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px; background: var(--line);
+    border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .cell { background: #fff; padding: 18px 12px 14px; display: flex; flex-direction: column; align-items: center; gap: 12px;
+    min-height: 160px; }
+  .cell .ico { width: 96px; height: 96px; display: block; }
+  .cell .label { font-size: 13px; color: var(--ink); }
+  .cell .desc { font-size: 10px; color: var(--ink-soft); font-family: ui-monospace, Menlo, monospace; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  footer { margin-top: 80px; padding-top: 32px; border-top: 1px solid var(--line); color: var(--ink-soft); font-size: 12px; display: flex; gap: 24px; justify-content: space-between; font-family: ui-monospace, Menlo, monospace; }
+</style>
+</head>
+<body>
+
+<!-- Shared gradient defs -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- Base body (top light → bottom deep) -->
+    <linearGradient id="pBody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#D5BBFF"/>
+      <stop offset="0.45" stop-color="#A86FFF"/>
+      <stop offset="1" stop-color="#6B22D6"/>
+    </linearGradient>
+    <!-- Glass with diagonal highlight bloom -->
+    <radialGradient id="pGlass" cx="32%" cy="22%" r="85%">
+      <stop offset="0" stop-color="#F4E8FF"/>
+      <stop offset="0.25" stop-color="#C9A4FF"/>
+      <stop offset="0.7" stop-color="#8B43F5"/>
+      <stop offset="1" stop-color="#5818BF"/>
+    </radialGradient>
+    <!-- Soft chubby fill, no extreme contrast -->
+    <linearGradient id="pSoft" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C8A2FF"/>
+      <stop offset="1" stop-color="#7A2EEA"/>
+    </linearGradient>
+    <!-- Light tint for surfaces / accents on top of body -->
+    <linearGradient id="pPale" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F2E5FF"/>
+      <stop offset="1" stop-color="#C9A4FF"/>
+    </linearGradient>
+    <!-- Deep shadow underlay -->
+    <linearGradient id="pShadow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9b59ff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#5a18c0" stop-opacity="0.4"/>
+    </linearGradient>
+    <!-- White highlight dot -->
+    <radialGradient id="hiDot" cx="50%" cy="40%" r="60%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="1"/>
+      <stop offset="0.6" stop-color="#ffffff" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Inner shine for spheres -->
+    <radialGradient id="pSphere" cx="35%" cy="28%" r="78%">
+      <stop offset="0" stop-color="#FBF1FF"/>
+      <stop offset="0.3" stop-color="#C8A1FF"/>
+      <stop offset="0.7" stop-color="#7A2EE6"/>
+      <stop offset="1" stop-color="#4B0FA8"/>
+    </radialGradient>
+    <!-- Glow for color/sun -->
+    <radialGradient id="pGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="0.5" stop-color="#DDBFFF"/>
+      <stop offset="1" stop-color="#9448FF"/>
+    </radialGradient>
+    <!-- Used for hairline strokes on top -->
+    <linearGradient id="pStroke" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.3"/>
+    </linearGradient>
+
+    <filter id="blurShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="2.4"/>
+    </filter>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="1.6"/>
+    </filter>
+  </defs>
+</svg>
+
+<div class="page">
+
+<header>
+  <div>
+    <h1>共感 LinkAble · 图标集</h1>
+    <div class="sub">基于 AGENTS.md MVP 范围设计 · 紫色玻璃质感 · 服务 F1 / F9 / F11 / F13 / F33 / F36 主流程及 AI Agent 标准意图。</div>
+  </div>
+  <div class="meta">
+    PRIMARY <span class="chip"><span class="swatch"></span>#9448FF · H 265 S 72 B 100</span><br/>
+    STYLE <span class="chip">3D · GLASS · GRADIENT</span><br/>
+    GRID <span class="chip">128 × 128 · 24px PADDING</span>
+  </div>
+</header>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- 主导航                                                       -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<section>
+  <div class="section-head">
+    <span class="idx">01</span>
+    <h2>主导航 · MVP 默认页面</h2>
+    <span class="map">§11.1 默认导航</span>
+  </div>
+  <div class="grid">
+
+    <!-- 首页 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <!-- back shadow layer -->
+        <path d="M40 60 L72 32 L104 60 L104 100 Q104 108 96 108 L48 108 Q40 108 40 100 Z"
+          fill="url(#pShadow)" opacity="0.45" filter="url(#blurShadow)" transform="translate(6 7)"/>
+        <!-- second layer -->
+        <path d="M28 58 L60 30 L92 58 L92 98 Q92 106 84 106 L36 106 Q28 106 28 98 Z"
+          fill="url(#pSoft)" opacity="0.55"/>
+        <!-- main house -->
+        <path d="M22 60 L60 26 L98 60 L98 102 Q98 110 90 110 L30 110 Q22 110 22 102 Z"
+          fill="url(#pGlass)"/>
+        <!-- door -->
+        <rect x="50" y="76" width="20" height="34" rx="8" fill="url(#pPale)" opacity="0.85"/>
+        <!-- chimney highlight -->
+        <ellipse cx="42" cy="48" rx="9" ry="5" fill="url(#hiDot)" opacity="0.85"/>
+      </svg>
+      <div class="label">首页</div>
+      <div class="desc">home · F1 入口</div>
+    </div>
+
+    <!-- AI 对话 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <ellipse cx="68" cy="74" rx="40" ry="26" fill="url(#pShadow)" opacity="0.45" filter="url(#blurShadow)" transform="translate(4 8)"/>
+        <!-- back bubble -->
+        <path d="M70 22 Q104 22 104 52 Q104 78 78 82 L82 100 L62 84 Q42 80 38 64 Q34 22 70 22Z"
+          fill="url(#pSoft)" opacity="0.55"/>
+        <!-- main bubble -->
+        <path d="M58 18 Q98 18 100 48 Q102 74 74 80 L78 98 L56 82 Q26 78 24 52 Q22 18 58 18Z"
+          fill="url(#pGlass)"/>
+        <!-- dots -->
+        <circle cx="42" cy="50" r="5" fill="#F2E1FF"/>
+        <circle cx="60" cy="50" r="5" fill="#F2E1FF"/>
+        <circle cx="78" cy="50" r="5" fill="#F2E1FF"/>
+        <ellipse cx="40" cy="32" rx="9" ry="5" fill="url(#hiDot)" opacity="0.9"/>
+      </svg>
+      <div class="label">AI 对话</div>
+      <div class="desc">ai chat · F1</div>
+    </div>
+
+    <!-- 志愿者匹配 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <ellipse cx="64" cy="100" rx="38" ry="6" fill="#9448ff" opacity="0.18"/>
+        <!-- back person -->
+        <circle cx="44" cy="44" r="14" fill="url(#pSoft)" opacity="0.65"/>
+        <path d="M22 92 Q22 70 44 70 Q66 70 66 92 L66 102 Q66 106 62 106 L26 106 Q22 106 22 102Z" fill="url(#pSoft)" opacity="0.6"/>
+        <!-- front person -->
+        <circle cx="78" cy="40" r="18" fill="url(#pSphere)"/>
+        <path d="M50 96 Q50 68 78 68 Q106 68 106 96 L106 106 Q106 110 102 110 L54 110 Q50 110 50 106Z" fill="url(#pGlass)"/>
+        <ellipse cx="72" cy="32" rx="6" ry="4" fill="url(#hiDot)" opacity="0.9"/>
+      </svg>
+      <div class="label">志愿者匹配</div>
+      <div class="desc">match · F9</div>
+    </div>
+
+    <!-- 语音通话 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <path d="M40 32 Q34 24 44 18 L54 14 Q60 14 64 22 L70 38 Q72 46 64 50 L58 54
+                Q66 76 88 88 L92 82 Q96 74 104 78 L120 84 Q126 90 122 96
+                L116 106 Q108 116 96 110 Q56 96 30 56 Q22 40 30 32Z"
+          fill="url(#pShadow)" opacity="0.45" filter="url(#blurShadow)" transform="translate(6 6)"/>
+        <path d="M36 30 Q30 22 40 16 L50 12 Q56 12 60 20 L66 36 Q68 44 60 48 L54 52
+                Q62 74 84 86 L88 80 Q92 72 100 76 L116 82 Q122 88 118 94
+                L112 104 Q104 114 92 108 Q52 94 26 54 Q18 38 26 30Z"
+          fill="url(#pGlass)"/>
+        <ellipse cx="42" cy="28" rx="8" ry="5" fill="url(#hiDot)" opacity="0.9"/>
+      </svg>
+      <div class="label">语音通话</div>
+      <div class="desc">call · F11</div>
+    </div>
+
+    <!-- 个人中心 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <ellipse cx="64" cy="98" rx="36" ry="6" fill="#9448ff" opacity="0.15"/>
+        <circle cx="64" cy="42" r="20" fill="url(#pShadow)" opacity="0.5" filter="url(#blurShadow)" transform="translate(4 6)"/>
+        <ellipse cx="64" cy="92" rx="36" ry="14" fill="url(#pShadow)" opacity="0.5" filter="url(#blurShadow)" transform="translate(4 6)"/>
+        <circle cx="64" cy="40" r="20" fill="url(#pSphere)"/>
+        <path d="M28 96 Q28 70 64 70 Q100 70 100 96 L100 102 Q100 108 94 108 L34 108 Q28 108 28 102Z" fill="url(#pGlass)"/>
+        <ellipse cx="56" cy="30" rx="7" ry="4" fill="url(#hiDot)" opacity="0.95"/>
+      </svg>
+      <div class="label">个人中心</div>
+      <div class="desc">profile · F33</div>
+    </div>
+
+    <!-- 精选故事 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <rect x="30" y="28" width="64" height="80" rx="10" fill="url(#pShadow)" opacity="0.45" filter="url(#blurShadow)" transform="translate(7 7)"/>
+        <rect x="34" y="24" width="64" height="80" rx="10" fill="url(#pSoft)" opacity="0.55"/>
+        <rect x="22" y="20" width="68" height="84" rx="12" fill="url(#pGlass)"/>
+        <rect x="34" y="38" width="44" height="5" rx="2.5" fill="#F2E5FF" opacity="0.85"/>
+        <rect x="34" y="52" width="38" height="5" rx="2.5" fill="#F2E5FF" opacity="0.75"/>
+        <rect x="34" y="66" width="44" height="5" rx="2.5" fill="#F2E5FF" opacity="0.75"/>
+        <rect x="34" y="80" width="28" height="5" rx="2.5" fill="#F2E5FF" opacity="0.7"/>
+        <ellipse cx="38" cy="30" rx="8" ry="4" fill="url(#hiDot)" opacity="0.9"/>
+      </svg>
+      <div class="label">精选故事</div>
+      <div class="desc">stories</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- 求助方式                                                    -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<section>
+  <div class="section-head">
+    <span class="idx">02</span>
+    <h2>求助方式 · 多模态输入</h2>
+    <span class="map">§5.2 input_type</span>
+  </div>
+  <div class="grid">
+
+    <!-- 我需要帮助 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <rect x="22" y="22" width="84" height="84" rx="22" fill="url(#pShadow)" opacity="0.5" filter="url(#blurShadow)" transform="translate(6 6)"/>
+        <rect x="18" y="18" width="84" height="84" rx="22" fill="url(#pSoft)" opacity="0.6"/>
+        <rect x="14" y="14" width="88" height="88" rx="24" fill="url(#pGlass)"/>
+        <rect x="52" y="32" width="12" height="52" rx="6" fill="#FBF1FF"/>
+        <rect x="32" y="52" width="52" height="12" rx="6" fill="#FBF1FF"/>
+        <ellipse cx="32" cy="28" rx="10" ry="5" fill="url(#hiDot)" opacity="0.9"/>
+      </svg>
+      <div class="label">我需要帮助</div>
+      <div class="desc">help · primary cta</div>
+    </div>
+
+    <!-- 拍照求助 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <rect x="20" y="42" width="88" height="64" rx="14" fill="url(#pShadow)" opacity="0.45" filter="url(#blurShadow)" transform="translate(6 6)"/>
+        <rect x="18" y="36" width="92" height="68" rx="14" fill="url(#pGlass)"/>
+        <path d="M44 30 Q46 22 54 22 L74 22 Q82 22 84 30 L86 38 L42 38 Z" fill="url(#pSoft)"/>
+        <circle cx="64" cy="70" r="20" fill="#4B0FA8"/>
+        <circle cx="64" cy="70" r="16" fill="url(#pSphere)"/>
+        <circle cx="58" cy="64" r="6" fill="#fff" opacity="0.85"/>
+        <circle cx="92" cy="50" r="3.5" fill="#FBF1FF"/>
+      </svg>
+      <div class="label">拍照求助</div>
+      <div class="desc">photo</div>
+    </div>
+
+    <!-- 文字求助 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <rect x="32" y="22" width="60" height="84" rx="10" fill="url(#pShadow)" opacity="0.45" filter="url(#blurShadow)" transform="translate(7 7)"/>
+        <path d="M30 24 Q30 16 38 16 L84 16 L98 32 L98 96 Q98 104 90 104 L38 104 Q30 104 30 96Z" fill="url(#pGlass)"/>
+        <path d="M82 16 L82 30 Q82 34 86 34 L98 32 Z" fill="#FBF1FF" opacity="0.6"/>
+        <rect x="42" y="50" width="42" height="5" rx="2.5" fill="#FBF1FF" opacity="0.9"/>
+        <rect x="42" y="64" width="36" height="5" rx="2.5" fill="#FBF1FF" opacity="0.85"/>
+        <rect x="42" y="78" width="42" height="5" rx="2.5" fill="#FBF1FF" opacity="0.8"/>
+        <ellipse cx="44" cy="28" rx="7" ry="4" fill="url(#hiDot)" opacity="0.9"/>
+      </svg>
+      <div class="label">文字求助</div>
+      <div class="desc">text</div>
+    </div>
+
+    <!-- 语音求助 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <g opacity="0.5" filter="url(#blurShadow)" transform="translate(6 7)">
+          <rect x="36" y="42" width="12" height="44" rx="6" fill="url(#pShadow)"/>
+          <rect x="56" y="22" width="12" height="84" rx="6" fill="url(#pShadow)"/>
+          <rect x="76" y="32" width="12" height="64" rx="6" fill="url(#pShadow)"/>
+        </g>
+        <rect x="22" y="48" width="12" height="32" rx="6" fill="url(#pSoft)"/>
+        <rect x="40" y="36" width="14" height="56" rx="7" fill="url(#pGlass)"/>
+        <rect x="60" y="20" width="14" height="88" rx="7" fill="url(#pGlass)"/>
+        <rect x="80" y="32" width="14" height="64" rx="7" fill="url(#pGlass)"/>
+        <rect x="100" y="48" width="12" height="32" rx="6" fill="url(#pSoft)"/>
+        <ellipse cx="64" cy="32" rx="6" ry="3" fill="url(#hiDot)" opacity="0.9"/>
+      </svg>
+      <div class="label">语音求助</div>
+      <div class="desc">voice</div>
+    </div>
+
+    <!-- 位置共享 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <ellipse cx="64" cy="104" rx="22" ry="5" fill="#9448ff" opacity="0.25"/>
+        <path d="M64 18 Q98 18 98 50 Q98 74 64 108 Q30 74 30 50 Q30 18 64 18Z"
+          fill="url(#pShadow)" opacity="0.5" filter="url(#blurShadow)" transform="translate(5 5)"/>
+        <path d="M64 14 Q96 14 96 46 Q96 70 64 104 Q32 70 32 46 Q32 14 64 14Z" fill="url(#pGlass)"/>
+        <circle cx="64" cy="44" r="14" fill="#4B0FA8"/>
+        <circle cx="64" cy="44" r="10" fill="url(#pPale)"/>
+        <ellipse cx="50" cy="26" rx="8" ry="5" fill="url(#hiDot)" opacity="0.9"/>
+      </svg>
+      <div class="label">位置共享</div>
+      <div class="desc">location</div>
+    </div>
+
+    <!-- 转人工 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <ellipse cx="64" cy="100" rx="36" ry="5" fill="#9448ff" opacity="0.2"/>
+        <!-- left hand -->
+        <path d="M18 64 Q18 50 32 50 L60 50 Q72 50 72 62 Q72 74 60 74 L36 74 L22 80 Q14 78 18 64Z"
+          fill="url(#pSoft)"/>
+        <!-- right hand -->
+        <path d="M110 60 Q110 46 96 46 L68 46 Q56 46 56 58 Q56 70 68 70 L92 70 L106 76 Q114 74 110 60Z"
+          fill="url(#pGlass)"/>
+        <!-- clasp highlight -->
+        <ellipse cx="64" cy="60" rx="14" ry="6" fill="#FBF1FF" opacity="0.4"/>
+        <ellipse cx="36" cy="56" rx="8" ry="3" fill="url(#hiDot)" opacity="0.85"/>
+      </svg>
+      <div class="label">转人工</div>
+      <div class="desc">handoff</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- AI Agent 意图                                                -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<section>
+  <div class="section-head">
+    <span class="idx">03</span>
+    <h2>AI Agent 标准意图</h2>
+    <span class="map">§5.2 intent enum</span>
+  </div>
+  <div class="grid">
+
+    <!-- OCR 读文字 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <rect x="22" y="28" width="84" height="72" rx="14" fill="url(#pShadow)" opacity="0.45" filter="url(#blurShadow)" transform="translate(6 6)"/>
+        <rect x="18" y="22" width="92" height="80" rx="16" fill="url(#pGlass)"/>
+        <rect x="32" y="44" width="48" height="6" rx="3" fill="#FBF1FF"/>
+        <rect x="32" y="58" width="60" height="6" rx="3" fill="#FBF1FF" opacity="0.9"/>
+        <rect x="32" y="72" width="40" height="6" rx="3" fill="#FBF1FF" opacity="0.85"/>
+        <circle cx="96" cy="72" r="14" fill="#4B0FA8"/>
+        <circle cx="96" cy="72" r="11" fill="url(#pPale)"/>
+        <path d="M96 64 L96 80 M88 72 L104 72" stroke="#7A2EEA" stroke-width="2.5" stroke-linecap="round"/>
+        <ellipse cx="38" cy="32" rx="8" ry="4" fill="url(#hiDot)" opacity="0.9"/>
+      </svg>
+      <div class="label">读文字</div>
+      <div class="desc">ocr_text</div>
+    </div>
+
+    <!-- 场景描述 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <rect x="22" y="32" width="84" height="64" rx="10" fill="url(#pShadow)" opacity="0.45" filter="url(#blurShadow)" transform="translate(6 6)"/>
+        <rect x="18" y="28" width="92" height="68" rx="12" fill="url(#pGlass)"/>
+        <!-- mountains -->
+        <path d="M28 86 L48 60 L62 76 L80 50 L100 86 Z" fill="#4B0FA8" opacity="0.7"/>
+        <path d="M18 86 L40 70 L56 82 L78 64 L100 86 Z" fill="url(#pPale)" opacity="0.85"/>
+        <!-- sun -->
+        <circle cx="80" cy="46" r="9" fill="#FBF1FF"/>
+        <ellipse cx="36" cy="38" rx="8" ry="4" fill="url(#hiDot)" opacity="0.95"/>
+      </svg>
+      <div class="label">场景描述</div>
+      <div class="desc">scene_describe</div>
+    </div>
+
+    <!-- 物体识别 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <g opacity="0.5" filter="url(#blurShadow)" transform="translate(6 7)">
+          <path d="M64 14 L106 38 L106 86 L64 110 L22 86 L22 38 Z" fill="url(#pShadow)"/>
+        </g>
+        <path d="M64 10 L106 34 L106 82 L64 106 L22 82 L22 34 Z" fill="url(#pGlass)"/>
+        <path d="M64 10 L106 34 L64 58 L22 34 Z" fill="#FBF1FF" opacity="0.45"/>
+        <path d="M64 58 L106 34 L106 82 L64 106 Z" fill="#4B0FA8" opacity="0.3"/>
+        <path d="M64 58 L64 106" stroke="#FBF1FF" stroke-width="1.5" opacity="0.6"/>
+        <ellipse cx="40" cy="30" rx="10" ry="4" fill="url(#hiDot)" opacity="0.95"/>
+      </svg>
+      <div class="label">物体识别</div>
+      <div class="desc">object_identify</div>
+    </div>
+
+    <!-- 颜色识别 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <ellipse cx="64" cy="100" rx="34" ry="5" fill="#9448ff" opacity="0.18"/>
+        <circle cx="64" cy="60" r="42" fill="url(#pShadow)" opacity="0.45" filter="url(#blurShadow)" transform="translate(4 6)"/>
+        <circle cx="64" cy="58" r="42" fill="url(#pGlass)"/>
+        <!-- palette dots -->
+        <circle cx="44" cy="46" r="7" fill="#FBF1FF"/>
+        <circle cx="84" cy="46" r="7" fill="#C8A2FF"/>
+        <circle cx="44" cy="72" r="7" fill="#7A2EEA"/>
+        <circle cx="84" cy="72" r="7" fill="#4B0FA8"/>
+        <circle cx="64" cy="76" r="6" fill="#E0C7FF"/>
+        <ellipse cx="42" cy="32" rx="10" ry="5" fill="url(#hiDot)" opacity="0.95"/>
+      </svg>
+      <div class="label">颜色识别</div>
+      <div class="desc">color_identify</div>
+    </div>
+
+    <!-- 钞票识别 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <rect x="20" y="42" width="92" height="52" rx="10" fill="url(#pShadow)" opacity="0.45" filter="url(#blurShadow)" transform="translate(6 6)"/>
+        <rect x="20" y="38" width="92" height="56" rx="10" fill="url(#pSoft)" opacity="0.6"/>
+        <rect x="14" y="32" width="100" height="60" rx="12" fill="url(#pGlass)"/>
+        <circle cx="64" cy="62" r="14" fill="#4B0FA8"/>
+        <text x="64" y="68" text-anchor="middle" fill="#FBF1FF" font-size="16" font-family="ui-monospace, monospace" font-weight="600">¥</text>
+        <circle cx="32" cy="48" r="3" fill="#FBF1FF" opacity="0.7"/>
+        <circle cx="96" cy="76" r="3" fill="#FBF1FF" opacity="0.7"/>
+        <ellipse cx="32" cy="40" rx="8" ry="4" fill="url(#hiDot)" opacity="0.9"/>
+      </svg>
+      <div class="label">钞票识别</div>
+      <div class="desc">money_identify</div>
+    </div>
+
+    <!-- 翻译 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <circle cx="40" cy="58" r="28" fill="url(#pShadow)" opacity="0.45" filter="url(#blurShadow)" transform="translate(4 6)"/>
+        <circle cx="40" cy="56" r="28" fill="url(#pSoft)" opacity="0.7"/>
+        <text x="40" y="64" text-anchor="middle" fill="#FBF1FF" font-size="22" font-family="ui-monospace, monospace" font-weight="700">A</text>
+        <circle cx="86" cy="76" r="28" fill="url(#pGlass)"/>
+        <text x="86" y="84" text-anchor="middle" fill="#FBF1FF" font-size="22" font-family="ui-monospace, monospace" font-weight="700">文</text>
+        <path d="M56 50 Q72 38 78 54" stroke="#FBF1FF" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M76 50 L78 54 L74 56" stroke="#FBF1FF" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <ellipse cx="34" cy="46" rx="6" ry="3" fill="url(#hiDot)" opacity="0.95"/>
+      </svg>
+      <div class="label">翻译代述</div>
+      <div class="desc">translate_or_relay</div>
+    </div>
+
+    <!-- 导航 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <circle cx="64" cy="64" r="44" fill="url(#pShadow)" opacity="0.45" filter="url(#blurShadow)" transform="translate(4 6)"/>
+        <circle cx="64" cy="64" r="44" fill="url(#pGlass)"/>
+        <path d="M64 28 L82 78 L64 68 L46 78 Z" fill="#FBF1FF"/>
+        <path d="M64 28 L64 68 L46 78 Z" fill="#C8A2FF" opacity="0.7"/>
+        <circle cx="64" cy="64" r="44" fill="none" stroke="url(#pStroke)" stroke-width="1.5" opacity="0.5"/>
+        <ellipse cx="42" cy="38" rx="10" ry="5" fill="url(#hiDot)" opacity="0.95"/>
+      </svg>
+      <div class="label">导航导诊</div>
+      <div class="desc">navigation_guide</div>
+    </div>
+
+    <!-- 药品确认 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <rect x="26" y="22" width="64" height="86" rx="14" fill="url(#pShadow)" opacity="0.45" filter="url(#blurShadow)" transform="translate(7 6)" transform-origin="center" />
+        <g transform="rotate(-12 64 64)">
+          <rect x="34" y="22" width="60" height="84" rx="14" fill="url(#pGlass)"/>
+          <rect x="34" y="60" width="60" height="6" fill="#FBF1FF" opacity="0.6"/>
+          <rect x="44" y="34" width="40" height="4" rx="2" fill="#FBF1FF" opacity="0.75"/>
+          <rect x="44" y="44" width="28" height="4" rx="2" fill="#FBF1FF" opacity="0.65"/>
+          <circle cx="64" cy="84" r="10" fill="#4B0FA8"/>
+          <path d="M64 78 L64 90 M58 84 L70 84" stroke="#FBF1FF" stroke-width="2.5" stroke-linecap="round"/>
+        </g>
+        <ellipse cx="44" cy="32" rx="8" ry="4" fill="url(#hiDot)" opacity="0.9"/>
+      </svg>
+      <div class="label">药品确认</div>
+      <div class="desc">medicine_check</div>
+    </div>
+
+    <!-- 紧急 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <circle cx="64" cy="64" r="46" fill="url(#pShadow)" opacity="0.55" filter="url(#blurShadow)" transform="translate(4 6)"/>
+        <circle cx="64" cy="64" r="46" fill="url(#pGlass)"/>
+        <text x="64" y="78" text-anchor="middle" fill="#FBF1FF" font-size="34" font-family="ui-monospace, monospace" font-weight="800">SOS</text>
+        <ellipse cx="42" cy="36" rx="12" ry="6" fill="url(#hiDot)" opacity="0.95"/>
+      </svg>
+      <div class="label">紧急求助</div>
+      <div class="desc">emergency · F13</div>
+    </div>
+
+    <!-- 未知 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <circle cx="64" cy="64" r="44" fill="url(#pShadow)" opacity="0.45" filter="url(#blurShadow)" transform="translate(4 6)"/>
+        <circle cx="64" cy="64" r="44" fill="url(#pGlass)"/>
+        <text x="64" y="80" text-anchor="middle" fill="#FBF1FF" font-size="48" font-family="ui-monospace, monospace" font-weight="700">?</text>
+        <ellipse cx="42" cy="36" rx="10" ry="5" fill="url(#hiDot)" opacity="0.95"/>
+      </svg>
+      <div class="label">不确定</div>
+      <div class="desc">unknown · low conf</div>
+    </div>
+
+    <!-- 听障转译 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <ellipse cx="64" cy="100" rx="34" ry="5" fill="#9448ff" opacity="0.2"/>
+        <path d="M22 56 Q22 26 50 26 L74 26 Q102 26 102 56 L102 84 Q102 96 90 96 L78 96 L72 86 Q90 86 90 72 L90 56 Q90 38 70 38 L54 38 Q34 38 34 56 L34 72 Q34 86 50 86 L60 86 L54 96 L40 96 Q22 96 22 84Z"
+          fill="url(#pGlass)"/>
+        <circle cx="46" cy="64" r="4" fill="#FBF1FF"/>
+        <circle cx="62" cy="64" r="4" fill="#FBF1FF"/>
+        <circle cx="78" cy="64" r="4" fill="#FBF1FF"/>
+        <ellipse cx="44" cy="38" rx="8" ry="4" fill="url(#hiDot)" opacity="0.9"/>
+      </svg>
+      <div class="label">听障转译</div>
+      <div class="desc">deaf relay</div>
+    </div>
+
+    <!-- 摄像头识别 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <rect x="22" y="22" width="84" height="84" rx="20" fill="url(#pShadow)" opacity="0.45" filter="url(#blurShadow)" transform="translate(6 6)"/>
+        <rect x="18" y="18" width="92" height="92" rx="20" fill="url(#pGlass)"/>
+        <path d="M28 38 L28 28 Q28 24 32 24 L46 24" stroke="#FBF1FF" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M100 38 L100 28 Q100 24 96 24 L82 24" stroke="#FBF1FF" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M28 90 L28 100 Q28 104 32 104 L46 104" stroke="#FBF1FF" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M100 90 L100 100 Q100 104 96 104 L82 104" stroke="#FBF1FF" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <rect x="36" y="56" width="56" height="16" rx="4" fill="#FBF1FF" opacity="0.6"/>
+        <ellipse cx="40" cy="36" rx="8" ry="4" fill="url(#hiDot)" opacity="0.9"/>
+      </svg>
+      <div class="label">扫一扫</div>
+      <div class="desc">scan</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- SOS + 通话                                                  -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<section>
+  <div class="section-head">
+    <span class="idx">04</span>
+    <h2>SOS 与通话状态</h2>
+    <span class="map">F13 · F11 · §6.2</span>
+  </div>
+  <div class="grid">
+
+    <!-- 紧急联系人 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <ellipse cx="64" cy="100" rx="34" ry="5" fill="#9448ff" opacity="0.18"/>
+        <circle cx="58" cy="42" r="18" fill="url(#pSphere)"/>
+        <path d="M28 100 Q28 72 58 72 Q88 72 88 100 L88 106 Q88 110 84 110 L32 110 Q28 110 28 106Z" fill="url(#pGlass)"/>
+        <!-- heart shield -->
+        <path d="M86 26 Q98 18 108 28 Q116 38 86 64 Q56 38 64 28 Q74 18 86 26Z" fill="#FBF1FF"/>
+        <path d="M86 30 Q94 22 102 30 Q108 38 86 58 Q64 38 70 30 Q78 22 86 30Z" fill="#FF5577"/>
+        <ellipse cx="48" cy="32" rx="6" ry="3" fill="url(#hiDot)" opacity="0.95"/>
+      </svg>
+      <div class="label">紧急联系人</div>
+      <div class="desc">emergency contact</div>
+    </div>
+
+    <!-- 撤销 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <circle cx="64" cy="64" r="44" fill="url(#pShadow)" opacity="0.45" filter="url(#blurShadow)" transform="translate(4 6)"/>
+        <circle cx="64" cy="64" r="44" fill="url(#pGlass)"/>
+        <path d="M88 64 Q88 40 64 40 Q44 40 38 56 L46 64 L26 66 L28 46 L36 54 Q44 32 64 32 Q96 32 96 64 Q96 96 64 96 Q44 96 32 80"
+          fill="none" stroke="#FBF1FF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        <ellipse cx="40" cy="36" rx="10" ry="5" fill="url(#hiDot)" opacity="0.95"/>
+      </svg>
+      <div class="label">撤销</div>
+      <div class="desc">cancel · 10s window</div>
+    </div>
+
+    <!-- 广播 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <ellipse cx="64" cy="100" rx="30" ry="5" fill="#9448ff" opacity="0.18"/>
+        <circle cx="64" cy="60" r="14" fill="url(#pSphere)"/>
+        <path d="M48 76 Q40 84 36 96 M80 76 Q88 84 92 96" stroke="url(#pSoft)" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.55"/>
+        <path d="M38 50 Q26 50 22 64 M90 50 Q102 50 106 64" stroke="url(#pSoft)" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.7"/>
+        <path d="M42 36 Q30 28 18 32 M86 36 Q98 28 110 32" stroke="url(#pSoft)" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.85"/>
+        <ellipse cx="58" cy="52" rx="5" ry="3" fill="url(#hiDot)" opacity="0.95"/>
+      </svg>
+      <div class="label">广播</div>
+      <div class="desc">broadcast</div>
+    </div>
+
+    <!-- 接听 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <circle cx="64" cy="64" r="44" fill="#30C871" opacity="0.18"/>
+        <circle cx="64" cy="64" r="40" fill="url(#pShadow)" opacity="0.4" filter="url(#blurShadow)" transform="translate(4 6)"/>
+        <circle cx="64" cy="64" r="40">
+          <animate attributeName="r" values="38;42;38" dur="2s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="64" cy="64" r="40" fill="url(#pGlass)"/>
+        <path d="M50 50 Q46 44 52 40 L58 38 Q62 38 64 42 L68 50 Q70 54 66 56 L62 58 Q66 68 76 72 L78 68 Q80 64 84 66 L92 70 Q96 74 94 78 L92 84 Q88 90 80 88 Q60 82 50 64 Q44 54 50 50Z"
+          fill="#FBF1FF"/>
+        <ellipse cx="42" cy="40" rx="10" ry="5" fill="url(#hiDot)" opacity="0.9"/>
+      </svg>
+      <div class="label">接听</div>
+      <div class="desc">answer · connected</div>
+    </div>
+
+    <!-- 挂断 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <ellipse cx="64" cy="98" rx="36" ry="6" fill="#9448ff" opacity="0.18"/>
+        <g transform="rotate(135 64 64)">
+          <rect x="22" y="56" width="84" height="20" rx="10" fill="url(#pShadow)" opacity="0.5" filter="url(#blurShadow)" transform="translate(4 6)"/>
+          <rect x="22" y="54" width="84" height="20" rx="10" fill="url(#pGlass)"/>
+          <ellipse cx="38" cy="58" rx="10" ry="4" fill="url(#hiDot)" opacity="0.95"/>
+        </g>
+      </svg>
+      <div class="label">挂断</div>
+      <div class="desc">hang up</div>
+    </div>
+
+    <!-- 静音 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <rect x="42" y="22" width="44" height="64" rx="22" fill="url(#pShadow)" opacity="0.45" filter="url(#blurShadow)" transform="translate(5 6)"/>
+        <rect x="42" y="20" width="44" height="64" rx="22" fill="url(#pGlass)"/>
+        <path d="M30 60 Q30 88 64 88 Q98 88 98 60" stroke="url(#pSoft)" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <line x1="64" y1="88" x2="64" y2="106" stroke="url(#pSoft)" stroke-width="6" stroke-linecap="round"/>
+        <line x1="24" y1="24" x2="104" y2="104" stroke="#FF5577" stroke-width="6" stroke-linecap="round"/>
+        <ellipse cx="58" cy="34" rx="7" ry="4" fill="url(#hiDot)" opacity="0.9"/>
+      </svg>
+      <div class="label">静音</div>
+      <div class="desc">mute</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- 无障碍偏好                                                  -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<section>
+  <div class="section-head">
+    <span class="idx">05</span>
+    <h2>无障碍偏好</h2>
+    <span class="map">F36 · §10</span>
+  </div>
+  <div class="grid">
+
+    <!-- 字体调节 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <ellipse cx="64" cy="104" rx="38" ry="5" fill="#9448ff" opacity="0.18"/>
+        <text x="40" y="78" text-anchor="middle" fill="url(#pSoft)" font-size="42" font-family="ui-monospace, monospace" font-weight="700" opacity="0.7">A</text>
+        <text x="80" y="84" text-anchor="middle" fill="url(#pGlass)" font-size="64" font-family="ui-monospace, monospace" font-weight="800">A</text>
+        <ellipse cx="74" cy="32" rx="8" ry="4" fill="url(#hiDot)" opacity="0.95"/>
+      </svg>
+      <div class="label">字体调节</div>
+      <div class="desc">font size · 200%</div>
+    </div>
+
+    <!-- 高对比度 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <circle cx="64" cy="64" r="44" fill="url(#pShadow)" opacity="0.45" filter="url(#blurShadow)" transform="translate(4 6)"/>
+        <circle cx="64" cy="64" r="44" fill="url(#pGlass)"/>
+        <path d="M64 20 Q64 108 64 108 Q108 108 108 64 Q108 20 64 20Z" fill="#FBF1FF"/>
+        <circle cx="64" cy="64" r="44" fill="none" stroke="url(#pStroke)" stroke-width="2" opacity="0.5"/>
+        <ellipse cx="44" cy="36" rx="10" ry="5" fill="url(#hiDot)" opacity="0.95"/>
+      </svg>
+      <div class="label">高对比度</div>
+      <div class="desc">contrast ≥ 7:1</div>
+    </div>
+
+    <!-- 读屏 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <ellipse cx="64" cy="100" rx="34" ry="5" fill="#9448ff" opacity="0.2"/>
+        <ellipse cx="64" cy="64" rx="44" ry="26" fill="url(#pShadow)" opacity="0.45" filter="url(#blurShadow)" transform="translate(4 6)"/>
+        <ellipse cx="64" cy="64" rx="44" ry="26" fill="url(#pGlass)"/>
+        <circle cx="64" cy="64" r="14" fill="#4B0FA8"/>
+        <circle cx="60" cy="60" r="5" fill="#FBF1FF"/>
+        <ellipse cx="42" cy="48" rx="9" ry="4" fill="url(#hiDot)" opacity="0.9"/>
+      </svg>
+      <div class="label">读屏</div>
+      <div class="desc">screen reader</div>
+    </div>
+
+    <!-- 语音输出 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <path d="M22 48 L46 48 L70 28 L70 100 L46 80 L22 80 Z" fill="url(#pShadow)" opacity="0.45" filter="url(#blurShadow)" transform="translate(5 6)"/>
+        <path d="M18 50 L42 50 L66 30 L66 98 L42 78 L18 78 Z" fill="url(#pGlass)"/>
+        <path d="M80 44 Q92 52 92 64 Q92 76 80 84" stroke="url(#pSoft)" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M90 32 Q108 46 108 64 Q108 82 90 96" stroke="url(#pSoft)" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.75"/>
+        <ellipse cx="34" cy="42" rx="7" ry="3" fill="url(#hiDot)" opacity="0.95"/>
+      </svg>
+      <div class="label">语音输出</div>
+      <div class="desc">tts · spoken</div>
+    </div>
+
+    <!-- 触觉反馈 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <rect x="38" y="22" width="48" height="86" rx="12" fill="url(#pShadow)" opacity="0.45" filter="url(#blurShadow)" transform="translate(6 6)"/>
+        <rect x="34" y="18" width="52" height="92" rx="12" fill="url(#pGlass)"/>
+        <rect x="42" y="30" width="36" height="56" rx="3" fill="#4B0FA8" opacity="0.5"/>
+        <path d="M94 40 Q104 50 104 64 Q104 78 94 88" stroke="url(#pSoft)" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <path d="M22 40 Q12 50 12 64 Q12 78 22 88" stroke="url(#pSoft)" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <circle cx="60" cy="96" r="4" fill="#FBF1FF"/>
+        <ellipse cx="46" cy="28" rx="6" ry="3" fill="url(#hiDot)" opacity="0.9"/>
+      </svg>
+      <div class="label">触觉反馈</div>
+      <div class="desc">haptic</div>
+    </div>
+
+    <!-- 暗色模式 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <path d="M88 22 Q56 22 56 56 Q56 96 96 100 Q70 110 48 96 Q24 80 28 52 Q32 24 64 18 Q78 16 88 22Z"
+          fill="url(#pShadow)" opacity="0.5" filter="url(#blurShadow)" transform="translate(4 6)"/>
+        <path d="M88 22 Q56 22 56 56 Q56 96 96 100 Q70 110 48 96 Q24 80 28 52 Q32 24 64 18 Q78 16 88 22Z"
+          fill="url(#pGlass)"/>
+        <ellipse cx="48" cy="34" rx="8" ry="4" fill="url(#hiDot)" opacity="0.95"/>
+      </svg>
+      <div class="label">夜间模式</div>
+      <div class="desc">dark mode</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- 用户类型                                                    -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<section>
+  <div class="section-head">
+    <span class="idx">06</span>
+    <h2>用户类型 · 偏好引导</h2>
+    <span class="map">F33 引导</span>
+  </div>
+  <div class="grid">
+
+    <!-- 视力障碍 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <ellipse cx="64" cy="64" rx="46" ry="28" fill="url(#pShadow)" opacity="0.4" filter="url(#blurShadow)" transform="translate(4 6)"/>
+        <ellipse cx="64" cy="64" rx="46" ry="28" fill="url(#pGlass)"/>
+        <circle cx="64" cy="64" r="12" fill="#FBF1FF" opacity="0.4"/>
+        <line x1="22" y1="98" x2="106" y2="30" stroke="url(#pSoft)" stroke-width="7" stroke-linecap="round"/>
+        <line x1="24" y1="100" x2="108" y2="32" stroke="#FBF1FF" stroke-width="3" stroke-linecap="round"/>
+        <ellipse cx="42" cy="48" rx="8" ry="4" fill="url(#hiDot)" opacity="0.9"/>
+      </svg>
+      <div class="label">视力障碍</div>
+      <div class="desc">visual</div>
+    </div>
+
+    <!-- 听力障碍 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <path d="M40 22 Q72 22 80 50 Q84 72 70 84 Q60 94 60 104 Q54 110 46 106 Q34 100 34 88 Q34 72 22 64 Q14 56 18 42 Q26 22 40 22Z"
+          fill="url(#pShadow)" opacity="0.45" filter="url(#blurShadow)" transform="translate(6 6)"/>
+        <path d="M40 22 Q72 22 80 50 Q84 72 70 84 Q60 94 60 104 Q54 110 46 106 Q34 100 34 88 Q34 72 22 64 Q14 56 18 42 Q26 22 40 22Z"
+          fill="url(#pGlass)"/>
+        <line x1="22" y1="22" x2="106" y2="106" stroke="url(#pSoft)" stroke-width="7" stroke-linecap="round"/>
+        <line x1="24" y1="24" x2="108" y2="108" stroke="#FBF1FF" stroke-width="3" stroke-linecap="round"/>
+        <ellipse cx="36" cy="32" rx="8" ry="4" fill="url(#hiDot)" opacity="0.9"/>
+      </svg>
+      <div class="label">听力障碍</div>
+      <div class="desc">hearing</div>
+    </div>
+
+    <!-- 肢体障碍 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <ellipse cx="64" cy="104" rx="32" ry="5" fill="#9448ff" opacity="0.2"/>
+        <circle cx="56" cy="28" r="10" fill="url(#pSphere)"/>
+        <!-- body -->
+        <path d="M56 42 L52 68 L42 88 L48 92 L60 70 L62 84 L48 104 L54 108 L72 88 L74 70 L84 80 L88 76 L78 60 L74 50 Z"
+          fill="url(#pSoft)" opacity="0.5"/>
+        <!-- wheel -->
+        <circle cx="78" cy="84" r="20" fill="url(#pGlass)"/>
+        <circle cx="78" cy="84" r="11" fill="none" stroke="#FBF1FF" stroke-width="3"/>
+        <circle cx="78" cy="84" r="3" fill="#FBF1FF"/>
+        <ellipse cx="50" cy="24" rx="6" ry="3" fill="url(#hiDot)" opacity="0.95"/>
+      </svg>
+      <div class="label">肢体障碍</div>
+      <div class="desc">mobility</div>
+    </div>
+
+    <!-- 老年人 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <ellipse cx="64" cy="104" rx="34" ry="5" fill="#9448ff" opacity="0.2"/>
+        <circle cx="54" cy="30" r="12" fill="url(#pSphere)"/>
+        <path d="M40 56 Q40 44 54 44 Q70 44 70 56 L72 76 L80 100 L72 104 L62 82 L56 104 L48 104 L52 80 L46 60Z"
+          fill="url(#pGlass)"/>
+        <!-- cane -->
+        <path d="M84 36 Q92 36 92 44 L92 102" stroke="url(#pSoft)" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <ellipse cx="50" cy="26" rx="6" ry="3" fill="url(#hiDot)" opacity="0.95"/>
+      </svg>
+      <div class="label">老年人</div>
+      <div class="desc">elderly</div>
+    </div>
+
+    <!-- 言语障碍 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <path d="M70 22 Q104 22 104 52 Q104 78 78 82 L82 100 L62 84 Q42 80 38 64 Q34 22 70 22Z"
+          fill="url(#pShadow)" opacity="0.45" filter="url(#blurShadow)" transform="translate(5 6)"/>
+        <path d="M64 18 Q98 18 98 48 Q98 74 74 80 L78 98 L56 82 Q26 78 24 52 Q22 18 64 18Z"
+          fill="url(#pGlass)"/>
+        <line x1="36" y1="34" x2="92" y2="76" stroke="#FF5577" stroke-width="6" stroke-linecap="round"/>
+        <circle cx="48" cy="50" r="4" fill="#FBF1FF" opacity="0.85"/>
+        <circle cx="64" cy="50" r="4" fill="#FBF1FF" opacity="0.85"/>
+        <circle cx="80" cy="50" r="4" fill="#FBF1FF" opacity="0.85"/>
+        <ellipse cx="42" cy="30" rx="7" ry="3" fill="url(#hiDot)" opacity="0.9"/>
+      </svg>
+      <div class="label">言语障碍</div>
+      <div class="desc">speech</div>
+    </div>
+
+    <!-- 志愿者身份 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <ellipse cx="64" cy="100" rx="34" ry="5" fill="#9448ff" opacity="0.18"/>
+        <circle cx="64" cy="40" r="20" fill="url(#pSphere)"/>
+        <path d="M28 100 Q28 70 64 70 Q100 70 100 100 L100 106 Q100 110 96 110 L32 110 Q28 110 28 106Z" fill="url(#pGlass)"/>
+        <!-- badge -->
+        <circle cx="92" cy="92" r="16" fill="#FFD23F"/>
+        <path d="M85 92 L90 97 L99 87" stroke="#5818BF" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <ellipse cx="56" cy="32" rx="6" ry="3" fill="url(#hiDot)" opacity="0.95"/>
+      </svg>
+      <div class="label">我是志愿者</div>
+      <div class="desc">volunteer role</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- 状态与反馈                                                  -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<section>
+  <div class="section-head">
+    <span class="idx">07</span>
+    <h2>状态与反馈</h2>
+    <span class="map">§6.2 help_request 状态机</span>
+  </div>
+  <div class="grid">
+
+    <!-- 处理中 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <circle cx="64" cy="64" r="44" fill="url(#pShadow)" opacity="0.45" filter="url(#blurShadow)" transform="translate(4 6)"/>
+        <circle cx="64" cy="64" r="44" fill="url(#pGlass)"/>
+        <circle cx="44" cy="64" r="6" fill="#FBF1FF">
+          <animate attributeName="opacity" values="1;.3;1" dur="1.2s" begin="0s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="64" cy="64" r="6" fill="#FBF1FF">
+          <animate attributeName="opacity" values="1;.3;1" dur="1.2s" begin=".2s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="84" cy="64" r="6" fill="#FBF1FF">
+          <animate attributeName="opacity" values="1;.3;1" dur="1.2s" begin=".4s" repeatCount="indefinite"/>
+        </circle>
+        <ellipse cx="42" cy="36" rx="10" ry="5" fill="url(#hiDot)" opacity="0.95"/>
+      </svg>
+      <div class="label">处理中</div>
+      <div class="desc">ai_processing</div>
+    </div>
+
+    <!-- 匹配中 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <circle cx="64" cy="64" r="44" fill="url(#pShadow)" opacity="0.45" filter="url(#blurShadow)" transform="translate(4 6)"/>
+        <circle cx="64" cy="64" r="44" fill="url(#pGlass)"/>
+        <circle cx="64" cy="64" r="32" fill="none" stroke="#FBF1FF" stroke-width="6" stroke-linecap="round" stroke-dasharray="40 160">
+          <animateTransform attributeName="transform" type="rotate" from="0 64 64" to="360 64 64" dur="1.6s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="64" cy="64" r="32" fill="none" stroke="#FBF1FF" stroke-width="2" opacity="0.3"/>
+        <ellipse cx="42" cy="36" rx="10" ry="5" fill="url(#hiDot)" opacity="0.95"/>
+      </svg>
+      <div class="label">匹配中</div>
+      <div class="desc">matching</div>
+    </div>
+
+    <!-- 已接通 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <circle cx="64" cy="64" r="44" fill="url(#pShadow)" opacity="0.45" filter="url(#blurShadow)" transform="translate(4 6)"/>
+        <circle cx="64" cy="64" r="44" fill="url(#pGlass)"/>
+        <path d="M40 66 L56 82 L88 46" fill="none" stroke="#FBF1FF" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+        <ellipse cx="42" cy="36" rx="10" ry="5" fill="url(#hiDot)" opacity="0.95"/>
+      </svg>
+      <div class="label">已完成</div>
+      <div class="desc">completed</div>
+    </div>
+
+    <!-- 超时 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <circle cx="64" cy="64" r="44" fill="url(#pShadow)" opacity="0.45" filter="url(#blurShadow)" transform="translate(4 6)"/>
+        <circle cx="64" cy="64" r="44" fill="url(#pGlass)"/>
+        <circle cx="64" cy="64" r="30" fill="none" stroke="#FBF1FF" stroke-width="5" opacity="0.5"/>
+        <line x1="64" y1="64" x2="64" y2="40" stroke="#FBF1FF" stroke-width="5" stroke-linecap="round"/>
+        <line x1="64" y1="64" x2="80" y2="72" stroke="#FBF1FF" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="64" cy="64" r="3" fill="#FBF1FF"/>
+        <ellipse cx="42" cy="36" rx="10" ry="5" fill="url(#hiDot)" opacity="0.95"/>
+      </svg>
+      <div class="label">超时</div>
+      <div class="desc">expired · 60s</div>
+    </div>
+
+    <!-- 留言 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <path d="M22 36 Q22 24 34 24 L94 24 Q106 24 106 36 L106 80 Q106 92 94 92 L60 92 L42 108 L42 92 L34 92 Q22 92 22 80Z"
+          fill="url(#pShadow)" opacity="0.45" filter="url(#blurShadow)" transform="translate(5 5)"/>
+        <path d="M22 36 Q22 24 34 24 L94 24 Q106 24 106 36 L106 80 Q106 92 94 92 L60 92 L42 108 L42 92 L34 92 Q22 92 22 80Z"
+          fill="url(#pGlass)"/>
+        <rect x="36" y="40" width="48" height="5" rx="2.5" fill="#FBF1FF"/>
+        <rect x="36" y="54" width="56" height="5" rx="2.5" fill="#FBF1FF" opacity="0.85"/>
+        <rect x="36" y="68" width="36" height="5" rx="2.5" fill="#FBF1FF" opacity="0.7"/>
+        <ellipse cx="38" cy="32" rx="8" ry="4" fill="url(#hiDot)" opacity="0.9"/>
+      </svg>
+      <div class="label">留言</div>
+      <div class="desc">async note</div>
+    </div>
+
+    <!-- 弱网 -->
+    <div class="cell">
+      <svg class="ico" viewBox="0 0 128 128">
+        <ellipse cx="64" cy="100" rx="34" ry="5" fill="#9448ff" opacity="0.2"/>
+        <path d="M64 28 Q90 28 110 48 L104 54 Q86 38 64 38 Q42 38 24 54 L18 48 Q38 28 64 28Z" fill="url(#pSoft)" opacity="0.55"/>
+        <path d="M64 50 Q82 50 96 62 L90 68 Q78 58 64 58 Q50 58 38 68 L32 62 Q46 50 64 50Z" fill="url(#pGlass)"/>
+        <path d="M64 70 Q74 70 82 78 L76 84 Q70 78 64 78 Q58 78 52 84 L46 78 Q54 70 64 70Z" fill="url(#pGlass)"/>
+        <circle cx="64" cy="94" r="6" fill="#FBF1FF"/>
+        <line x1="22" y1="22" x2="106" y2="106" stroke="#FF5577" stroke-width="5" stroke-linecap="round"/>
+        <ellipse cx="48" cy="40" rx="8" ry="3" fill="url(#hiDot)" opacity="0.9"/>
+      </svg>
+      <div class="label">弱网</div>
+      <div class="desc">weak signal</div>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <div>共感 LinkAble · v2026.04 · 图标规范</div>
+  <div>SVG · 96×96 · purple #9448FF · stops [#D5BBFF → #7A2EEA → #4B0FA8]</div>
+</footer>
+
+</div>
+
+</body>
+</html>

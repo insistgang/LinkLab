@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import '../demo_flow/demo_help_request_tracker.dart';
 import '../config/app_config.dart';
 import '../models/help_request_status.dart';
+// ignore: deprecated_member_use_from_same_package
 import 'app_session_service.dart';
 import 'local_storage.dart';
 import 'user_center/favorite_volunteer_service.dart';
@@ -83,7 +84,11 @@ class DemoCallService extends ChangeNotifier {
   Duration _callDuration = Duration.zero;
   Timer? _durationTimer;
   Timer? _simulationTimer;
+  Completer<void>? _simulationDelayCompleter;
   bool _localInitialized = false;
+  int _callSequence = 0;
+  bool _isMuted = false;
+  bool _isSpeakerOn = true;
 
   // Getters
   DemoCallState get state => _state;
@@ -93,6 +98,8 @@ class DemoCallService extends ChangeNotifier {
   bool get isInCall => _state == DemoCallState.connected;
   bool get isConnecting =>
       _state == DemoCallState.connecting || _state == DemoCallState.ringing;
+  bool get isMuted => _isMuted;
+  bool get isSpeakerOn => _isSpeakerOn;
 
   Future<void> _ensureLocalStorage() async {
     if (_localInitialized) return;
@@ -114,6 +121,7 @@ class DemoCallService extends ChangeNotifier {
     _ensureDemoFallbackEnabled('DemoCallService.startCall');
     await _ensureLocalStorage();
 
+    final sequence = ++_callSequence;
     _state = DemoCallState.connecting;
     notifyListeners();
 
@@ -122,13 +130,17 @@ class DemoCallService extends ChangeNotifier {
         demoVolunteers[DateTime.now().millisecond % demoVolunteers.length];
 
     // 模拟连接延迟
-    await Future.delayed(const Duration(seconds: 1));
+    if (!await _waitForSimulationDelay(const Duration(seconds: 1), sequence)) {
+      return;
+    }
 
     _state = DemoCallState.ringing;
     notifyListeners();
 
     // 模拟响铃
-    await Future.delayed(const Duration(seconds: 2));
+    if (!await _waitForSimulationDelay(const Duration(seconds: 2), sequence)) {
+      return;
+    }
 
     _state = DemoCallState.connected;
     _startDurationTimer();
@@ -149,12 +161,33 @@ class DemoCallService extends ChangeNotifier {
   /// 挂断电话
   Future<void> hangUp() async {
     await _ensureLocalStorage();
+    _callSequence++;
+    _cancelSimulationDelay();
     _durationTimer?.cancel();
+    _durationTimer = null;
     _state = DemoCallState.ended;
+    _isMuted = false;
+    _isSpeakerOn = true;
     await DemoHelpRequestTracker.markCompleted(
       durationSeconds: _callDuration.inSeconds,
     );
     notifyListeners();
+  }
+
+  /// 切换静音状态
+  void toggleMute() {
+    if (_state == DemoCallState.connected) {
+      _isMuted = !_isMuted;
+      notifyListeners();
+    }
+  }
+
+  /// 切换扬声器状态
+  void toggleSpeaker() {
+    if (_state == DemoCallState.connected) {
+      _isSpeakerOn = !_isSpeakerOn;
+      notifyListeners();
+    }
   }
 
   /// 保存求助者评价，并同步到帮助档案和常用志愿者
@@ -207,13 +240,51 @@ class DemoCallService extends ChangeNotifier {
 
   /// 重置状态
   void reset() {
+    _callSequence++;
+    _cancelSimulationDelay();
     _durationTimer?.cancel();
+    _durationTimer = null;
     _state = DemoCallState.idle;
     _currentVolunteer = null;
     _currentHelpRequestId = null;
     _callDuration = Duration.zero;
+    _isMuted = false;
+    _isSpeakerOn = true;
     DemoHelpRequestTracker.clearCurrentRequest();
     notifyListeners();
+  }
+
+  bool _isCurrentStart(int sequence) {
+    return sequence == _callSequence && _state != DemoCallState.ended;
+  }
+
+  Future<bool> _waitForSimulationDelay(Duration duration, int sequence) async {
+    _cancelSimulationDelay();
+
+    final completer = Completer<void>();
+    _simulationDelayCompleter = completer;
+    _simulationTimer = Timer(duration, () {
+      if (!completer.isCompleted) {
+        completer.complete();
+      }
+      if (identical(_simulationDelayCompleter, completer)) {
+        _simulationDelayCompleter = null;
+        _simulationTimer = null;
+      }
+    });
+
+    await completer.future;
+    return _isCurrentStart(sequence);
+  }
+
+  void _cancelSimulationDelay() {
+    _simulationTimer?.cancel();
+    _simulationTimer = null;
+    final completer = _simulationDelayCompleter;
+    _simulationDelayCompleter = null;
+    if (completer != null && !completer.isCompleted) {
+      completer.complete();
+    }
   }
 
   Future<void> _createOrUpdateCurrentHelpRecord() async {
@@ -294,7 +365,7 @@ class DemoCallService extends ChangeNotifier {
   @override
   void dispose() {
     _durationTimer?.cancel();
-    _simulationTimer?.cancel();
+    _cancelSimulationDelay();
     super.dispose();
   }
 }

@@ -59,6 +59,10 @@ class LinkLabApp extends ConsumerWidget {
       return const MainScreen();
     }
 
+    if (AppConfig.isRealMode) {
+      return const LoginScreen();
+    }
+
     if (session.isFirstLaunch) {
       return const OnboardingScreen();
     }

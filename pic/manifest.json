@@ -1,0 +1,338 @@
+[
+  {
+    "index": 1,
+    "file": "01-home-f1.svg",
+    "label": "首页",
+    "desc": "home · F1 入口",
+    "source_comment": ""
+  },
+  {
+    "index": 2,
+    "file": "02-ai-chat-f1.svg",
+    "label": "AI 对话",
+    "desc": "ai chat · F1",
+    "source_comment": ""
+  },
+  {
+    "index": 3,
+    "file": "03-match-f9.svg",
+    "label": "志愿者匹配",
+    "desc": "match · F9",
+    "source_comment": ""
+  },
+  {
+    "index": 4,
+    "file": "04-call-f11.svg",
+    "label": "语音通话",
+    "desc": "call · F11",
+    "source_comment": ""
+  },
+  {
+    "index": 5,
+    "file": "05-profile-f33.svg",
+    "label": "个人中心",
+    "desc": "profile · F33",
+    "source_comment": ""
+  },
+  {
+    "index": 6,
+    "file": "06-stories.svg",
+    "label": "精选故事",
+    "desc": "stories",
+    "source_comment": ""
+  },
+  {
+    "index": 7,
+    "file": "07-help-primary-cta.svg",
+    "label": "我需要帮助",
+    "desc": "help · primary cta",
+    "source_comment": ""
+  },
+  {
+    "index": 8,
+    "file": "08-photo.svg",
+    "label": "拍照求助",
+    "desc": "photo",
+    "source_comment": ""
+  },
+  {
+    "index": 9,
+    "file": "09-text.svg",
+    "label": "文字求助",
+    "desc": "text",
+    "source_comment": ""
+  },
+  {
+    "index": 10,
+    "file": "10-voice.svg",
+    "label": "语音求助",
+    "desc": "voice",
+    "source_comment": ""
+  },
+  {
+    "index": 11,
+    "file": "11-location.svg",
+    "label": "位置共享",
+    "desc": "location",
+    "source_comment": ""
+  },
+  {
+    "index": 12,
+    "file": "12-handoff.svg",
+    "label": "转人工",
+    "desc": "handoff",
+    "source_comment": ""
+  },
+  {
+    "index": 13,
+    "file": "13-ocr-text.svg",
+    "label": "读文字",
+    "desc": "ocr_text",
+    "source_comment": ""
+  },
+  {
+    "index": 14,
+    "file": "14-scene-describe.svg",
+    "label": "场景描述",
+    "desc": "scene_describe",
+    "source_comment": ""
+  },
+  {
+    "index": 15,
+    "file": "15-object-identify.svg",
+    "label": "物体识别",
+    "desc": "object_identify",
+    "source_comment": ""
+  },
+  {
+    "index": 16,
+    "file": "16-color-identify.svg",
+    "label": "颜色识别",
+    "desc": "color_identify",
+    "source_comment": ""
+  },
+  {
+    "index": 17,
+    "file": "17-money-identify.svg",
+    "label": "钞票识别",
+    "desc": "money_identify",
+    "source_comment": ""
+  },
+  {
+    "index": 18,
+    "file": "18-translate-or-relay.svg",
+    "label": "翻译代述",
+    "desc": "translate_or_relay",
+    "source_comment": ""
+  },
+  {
+    "index": 19,
+    "file": "19-navigation-guide.svg",
+    "label": "导航导诊",
+    "desc": "navigation_guide",
+    "source_comment": ""
+  },
+  {
+    "index": 20,
+    "file": "20-medicine-check.svg",
+    "label": "药品确认",
+    "desc": "medicine_check",
+    "source_comment": ""
+  },
+  {
+    "index": 21,
+    "file": "21-emergency-f13.svg",
+    "label": "紧急求助",
+    "desc": "emergency · F13",
+    "source_comment": ""
+  },
+  {
+    "index": 22,
+    "file": "22-unknown-low-conf.svg",
+    "label": "不确定",
+    "desc": "unknown · low conf",
+    "source_comment": ""
+  },
+  {
+    "index": 23,
+    "file": "23-deaf-relay.svg",
+    "label": "听障转译",
+    "desc": "deaf relay",
+    "source_comment": ""
+  },
+  {
+    "index": 24,
+    "file": "24-scan.svg",
+    "label": "扫一扫",
+    "desc": "scan",
+    "source_comment": ""
+  },
+  {
+    "index": 25,
+    "file": "25-emergency-contact.svg",
+    "label": "紧急联系人",
+    "desc": "emergency contact",
+    "source_comment": ""
+  },
+  {
+    "index": 26,
+    "file": "26-cancel-10s-window.svg",
+    "label": "撤销",
+    "desc": "cancel · 10s window",
+    "source_comment": ""
+  },
+  {
+    "index": 27,
+    "file": "27-broadcast.svg",
+    "label": "广播",
+    "desc": "broadcast",
+    "source_comment": ""
+  },
+  {
+    "index": 28,
+    "file": "28-answer-connected.svg",
+    "label": "接听",
+    "desc": "answer · connected",
+    "source_comment": ""
+  },
+  {
+    "index": 29,
+    "file": "29-hang-up.svg",
+    "label": "挂断",
+    "desc": "hang up",
+    "source_comment": ""
+  },
+  {
+    "index": 30,
+    "file": "30-mute.svg",
+    "label": "静音",
+    "desc": "mute",
+    "source_comment": ""
+  },
+  {
+    "index": 31,
+    "file": "31-font-size-200.svg",
+    "label": "字体调节",
+    "desc": "font size · 200%",
+    "source_comment": ""
+  },
+  {
+    "index": 32,
+    "file": "32-contrast-7-1.svg",
+    "label": "高对比度",
+    "desc": "contrast ≥ 7:1",
+    "source_comment": ""
+  },
+  {
+    "index": 33,
+    "file": "33-screen-reader.svg",
+    "label": "读屏",
+    "desc": "screen reader",
+    "source_comment": ""
+  },
+  {
+    "index": 34,
+    "file": "34-tts-spoken.svg",
+    "label": "语音输出",
+    "desc": "tts · spoken",
+    "source_comment": ""
+  },
+  {
+    "index": 35,
+    "file": "35-haptic.svg",
+    "label": "触觉反馈",
+    "desc": "haptic",
+    "source_comment": ""
+  },
+  {
+    "index": 36,
+    "file": "36-dark-mode.svg",
+    "label": "夜间模式",
+    "desc": "dark mode",
+    "source_comment": ""
+  },
+  {
+    "index": 37,
+    "file": "37-visual.svg",
+    "label": "视力障碍",
+    "desc": "visual",
+    "source_comment": ""
+  },
+  {
+    "index": 38,
+    "file": "38-hearing.svg",
+    "label": "听力障碍",
+    "desc": "hearing",
+    "source_comment": ""
+  },
+  {
+    "index": 39,
+    "file": "39-mobility.svg",
+    "label": "肢体障碍",
+    "desc": "mobility",
+    "source_comment": ""
+  },
+  {
+    "index": 40,
+    "file": "40-elderly.svg",
+    "label": "老年人",
+    "desc": "elderly",
+    "source_comment": ""
+  },
+  {
+    "index": 41,
+    "file": "41-speech.svg",
+    "label": "言语障碍",
+    "desc": "speech",
+    "source_comment": ""
+  },
+  {
+    "index": 42,
+    "file": "42-volunteer-role.svg",
+    "label": "我是志愿者",
+    "desc": "volunteer role",
+    "source_comment": ""
+  },
+  {
+    "index": 43,
+    "file": "43-ai-processing.svg",
+    "label": "处理中",
+    "desc": "ai_processing",
+    "source_comment": ""
+  },
+  {
+    "index": 44,
+    "file": "44-matching.svg",
+    "label": "匹配中",
+    "desc": "matching",
+    "source_comment": ""
+  },
+  {
+    "index": 45,
+    "file": "45-completed.svg",
+    "label": "已完成",
+    "desc": "completed",
+    "source_comment": ""
+  },
+  {
+    "index": 46,
+    "file": "46-expired-60s.svg",
+    "label": "超时",
+    "desc": "expired · 60s",
+    "source_comment": ""
+  },
+  {
+    "index": 47,
+    "file": "47-async-note.svg",
+    "label": "留言",
+    "desc": "async note",
+    "source_comment": ""
+  },
+  {
+    "index": 48,
+    "file": "48-weak-signal.svg",
+    "label": "弱网",
+    "desc": "weak signal",
+    "source_comment": ""
+  }
+]

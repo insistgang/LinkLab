@@ -1,6 +1,7 @@
 # 竞赛 Demo RC 验收证据
 
 > 口径声明：**竞赛 Demo 不依赖外部服务**。当前验收只证明 2026 创客大赛 3 分钟 Demo RC 的本地闭环稳定性，不声明生产上线、真实 WebRTC、真实 Supabase、真实短信、真实推送或真实报警已完成。
+> 2026-05-01 文档口径补充：本文件保留历史 RC 证据；本轮只整理 Markdown，未运行 `flutter analyze`、`flutter test`、`flutter build web` 或 `flutter run`。如与 README/TODO 的早期记录冲突，应按“不同时间点的历史验证记录”理解，交付前需要重新复跑并追加最新结果。
 
 ## 验收证据表
 
@@ -16,7 +17,9 @@
 | 200% 字体 smoke | 匹配页、通话页已有 200% text scale smoke；主页面使用滚动容器降低 overflow 风险 | `linklab/lib/screens/call/demo_matching_screen.dart`；`linklab/lib/screens/call/demo_call_screen.dart`；`linklab/lib/screens/home/home_screen.dart`；`linklab/lib/screens/ai_chat/demo_ai_chat_screen.dart` | `demo_matching_screen_test.dart`；`demo_call_screen_test.dart` | Android/iOS 模拟器开启 200% 字体，手动跑首页、AI、匹配、通话、SOS | 自动化覆盖仍不是完整视觉无障碍审计；首页/AI/SOS 仍建议现场 smoke |
 | Semantics / 读屏待手测 | 主按钮、匹配候选卡、通话控制按钮、SOS 操作按钮已有 Semantics；读屏焦点需人工确认 | `linklab/lib/screens/home/home_screen.dart`；`linklab/lib/screens/call/demo_matching_screen.dart`；`linklab/lib/screens/call/demo_call_screen.dart`；`linklab/lib/screens/call/demo_sos_screen.dart` | 匹配页与通话页 Semantics 测试覆盖关键按钮；widget test 覆盖启动 smoke | 使用 TalkBack / VoiceOver 从首页跑完整 3 分钟脚本，确认焦点顺序、按钮朗读、状态文案 | 读屏属于必须手测项，不能只靠 Flutter 单测判定通过 |
 | 非 MVP 入口隐藏 | 底部导航只有：首页 / AI助手 / 我的；FeatureFlags 默认关闭真实 WebRTC、真实匹配、推送、数据库同步、位置、短信、社群、积分、徽章、排班、后台、录音 | `linklab/lib/screens/home/main_screen.dart`；`linklab/lib/config/app_config.dart`；`linklab/analysis_options.yaml` | `widget_test.dart` 新增 feature flag 关闭断言；默认导航断言 | 从首页、AI、我的逐项点击，确认不能直接进入 admin/community/points/badges/schedule/recording/real WebRTC/real Supabase-only 页面 | 根 `supabase/` 仍有非 MVP 历史表和 points/push functions，需要后续后端收口 |
-| analyze / tests 当前结果 | 本轮 RC 加固后执行 Flutter 静态分析与测试：`flutter analyze` 为 No issues found；`flutter test --reporter compact` 为 All tests passed（60 tests） | `linklab/` | `flutter analyze`；`flutter test --reporter compact` | 无 | 该结果只覆盖当前 Flutter 分析范围；被 `analysis_options.yaml` 排除的 legacy 模块另行审计 |
+| Web / Chrome 演示路径 | Web / Chrome 是当前首选演示和交付复验路径；`linklab/web/` 存在 Web 壳文件，交付计划把 `flutter build web --debug` / `flutter build web --release` 列为验收命令 | `linklab/web/index.html`；`linklab/web/manifest.json`；`docs/competition_mvp_delivery_plan.md` | 建议复验：`flutter test`；`flutter build web --release` | 使用 Chrome 打开 Demo 主线并跑完整 3 分钟脚本 | 本轮未复跑 Flutter；Web build 通过状态需在交付前追加最新命令输出 |
+| Windows 桌面路径 | Windows desktop 不是首选演示路径；运行或构建需要 Visual Studio C++ 桌面开发工具链 | `linklab/windows/` | 不作为本轮 RC 必跑项 | 仅在已安装 VS C++ toolchain 的机器上单独验证 | 缺少 toolchain 导致 Windows 构建失败，不代表 Web/Chrome Demo 不可演示 |
+| analyze / tests 历史 RC 结果 | 历史 RC 加固后曾执行 Flutter 静态分析与测试：`flutter analyze` 为 No issues found；`flutter test --reporter compact` 为 All tests passed（60 tests） | `linklab/` | `flutter analyze`；`flutter test --reporter compact` | 无 | 该结果只覆盖当时 Flutter 分析范围；被 `analysis_options.yaml` 排除的 legacy 模块另行审计。本轮文档整理未复跑 |
 
 ## 当前结论
 

@@ -8,6 +8,8 @@ analyzer:
     # AGENTS.md §1 / §3 / §4.2：
     # 竞赛版 analyze 默认只收敛 MVP 主链路，已隔离的实验/历史模块不再阻塞交付。
     - "lib/admin/**"
+    - "lib/screens/archive/**"
+    - "lib/services/archive/**"
     - "lib/pages/call/**"
     - "lib/screens/community/**"
     - "lib/screens/home/community_screen.dart"

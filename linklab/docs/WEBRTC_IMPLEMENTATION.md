@@ -1,8 +1,10 @@
 # WebRTC P2P语音通话实现文档
 
+> 状态提示：本文描述的是实验性真实 WebRTC 设计与接入思路，不是竞赛 Demo 或生产上线证明。当前默认演示走 Demo Call 状态机；真实 WebRTC 依赖 Supabase Realtime、设备权限、ICE/TURN 和弱网验证，需单独验收。
+
 ## 概述
 
-本文档描述了共感LinkAble应用中真实WebRTC P2P语音通话功能的实现。
+本文档描述了共感LinkAble应用中真实WebRTC P2P语音通话功能的实验实现。
 
 ## 架构设计
 

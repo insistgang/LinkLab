@@ -216,13 +216,13 @@ class DemoCallFlowController extends Notifier<DemoCallFlowState> {
       errorMessage: null,
     );
 
-    AppLogger.warning('Demo Call entered accelerated reconnecting phase.');
+    AppLogger.warning('Demo Call entered reconnecting phase; '
+        'will auto-fail after ${autoFailDelay?.inSeconds ?? 10}s if not restored.');
 
-    if (autoFailDelay != null) {
-      _reconnectFailureTimer = Timer(autoFailDelay, () {
-        unawaited(failReconnect());
-      });
-    }
+    final delay = autoFailDelay ?? const Duration(seconds: 10);
+    _reconnectFailureTimer = Timer(delay, () {
+      unawaited(failReconnect());
+    });
   }
 
   void restoreConnection() {

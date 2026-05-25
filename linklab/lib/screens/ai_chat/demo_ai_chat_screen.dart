@@ -3,13 +3,18 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../core/theme/app_theme.dart';
-import '../../demo_flow/demo_flow_controller.dart';
+import '../../core/utils/logger.dart';
+import '../../providers/demo_flow_navigator.dart';
+import '../../models/agent_input_model.dart';
+import '../../models/agent_response_model.dart';
 import '../../models/help_request_status.dart';
 import '../../providers/demo_help_request_flow_provider.dart';
 import '../../providers/demo_services_provider.dart';
 import '../../services/demo/demo_ai_service.dart';
+import '../../services/facades/agent_service_facade.dart';
 import '../../widgets/accessible/index.dart';
 import '../../widgets/demo/demo_motion.dart';
 import '../../widgets/demo/demo_overlays.dart';
@@ -43,8 +48,12 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   late final DemoAIService _aiService;
+  late final AgentServiceFacade _agentFacade;
+  static const _uuid = Uuid();
 
   bool _isProcessing = false;
+  bool _isListening = false;
+  int? _speakingMessageIndex;
   Uint8List? _selectedImageBytes;
   String? _selectedImageName;
 
@@ -52,6 +61,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
   void initState() {
     super.initState();
     _aiService = ref.read(demoAIServiceProvider);
+    _agentFacade = AgentServiceFacade();
     _addBotMessage(widget.introMessage ?? _defaultIntroMessage);
 
     if (widget.initialPrompt != null && widget.autoSendInitialPrompt) {
@@ -64,6 +74,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
 
   @override
   void dispose() {
+    _agentFacade.stopSpeaking();
     _textController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -91,13 +102,14 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
     _scrollToBottom();
   }
 
-  void _addBotMessage(String text, {Map<String, dynamic>? data}) {
+  void _addBotMessage(String text, {Map<String, dynamic>? data, UiCopy? uiCopy}) {
     setState(() {
       _messages.add(
         ChatMessage(
           text: text,
           isUser: false,
           data: data,
+          uiCopy: uiCopy,
           timestamp: DateTime.now(),
         ),
       );
@@ -156,14 +168,57 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
     await ref
         .read(demoHelpRequestFlowProvider.notifier)
         .startAiProcessing(intent: input);
-    final history = _buildAIHistory();
     _addBotMessage('AI 正在分析...');
 
-    final result = await _aiService.process(
-      input,
-      imagePath: imagePath,
-      history: history,
-    );
+    // 优先使用标准化 AgentInput → AgentResponse 链路
+    AgentResponse? response;
+    try {
+      final agentInput = AgentInput(
+        requestId: _uuid.v4(),
+        userId: 'demo-user',
+        inputType: imagePath != null ? 'mixed' : 'text',
+        text: input,
+        imageUri: imagePath,
+      );
+      response = await _aiService.processRequest(agentInput);
+    } catch (e) {
+      // processRequest 失败时降级到旧 process() 方法
+      AppLogger.warning('[DemoAIChat] processRequest failed, fallback to process()', e);
+      try {
+        final history = _buildAIHistory();
+        final result = await _aiService.process(
+          input,
+          imagePath: imagePath,
+          history: history,
+        );
+        if (result.success) {
+          response = AgentResponse.fromAIResult(result, requestId: _uuid.v4());
+        } else {
+          if (!mounted) return;
+          setState(() {
+            _messages.removeLast();
+          });
+          _addBotMessage('抱歉，处理出错了：${result.error}');
+          await ref
+              .read(demoHelpRequestFlowProvider.notifier)
+              .markCancelled(reason: result.error);
+          setState(() {
+            _isProcessing = false;
+          });
+          return;
+        }
+      } catch (e2) {
+        if (!mounted) return;
+        setState(() {
+          _messages.removeLast();
+        });
+        _addBotMessage('抱歉，处理出错了：$e2');
+        setState(() {
+          _isProcessing = false;
+        });
+        return;
+      }
+    }
 
     if (!mounted) return;
 
@@ -171,41 +226,30 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
       _messages.removeLast();
     });
 
-    if (result.success) {
-      _addBotMessage(result.text, data: result.data);
+    final isEmergency = response.urgency == 'emergency';
+    final shouldTransfer = response.nextAction == 'match_volunteer';
 
-      if (_isEmergencyResult(result)) {
-        _startSOSFlowFromAI();
-      } else if (_shouldTransferToHuman(result)) {
-        _showTransferToHumanOption();
-      }
-      if (!_isEmergencyResult(result) && !_shouldTransferToHuman(result)) {
-        await ref
-            .read(demoHelpRequestFlowProvider.notifier)
-            .resolveByAI(summary: result.text);
-      }
-    } else {
-      _addBotMessage('抱歉，处理出错了：${result.error}');
+    _addBotMessage(
+      response.answerText,
+      data: response.toJson(),
+      uiCopy: response.uiCopy,
+    );
+
+    if (isEmergency) {
+      _startSOSFlowFromAI();
+    } else if (shouldTransfer) {
+      _showTransferToHumanOption();
+    }
+    if (!isEmergency && !shouldTransfer) {
       await ref
           .read(demoHelpRequestFlowProvider.notifier)
-          .markCancelled(reason: result.error);
+          .resolveByAI(summary: response.answerText);
     }
 
     if (!mounted) return;
     setState(() {
       _isProcessing = false;
     });
-  }
-
-  bool _shouldTransferToHuman(AIResult result) {
-    return result.data?['requiresHumanFallback'] == true ||
-        result.data?['intent'] == 'need_human' ||
-        result.data?['nextStatus'] == 'matching';
-  }
-
-  bool _isEmergencyResult(AIResult result) {
-    return result.data?['isEmergency'] == true ||
-        result.data?['action'] == 'sos_triggered';
   }
 
   void _showTransferToHumanOption() {
@@ -247,7 +291,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
   void _startSOSFlowFromAI() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      DemoFlowNavigator.onSOSButtonPressed(context, autoStartUndoWindow: true);
+      DemoFlowNavigator.onSOSButtonPressed(ref, context, autoStartUndoWindow: true);
     });
   }
 
@@ -273,7 +317,36 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
           type: 'realtime_voice',
         );
     if (!mounted) return;
-    DemoFlowNavigator.onAIRequestMatching(context);
+    DemoFlowNavigator.onAIRequestMatching(ref, context);
+  }
+
+  Future<void> _speakText(String text, int messageIndex) async {
+    if (text.isEmpty) return;
+
+    setState(() {
+      _speakingMessageIndex = messageIndex;
+    });
+
+    try {
+      await _agentFacade.speakText(text);
+      if (!mounted) return;
+      AppLogger.info('[DemoAIChat] TTS 朗读成功');
+    } catch (e) {
+      if (!mounted) return;
+      AppLogger.warning('[DemoAIChat] TTS 朗读失败', e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('语音播放失败，请稍后重试'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _speakingMessageIndex = null;
+        });
+      }
+    }
   }
 
   List<Map<String, String>> _buildAIHistory() {
@@ -345,6 +418,54 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _toggleVoiceInput() async {
+    if (_isProcessing) return;
+
+    if (_isListening) {
+      try {
+        await _agentFacade.stopVoiceInput();
+      } catch (e) {
+        AppLogger.warning('[DemoAIChat] 停止语音输入失败', e);
+      }
+      if (mounted) {
+        setState(() => _isListening = false);
+      }
+      return;
+    }
+
+    setState(() => _isListening = true);
+    _addBotMessage('正在听您说...');
+
+    try {
+      final recognizedText = await _agentFacade.startVoiceInput();
+
+      if (!mounted) return;
+
+      setState(() {
+        _isListening = false;
+        if (_messages.isNotEmpty && !_messages.last.isUser) {
+          _messages.removeLast();
+        }
+      });
+
+      if (recognizedText.trim().isNotEmpty) {
+        _textController.text = recognizedText;
+        await _sendMessage();
+      } else {
+        _addBotMessage('没有听清，请再试一次。');
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isListening = false;
+        if (_messages.isNotEmpty && !_messages.last.isUser) {
+          _messages.removeLast();
+        }
+      });
+      _addBotMessage('语音识别失败：$e');
+    }
   }
 
   @override
@@ -481,6 +602,8 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
                       message: _messages[index],
                       onTransferToHuman: _startMatchingFlow,
                       onStartSOS: _startSOSFlowFromAI,
+                      onSpeak: () => _speakText(_messages[index].text, index),
+                      isSpeaking: _speakingMessageIndex == index,
                     );
                   },
                 ),
@@ -540,14 +663,30 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
                       onPressed: _showImagePickerOptions,
                     ),
                     const SizedBox(width: AppTheme.spacingS),
-                    AccessibleIconButton(
-                      icon: Icons.mic_none_rounded,
-                      semanticLabel: '语音输入',
-                      backgroundColor: AppTheme.stageSurface,
-                      iconColor: AppTheme.stageTextPrimary,
-                      onPressed: () {
-                        _textController.text = '帮我识别这段文字';
-                      },
+                    Semantics(
+                      button: true,
+                      label: _isListening ? '停止录音' : '语音输入',
+                      hint: '双击执行${_isListening ? '停止录音' : '语音输入'}',
+                      enabled: !_isProcessing,
+                      child: Material(
+                        color: _isListening
+                            ? AppTheme.stageDanger.withValues(alpha: 0.2)
+                            : AppTheme.stageSurface,
+                        borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+                        child: InkWell(
+                          onTap: _toggleVoiceInput,
+                          borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+                          child: SizedBox(
+                            width: AppTheme.minTouchTarget,
+                            height: AppTheme.minTouchTarget,
+                            child: LinkableSvgIcon(
+                              icon: LinkableIconName.voiceInput,
+                              size: AppTheme.fontSizeLarge,
+                              semanticLabel: _isListening ? '停止录音' : '语音输入',
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                     const SizedBox(width: AppTheme.spacingS),
                     Expanded(
@@ -590,11 +729,28 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
                         gradient: AppTheme.stageAccentGradient,
                         shape: BoxShape.circle,
                       ),
-                      child: AccessibleIconButton(
-                        icon: Icons.send,
-                        semanticLabel: '发送消息',
-                        iconColor: AppTheme.stageBackground,
-                        onPressed: _isProcessing ? null : _sendMessage,
+                      child: Semantics(
+                        button: true,
+                        label: '发送消息',
+                        hint: '双击执行发送消息',
+                        enabled: !_isProcessing,
+                        child: Material(
+                          color: Colors.transparent,
+                          shape: const CircleBorder(),
+                          child: InkWell(
+                            onTap: _isProcessing ? null : _sendMessage,
+                            customBorder: const CircleBorder(),
+                            child: const SizedBox(
+                              width: AppTheme.minTouchTarget,
+                              height: AppTheme.minTouchTarget,
+                              child: LinkableSvgIcon(
+                                icon: LinkableIconName.send,
+                                size: AppTheme.fontSizeLarge,
+                                semanticLabel: '发送消息',
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -615,6 +771,7 @@ class ChatMessage {
     this.imageBytes,
     this.imageName,
     this.data,
+    this.uiCopy,
     required this.timestamp,
   });
 
@@ -623,6 +780,7 @@ class ChatMessage {
   final Uint8List? imageBytes;
   final String? imageName;
   final Map<String, dynamic>? data;
+  final UiCopy? uiCopy;
   final DateTime timestamp;
 }
 
@@ -631,11 +789,15 @@ class _ChatMessageBubble extends StatelessWidget {
     required this.message,
     required this.onTransferToHuman,
     required this.onStartSOS,
+    required this.onSpeak,
+    this.isSpeaking = false,
   });
 
   final ChatMessage message;
   final VoidCallback onTransferToHuman;
   final VoidCallback onStartSOS;
+  final VoidCallback onSpeak;
+  final bool isSpeaking;
 
   bool get _isFinalBotResult {
     return !message.isUser &&
@@ -644,14 +806,21 @@ class _ChatMessageBubble extends StatelessWidget {
   }
 
   bool get _isEmergencyResult {
+    // 优先读取 AgentResponse 标准字段
+    final urgency = message.data?['urgency'] as String?;
+    if (urgency == 'emergency') return true;
+    // 兼容旧 AIResult 格式
     return message.data?['isEmergency'] == true ||
         message.data?['action'] == 'sos_triggered';
   }
 
   bool get _showTransferAction {
-    return _isFinalBotResult &&
-        !_isEmergencyResult &&
-        message.data?['canTransferToHuman'] != false;
+    if (!_isFinalBotResult || _isEmergencyResult) return false;
+    // AgentResponse 标准字段
+    final nextAction = message.data?['next_action'] as String?;
+    if (nextAction == 'match_volunteer') return true;
+    // 兼容旧格式
+    return message.data?['canTransferToHuman'] != false;
   }
 
   bool get _showSOSAction {
@@ -733,17 +902,41 @@ class _ChatMessageBubble extends StatelessWidget {
                     ),
                   if (!message.isUser && !message.text.contains('AI 正在分析')) ...[
                     const SizedBox(height: AppTheme.spacingXS),
+                    // uiCopy 主操作按钮（如有）
+                    if (message.uiCopy != null) ...[
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.stageAccent,
+                            foregroundColor: AppTheme.stageBackground,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          onPressed: onTransferToHuman,
+                          child: Text(message.uiCopy!.primaryAction),
+                        ),
+                      ),
+                      const SizedBox(height: AppTheme.spacingXS),
+                    ],
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         AccessibleIconButton(
-                          icon: Icons.volume_up_outlined,
-                          semanticLabel: '语音播放',
+                          icon: isSpeaking
+                              ? Icons.stop_circle_outlined
+                              : Icons.volume_up_outlined,
+                          semanticLabel: isSpeaking ? '停止播放' : '语音播放',
                           size: 36,
                           iconSize: AppTheme.fontSizeNormal,
-                          backgroundColor: AppTheme.stageSurface,
-                          iconColor: AppTheme.stageTextSecondary,
-                          onPressed: () {},
+                          backgroundColor: isSpeaking
+                              ? AppTheme.stageDanger.withValues(alpha: 0.2)
+                              : AppTheme.stageSurface,
+                          iconColor: isSpeaking
+                              ? AppTheme.stageDanger
+                              : AppTheme.stageTextSecondary,
+                          onPressed: onSpeak,
                         ),
                         if (_showTransferAction)
                           TextButton(

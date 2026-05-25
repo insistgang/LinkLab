@@ -3,6 +3,7 @@
 > 状态日期：2026-04-28
 > 最高事实来源：根目录 `AGENTS.md`
 > 交付硬约束：**竞赛 Demo 不依赖外部服务**。默认首页、默认路由、默认构建和默认测试只服务 F1/F9/F11/F13/F33/F36 六项 MVP。
+> 2026-05-01 文档口径补充：当前对外标注为 Demo-first MVP，Web / Chrome 是首选演示路径；本轮文档整理未运行 Flutter，历史验证记录需要在交付前复跑确认。
 
 ## 项目定位
 
@@ -48,7 +49,8 @@
 - 默认导航已收敛为 `首页 / AI助手 / 我的`，未把后台、社群、积分、真实通话放入底部导航。
 - 演示数据已落在 `assets/demo_data/`，并由 `DemoDataLoader` 加载。
 - `linklab/supabase/` 已标记 legacy，根目录 `supabase/` 是事实来源。
-- 当前 `flutter analyze` 和 `flutter test` 通过，但注意部分默认可达文件仍被 `analysis_options.yaml` 排除，不能把通过结果误读为全主链路完全无风险。
+- `docs/rc_acceptance_evidence.md` 曾记录 `flutter analyze` 和 `flutter test` 通过，但注意部分默认可达文件仍被 `analysis_options.yaml` 排除，不能把历史通过结果误读为当前全主链路完全无风险。
+- Web / Chrome 是首选演示路径；Windows 桌面运行或构建需要 Visual Studio C++ 桌面开发工具链，不作为默认验收入口。
 
 ## P0/P1/P2 修复顺序
 

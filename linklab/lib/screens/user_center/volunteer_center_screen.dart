@@ -1,28 +1,32 @@
 import 'package:flutter/material.dart';
 import '../../models/demo_help_request_model.dart';
 import '../../models/volunteer_level_model.dart';
-import '../../models/badge_model.dart';
+// MVP: badge_model, timeline_model, schedule_model, point_transaction_model 已砍 (F20/F21/F23)
+// import '../../models/badge_model.dart';
 import '../../models/skill_model.dart';
-import '../../models/timeline_model.dart';
-import '../../models/schedule_model.dart';
+// import '../../models/timeline_model.dart';
+// import '../../models/schedule_model.dart';
 import '../../models/help_request_model.dart';
-import '../../models/point_transaction_model.dart';
+// import '../../models/point_transaction_model.dart';
+// ignore: deprecated_member_use_from_same_package
 import '../../services/app_session_service.dart';
 import '../../services/user_center/volunteer_level_service.dart';
-import '../../services/user_center/badge_service.dart';
+// MVP: badge_service, timeline_service, schedule_service 已砍 (F20/F21/F23)
+// import '../../services/user_center/badge_service.dart';
 import '../../services/user_center/skill_tag_service.dart';
-import '../../services/user_center/timeline_service.dart';
-import '../../services/user_center/schedule_service.dart';
+// import '../../services/user_center/timeline_service.dart';
+// import '../../services/user_center/schedule_service.dart';
 import '../../services/user_center/async_task_service.dart';
 import '../../services/user_center/demo_help_request_service.dart';
 import '../../core/utils/extensions.dart';
 
+// ignore: deprecated_member_use_from_same_package
 String _resolveVolunteerId() {
   return AppSessionService.instance.userProfile?.id ?? 'demo-volunteer-id';
 }
 
 /// 志愿者中心页面 (F18-F23)
-/// 整合等级积分、技能标签、善意时间线、徽章成就、异步任务、排班管理
+/// MVP: 只保留等级、技能、任务三项；时间线、徽章、排班已砍 (F20/F21/F23)
 class VolunteerCenterScreen extends StatefulWidget {
   const VolunteerCenterScreen({super.key});
 
@@ -37,7 +41,7 @@ class _VolunteerCenterScreenState extends State<VolunteerCenterScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 6, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -57,10 +61,7 @@ class _VolunteerCenterScreenState extends State<VolunteerCenterScreen>
           tabs: const [
             Tab(icon: Icon(Icons.military_tech), text: '等级'),
             Tab(icon: Icon(Icons.local_offer), text: '技能'),
-            Tab(icon: Icon(Icons.timeline), text: '时间线'),
-            Tab(icon: Icon(Icons.emoji_events), text: '徽章'),
             Tab(icon: Icon(Icons.assignment), text: '任务'),
-            Tab(icon: Icon(Icons.schedule), text: '排班'),
           ],
         ),
       ),
@@ -69,10 +70,7 @@ class _VolunteerCenterScreenState extends State<VolunteerCenterScreen>
         children: const [
           LevelPointsTab(),
           SkillTagsTab(),
-          TimelineTab(),
-          BadgesTab(),
           AsyncTasksTab(),
-          ScheduleTab(),
         ],
       ),
     );
@@ -91,7 +89,8 @@ class _LevelPointsTabState extends State<LevelPointsTab> {
   final VolunteerLevelService _levelService = VolunteerLevelService();
 
   VolunteerLevelInfo? _levelInfo;
-  List<PointTransactionModel> _transactions = [];
+  // MVP: point_transaction_model 已砍 (F15/F20)
+  // List<PointTransactionModel> _transactions = [];
   bool _isLoading = true;
 
   @override
@@ -106,11 +105,12 @@ class _LevelPointsTabState extends State<LevelPointsTab> {
     final volunteerId = _resolveVolunteerId();
 
     final levelInfo = await _levelService.getLevelInfo(volunteerId);
-    final transactions = await _levelService.getPointTransactions(volunteerId);
+    // MVP: point_transaction_model 已砍 (F15/F20)
+    // final transactions = await _levelService.getPointTransactions(volunteerId);
 
     setState(() {
       _levelInfo = levelInfo;
-      _transactions = transactions;
+      // _transactions = transactions;
       _isLoading = false;
     });
   }
@@ -146,8 +146,8 @@ class _LevelPointsTabState extends State<LevelPointsTab> {
 
           const SizedBox(height: 24),
 
-          // 积分流水
-          _TransactionsList(transactions: _transactions),
+          // MVP: 积分流水已砍 (F15/F20)
+          // _TransactionsList(transactions: _transactions),
         ],
       ),
     );
@@ -397,384 +397,11 @@ class _SkillTagsTabState extends State<SkillTagsTab> {
   }
 }
 
-/// F20: 善意时间线标签页
-class TimelineTab extends StatefulWidget {
-  const TimelineTab({super.key});
+// MVP: F20 善意时间线标签页已砍
+// class TimelineTab ... 整个类及相关组件已移除
 
-  @override
-  State<TimelineTab> createState() => _TimelineTabState();
-}
-
-class _TimelineTabState extends State<TimelineTab> {
-  final TimelineService _timelineService = TimelineService();
-
-  TimelineModel? _timeline;
-  int _selectedYear = DateTime.now().year;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadData();
-  }
-
-  Future<void> _loadData() async {
-    setState(() => _isLoading = true);
-
-    final volunteerId = _resolveVolunteerId();
-
-    final timeline = await _timelineService.getTimeline(
-      volunteerId,
-      _selectedYear,
-    );
-
-    setState(() {
-      _timeline = timeline;
-      _isLoading = false;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    final timeline = _timeline;
-    if (timeline == null) {
-      return const Center(child: Text('加载失败'));
-    }
-
-    return RefreshIndicator(
-      onRefresh: _loadData,
-      child: CustomScrollView(
-        slivers: [
-          // 年份选择器
-          SliverToBoxAdapter(child: _buildYearSelector()),
-
-          // 统计卡片
-          SliverToBoxAdapter(child: _buildStatsCards(timeline)),
-
-          // 热力图
-          SliverToBoxAdapter(child: _buildHeatmap(timeline)),
-
-          // 最近活动
-          const SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Text(
-                '最近帮助记录',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ),
-
-          // 活动列表
-          SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              final days = timeline.days
-                  .where((d) => d.events.isNotEmpty)
-                  .toList();
-              if (index >= days.length) return null;
-
-              final day = days[index];
-              return _buildDayCard(day);
-            }),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildYearSelector() {
-    final currentYear = DateTime.now().year;
-    final years = List.generate(3, (i) => currentYear - i);
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      child: SegmentedButton<int>(
-        segments: years.map((year) {
-          return ButtonSegment(value: year, label: Text('$year年'));
-        }).toList(),
-        selected: {_selectedYear},
-        onSelectionChanged: (selected) {
-          setState(() {
-            _selectedYear = selected.first;
-          });
-          _loadData();
-        },
-      ),
-    );
-  }
-
-  Widget _buildStatsCards(TimelineModel timeline) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          Expanded(
-            child: _TimelineStatCard(
-              value: timeline.totalHelps.toString(),
-              label: '总帮助次数',
-              icon: Icons.favorite,
-              color: Colors.red,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _TimelineStatCard(
-              value: '${timeline.totalMinutes ~/ 60}h',
-              label: '志愿时长',
-              icon: Icons.timer,
-              color: Colors.blue,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _TimelineStatCard(
-              value: '${timeline.streakDays}天',
-              label: '连续帮助',
-              icon: Icons.local_fire_department,
-              color: Colors.orange,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeatmap(TimelineModel timeline) {
-    return Card(
-      margin: const EdgeInsets.all(16),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              '帮助热力图',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            // 简化的热力图展示
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 7,
-                childAspectRatio: 1,
-                crossAxisSpacing: 4,
-                mainAxisSpacing: 4,
-              ),
-              itemCount: timeline.days.length.clamp(0, 84), // 显示12周
-              itemBuilder: (context, index) {
-                final day = timeline.days[index];
-                return Container(
-                  decoration: BoxDecoration(
-                    color: _getHeatmapColor(day.activityLevel),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Text(
-                  '少',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                ),
-                const SizedBox(width: 4),
-                ...List.generate(5, (i) {
-                  return Container(
-                    width: 12,
-                    height: 12,
-                    margin: const EdgeInsets.symmetric(horizontal: 2),
-                    decoration: BoxDecoration(
-                      color: _getHeatmapColor(i),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  );
-                }),
-                const SizedBox(width: 4),
-                Text(
-                  '多',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Color _getHeatmapColor(int level) {
-    final colors = [
-      Colors.grey[200]!, // 0
-      Colors.green[100]!, // 1
-      Colors.green[300]!, // 2
-      Colors.green[500]!, // 3
-      Colors.green[700]!, // 4
-    ];
-    return colors[level.clamp(0, 4)];
-  }
-
-  Widget _buildDayCard(TimelineDay day) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: ExpansionTile(
-        title: Text(day.date),
-        subtitle: Text('${day.helpCount} 次帮助 · ${day.minutes} 分钟'),
-        leading: CircleAvatar(
-          backgroundColor: _getHeatmapColor(day.activityLevel),
-          child: Text('${day.helpCount}'),
-        ),
-        children: day.events.map((event) {
-          return ListTile(
-            dense: true,
-            leading: const Icon(Icons.favorite, size: 16, color: Colors.red),
-            title: Text('帮助了 ${event.seekerName ?? '求助者'}'),
-            subtitle: Text('${event.durationMinutes ?? 0} 分钟'),
-            trailing: event.rating != null
-                ? Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: List.generate(
-                      event.rating!,
-                      (i) =>
-                          const Icon(Icons.star, size: 14, color: Colors.amber),
-                    ),
-                  )
-                : null,
-          );
-        }).toList(),
-      ),
-    );
-  }
-}
-
-/// F21: 徽章成就标签页
-class BadgesTab extends StatefulWidget {
-  const BadgesTab({super.key});
-
-  @override
-  State<BadgesTab> createState() => _BadgesTabState();
-}
-
-class _BadgesTabState extends State<BadgesTab> {
-  final BadgeService _badgeService = BadgeService();
-
-  List<BadgeModel> _myBadges = [];
-  List<BadgeDefinition> _availableBadges = [];
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadData();
-  }
-
-  Future<void> _loadData() async {
-    setState(() => _isLoading = true);
-
-    final volunteerId = _resolveVolunteerId();
-
-    await _badgeService.checkAndAwardBadges(volunteerId);
-
-    final myBadges = await _badgeService.getMyBadges(volunteerId);
-    final availableBadges = await _badgeService.getAvailableBadges(volunteerId);
-
-    setState(() {
-      _myBadges = myBadges;
-      _availableBadges = availableBadges;
-      _isLoading = false;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    return RefreshIndicator(
-      onRefresh: _loadData,
-      child: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // 已获得徽章
-          Text(
-            '已获得 (${_myBadges.length})',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 12),
-          if (_myBadges.isEmpty)
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Center(
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.emoji_events_outlined,
-                        size: 48,
-                        color: Colors.grey[300],
-                      ),
-                      const SizedBox(height: 8),
-                      Text('还没有徽章', style: TextStyle(color: Colors.grey[600])),
-                    ],
-                  ),
-                ),
-              ),
-            )
-          else
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                childAspectRatio: 0.8,
-              ),
-              itemCount: _myBadges.length,
-              itemBuilder: (context, index) {
-                final badge = _myBadges[index];
-                return _BadgeCard(badge: badge, isEarned: true);
-              },
-            ),
-
-          const SizedBox(height: 24),
-
-          // 待解锁徽章
-          Text('待解锁', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 12),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              childAspectRatio: 0.8,
-            ),
-            itemCount: _availableBadges.length,
-            itemBuilder: (context, index) {
-              final badge = _availableBadges[index];
-              return _BadgeCard(
-                badge: BadgeModel(
-                  id: badge.type.name,
-                  userId: '',
-                  type: badge.type,
-                  name: badge.name,
-                  description: badge.description,
-                ),
-                isEarned: false,
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
+// MVP: F21 徽章成就标签页已砍
+// class BadgesTab ... 整个类及相关组件已移除
 
 /// F22: 异步任务标签页
 class AsyncTasksTab extends StatefulWidget {
@@ -789,7 +416,8 @@ class _AsyncTasksTabState extends State<AsyncTasksTab> {
   final DemoHelpRequestService _demoHelpRequestService =
       DemoHelpRequestService();
   final VolunteerLevelService _levelService = VolunteerLevelService();
-  final BadgeService _badgeService = BadgeService();
+  // MVP: badge_service 已砍 (F21)
+  // final BadgeService _badgeService = BadgeService();
 
   List<DemoHelpRequestModel> _pendingHelpRequests = [];
   List<AsyncTaskModel> _availableTasks = [];
@@ -838,7 +466,8 @@ class _AsyncTasksTabState extends State<AsyncTasksTab> {
 
     if (success && mounted) {
       await _levelService.onAsyncHelpCompleted(volunteerId, taskId);
-      await _badgeService.checkAndAwardBadges(volunteerId);
+      // MVP: badge_service 已砍 (F21)
+      // await _badgeService.checkAndAwardBadges(volunteerId);
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
@@ -1088,149 +717,8 @@ class _AsyncTasksTabState extends State<AsyncTasksTab> {
   }
 }
 
-/// F23: 排班管理标签页
-class ScheduleTab extends StatefulWidget {
-  const ScheduleTab({super.key});
-
-  @override
-  State<ScheduleTab> createState() => _ScheduleTabState();
-}
-
-class _ScheduleTabState extends State<ScheduleTab> {
-  final ScheduleService _scheduleService = ScheduleService();
-
-  ScheduleModel? _schedule;
-  bool _isOnline = false;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadData();
-  }
-
-  Future<void> _loadData() async {
-    setState(() => _isLoading = true);
-
-    final volunteerId = _resolveVolunteerId();
-
-    final schedule = await _scheduleService.getSchedule(volunteerId);
-    final isOnline = await _scheduleService.isOnline(volunteerId);
-
-    setState(() {
-      _schedule = schedule;
-      _isOnline = isOnline;
-      _isLoading = false;
-    });
-  }
-
-  Future<void> _toggleOnline(bool value) async {
-    final volunteerId = _resolveVolunteerId();
-
-    final success = value
-        ? await _scheduleService.goOnline(volunteerId)
-        : await _scheduleService.goOffline(volunteerId);
-
-    if (success) {
-      setState(() => _isOnline = value);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    final schedule = _schedule;
-    if (schedule == null) {
-      return const Center(child: Text('加载失败'));
-    }
-
-    return RefreshIndicator(
-      onRefresh: _loadData,
-      child: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // 在线状态开关
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Icon(
-                    _isOnline ? Icons.circle : Icons.circle_outlined,
-                    color: _isOnline ? Colors.green : Colors.grey,
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _isOnline ? '在线' : '离线',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          _isOnline ? '您现在可以接收求助请求' : '开启后可接收求助请求',
-                          style: TextStyle(color: Colors.grey[600]),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Switch(value: _isOnline, onChanged: _toggleOnline),
-                ],
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 24),
-
-          // 本周排班
-          Text('本周排班', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 12),
-
-          ...WeekDay.values.map((day) {
-            final slots = schedule.weeklySchedule[day.key] ?? [];
-            return _DayScheduleCard(
-              day: day,
-              slots: slots,
-              onEdit: () => _editDaySchedule(day, slots),
-            );
-          }),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _editDaySchedule(
-    WeekDay day,
-    List<TimeSlot> currentSlots,
-  ) async {
-    // 简化的编辑对话框
-    final result = await showDialog<List<TimeSlot>>(
-      context: context,
-      builder: (context) =>
-          _ScheduleEditorDialog(day: day, initialSlots: currentSlots),
-    );
-
-    if (result != null) {
-      final volunteerId = _resolveVolunteerId();
-      final success = await _scheduleService.updateDaySchedule(
-        volunteerId,
-        day.key,
-        result,
-      );
-
-      if (success) {
-        _loadData();
-      }
-    }
-  }
-}
+// MVP: F23 排班管理标签页已砍
+// class ScheduleTab ... 整个类及相关组件已移除
 
 // ==================== 辅助组件 ====================
 
@@ -1372,60 +860,8 @@ class _PrivilegesCard extends StatelessWidget {
   }
 }
 
-class _TransactionsList extends StatelessWidget {
-  final List<PointTransactionModel> transactions;
-
-  const _TransactionsList({required this.transactions});
-
-  @override
-  Widget build(BuildContext context) {
-    if (transactions.isEmpty) {
-      return const Card(
-        child: Padding(
-          padding: EdgeInsets.all(24),
-          child: Center(child: Text('暂无积分记录')),
-        ),
-      );
-    }
-
-    return Card(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.all(16),
-            child: Text(
-              '积分记录',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-          ),
-          const Divider(height: 1),
-          ...transactions.take(10).map((transaction) {
-            return ListTile(
-              dense: true,
-              leading: Icon(
-                transaction.isPositive ? Icons.add_circle : Icons.remove_circle,
-                color: transaction.isPositive ? Colors.green : Colors.red,
-              ),
-              title: Text(PointRules.getTypeDescription(transaction.type)),
-              subtitle: Text(
-                transaction.createdAt?.formatRelative() ?? '',
-                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-              ),
-              trailing: Text(
-                '${transaction.isPositive ? '+' : ''}${transaction.points}',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: transaction.isPositive ? Colors.green : Colors.red,
-                ),
-              ),
-            );
-          }),
-        ],
-      ),
-    );
-  }
-}
+// MVP: F20 积分流水组件已砍 (point_transaction_model)
+// class _TransactionsList extends StatelessWidget { ... }
 
 class _SkillSelector extends StatelessWidget {
   final ScrollController scrollController;
@@ -1507,119 +943,11 @@ class _SkillSelector extends StatelessWidget {
   }
 }
 
-class _TimelineStatCard extends StatelessWidget {
-  final String value;
-  final String label;
-  final IconData icon;
-  final Color color;
+// MVP: F20 时间线统计卡片已砍
+// class _TimelineStatCard extends StatelessWidget { ... }
 
-  const _TimelineStatCard({
-    required this.value,
-    required this.label,
-    required this.icon,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color.withAlpha(26),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-          Text(
-            label,
-            style: TextStyle(fontSize: 12, color: color.withAlpha(204)),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _BadgeCard extends StatelessWidget {
-  final BadgeModel badge;
-  final bool isEarned;
-
-  const _BadgeCard({required this.badge, required this.isEarned});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      color: isEarned ? null : Colors.grey[100],
-      child: InkWell(
-        onTap: () => _showBadgeDetail(context),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                badge.iconEmoji,
-                style: TextStyle(
-                  fontSize: 40,
-                  color: isEarned ? null : Colors.grey[400],
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                badge.name,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: isEarned ? null : Colors.grey[500],
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (isEarned && badge.earnedAt != null)
-                Text(
-                  badge.earnedAt!.formatDate(),
-                  style: TextStyle(fontSize: 10, color: Colors.grey[600]),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showBadgeDetail(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Column(
-          children: [
-            Text(badge.iconEmoji, style: const TextStyle(fontSize: 48)),
-            const SizedBox(height: 8),
-            Text(badge.name),
-          ],
-        ),
-        content: Text(badge.description ?? ''),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('关闭'),
-          ),
-        ],
-      ),
-    );
-  }
-}
+// MVP: F21 徽章卡片组件已砍
+// class _BadgeCard extends StatelessWidget { ... }
 
 class _RequestMetaChip extends StatelessWidget {
   const _RequestMetaChip({required this.icon, required this.label});
@@ -1706,119 +1034,6 @@ class _TaskCard extends StatelessWidget {
   }
 }
 
-class _DayScheduleCard extends StatelessWidget {
-  final WeekDay day;
-  final List<TimeSlot> slots;
-  final VoidCallback onEdit;
-
-  const _DayScheduleCard({
-    required this.day,
-    required this.slots,
-    required this.onEdit,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isToday = DateTime.now().weekday == day.index + 1;
-
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      color: isToday ? Colors.blue[50] : null,
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: isToday ? Colors.blue : Colors.grey,
-          child: Text(
-            day.displayName.substring(0, 2),
-            style: const TextStyle(fontSize: 12, color: Colors.white),
-          ),
-        ),
-        title: Text(day.displayName),
-        subtitle: slots.isEmpty
-            ? const Text('无排班', style: TextStyle(color: Colors.grey))
-            : Wrap(
-                spacing: 4,
-                children: slots.map((slot) {
-                  return Chip(
-                    label: Text(slot.displayText),
-                    padding: EdgeInsets.zero,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  );
-                }).toList(),
-              ),
-        trailing: IconButton(icon: const Icon(Icons.edit), onPressed: onEdit),
-      ),
-    );
-  }
-}
-
-class _ScheduleEditorDialog extends StatefulWidget {
-  final WeekDay day;
-  final List<TimeSlot> initialSlots;
-
-  const _ScheduleEditorDialog({required this.day, required this.initialSlots});
-
-  @override
-  State<_ScheduleEditorDialog> createState() => _ScheduleEditorDialogState();
-}
-
-class _ScheduleEditorDialogState extends State<_ScheduleEditorDialog> {
-  late List<TimeSlot> _slots;
-
-  @override
-  void initState() {
-    super.initState();
-    _slots = List.from(widget.initialSlots);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text('编辑 ${widget.day.displayName} 排班'),
-      content: SizedBox(
-        width: double.maxFinite,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ..._slots.asMap().entries.map((entry) {
-              final index = entry.key;
-              final slot = entry.value;
-              return ListTile(
-                title: Text('${slot.start} - ${slot.end}'),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () {
-                    setState(() {
-                      _slots.removeAt(index);
-                    });
-                  },
-                ),
-              );
-            }),
-            ListTile(
-              leading: const Icon(Icons.add, color: Colors.blue),
-              title: const Text('添加时段'),
-              onTap: () => _addTimeSlot(),
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('取消'),
-        ),
-        ElevatedButton(
-          onPressed: () => Navigator.pop(context, _slots),
-          child: const Text('保存'),
-        ),
-      ],
-    );
-  }
-
-  void _addTimeSlot() {
-    // 简化版：添加默认时段
-    setState(() {
-      _slots.add(const TimeSlot(start: '09:00', end: '12:00'));
-    });
-  }
-}
+// MVP: F23 排班相关组件已砍
+// class _DayScheduleCard extends StatelessWidget { ... }
+// class _ScheduleEditorDialog extends StatefulWidget { ... }

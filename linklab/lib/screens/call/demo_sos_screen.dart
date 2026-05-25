@@ -6,9 +6,10 @@ import 'package:flutter/services.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../models/emergency_contact_model.dart';
+import '../../providers/app_session_provider.dart';
 import '../../providers/demo_help_request_flow_provider.dart';
 import '../../providers/demo_services_provider.dart';
-import '../../services/app_session_service.dart';
+import '../../providers/facade_providers.dart';
 import '../../services/demo_call_service.dart';
 import '../../services/security/emergency_contact_service.dart';
 import '../../services/security/safety_settings_service.dart';
@@ -23,9 +24,14 @@ import 'demo_call_screen.dart';
 /// 演示版SOS紧急求助页面
 /// 简化版：模拟SOS流程，固定5秒匹配成功
 class DemoSOSScreen extends ConsumerStatefulWidget {
-  const DemoSOSScreen({super.key, this.autoStartUndoWindow = false});
+  const DemoSOSScreen({
+    super.key,
+    this.autoStartUndoWindow = false,
+    this.autoActivateEmergency = false,
+  });
 
   final bool autoStartUndoWindow;
+  final bool autoActivateEmergency;
 
   @override
   ConsumerState<DemoSOSScreen> createState() => _DemoSOSScreenState();
@@ -53,7 +59,7 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
   int _undoCountdownSeconds = _undoWindowSeconds;
 
   String get _currentUserId =>
-      AppSessionService.instance.currentUser?.id ?? 'demo-user-id';
+      ref.read(appSessionProvider).userProfile?.id ?? 'demo-user-id';
 
   @override
   void initState() {
@@ -62,7 +68,12 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
     _initAnimations();
     _sosService.addListener(_onSOSStateChanged);
     _loadSafetyContext();
-    if (widget.autoStartUndoWindow) {
+    if (widget.autoActivateEmergency) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        unawaited(_activateSOSFlow());
+      });
+    } else if (widget.autoStartUndoWindow) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         _triggerSOS();
@@ -159,6 +170,19 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
       _isUndoWindowActive = true;
       _undoCountdownSeconds = _undoWindowSeconds;
     });
+
+    // Facade 优先：调用 SosFacade.startUndoWindow
+    try {
+      final facade = ref.read(sosFacadeProvider);
+      final result = await facade.startUndoWindow();
+      if (result.success) {
+        // Facade 成功，继续走 demo 流程驱动 UI
+      }
+    } catch (_) {
+      // Facade 异常，降级到旧流程
+    }
+
+    // Fallback：原有 demo flow
     await ref.read(demoHelpRequestFlowProvider.notifier).startSOSUndoWindow();
     _startUndoWindow();
   }
@@ -184,7 +208,7 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
   }
 
   Future<void> _activateSOSFlow() async {
-    if (!_isUndoWindowActive) {
+    if (!_isUndoWindowActive && !widget.autoActivateEmergency) {
       return;
     }
 
@@ -193,6 +217,19 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
       _undoCountdownSeconds = _undoWindowSeconds;
     });
 
+    // Facade 优先：调用 SosFacade.broadcastToNearby 和 notifyEmergencyContacts
+    try {
+      final facade = ref.read(sosFacadeProvider);
+      final broadcastResult = await facade.broadcastToNearby();
+      if (broadcastResult.success) {
+        // Facade 广播成功
+      }
+      await facade.notifyEmergencyContacts();
+    } catch (_) {
+      // Facade 异常，降级到旧流程
+    }
+
+    // Fallback：原有联系人通知逻辑
     if (_safetySettings.shareWithEmergencyContacts &&
         _emergencyContacts.isNotEmpty) {
       unawaited(
@@ -206,6 +243,7 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
       );
     }
 
+    // Fallback：原有 demo flow
     await ref
         .read(demoHelpRequestFlowProvider.notifier)
         .enterMatching(intent: 'SOS紧急求助', type: 'sos', urgency: 'emergency');
@@ -218,6 +256,16 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
       _isUndoWindowActive = false;
       _undoCountdownSeconds = _undoWindowSeconds;
     });
+
+    // Facade 优先：调用 SosFacade.cancelSOS
+    try {
+      final facade = ref.read(sosFacadeProvider);
+      await facade.cancelSOS();
+    } catch (_) {
+      // Facade 异常，降级到旧流程
+    }
+
+    // Fallback：原有 demo flow
     await ref
         .read(demoHelpRequestFlowProvider.notifier)
         .markCancelled(reason: 'SOS 误触撤销');
@@ -226,7 +274,7 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: Listenable.merge([_sosService, AppSessionService.instance]),
+      animation: _sosService,
       builder: (context, child) {
         final isActive = _sosService.isActive;
         final isEmergencyFlowActive = isActive || _isUndoWindowActive;
@@ -638,6 +686,13 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
           Expanded(
             child: ElevatedButton.icon(
               onPressed: () async {
+                // Facade 优先：调用 SosFacade.cancelSOS（安全了 = 结束 SOS）
+                try {
+                  final facade = ref.read(sosFacadeProvider);
+                  await facade.cancelSOS();
+                } catch (_) {
+                  // Facade 异常，降级到旧流程
+                }
                 _sosService.resolveSOS();
                 await ref
                     .read(demoHelpRequestFlowProvider.notifier)
@@ -665,6 +720,13 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
           Expanded(
             child: OutlinedButton.icon(
               onPressed: () async {
+                // Facade 优先：调用 SosFacade.cancelSOS
+                try {
+                  final facade = ref.read(sosFacadeProvider);
+                  await facade.cancelSOS();
+                } catch (_) {
+                  // Facade 异常，降级到旧流程
+                }
                 _sosService.cancelSOS();
                 await ref
                     .read(demoHelpRequestFlowProvider.notifier)
@@ -910,9 +972,9 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
       child: Row(
         children: [
           const LinkableSvgIcon(
-            icon: LinkableIconName.unknown,
+            icon: LinkableIconName.emergencyDetect,
             size: 18,
-            semanticLabel: '提示',
+            semanticLabel: '紧急检测提示',
           ),
           const SizedBox(width: 8),
           Expanded(

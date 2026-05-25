@@ -5,7 +5,9 @@
 面向视障、听障、老年人及肢体障碍者的「AI 先处理 + 真人兜底」互助 Demo。
 
 > 2026 两岸大学生创客大赛 · 逢甲赛区竞赛交付版本  
-> 当前仓库状态：**MVP 已完全收敛** / **Demo 主线 100% 可跑通** / **无障碍优先** / **已完成 AGENTS.md 全部修复项**
+> 当前仓库状态：**Demo-first MVP** / **Web 与 Chrome 是主要演示路径** / **真实 WebRTC、Supabase、推送、SOS 生产链路仍为实验或后续能力**
+
+> 最新状态索引见 [DEMO_STATUS.md](./DEMO_STATUS.md)。本轮文档整理不运行 Flutter，也不把历史测试记录重新声明为当前复验结果。
 
 ## 项目定位
 
@@ -33,7 +35,7 @@
 
 ## 当前交付状态
 
-截至 `2026-04-17`，仓库已经完成 `P0 + P1 + P2` 全部收口工作：
+截至 `2026-04-17` 的历史执行记录显示，仓库曾完成 `P0 + P1 + P2` 收口工作；`2026-05-01` 文档口径整理后，统一将当前项目标注为 Demo-first MVP：
 
 - 竞赛版入口已强制锁定 `Demo Mode`
 - 全局已补齐 `ProviderScope`
@@ -47,12 +49,12 @@
 
 ## 快速启动
 
-### 1. 运行主应用 Demo
+### 1. 运行主应用 Demo（首选 Web / Chrome）
 
 ```bash
 cd linklab
 flutter pub get
-flutter run
+flutter run -d chrome
 ```
 
 说明：
@@ -60,15 +62,25 @@ flutter run
 - 当前入口在 [`linklab/lib/main.dart`](./linklab/lib/main.dart) 中已强制执行 `AppConfig.demoMode = true`
 - 默认不需要真实 API Key、真实 Supabase、真实推送或真实 WebRTC
 - 竞赛版默认只保证 Demo 主线
+- Windows 桌面端不是首选演示路径；如需 `flutter run -d windows`，本机必须安装 Visual Studio C++ 桌面开发工具链
 
-### 2. 运行闭环测试
+### 2. Web 构建复验
+
+```bash
+cd linklab
+flutter build web --release
+```
+
+说明：Web build 是推荐交付复验口径之一。本轮文档整理未运行该命令，交付前应重新执行并把结果补入 [`docs/rc_acceptance_evidence.md`](./docs/rc_acceptance_evidence.md)。
+
+### 3. 运行闭环测试
 
 ```bash
 cd linklab
 flutter test --tags demo
 ```
 
-### 3. 运行静态检查
+### 4. 运行静态检查
 
 ```bash
 cd linklab
@@ -80,11 +92,12 @@ cd linklab/admin_dashboard
 flutter analyze lib
 ```
 
-当前仓库验证结果：
+已有验证记录口径：
 
-- 主应用 `flutter analyze lib`：`70 issues found`
-- `admin_dashboard`：`9 issues found`
-- `flutter test --tags demo`：**All tests passed**
+- `README.md` / `TODO.md` 的 2026-04-17 历史记录曾写明：主应用 `flutter analyze lib` 仍有 `70 issues found`，`admin_dashboard` 有 `9 issues found`，`flutter test --tags demo` 为 **All tests passed**。
+- [`docs/rc_acceptance_evidence.md`](./docs/rc_acceptance_evidence.md) 的较新 RC 记录曾写明：`flutter analyze` 为 `No issues found`，`flutter test --reporter compact` 为 `All tests passed`（60 tests）。
+- [`docs/competition_mvp_delivery_plan.md`](./docs/competition_mvp_delivery_plan.md) 将 `flutter build web --debug` / `flutter build web --release` 纳入 Web 演示验收口径。
+- 本轮仅整理文档，没有复跑 `flutter test`、`flutter analyze` 或 `flutter build web`；交付前以 Web / Chrome 路径重新复验为准。
 
 ## 3 分钟竞赛演示主线
 
@@ -177,7 +190,8 @@ LinkLab/
 
 - 你可以稳定演示 `F1 -> F9 -> F11 -> 评价 -> 历史`
 - 你也可以稳定演示 `F13 SOS`
-- 但不应该把真实 WebRTC、真实 Supabase、真实推送当作现场依赖
+- 但不应该把真实 WebRTC、真实 Supabase、真实推送、真实短信、真实报警或生产级 SOS 当作现场依赖
+- 真实链路只能作为实验能力或后续版本说明，不能在文档、口播或验收中冒充当前已生产完成
 
 ## 无障碍约束
 
@@ -255,12 +269,13 @@ LinkLab/
 
 如果你第一次接手这个项目，建议按下面顺序阅读：
 
-1. [AGENTS.md](./AGENTS.md)
-2. [TODO.md](./TODO.md)
-3. [DEMO_SCRIPT.md](./DEMO_SCRIPT.md)
-4. [`linklab/lib/main.dart`](./linklab/lib/main.dart)
-5. [`linklab/lib/config/app_config.dart`](./linklab/lib/config/app_config.dart)
-6. [`supabase/migrations/005_unify_root_schema_source_of_truth.sql`](./supabase/migrations/005_unify_root_schema_source_of_truth.sql)
+1. [DEMO_STATUS.md](./DEMO_STATUS.md)
+2. [AGENTS.md](./AGENTS.md)
+3. [TODO.md](./TODO.md)
+4. [DEMO_SCRIPT.md](./DEMO_SCRIPT.md)
+5. [`linklab/lib/main.dart`](./linklab/lib/main.dart)
+6. [`linklab/lib/config/app_config.dart`](./linklab/lib/config/app_config.dart)
+7. [`supabase/migrations/005_unify_root_schema_source_of_truth.sql`](./supabase/migrations/005_unify_root_schema_source_of_truth.sql)
 
 ## 一句话总结
 

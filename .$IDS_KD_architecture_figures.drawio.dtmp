@@ -1,0 +1,254 @@
+<mxfile host="Electron" agent="ChatGPT" pages="3">
+  <diagram id="page1" name="图1 数据预处理与频域变换流程">
+    <mxGraphModel dx="1417" dy="834" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="v2" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=22;fontStyle=1;fontFamily=SimSun;" value="图1 数据预处理与频域变换流程" vertex="1">
+          <mxGeometry height="40" width="820" x="180" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="v3" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontColor=#555555;fontFamily=SimSun;" value="Raw CSV → tabular feature normalization → 2D representation → FFT frequency-domain input" vertex="1">
+          <mxGeometry height="28" width="820" x="180" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="v4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;strokeColor=#222222;fillColor=#F8F8F8;fontSize=14;fontFamily=SimSun;spacing=8;" value="原始 CSV 数据&lt;br&gt;41维 / 49维" vertex="1">
+          <mxGeometry height="52" width="370" x="400" y="105" as="geometry" />
+        </mxCell>
+        <mxCell id="v5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;strokeColor=#222222;fillColor=#F8F8F8;fontSize=14;fontFamily=SimSun;spacing=8;" value="标签统一&lt;br&gt;Attack = 0，Normal = 1" vertex="1">
+          <mxGeometry height="52" width="370" x="400" y="179" as="geometry" />
+        </mxCell>
+        <mxCell id="v6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;strokeColor=#222222;fillColor=#F8F8F8;fontSize=14;fontFamily=SimSun;spacing=8;" value="数值特征缩放&lt;br&gt;x ← x × 255.0" vertex="1">
+          <mxGeometry height="52" width="370" x="400" y="253" as="geometry" />
+        </mxCell>
+        <mxCell id="v7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;strokeColor=#222222;fillColor=#F8F8F8;fontSize=14;fontFamily=SimSun;spacing=8;" value="补零处理&lt;br&gt;41维 → 121维；49维 → 49维" vertex="1">
+          <mxGeometry height="52" width="370" x="400" y="327" as="geometry" />
+        </mxCell>
+        <mxCell id="v8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;strokeColor=#222222;fillColor=#F8F8F8;fontSize=14;fontFamily=SimSun;spacing=8;" value="Reshape 为二维方阵&lt;br&gt;11×11 / 7×7" vertex="1">
+          <mxGeometry height="52" width="370" x="400" y="401" as="geometry" />
+        </mxCell>
+        <mxCell id="v9" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;strokeColor=#222222;fillColor=#F8F8F8;fontSize=14;fontFamily=SimSun;spacing=8;" value="ADASYN + GMM 重采样&lt;br&gt;类别比例 1 : 1.5" vertex="1">
+          <mxGeometry height="52" width="370" x="400" y="475" as="geometry" />
+        </mxCell>
+        <mxCell id="v10" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;strokeColor=#222222;fillColor=#E6E6E6;fontSize=14;fontFamily=SimSun;spacing=8;fontStyle=1;" value="2D FFT 变换&lt;br&gt;X̂ = FFT2(X)" vertex="1">
+          <mxGeometry height="52" width="370" x="400" y="549" as="geometry" />
+        </mxCell>
+        <mxCell id="v11" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;strokeColor=#222222;fillColor=#F8F8F8;fontSize=14;fontFamily=SimSun;spacing=8;" value="保留实部&lt;br&gt;X_fft = real(X̂)" vertex="1">
+          <mxGeometry height="52" width="370" x="400" y="623" as="geometry" />
+        </mxCell>
+        <mxCell id="v12" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;strokeColor=#222222;fillColor=#E6E6E6;fontSize=14;fontFamily=SimSun;spacing=8;fontStyle=1;" value="输入网络&lt;br&gt;TeacherV1 / StudentModel" vertex="1">
+          <mxGeometry height="52" width="370" x="400" y="697" as="geometry" />
+        </mxCell>
+        <mxCell id="e13" edge="1" parent="1" source="v4" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" target="v5" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" edge="1" parent="1" source="v5" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" target="v6" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e15" edge="1" parent="1" source="v6" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" target="v7" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e16" edge="1" parent="1" source="v7" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" target="v8" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e17" edge="1" parent="1" source="v8" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" target="v9" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e18" edge="1" parent="1" source="v9" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" target="v10" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e19" edge="1" parent="1" source="v10" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" target="v11" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e20" edge="1" parent="1" source="v11" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" target="v12" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v21" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;strokeColor=#666666;fillColor=#F2F2F2;fontSize=12;fontFamily=SimSun;spacing=8;dashed=1;" value="关键标注&lt;br&gt;• 补零后得到规则方阵&lt;br&gt;• FFT 仅保留实部作为网络输入&lt;br&gt;• 适合绘制为论文方法流程图" vertex="1">
+          <mxGeometry height="130" width="230" x="850" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="v23" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;strokeColor=#666666;fillColor=#F2F2F2;fontSize=12;fontFamily=SimSun;spacing=8;dashed=1;" value="频域构造公式&lt;br&gt;X̂ = FFT2(X)&lt;br&gt;X_fft = real(X̂)" vertex="1">
+          <mxGeometry height="105" width="230" x="120" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="e24" edge="1" parent="1" source="v10" style="endArrow=block;html=1;rounded=0;strokeWidth=1.2;strokeColor=#555555;dashed=1;fontSize=12;fontFamily=SimSun;" target="v23" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="page2" name="图2 TeacherV1 教师模型架构">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="v2" value="图2 TeacherV1 教师模型架构" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=22;fontStyle=1;fontFamily=SimSun;" vertex="1" parent="1">
+          <mxGeometry x="180" y="20" width="820" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="v3" value="双分支特征提取：Inception 空间分支 + BiGRU 序列分支，经 Multi-Head Attention 融合" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontColor=#555555;fontFamily=SimSun;" vertex="1" parent="1">
+          <mxGeometry x="150" y="60" width="870" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="v4" value="输入&lt;br&gt;[batch, side, side]" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;strokeColor=#222222;fillColor=#E6E6E6;fontSize=14;fontFamily=SimSun;spacing=8;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="470" y="100" width="230" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="v5" value="空间特征分支 Spatial Branch" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;strokeColor=#777777;fillColor=none;fontSize=13;fontFamily=SimSun;dashed=1;spacingTop=8;verticalAlign=top;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="205" width="450" height="250" as="geometry" />
+        </mxCell>
+        <mxCell id="v6" value="序列建模分支 Sequential Branch" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;strokeColor=#777777;fillColor=none;fontSize=13;fontFamily=SimSun;dashed=1;spacingTop=8;verticalAlign=top;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="650" y="205" width="390" height="250" as="geometry" />
+        </mxCell>
+        <mxCell id="v7" value="Reshape&lt;br&gt;[batch, 1, side, side]" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;strokeColor=#222222;fillColor=#F8F8F8;fontSize=14;fontFamily=SimSun;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="185" y="170" width="240" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="v8" value="Flatten as sequence&lt;br&gt;[batch, side², 1]" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;strokeColor=#222222;fillColor=#F8F8F8;fontSize=14;fontFamily=SimSun;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="725" y="170" width="240" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" edge="1" parent="1" source="v4" target="v7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" edge="1" parent="1" source="v4" target="v8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v11" value="InceptionModule" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=14;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="200" y="235" width="210" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="v12" value="1×1 Conv" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;strokeColor=#333333;fillColor=#FFFFFF;fontSize=12;fontFamily=Times New Roman;spacing=5;" vertex="1" parent="1">
+          <mxGeometry x="105" y="295" width="90" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="v13" value="3×3 Conv" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;strokeColor=#333333;fillColor=#FFFFFF;fontSize=12;fontFamily=Times New Roman;spacing=5;" vertex="1" parent="1">
+          <mxGeometry x="215" y="295" width="90" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="v14" value="5×5 Conv" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;strokeColor=#333333;fillColor=#FFFFFF;fontSize=12;fontFamily=Times New Roman;spacing=5;" vertex="1" parent="1">
+          <mxGeometry x="325" y="295" width="90" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="v15" value="MaxPool&lt;br&gt;+ 1×1 Conv" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;strokeColor=#333333;fillColor=#FFFFFF;fontSize=12;fontFamily=Times New Roman;spacing=5;" vertex="1" parent="1">
+          <mxGeometry x="435" y="295" width="90" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e16" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" edge="1" parent="1" source="v7" target="v12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e17" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" edge="1" parent="1" source="v7" target="v13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e18" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" edge="1" parent="1" source="v7" target="v14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e19" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" edge="1" parent="1" source="v7" target="v15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v20" value="Concat&lt;br&gt;输出 36 通道" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;strokeColor=#222222;fillColor=#F8F8F8;fontSize=14;fontFamily=SimSun;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="230" y="385" width="160" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e21" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" edge="1" parent="1" source="v12" target="v20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e22" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" edge="1" parent="1" source="v13" target="v20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e23" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" edge="1" parent="1" source="v14" target="v20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e24" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" edge="1" parent="1" source="v15" target="v20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v25" value="BiGRU&lt;br&gt;hidden = 18&lt;br&gt;bidirectional" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;strokeColor=#222222;fillColor=#F8F8F8;fontSize=14;fontFamily=SimSun;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="735" y="280" width="220" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="v26" value="输出&lt;br&gt;36 维" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;strokeColor=#222222;fillColor=#F8F8F8;fontSize=14;fontFamily=SimSun;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="755" y="395" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e27" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" edge="1" parent="1" source="v8" target="v25">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e28" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" edge="1" parent="1" source="v25" target="v26">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v29" value="MultiheadAttention&lt;br&gt;embed = 36，heads = 4&lt;br&gt;Q / K / V 特征融合" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;strokeColor=#222222;fillColor=#E6E6E6;fontSize=14;fontFamily=SimSun;spacing=8;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="390" y="505" width="390" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="e30" value="spatial feature" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" edge="1" parent="1" source="v20" target="v29">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e31" value="sequential feature" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" edge="1" parent="1" source="v26" target="v29">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v32" value="Linear(36, 2)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;strokeColor=#222222;fillColor=#F8F8F8;fontSize=14;fontFamily=SimSun;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="495" y="630" width="180" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="v33" value="二分类 logits&lt;br&gt;Attack / Normal" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;strokeColor=#222222;fillColor=#E6E6E6;fontSize=14;fontFamily=SimSun;spacing=8;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="475" y="720" width="220" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="e34" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" edge="1" parent="1" source="v29" target="v32">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e35" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" edge="1" parent="1" source="v32" target="v33">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v36" value="设计要点&lt;br&gt;• 左分支抽取局部空间模式&lt;br&gt;• 右分支建模展开后的序列关系&lt;br&gt;• Attention 完成双分支融合" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;strokeColor=#666666;fillColor=#F2F2F2;fontSize=12;fontFamily=SimSun;spacing=8;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="840" y="540" width="240" height="135" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="page3" name="图3 StudentModel 学生模型架构">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="v2" value="图3 StudentModel 学生模型架构" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=22;fontStyle=1;fontFamily=SimSun;" vertex="1" parent="1">
+          <mxGeometry x="180" y="20" width="820" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="v3" value="极简轻量学生网络：浅层卷积特征 + 线性分类头，用于知识蒸馏后的部署" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontColor=#555555;fontFamily=SimSun;" vertex="1" parent="1">
+          <mxGeometry x="150" y="60" width="870" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="v4" value="输入&lt;br&gt;[batch, side, side]" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;strokeColor=#222222;fillColor=#E6E6E6;fontSize=14;fontFamily=SimSun;spacing=8;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="395" y="110" width="380" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="v5" value="Reshape&lt;br&gt;[batch, 1, side, side]" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;strokeColor=#222222;fillColor=#F8F8F8;fontSize=14;fontFamily=SimSun;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="395" y="190" width="380" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="v6" value="Conv2d&lt;br&gt;1 → 4，3×3，padding = 1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;strokeColor=#222222;fillColor=#F8F8F8;fontSize=14;fontFamily=SimSun;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="395" y="270" width="380" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="v7" value="ReLU" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;strokeColor=#222222;fillColor=#F8F8F8;fontSize=14;fontFamily=SimSun;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="395" y="350" width="380" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="v8" value="Dropout&lt;br&gt;p = 0.1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;strokeColor=#222222;fillColor=#F8F8F8;fontSize=14;fontFamily=SimSun;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="395" y="430" width="380" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="v9" value="Flatten&lt;br&gt;[batch, 4×side²]" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;strokeColor=#222222;fillColor=#F8F8F8;fontSize=14;fontFamily=SimSun;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="395" y="510" width="380" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="v10" value="Linear&lt;br&gt;4×side² → 2" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;strokeColor=#222222;fillColor=#F8F8F8;fontSize=14;fontFamily=SimSun;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="395" y="590" width="380" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="v11" value="二分类 logits&lt;br&gt;Attack / Normal" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;strokeColor=#222222;fillColor=#E6E6E6;fontSize=14;fontFamily=SimSun;spacing=8;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="395" y="670" width="380" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" edge="1" parent="1" source="v4" target="v5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e13" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" edge="1" parent="1" source="v5" target="v6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" edge="1" parent="1" source="v6" target="v7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e15" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" edge="1" parent="1" source="v7" target="v8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e16" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" edge="1" parent="1" source="v8" target="v9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e17" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" edge="1" parent="1" source="v9" target="v10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e18" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=1.4;strokeColor=#333333;fontSize=12;fontFamily=SimSun;" edge="1" parent="1" source="v10" target="v11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v19" value="轻量化特征&lt;br&gt;• 结构直线化，便于画图与复现&lt;br&gt;• 参数层级少，突出部署友好&lt;br&gt;• 与 TeacherV1 形成复杂度对比" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;strokeColor=#666666;fillColor=#F2F2F2;fontSize=12;fontFamily=SimSun;spacing=8;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="800" y="290" width="250" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="e20" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=1.2;strokeColor=#555555;dashed=1;fontSize=12;fontFamily=SimSun;" edge="1" parent="1" source="v6" target="v19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

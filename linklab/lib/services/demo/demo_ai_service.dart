@@ -2,6 +2,9 @@ import 'dart:math';
 
 import '../../config/app_config.dart';
 import '../../core/utils/logger.dart';
+import '../../models/agent_input_model.dart';
+import '../../models/agent_response_model.dart';
+import '../../models/ai_result_model.dart';
 import '../../models/demo_ai_intent.dart';
 import 'demo_data_loader.dart';
 
@@ -13,24 +16,6 @@ enum AIServiceType {
   chat, // 对话
   intentDetection, // 意图识别
   emergency, // 紧急检测
-}
-
-/// AI服务结果
-class AIResult {
-  final bool success;
-  final String text;
-  final Map<String, dynamic>? data;
-  final String? error;
-
-  AIResult({required this.success, required this.text, this.data, this.error});
-
-  factory AIResult.success(String text, {Map<String, dynamic>? data}) {
-    return AIResult(success: true, text: text, data: data);
-  }
-
-  factory AIResult.error(String errorMessage) {
-    return AIResult(success: false, text: '', error: errorMessage);
-  }
 }
 
 class _DemoIntentResolution {
@@ -340,6 +325,13 @@ class DemoAIService {
         return recognizeText(imagePath ?? 'demo-text');
       case DemoAiIntent.sceneDescription:
         return describeScene(imagePath ?? 'demo-scene');
+      case DemoAiIntent.objectIdentify:
+        await _simulateDelay(minMs: 220, maxMs: 520);
+        return _fixedResult(
+          DemoAiIntent.objectIdentify,
+          '我识别到画面中有一些常见物体。物体识别可能受光线和角度影响，请确认是否正确。',
+          extra: {'confidence': 0.88},
+        );
       case DemoAiIntent.colorRecognition:
         return recognizeColor(imagePath ?? 'demo-color');
       case DemoAiIntent.moneyRecognition:
@@ -499,6 +491,55 @@ class DemoAIService {
       yield buffer.toString();
       await Future.delayed(Duration(milliseconds: 30 + _random.nextInt(50)));
     }
+  }
+
+  // ===== 新增：标准化 Agent 接口（符合 AGENTS.md §5.3 / §5.4） =====
+
+  /// 处理标准化 AgentInput，返回 AgentResponse
+  Future<AgentResponse> processRequest(AgentInput input) async {
+    if (!_demoFallbackEnabled) {
+      return AgentResponse.fromDemoResult(
+        requestId: input.requestId,
+        demoIntent: DemoAiIntent.fallback,
+        answerText: 'DemoAIService 当前未启用 Demo fallback',
+      );
+    }
+
+    // 根据 input 类型调用旧方法
+    final AIResult result;
+    if (input.imageUri != null) {
+      result = await process(
+        input.text ?? '',
+        imagePath: input.imageUri,
+      );
+    } else {
+      result = await process(input.text ?? '');
+    }
+
+    // 提取 intent
+    final intentName = result.data?['intent'] as String? ?? 'fallback';
+    final intent = DemoAiIntent.fromWireName(intentName);
+
+    // 计算 confidence（简单规则：精确匹配=0.95, 模糊匹配=0.75, 未知=0.45）
+    final double confidence;
+    if (intent == DemoAiIntent.fallback) {
+      confidence = 0.45;
+    } else if (result.data?['fallback'] == true) {
+      confidence = 0.75;
+    } else {
+      confidence = 0.95;
+    }
+
+    // 构建 AgentResponse
+    return AgentResponse.fromDemoResult(
+      requestId: input.requestId,
+      demoIntent: intent,
+      answerText: result.text,
+      extra: {
+        ...?result.data,
+        'confidence': confidence,
+      },
+    );
   }
 }
 

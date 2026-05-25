@@ -5,16 +5,19 @@ import '../../models/help_request_model.dart';
 import '../../models/help_statistics_model.dart';
 import '../../models/favorite_volunteer_model.dart';
 import '../../models/user_model.dart';
+// ignore: deprecated_member_use_from_same_package
 import '../../services/app_session_service.dart';
 import '../../services/user_center/async_task_service.dart';
 import '../../services/user_center/demo_help_request_service.dart';
 import '../../services/user_center/help_archive_service.dart';
-import '../../services/user_center/points_service.dart';
+// MVP: points_service 已砍 (F15)
+// import '../../services/user_center/points_service.dart';
 import '../../services/user_center/favorite_volunteer_service.dart';
 import '../../core/utils/extensions.dart';
 import '../call/async_help_request_screen.dart';
 import 'volunteer_detail_screen.dart';
 
+// ignore: deprecated_member_use_from_same_package
 String _resolveCurrentUserId() =>
     AppSessionService.instance.userProfile?.id ?? 'demo-user-id';
 
@@ -776,160 +779,8 @@ class _HelpArchiveTabState extends State<HelpArchiveTab> {
   }
 }
 
-/// F15: 安心积分标签页
-class PointsTab extends StatefulWidget {
-  final PointsService service;
-
-  const PointsTab({super.key, required this.service});
-
-  @override
-  State<PointsTab> createState() => _PointsTabState();
-}
-
-class _PointsTabState extends State<PointsTab> {
-  int _currentPoints = 0;
-  CheckInStatus? _checkInStatus;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadData();
-  }
-
-  Future<void> _loadData() async {
-    setState(() => _isLoading = true);
-
-    final userId = _resolveCurrentUserId();
-    final points = await widget.service.getCurrentPoints(userId);
-    final status = await widget.service.getCheckInStatus(userId);
-
-    setState(() {
-      _currentPoints = points;
-      _checkInStatus = status;
-      _isLoading = false;
-    });
-  }
-
-  Future<void> _performCheckIn() async {
-    final userId = _resolveCurrentUserId();
-    final result = await widget.service.performDailyCheckIn(userId);
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result.message),
-          backgroundColor: result.success ? Colors.green : Colors.red,
-        ),
-      );
-
-      if (result.success) {
-        _loadData();
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    final status = _checkInStatus;
-
-    return RefreshIndicator(
-      onRefresh: _loadData,
-      child: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // 积分卡片
-          _PointsCard(
-            points: _currentPoints,
-            onCheckIn: status?.hasCheckedInToday == false
-                ? _performCheckIn
-                : null,
-          ),
-
-          const SizedBox(height: 24),
-
-          // 签到状态
-          if (status != null) _buildCheckInStatus(status),
-
-          const SizedBox(height: 24),
-
-          // 积分规则说明
-          _buildPointsRules(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCheckInStatus(CheckInStatus status) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('签到状态', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Icon(
-                  status.hasCheckedInToday
-                      ? Icons.check_circle
-                      : Icons.radio_button_unchecked,
-                  color: status.hasCheckedInToday ? Colors.green : Colors.grey,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  status.hasCheckedInToday ? '今日已签到' : '今日未签到',
-                  style: TextStyle(
-                    color: status.hasCheckedInToday
-                        ? Colors.green
-                        : Colors.grey,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text('连续签到: ${status.consecutiveDays} 天'),
-            Text('明日可获: ${status.tomorrowPoints} 积分'),
-            Text('下个里程碑: ${status.nextMilestone}'),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPointsRules() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('积分规则', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 12),
-            const _RuleItem(icon: Icons.calendar_today, text: '每日签到: +1 积分'),
-            const _RuleItem(
-              icon: Icons.local_fire_department,
-              text: '连续7天: +10 积分',
-            ),
-            const _RuleItem(icon: Icons.emoji_events, text: '连续30天: +50 积分'),
-            const Divider(),
-            const Text('积分可用于：', style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            const Text('• 优先匹配志愿者'),
-            const Text('• 解锁专属功能'),
-            const Text('• 兑换平台福利'),
-          ],
-        ),
-      ),
-    );
-  }
-}
+// MVP: F15 安心积分标签页已砍
+// class PointsTab ... 整个类及相关组件已移除
 
 /// F16: 常用志愿者标签页
 class FavoriteVolunteersTab extends StatefulWidget {
@@ -1482,104 +1333,9 @@ class _DetailRow extends StatelessWidget {
   }
 }
 
-class _PointsCard extends StatelessWidget {
-  final int points;
-  final VoidCallback? onCheckIn;
-
-  const _PointsCard({required this.points, this.onCheckIn});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          gradient: LinearGradient(
-            colors: [Colors.amber[400]!, Colors.orange[500]!],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Column(
-          children: [
-            const Icon(Icons.stars, size: 48, color: Colors.white),
-            const SizedBox(height: 12),
-            const Text(
-              '我的安心积分',
-              style: TextStyle(color: Colors.white70, fontSize: 14),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              points.toString(),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 48,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            if (onCheckIn != null)
-              ElevatedButton.icon(
-                onPressed: onCheckIn,
-                icon: const Icon(Icons.check_circle),
-                label: const Text('立即签到'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.orange,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 12,
-                  ),
-                ),
-              )
-            else
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.check_circle, color: Colors.white, size: 18),
-                    SizedBox(width: 8),
-                    Text('今日已签到', style: TextStyle(color: Colors.white)),
-                  ],
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _RuleItem extends StatelessWidget {
-  final IconData icon;
-  final String text;
-
-  const _RuleItem({required this.icon, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Icon(icon, size: 18, color: Colors.grey),
-          const SizedBox(width: 8),
-          Text(text),
-        ],
-      ),
-    );
-  }
-}
+// MVP: F15 安心积分相关组件已砍
+// class _PointsCard extends StatelessWidget { ... }
+// class _RuleItem extends StatelessWidget { ... }
 
 class _StatColumn extends StatelessWidget {
   final String value;

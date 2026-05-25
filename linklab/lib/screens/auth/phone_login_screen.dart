@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../config/app_config.dart';
 import '../../core/theme/app_theme.dart';
 import '../../widgets/accessible/index.dart';
 import '../../widgets/demo/demo_auth.dart';
@@ -30,6 +31,13 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
 
   void _onNext() {
     if (_formKey.currentState?.validate() ?? false) {
+      if (AppConfig.isRealMode) {
+        setState(() {
+          _errorText = 'RealMode Phase-2 暂未接入真实短信，请使用邮箱登录。';
+        });
+        return;
+      }
+
       setState(() {
         _isLoading = true;
         _errorText = null;
@@ -55,7 +63,9 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
       builder: (context) {
         return DemoStageScaffold(
           title: '手机号登录',
-          subtitle: '默认登录方式，保证竞赛现场不依赖第三方复杂认证',
+          subtitle: AppConfig.isRealMode
+              ? '手机号界面保留，本阶段不接真实短信'
+              : 'DemoMode 使用本地稳定验证码流程',
           body: Form(
             key: _formKey,
             child: ListView(
@@ -69,7 +79,9 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                 DemoReveal(
                   child: DemoAuthBanner(
                     title: '请输入您的手机号',
-                    subtitle: '我们将向您的手机发送验证码。演示版使用本地稳定流程，避免现场卡在外部服务。',
+                    subtitle: AppConfig.isRealMode
+                        ? '真实短信需要单独配置短信服务商。本阶段请返回使用邮箱登录。'
+                        : '演示版使用本地稳定流程，避免现场卡在外部服务。',
                     icon: Icons.phone_android_rounded,
                     chips: [
                       DemoPill(label: '验证码登录', color: AppTheme.stageAccent),
@@ -84,7 +96,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                     items: [
                       DemoMetricItem(
                         label: '验证方式',
-                        value: '本地稳定短信',
+                        value: AppConfig.isRealMode ? '暂未接入短信' : '本地稳定短信',
                         color: AppTheme.stageAccent,
                       ),
                       DemoMetricItem(

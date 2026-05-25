@@ -11,11 +11,28 @@ void main() {
     await prepareSignedInDemoEnvironment(clearHelpHistory: true);
 
     await pumpLinkLabDemoApp(tester);
-    expect(find.textContaining('您好，'), findsOneWidget);
+    expect(find.text('让帮助真实发生\n连接每一次需要'), findsOneWidget);
 
-    await tester.tap(find.text('我需要帮助'));
+    await tester.tap(find.text('我需要出行帮助'));
     await tester.pumpAndSettle();
+    expect(find.text('共感 LinkAble'), findsWidgets);
+    expect(find.text('首页'), findsOneWidget);
     expect(find.text('AI助手'), findsOneWidget);
+    expect(find.text('社群'), findsOneWidget);
+    expect(find.text('我的'), findsOneWidget);
+
+    final holdGesture = await tester.startGesture(
+      tester.getCenter(find.byKey(const ValueKey('seeker_sos_hold_button'))),
+    );
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.textContaining('继续按住'), findsOneWidget);
+    await holdGesture.up();
+    await tester.pumpAndSettle();
+    expect(find.text('长按求助'), findsOneWidget);
+
+    await tester.tap(find.text('AI助手').last);
+    await tester.pumpAndSettle();
+    expect(find.text('AI助手'), findsWidgets);
 
     await tester.enterText(
       find.byType(EditableText).first,
@@ -32,11 +49,13 @@ void main() {
     await tester.pump(const Duration(milliseconds: 200));
     expect(find.text('取消匹配'), findsOneWidget);
 
-    await tester.pump(const Duration(seconds: 4));
-    await tester.pump(const Duration(milliseconds: 300));
-    await tester.pump(const Duration(seconds: 3));
-    await tester.pump();
-    expect(find.textContaining('通话中'), findsOneWidget);
+    for (var i = 0; i < 10; i++) {
+      await tester.pump(const Duration(seconds: 1));
+      if (find.bySemanticsLabel('结束通话按钮').evaluate().isNotEmpty) {
+        break;
+      }
+    }
+    expect(find.bySemanticsLabel('结束通话按钮'), findsOneWidget);
 
     await tester.tap(find.bySemanticsLabel('结束通话按钮'));
     await tester.pump();
@@ -49,10 +68,8 @@ void main() {
     await tester.tap(find.text('提交评价'));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('您好，'), findsOneWidget);
-    expect(find.text('最近帮助'), findsOneWidget);
-    expect(find.text('语音求助'), findsOneWidget);
-    expect(find.text('已完成'), findsOneWidget);
+    expect(find.text('共感 LinkAble'), findsWidgets);
+    expect(find.text('长按求助'), findsOneWidget);
 
     final history = readLocalHelpHistoryModels();
     expect(history.first.status, 'completed');

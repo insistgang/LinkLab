@@ -41,7 +41,8 @@ class AdminAuthService extends ChangeNotifier {
       // 模拟API调用
       await Future.delayed(const Duration(seconds: 1));
 
-      // 演示模式：硬编码管理员账号
+      // DEMO ONLY: 以下账号仅用于竞赛演示，生产环境必须替换为真实认证服务
+      // 参考 AGENTS.md: admin_dashboard 不属于竞赛 MVP 主交付
       if (username == 'admin' && password == 'admin123') {
         _currentUser = const AdminUser(
           id: '1',

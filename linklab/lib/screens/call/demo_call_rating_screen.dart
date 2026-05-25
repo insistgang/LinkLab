@@ -418,7 +418,7 @@ class _DemoCallRatingScreenState extends ConsumerState<DemoCallRatingScreen> {
     _callService.reset();
     pushAndRemoveUntilDemoStageRoute(
       context,
-      page: const MainScreen(),
+      page: const MainScreen(startInSeekerArea: true),
       predicate: (route) => false,
     );
   }

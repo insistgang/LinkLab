@@ -6,6 +6,7 @@ import '../../widgets/demo/demo_auth.dart';
 import '../../widgets/demo/demo_motion.dart';
 import '../../widgets/demo/demo_routes.dart';
 import '../../widgets/demo/demo_stage.dart';
+import '../../widgets/demo/linkable_icon.dart';
 import 'preference_screen.dart';
 
 /// 障碍类型选择页面
@@ -32,30 +33,35 @@ class _DisabilitySelectScreenState extends State<DisabilitySelectScreen> {
       label: '视力障碍',
       description: '包括全盲、低视力、色盲等',
       icon: Icons.visibility_off_outlined,
+      svgIcon: LinkableIconName.visualImpairment,
     ),
     _DisabilityOption(
       value: 'hearing',
       label: '听力障碍',
       description: '包括聋人、听力减退等',
       icon: Icons.hearing_disabled_outlined,
+      svgIcon: LinkableIconName.hearingImpairment,
     ),
     _DisabilityOption(
       value: 'physical',
       label: '肢体障碍',
       description: '行动不便、轮椅使用者等',
       icon: Icons.accessible_outlined,
+      svgIcon: LinkableIconName.mobilityImpairment,
     ),
     _DisabilityOption(
       value: 'elderly',
       label: '老年人',
       description: '需要额外帮助的老年用户',
       icon: Icons.elderly_outlined,
+      svgIcon: LinkableIconName.elderly,
     ),
     _DisabilityOption(
       value: 'temporary',
       label: '临时需要帮助',
       description: '受伤、生病等临时情况',
       icon: Icons.medical_services_outlined,
+      svgIcon: LinkableIconName.tempHelp,
     ),
   ];
 
@@ -97,6 +103,7 @@ class _DisabilitySelectScreenState extends State<DisabilitySelectScreen> {
                   title: '请选择您的障碍类型',
                   subtitle: '这将帮助我们为您提供更好的服务。您可以多选，也可以稍后再补充。',
                   icon: Icons.tune_rounded,
+                  svgIcon: LinkableIconName.selectDisability,
                   chips: [
                     DemoPill(label: '支持多选', color: AppTheme.stageAccent),
                     DemoPill(label: '可稍后补充', color: AppTheme.stageInfo),
@@ -204,6 +211,7 @@ class _DisabilitySelectionCard extends StatelessWidget {
       title: option.label,
       subtitle: option.description,
       icon: option.icon,
+      svgIcon: option.svgIcon,
       isSelected: isSelected,
       onTap: onTap,
       trailing: isSelected
@@ -223,10 +231,12 @@ class _DisabilityOption {
     required this.label,
     required this.description,
     required this.icon,
+    this.svgIcon,
   });
 
   final String value;
   final String label;
   final String description;
   final IconData icon;
+  final LinkableIconName? svgIcon;
 }

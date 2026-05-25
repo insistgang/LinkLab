@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/extensions.dart';
 import '../../models/help_request_model.dart';
-import '../../services/app_session_service.dart';
+import '../../providers/app_session_provider.dart';
 import '../../widgets/accessible/index.dart';
 import '../../widgets/demo/demo_stage.dart';
 import '../../widgets/demo/linkable_icon.dart';
@@ -12,92 +13,86 @@ import '../../widgets/demo/linkable_icon.dart';
 ///
 /// 只读取本地 demo session 的帮助历史，避免从默认首页/我的页进入
 /// SeekerCenterScreen 中仍保留的积分、异步任务、收藏志愿者等非 MVP 代码。
-class DemoHelpArchiveScreen extends StatelessWidget {
+class DemoHelpArchiveScreen extends ConsumerWidget {
   const DemoHelpArchiveScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final session = AppSessionService.instance;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final session = ref.watch(appSessionProvider);
+    final history = session.getRecentHelpHistory(limit: 20);
+    final completedCount = history
+        .where((request) => request.status == 'completed')
+        .length;
+    final aiResolvedCount = history
+        .where((request) => request.status == 'ai_resolved')
+        .length;
+    final sosCount = history
+        .where((request) => request.type == 'sos')
+        .length;
 
-    return AnimatedBuilder(
-      animation: session,
-      builder: (context, _) {
-        final history = session.getRecentHelpHistory(limit: 20);
-        final completedCount = history
-            .where((request) => request.status == 'completed')
-            .length;
-        final aiResolvedCount = history
-            .where((request) => request.status == 'ai_resolved')
-            .length;
-        final sosCount = history
-            .where((request) => request.type == 'sos')
-            .length;
-
-        return DemoStageScaffold(
-          title: '帮助档案',
-          subtitle: '仅展示 MVP 主线结果回看，不进入积分、社群或异步任务',
-          body: ListView(
-            padding: const EdgeInsets.fromLTRB(
-              AppTheme.spacingL,
-              AppTheme.spacingL,
-              AppTheme.spacingL,
-              96,
-            ),
+    return DemoStageScaffold(
+      title: '帮助档案',
+      subtitle: '仅展示 MVP 主线结果回看，不进入积分、社群或异步任务',
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(
+          AppTheme.spacingL,
+          AppTheme.spacingL,
+          AppTheme.spacingL,
+          96,
+        ),
+        children: [
+          const DemoSectionTitle(
+            title: '求助状态',
+            subtitle: 'AI 处理、真人通话和 SOS 的终态会沉淀在这里。',
+          ),
+          const SizedBox(height: AppTheme.spacingM),
+          Row(
             children: [
-              const DemoSectionTitle(
-                title: '求助状态',
-                subtitle: 'AI 处理、真人通话和 SOS 的终态会沉淀在这里。',
-              ),
-              const SizedBox(height: AppTheme.spacingM),
-              Row(
-                children: [
-                  Expanded(
-                    child: _ArchiveMetricCard(
-                      label: 'AI 已解决',
-                      value: '$aiResolvedCount',
-                      icon: Icons.smart_toy_outlined,
-                      color: AppTheme.stageInfo,
-                    ),
-                  ),
-                  const SizedBox(width: AppTheme.spacingM),
-                  Expanded(
-                    child: _ArchiveMetricCard(
-                      label: '真人完成',
-                      value: '$completedCount',
-                      icon: Icons.phone_in_talk_outlined,
-                      color: AppTheme.stageSuccess,
-                    ),
-                  ),
-                  const SizedBox(width: AppTheme.spacingM),
-                  Expanded(
-                    child: _ArchiveMetricCard(
-                      label: 'SOS',
-                      value: '$sosCount',
-                      icon: Icons.emergency_outlined,
-                      color: AppTheme.stageDanger,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppTheme.spacingXL),
-              const DemoSectionTitle(
-                title: '帮助档案',
-                subtitle: '只保留主链路回看，不展示安心积分、徽章或排班。',
-              ),
-              const SizedBox(height: AppTheme.spacingM),
-              if (history.isEmpty)
-                const _EmptyArchiveCard()
-              else
-                ...history.map(
-                  (request) => Padding(
-                    padding: const EdgeInsets.only(bottom: AppTheme.spacingM),
-                    child: _ArchiveRequestCard(request: request),
-                  ),
+              Expanded(
+                child: _ArchiveMetricCard(
+                  label: 'AI 已解决',
+                  value: '$aiResolvedCount',
+                  icon: Icons.smart_toy_outlined,
+                  color: AppTheme.stageInfo,
                 ),
+              ),
+              const SizedBox(width: AppTheme.spacingM),
+              Expanded(
+                child: _ArchiveMetricCard(
+                  label: '真人完成',
+                  value: '$completedCount',
+                  icon: Icons.phone_in_talk_outlined,
+                  color: AppTheme.stageSuccess,
+                ),
+              ),
+              const SizedBox(width: AppTheme.spacingM),
+              Expanded(
+                child: _ArchiveMetricCard(
+                  label: 'SOS',
+                  value: '$sosCount',
+                  icon: Icons.emergency_outlined,
+                  color: AppTheme.stageDanger,
+                ),
+              ),
             ],
           ),
-        );
-      },
+          const SizedBox(height: AppTheme.spacingXL),
+          const DemoSectionTitle(
+            title: '帮助档案',
+            subtitle: '只保留主链路回看，不展示安心积分、徽章或排班。',
+          ),
+          const SizedBox(height: AppTheme.spacingM),
+          if (history.isEmpty)
+            const _EmptyArchiveCard()
+          else
+            ...history.map(
+              (request) => Padding(
+                padding: const EdgeInsets.only(bottom: AppTheme.spacingM),
+                child: _ArchiveRequestCard(request: request),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

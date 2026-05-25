@@ -76,33 +76,33 @@ class AppTheme {
   static DemoStageMode _stageMode = DemoStageMode.day;
 
   static const _StagePalette _nightStagePalette = _StagePalette(
-    background: Color(0xFF040704),
-    backgroundSoft: Color(0xFF0A1008),
-    surface: Color(0xFF101610),
-    surfaceStrong: Color(0xFF171F15),
-    border: Color(0xFF2B3927),
-    textPrimary: Color(0xFFF4F8EC),
-    textSecondary: Color(0xFFC0CDB8),
-    textHint: Color(0xFF899784),
-    accent: Color(0xFF9A46FF),
-    accentLight: Color(0xFFD7B8FF),
-    success: Color(0xFF79F072),
-    danger: Color(0xFFFF6868),
-    warning: Color(0xFFFFD75C),
-    info: Color(0xFF8CF5C4),
+    background: Color(0xFF0D1117),      // 深色背景
+    backgroundSoft: Color(0xFF161B22),  // 稍浅的深色
+    surface: Color(0xFF21262D),         // 卡片/组件背景
+    surfaceStrong: Color(0xFF2D333B),   // 更强的表面色
+    border: Color(0xFF373E47),          // 边框颜色
+    textPrimary: Color(0xFFF0F6FC),     // 主要文字 - 白色
+    textSecondary: Color(0xFF9CA3AF),   // 次要文字 - 灰色
+    textHint: Color(0xFF6E7681),        // 提示文字
+    accent: Color(0xFFB88CFF),          // 强调色 - 紫色
+    accentLight: Color(0xFFD4BBFF),     // 浅强调色
+    success: Color(0xFF56D364),         // 成功 - 绿色
+    danger: Color(0xFFF85149),          // 危险 - 红色
+    warning: Color(0xFFE3B341),         // 警告 - 黄色
+    info: Color(0xFF79C0FF),            // 信息 - 蓝色
     heroGradient: LinearGradient(
-      colors: [Color(0xFFE9FF2B), Color(0xFF8AFF4B), Color(0xFF3EDFD3)],
-      stops: [0.0, 0.55, 1.0],
+      colors: [Color(0xFF1F6FEB), Color(0xFF9448FF), Color(0xFF58A6FF)],
+      stops: [0.0, 0.5, 1.0],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     ),
     panelGradient: LinearGradient(
-      colors: [Color(0xFF1A2417), Color(0xFF111810), Color(0xFF0A0F09)],
+      colors: [Color(0xFF161B22), Color(0xFF0D1117), Color(0xFF010409)],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     ),
     accentGradient: LinearGradient(
-      colors: [Color(0xFFB96BFF), Color(0xFF913DFF), Color(0xFF6D28D9)],
+      colors: [Color(0xFFB88CFF), Color(0xFF9448FF), Color(0xFF6D28D9)],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     ),
@@ -181,12 +181,26 @@ class AppTheme {
   static const Color borderColor = Color(0xFF424242);
   static const Color dividerColor = Color(0xFFBDBDBD);
 
-  // 高对比度模式颜色
-  static const Color highContrastBackground = Colors.black;
-  static const Color highContrastText = Colors.yellow;
-  static const Color highContrastPrimary = Colors.cyan;
+  // 深色模式颜色 - GitHub风格中性深色
+  static const Color darkBackground = Color(0xFF0D1117);
+  static const Color darkSurface = Color(0xFF161B22);
+  static const Color darkCard = Color(0xFF21262D);
+  static const Color darkComponentBg = Color(0xFF2D333B);
+  static const Color darkComponentBorder = Color(0xFF373E47);
+  static const Color darkTextPrimary = Color(0xFFF0F6FC);
+  static const Color darkTextSecondary = Color(0xFF9CA3AF);
+  static const Color darkAccent = Color(0xFFB88CFF);
+
+  // 高对比度模式颜色 - 基于深色模式但更高对比度
+  static const Color highContrastBackground = Color(0xFF0D1117);
+  static const Color highContrastSurface = Color(0xFF161B22);
+  static const Color highContrastCard = Color(0xFF21262D);
+  static const Color highContrastText = Color(0xFFFFFFFF);
+  static const Color highContrastPrimary = Color(0xFF79C0FF);
+  static const Color highContrastAccent = Color(0xFFB88CFF);
 
   // 字体大小 - 支持动态缩放
+  static const double fontSizeXSmall = 12.0;
   static const double fontSizeSmall = 14.0;
   static const double fontSizeNormal = 18.0;
   static const double fontSizeLarge = 24.0;
@@ -441,6 +455,7 @@ class AppTheme {
   }
 
   /// 获取高对比度主题（用于视障用户）
+  /// 使用深色背景 + 高对比度文字，符合WCAG AAA标准
   static ThemeData get highContrastTheme {
     return ThemeData(
       useMaterial3: true,
@@ -448,14 +463,107 @@ class AppTheme {
       colorScheme: const ColorScheme.dark(
         primary: highContrastPrimary,
         onPrimary: Colors.black,
-        secondary: Colors.yellow,
-        onSecondary: Colors.black,
-        surface: highContrastBackground,
+        secondary: highContrastAccent,
+        onSecondary: Colors.white,
+        surface: highContrastSurface,
         onSurface: highContrastText,
-        error: Colors.red,
+        error: Color(0xFFFF6B6B),
         onError: Colors.white,
+        surfaceContainerHighest: highContrastCard,
+        surfaceContainerHigh: highContrastSurface,
       ),
       scaffoldBackgroundColor: highContrastBackground,
+      cardTheme: CardThemeData(
+        color: highContrastCard,
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(borderRadiusMedium),
+          side: const BorderSide(color: Color(0xFF4A5568), width: 1),
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: highContrastAccent,
+          foregroundColor: Colors.white,
+          minimumSize: const Size(double.infinity, buttonHeight),
+          padding: const EdgeInsets.symmetric(
+            horizontal: spacingL,
+            vertical: spacingM,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(borderRadiusMedium),
+          ),
+          textStyle: const TextStyle(
+            fontSize: fontSizeLarge,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: highContrastPrimary,
+          minimumSize: const Size(minTouchTarget, minTouchTarget),
+          padding: const EdgeInsets.symmetric(
+            horizontal: spacingM,
+            vertical: spacingS,
+          ),
+          textStyle: const TextStyle(
+            fontSize: fontSizeNormal,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: highContrastPrimary,
+          side: const BorderSide(color: highContrastPrimary, width: 2),
+          minimumSize: const Size(double.infinity, buttonHeight),
+          padding: const EdgeInsets.symmetric(
+            horizontal: spacingL,
+            vertical: spacingM,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(borderRadiusMedium),
+          ),
+          textStyle: const TextStyle(
+            fontSize: fontSizeLarge,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: highContrastSurface,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadiusMedium),
+          borderSide: const BorderSide(color: Color(0xFF4A5568), width: 2),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadiusMedium),
+          borderSide: const BorderSide(color: Color(0xFF4A5568), width: 2),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadiusMedium),
+          borderSide: const BorderSide(color: highContrastPrimary, width: 3),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadiusMedium),
+          borderSide: const BorderSide(color: Color(0xFFFF6B6B), width: 2),
+        ),
+        contentPadding: const EdgeInsets.all(spacingM),
+        labelStyle: const TextStyle(
+          fontSize: fontSizeNormal,
+          color: highContrastText,
+        ),
+        hintStyle: const TextStyle(
+          fontSize: fontSizeNormal,
+          color: Color(0xFF8B949E),
+        ),
+        errorStyle: const TextStyle(
+          fontSize: fontSizeNormal,
+          color: Color(0xFFFF6B6B),
+        ),
+      ),
       textTheme: const TextTheme(
         displayLarge: TextStyle(
           fontSize: fontSizeXXLarge,
@@ -467,11 +575,83 @@ class AppTheme {
           fontWeight: FontWeight.bold,
           color: highContrastText,
         ),
+        displaySmall: TextStyle(
+          fontSize: fontSizeLarge,
+          fontWeight: FontWeight.bold,
+          color: highContrastText,
+        ),
+        headlineLarge: TextStyle(
+          fontSize: fontSizeXLarge,
+          fontWeight: FontWeight.w600,
+          color: highContrastText,
+        ),
+        headlineMedium: TextStyle(
+          fontSize: fontSizeLarge,
+          fontWeight: FontWeight.w600,
+          color: highContrastText,
+        ),
+        headlineSmall: TextStyle(
+          fontSize: fontSizeNormal,
+          fontWeight: FontWeight.w600,
+          color: highContrastText,
+        ),
         bodyLarge: TextStyle(fontSize: fontSizeLarge, color: highContrastText),
         bodyMedium: TextStyle(
           fontSize: fontSizeNormal,
           color: highContrastText,
         ),
+        bodySmall: TextStyle(
+          fontSize: fontSizeSmall,
+          color: Color(0xFF8B949E),
+        ),
+        labelLarge: TextStyle(
+          fontSize: fontSizeLarge,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Color(0xFF161B22),
+        foregroundColor: highContrastText,
+        elevation: 4,
+        centerTitle: true,
+        titleTextStyle: TextStyle(
+          fontSize: fontSizeLarge,
+          fontWeight: FontWeight.bold,
+          color: highContrastText,
+        ),
+      ),
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: Color(0xFF161B22),
+        selectedItemColor: highContrastPrimary,
+        unselectedItemColor: Color(0xFF8B949E),
+        selectedLabelStyle: TextStyle(
+          fontSize: fontSizeNormal,
+          fontWeight: FontWeight.bold,
+        ),
+        unselectedLabelStyle: TextStyle(fontSize: fontSizeSmall),
+        type: BottomNavigationBarType.fixed,
+        elevation: 8,
+      ),
+      dividerTheme: const DividerThemeData(
+        color: Color(0xFF373E47),
+        thickness: 1,
+        space: spacingM,
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: const Color(0xFF2D333B),
+        contentTextStyle: const TextStyle(
+          fontSize: fontSizeNormal,
+          color: highContrastText,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(borderRadiusMedium),
+        ),
+        behavior: SnackBarBehavior.floating,
+      ),
+      progressIndicatorTheme: const ProgressIndicatorThemeData(
+        color: highContrastPrimary,
+        linearTrackColor: Color(0xFF2D333B),
       ),
     );
   }

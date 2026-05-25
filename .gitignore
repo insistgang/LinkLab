@@ -17,3 +17,7 @@ replay_pid*.log
 
 # Local API config must stay untracked; use api_config.example.dart as template.
 linklab/lib/config/api_config.dart
+
+# Local runtime environment files. Never commit service-role keys or secrets.
+.env
+**/.env

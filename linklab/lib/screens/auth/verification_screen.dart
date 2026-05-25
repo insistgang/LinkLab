@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/app_theme.dart';
-import '../../services/app_session_service.dart';
+import '../../providers/app_session_provider.dart';
 import '../../widgets/accessible/index.dart';
 import '../../widgets/demo/demo_auth.dart';
 import '../../widgets/demo/demo_motion.dart';
@@ -12,16 +13,16 @@ import '../home/main_screen.dart';
 import 'identity_select_screen.dart';
 
 /// 验证码页面
-class VerificationScreen extends StatefulWidget {
+class VerificationScreen extends ConsumerStatefulWidget {
   const VerificationScreen({super.key, required this.phone});
 
   final String phone;
 
   @override
-  State<VerificationScreen> createState() => _VerificationScreenState();
+  ConsumerState<VerificationScreen> createState() => _VerificationScreenState();
 }
 
-class _VerificationScreenState extends State<VerificationScreen> {
+class _VerificationScreenState extends ConsumerState<VerificationScreen> {
   final _formKey = GlobalKey<FormState>();
   final _codeController = TextEditingController();
   bool _isLoading = false;
@@ -46,9 +47,9 @@ class _VerificationScreenState extends State<VerificationScreen> {
           _isLoading = false;
         });
 
-        final session = AppSessionService.instance;
+        final session = ref.read(appSessionProvider);
         if (session.userProfile != null) {
-          session.loginExistingUser(widget.phone).then((_) {
+          ref.read(appSessionProvider.notifier).loginExistingUser(widget.phone).then((_) {
             if (!mounted) return;
             pushAndRemoveUntilDemoStageRoute(
               context,
@@ -85,7 +86,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
         icon: Icons.help_outline_rounded,
         accentColor: AppTheme.stageInfo,
         description:
-            '竞赛演示版使用本地稳定验证流程，不依赖真实短信服务。若现场未收到短信，可直接点击“重新发送”，系统会继续按演示路径完成验证。',
+            '竞赛演示版使用本地稳定验证流程，不依赖真实短信服务。若现场未收到短信，可直接点击"重新发送"，系统会继续按演示路径完成验证。',
         actions: [
           ElevatedButton(
             style: ElevatedButton.styleFrom(

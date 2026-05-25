@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:supabase_flutter/supabase_flutter.dart' hide LocalStorage;
 
+import '../../config/app_config.dart';
 import '../../core/utils/logger.dart';
 import '../../models/emergency_contact_model.dart';
 import '../local_storage.dart' as app_storage;
@@ -34,6 +35,8 @@ class EmergencyContactService {
     return _supabaseClient!;
   }
 
+  bool get _useLocalContacts => !_hasSupabase || !FeatureFlags.enableRealSMS;
+
   Future<void> _ensureLocalStorage() async {
     if (_localInitialized) return;
     await _storage.initialize();
@@ -42,7 +45,7 @@ class EmergencyContactService {
 
   /// 获取用户的紧急联系人
   Future<List<EmergencyContactModel>> getContacts(String userId) async {
-    if (!_hasSupabase) {
+    if (_useLocalContacts) {
       return _getLocalContacts(userId);
     }
 
@@ -97,7 +100,7 @@ class EmergencyContactService {
     );
 
     try {
-      if (!_hasSupabase) {
+      if (_useLocalContacts) {
         await _saveLocalContacts([...existingContacts, contact]);
         return contact;
       }
@@ -130,7 +133,7 @@ class EmergencyContactService {
     int? priority,
   }) async {
     try {
-      if (!_hasSupabase) {
+      if (_useLocalContacts) {
         final contacts = await _getAllLocalContacts();
         final index = contacts.indexWhere((contact) => contact.id == contactId);
         if (index == -1) {
@@ -172,7 +175,7 @@ class EmergencyContactService {
   /// 删除紧急联系人
   Future<void> deleteContact(String contactId) async {
     try {
-      if (!_hasSupabase) {
+      if (_useLocalContacts) {
         final contacts = await _getAllLocalContacts();
         contacts.removeWhere((contact) => contact.id == contactId);
         await _saveLocalContacts(contacts);
@@ -207,7 +210,7 @@ class EmergencyContactService {
           '【共感LinkAble紧急求助】位置：${address ?? '未知地址'} '
               '($latitude,$longitude)';
 
-      if (!_hasSupabase) {
+      if (_useLocalContacts) {
         AppLogger.info('演示模式通知紧急联系人: ${contacts.map((c) => c.name).join('、')}');
         return;
       }

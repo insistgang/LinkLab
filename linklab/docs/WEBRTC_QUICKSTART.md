@@ -1,5 +1,7 @@
 # WebRTC 快速开始指南
 
+> 状态提示：本文仅用于本地实验真实 WebRTC，不适用于竞赛 Demo 默认路径。竞赛和对外演示默认使用 Demo Call，不初始化真实 WebRTC、不要求真实 Supabase Realtime 或 TURN 服务。
+
 ## 1. 添加依赖
 
 确保 `pubspec.yaml` 中已包含以下依赖：

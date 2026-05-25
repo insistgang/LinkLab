@@ -1,3 +1,4 @@
+// ignore: deprecated_member_use_from_same_package
 import '../services/app_session_service.dart';
 import '../services/local_storage.dart';
 import '../core/utils/logger.dart';

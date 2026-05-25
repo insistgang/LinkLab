@@ -1,20 +1,29 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide LocalStorage;
 
 import '../config/app_config.dart';
 import '../core/theme/app_theme.dart';
 import '../core/utils/logger.dart';
 import '../models/help_request_model.dart';
 import '../models/user_model.dart';
+import '../providers/app_session_provider.dart' show AppSessionState;
+import 'auth_service.dart';
 import 'local_storage.dart';
+import 'real_database_repository.dart';
 
+@Deprecated('使用 Riverpod appSessionProvider 代替。此类保留仅供过渡期非 Consumer 上下文使用。')
 class AppSessionService extends ChangeNotifier {
   AppSessionService._internal();
 
   static final AppSessionService instance = AppSessionService._internal();
 
   final LocalStorage _storage = LocalStorage();
+  final AuthService _authService = AuthService();
+  final RealDatabaseRepository _realDatabase = const RealDatabaseRepository();
+  StreamSubscription<AuthState>? _authSubscription;
 
   bool _initialized = false;
   bool _isLoggedIn = false;
@@ -38,6 +47,14 @@ class AppSessionService extends ChangeNotifier {
     await _storage.initialize();
     _restoreState();
 
+    if (FeatureFlags.enableSupabaseAuth) {
+      await _restoreSupabaseSession();
+      _listenToSupabaseAuthState();
+    } else if (AppConfig.isRealMode) {
+      // RealMode 没有可用 Supabase Auth 时不能沿用本地 Demo 登录态。
+      _isLoggedIn = false;
+    }
+
     if (_storage.getHelpHistory().isEmpty) {
       await _seedDemoHelpHistory();
     }
@@ -47,6 +64,10 @@ class AppSessionService extends ChangeNotifier {
   }
 
   Future<void> loginExistingUser(String phone) async {
+    if (AppConfig.isRealMode) {
+      throw Exception('RealMode 请使用邮箱登录，手机号短信暂未接入。');
+    }
+
     final normalizedPhone = _normalizePhone(phone);
     final current = _userProfile;
 
@@ -67,6 +88,49 @@ class AppSessionService extends ChangeNotifier {
     await _storage.setLoggedIn(true);
     await _storage.setFirstLaunch(false);
     notifyListeners();
+  }
+
+  Future<EmailAuthOutcome> loginWithEmailPassword({
+    required String email,
+    required String password,
+  }) async {
+    if (!FeatureFlags.enableSupabaseAuth) {
+      throw const AuthException('真实认证服务不可用，已保留 DemoMode fallback。');
+    }
+
+    final outcome = await _authService.signInWithEmailPassword(
+      email: email,
+      password: password,
+    );
+    if (outcome.session != null) {
+      await _applySupabaseSession(outcome.session);
+    }
+    return outcome;
+  }
+
+  Future<EmailAuthOutcome> signUpWithEmailPassword({
+    required String email,
+    required String password,
+  }) async {
+    if (!FeatureFlags.enableSupabaseAuth) {
+      throw const AuthException('真实认证服务不可用，已保留 DemoMode fallback。');
+    }
+
+    final outcome = await _authService.signUpWithEmailPassword(
+      email: email,
+      password: password,
+    );
+    if (outcome.session != null) {
+      await _applySupabaseSession(outcome.session);
+    }
+    return outcome;
+  }
+
+  Future<void> sendEmailLoginLink(String email) async {
+    if (!FeatureFlags.enableSupabaseAuth) {
+      throw const AuthException('真实认证服务不可用，已保留 DemoMode fallback。');
+    }
+    await _authService.sendEmailLoginLink(email);
   }
 
   Future<void> completeOnboarding({
@@ -137,6 +201,10 @@ class AppSessionService extends ChangeNotifier {
   }
 
   Future<void> logout() async {
+    if (FeatureFlags.enableSupabaseAuth) {
+      await _authService.signOut();
+    }
+
     _isLoggedIn = false;
     await _storage.setLoggedIn(false);
     await _storage.clearAuthToken();
@@ -313,4 +381,151 @@ class AppSessionService extends ChangeNotifier {
     }
     return '用户$suffix';
   }
+
+  Future<void> _restoreSupabaseSession() async {
+    final session = _authService.currentSession;
+    if (session == null) {
+      _isLoggedIn = false;
+      await _storage.setLoggedIn(false);
+      await _storage.clearAuthToken();
+      return;
+    }
+
+    await _applySupabaseSession(session, notify: false);
+  }
+
+  void _listenToSupabaseAuthState() {
+    _authSubscription ??= _authService.onAuthStateChange.listen((authState) {
+      unawaited(_handleSupabaseAuthState(authState));
+    });
+  }
+
+  Future<void> _handleSupabaseAuthState(AuthState authState) async {
+    switch (authState.event) {
+      case AuthChangeEvent.signedIn:
+      case AuthChangeEvent.tokenRefreshed:
+      case AuthChangeEvent.userUpdated:
+      case AuthChangeEvent.initialSession:
+        await _applySupabaseSession(authState.session);
+      case AuthChangeEvent.signedOut:
+      case AuthChangeEvent.userDeleted:
+        _isLoggedIn = false;
+        await _storage.setLoggedIn(false);
+        await _storage.clearAuthToken();
+        notifyListeners();
+      case AuthChangeEvent.passwordRecovery:
+      case AuthChangeEvent.mfaChallengeVerified:
+        break;
+    }
+  }
+
+  Future<void> _applySupabaseSession(
+    Session? session, {
+    bool notify = true,
+  }) async {
+    final authUser = session?.user;
+    if (session == null || authUser == null) {
+      _isLoggedIn = false;
+      await _storage.setLoggedIn(false);
+      await _storage.clearAuthToken();
+      if (notify) notifyListeners();
+      return;
+    }
+
+    final authUserProfile = _buildUserFromSupabase(authUser);
+    final user = await _syncRealProfile(authUserProfile);
+    _userProfile = user;
+    _isLoggedIn = true;
+    _isFirstLaunch = false;
+
+    await _storage.saveUserProfile(user.toJson());
+    await _storage.saveAuthToken(session.accessToken);
+    await _storage.setLoggedIn(true);
+    await _storage.setFirstLaunch(false);
+
+    if (_storage.getHelpHistory().isEmpty) {
+      await _seedDemoHelpHistory(seekerId: user.id);
+    }
+
+    if (notify) notifyListeners();
+  }
+
+  UserModel _buildUserFromSupabase(User authUser) {
+    final email = authUser.email?.trim();
+    final phone = authUser.phone?.trim();
+    final identifier = (email?.isNotEmpty ?? false)
+        ? email!
+        : (phone?.isNotEmpty ?? false)
+        ? phone!
+        : authUser.id;
+    final metadata = authUser.userMetadata ?? const <String, dynamic>{};
+    final metadataName =
+        metadata['full_name']?.toString().trim().isNotEmpty == true
+        ? metadata['full_name'].toString().trim()
+        : metadata['name']?.toString().trim();
+    final fallbackName = email != null && email.contains('@')
+        ? email.split('@').first
+        : 'LinkAble用户';
+
+    return UserModel(
+      id: authUser.id,
+      phone: identifier,
+      name: metadataName?.isNotEmpty == true ? metadataName : fallbackName,
+      role: const ['seeker'],
+      disabilityType: const [],
+      preferences: _preferences,
+      createdAt: DateTime.tryParse(authUser.createdAt),
+      lastLoginAt: DateTime.now(),
+    );
+  }
+
+  Future<UserModel> _syncRealProfile(UserModel authUserProfile) async {
+    if (!FeatureFlags.enableDatabaseSync) {
+      return authUserProfile;
+    }
+
+    try {
+      final profile = await _realDatabase.ensureCurrentProfile(
+        fallbackDisplayName: authUserProfile.displayName,
+        phone: authUserProfile.phone.contains('@')
+            ? null
+            : authUserProfile.phone,
+      );
+
+      return authUserProfile.copyWith(
+        name: profile.effectiveDisplayName,
+        phone: profile.phone?.trim().isNotEmpty == true
+            ? profile.phone!.trim()
+            : authUserProfile.phone,
+        role: _rolesFromRealProfile(profile.role),
+        createdAt: profile.createdAt,
+      );
+    } catch (error, stackTrace) {
+      AppLogger.warning(
+        'RealMode profile 同步失败，继续使用 Auth session',
+        error,
+        stackTrace,
+      );
+      return authUserProfile;
+    }
+  }
+
+  List<String> _rolesFromRealProfile(String role) {
+    return switch (role) {
+      'volunteer' => const ['volunteer'],
+      'admin' => const ['admin'],
+      _ => const ['seeker'],
+    };
+  }
+
+  @override
+  void dispose() {
+    unawaited(_authSubscription?.cancel());
+    _authSubscription = null;
+    super.dispose();
+  }
+
+  /// 将当前服务状态转换为 Riverpod 状态对象。
+  /// 仅用于过渡期桥接，新代码应直接使用 [AppSessionState.fromService]。
+  AppSessionState toRiverpodState() => AppSessionState.fromService(this);
 }

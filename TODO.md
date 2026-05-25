@@ -1,9 +1,10 @@
-✅ 2026-04-17 项目修复工作已全部完成（P0+P1+P2 全部收口）
+历史记录：2026-04-17 项目修复工作曾标记为 P0+P1+P2 全部收口。当前对外口径以 `DEMO_STATUS.md` 和 `docs/rc_acceptance_evidence.md` 为准。
 
 # TODO.md - 共感 LinkAble MVP 修复执行清单（2026.04）
 
 > 依据：`AGENTS.md`
 > 说明：本清单只服务当前 MVP 主线 `F1 / F9 / F11 / F13 / F33 / F36`，不为已砍掉或降级功能分配默认交付资源。
+> 2026-05-01 文档口径补充：本文件是历史执行清单，不是当前运行环境的复验报告。本轮未运行 Flutter；Web / Chrome 是首选演示路径，Windows 桌面需要 Visual Studio C++ toolchain。
 
 ## P0（立即必须完成）
 
@@ -244,3 +245,12 @@
 | `1:30–2:10` | 复杂需求 → `F9` 匹配 → `F11` 通话 | `已具备` | 当前 Demo matching + demo call 是主闭环，必须持续保持稳定 |
 | `2:10–2:40` | `F13` SOS 演示（Mock 模式） | `需回归验证` | 需确认 SOS 走 Mock 广播、联系人通知和 10 秒撤销窗口 |
 | `2:40–3:00` | 展示未来蓝图 | `需修复` | 需要单独的静态蓝图展示，不得混入未完成真实功能冒充已完成 |
+
+## 验证记录口径补充（2026-05-01）
+
+- `2026-04-17` 历史记录中，`flutter test --tags demo` 曾标记为通过；同一批记录也写明 `flutter analyze lib` 仍存在主应用 `70 issues found`、`admin_dashboard` `9 issues found`。
+- `docs/rc_acceptance_evidence.md` 的 RC 记录写明，后续曾有 `flutter analyze` 为 `No issues found`、`flutter test --reporter compact` 为 `All tests passed`（60 tests）的结果。
+- `docs/competition_mvp_delivery_plan.md` 和 `docs/plans/2026-04-12-prd-alignment-main-frontend.md` 已把 `flutter build web --debug` / `flutter build web --release` 纳入 Web 演示验收口径。
+- 上述记录来自不同时间点，不应混写成“当前全部已复验”。本轮只整理 Markdown 文档，未运行 `flutter test`、`flutter analyze`、`flutter build web` 或任何 Flutter 命令。
+- 交付前建议以 Web / Chrome 为主路径重新执行：`flutter test`、`flutter build web --release`，并把具体日期、命令和结果补入 `docs/rc_acceptance_evidence.md`。
+- 真实 WebRTC、真实 Supabase、真实推送、真实短信和生产级 SOS 仍按实验/后续能力处理；竞赛 Demo 只承诺本地 Demo fallback 与 Mock 状态展示。

@@ -2,6 +2,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/widgets.dart';
 
 import 'package:linklab/screens/ai_chat/demo_ai_chat_screen.dart';
 
@@ -38,7 +39,12 @@ void main() {
     expect(matchingHistory.first.status, 'matching');
     expect(matchingHistory.first.intent, contains('志愿者'));
 
-    await tester.tap(find.text('取消匹配'));
+    await tester.scrollUntilVisible(
+      find.text('取消匹配'),
+      500,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.tap(find.text('取消匹配'), warnIfMissed: false);
     await tester.pumpAndSettle();
   });
 }

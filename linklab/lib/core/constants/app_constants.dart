@@ -1,3 +1,5 @@
+import '../../config/app_config.dart';
+
 /// 应用常量定义
 class AppConstants {
   AppConstants._();
@@ -7,9 +9,9 @@ class AppConstants {
   static const String appTagline = 'AI驱动的视障人士智能互助平台';
   static const String appVersion = '1.0.0';
 
-  // Supabase配置（需要在main.dart中配置实际值）
-  static const String supabaseUrl = 'YOUR_SUPABASE_URL';
-  static const String supabaseAnonKey = 'YOUR_SUPABASE_ANON_KEY';
+  // Supabase配置：Phase-1 只允许从 .env 读取。
+  static String get supabaseUrl => AppConfig.supabaseUrl;
+  static String get supabaseAnonKey => AppConfig.supabaseAnonKey;
 
   // 分页配置
   static const int defaultPageSize = 20;

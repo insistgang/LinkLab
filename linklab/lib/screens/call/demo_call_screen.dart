@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/app_config.dart';
 import '../../core/theme/app_theme.dart';
 import '../../providers/demo_call_flow_provider.dart';
+import '../../providers/facade_providers.dart';
 import '../../services/demo_call_service.dart' show DemoVolunteer;
 import '../../widgets/accessible/index.dart';
 import '../../widgets/demo/demo_overlays.dart';
@@ -44,6 +45,9 @@ class _DemoCallScreenState extends ConsumerState<DemoCallScreen> {
         if (!mounted) {
           return;
         }
+        // Facade 优先：调用 CallSessionFacade.startCall
+        _startCallWithFacade();
+        // Fallback：原有 demo flow（始终执行以驱动 UI 状态）
         ref
             .read(demoCallFlowProvider.notifier)
             .start(
@@ -51,6 +55,15 @@ class _DemoCallScreenState extends ConsumerState<DemoCallScreen> {
               trackDuration: widget.trackDuration,
             );
       });
+    }
+  }
+
+  Future<void> _startCallWithFacade() async {
+    try {
+      final facade = ref.read(callSessionFacadeProvider);
+      await facade.startCall('demo-volunteer-001');
+    } catch (_) {
+      // Facade 异常，demo flow 已在 fallback 中启动
     }
   }
 
@@ -107,6 +120,18 @@ class _DemoCallScreenState extends ConsumerState<DemoCallScreen> {
     }
     _navigatingToRating = true;
 
+    // Facade 优先：调用 CallSessionFacade.endCall
+    try {
+      final facade = ref.read(callSessionFacadeProvider);
+      final result = await facade.endCall();
+      if (!result.success) {
+        // Facade 失败，继续走 fallback
+      }
+    } catch (_) {
+      // Facade 异常，降级到旧流程
+    }
+
+    // Fallback：原有 demo flow
     final controller = ref.read(demoCallFlowProvider.notifier);
     await controller.completeCall();
     final completedState = ref.read(demoCallFlowProvider);

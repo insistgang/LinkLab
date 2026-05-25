@@ -51,7 +51,9 @@ void main() {
     await tester.tap(find.text('开始使用').last);
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('您好，'), findsOneWidget);
+    expect(find.text('让帮助真实发生\n连接每一次需要'), findsOneWidget);
+    expect(find.text('我需要出行帮助'), findsOneWidget);
+    expect(find.text('我想成为志愿者'), findsOneWidget);
     expect(session.isLoggedIn, isTrue);
     expect(session.isFirstLaunch, isFalse);
     expect(session.currentUser?.id, isNotEmpty);

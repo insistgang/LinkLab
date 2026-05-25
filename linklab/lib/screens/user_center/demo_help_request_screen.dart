@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/utils/extensions.dart';
 import '../../models/demo_help_request_model.dart';
-import '../../services/app_session_service.dart';
+import '../../providers/app_session_provider.dart';
 import '../../services/user_center/demo_help_request_service.dart';
 import 'seeker_center_screen.dart';
 
-class DemoHelpRequestScreen extends StatefulWidget {
+class DemoHelpRequestScreen extends ConsumerStatefulWidget {
   const DemoHelpRequestScreen({
     super.key,
     required this.volunteerId,
@@ -19,10 +20,10 @@ class DemoHelpRequestScreen extends StatefulWidget {
   final String? volunteerAvatar;
 
   @override
-  State<DemoHelpRequestScreen> createState() => _DemoHelpRequestScreenState();
+  ConsumerState<DemoHelpRequestScreen> createState() => _DemoHelpRequestScreenState();
 }
 
-class _DemoHelpRequestScreenState extends State<DemoHelpRequestScreen> {
+class _DemoHelpRequestScreenState extends ConsumerState<DemoHelpRequestScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final DemoHelpRequestService _helpRequestService = DemoHelpRequestService();
   final TextEditingController _titleController = TextEditingController();
@@ -38,7 +39,7 @@ class _DemoHelpRequestScreenState extends State<DemoHelpRequestScreen> {
   void initState() {
     super.initState();
     _accessibilityNeeded =
-        (AppSessionService.instance.userProfile?.disabilityType ?? const [])
+        (ref.read(appSessionProvider).userProfile?.disabilityType ?? const [])
             .isNotEmpty;
   }
 
@@ -63,7 +64,7 @@ class _DemoHelpRequestScreenState extends State<DemoHelpRequestScreen> {
               color: Colors.teal.withAlpha(15),
               child: const Padding(
                 padding: EdgeInsets.all(16),
-                child: Text('演示态提交后，会同时写入“我的求助”和志愿者侧“待处理任务”，方便直接展示完整闭环。'),
+                child: Text('演示态提交后，会同时写入"我的求助"和志愿者侧"待处理任务"，方便直接展示完整闭环。'),
               ),
             ),
             const SizedBox(height: 16),
@@ -217,7 +218,7 @@ class _DemoHelpRequestScreenState extends State<DemoHelpRequestScreen> {
     }
 
     final seekerId =
-        AppSessionService.instance.userProfile?.id ?? 'demo-user-id';
+        ref.read(appSessionProvider).userProfile?.id ?? 'demo-user-id';
 
     setState(() => _isSubmitting = true);
 
@@ -240,7 +241,7 @@ class _DemoHelpRequestScreenState extends State<DemoHelpRequestScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('求助已提交，可在“我的求助”和志愿者任务中查看')));
+      ).showSnackBar(const SnackBar(content: Text('求助已提交，可在"我的求助"和志愿者任务中查看')));
 
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(

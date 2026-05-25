@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../models/user_model.dart';
-import '../../services/app_session_service.dart';
+import '../../providers/app_session_provider.dart';
 import '../../widgets/accessible/index.dart';
 import '../../widgets/demo/demo_auth.dart';
 import '../../widgets/demo/demo_motion.dart';
@@ -13,7 +14,7 @@ import '../../widgets/demo/linkable_icon.dart';
 import '../home/main_screen.dart';
 
 /// 无障碍偏好设置页面
-class PreferenceScreen extends StatefulWidget {
+class PreferenceScreen extends ConsumerStatefulWidget {
   const PreferenceScreen({
     super.key,
     this.phone,
@@ -28,10 +29,10 @@ class PreferenceScreen extends StatefulWidget {
   bool get isEditMode => phone == null || role == null;
 
   @override
-  State<PreferenceScreen> createState() => _PreferenceScreenState();
+  ConsumerState<PreferenceScreen> createState() => _PreferenceScreenState();
 }
 
-class _PreferenceScreenState extends State<PreferenceScreen> {
+class _PreferenceScreenState extends ConsumerState<PreferenceScreen> {
   DemoStageMode _stageMode = DemoStageMode.day;
   bool _highContrastMode = false;
   double _fontScale = 1.0;
@@ -42,7 +43,7 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
   @override
   void initState() {
     super.initState();
-    final session = AppSessionService.instance;
+    final session = ref.read(appSessionProvider);
     final prefs = session.preferences;
     _stageMode = session.stageMode;
     _highContrastMode = prefs.highContrastMode;
@@ -61,11 +62,11 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
       autoReadResults: _autoReadResults,
     );
 
-    final session = AppSessionService.instance;
+    final notifier = ref.read(appSessionProvider.notifier);
 
     if (widget.isEditMode) {
-      await session.setStageMode(_stageMode);
-      await session.updatePreferences(prefs);
+      await notifier.setStageMode(_stageMode);
+      await notifier.updatePreferences(prefs);
       if (!mounted) return;
       showDemoStageSnackBar(
         context,
@@ -77,13 +78,13 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
       return;
     }
 
-    await session.completeOnboarding(
+    await notifier.completeOnboarding(
       phone: widget.phone!,
       role: widget.role!,
       disabilityTypes: widget.disabilityTypes,
       preferences: prefs,
     );
-    await session.setStageMode(_stageMode);
+    await notifier.setStageMode(_stageMode);
     if (!mounted) return;
 
     pushAndRemoveUntilDemoStageRoute(
@@ -114,7 +115,7 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
                     title: '个性化您的使用体验',
                     subtitle: widget.isEditMode
                         ? '这些设置会立即应用到当前会话。'
-                        : '这些设置可以随时在“我的”页面修改。',
+                        : '这些设置可以随时在"我的"页面修改。',
                     icon: Icons.settings_accessibility_rounded,
                     chips: [
                       DemoPill(
@@ -177,6 +178,7 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
                     title: '高对比度模式',
                     subtitle: '使用更强的明暗对比，提升弱视和读屏用户的识别效率。',
                     value: _highContrastMode,
+                    leadingIcon: LinkableIconName.highContrast,
                     onChanged: (value) {
                       setState(() {
                         _highContrastMode = value;
@@ -192,8 +194,9 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
                     subtitle: '调整应用内文字显示大小。',
                     value: _fontScale,
                     min: 0.8,
-                    max: 1.5,
-                    divisions: 7,
+                    max: 2.0,
+                    divisions: 12,
+                    leadingIcon: LinkableIconName.fontSize,
                     onChanged: (value) {
                       setState(() {
                         _fontScale = value;
@@ -211,6 +214,7 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
                     min: 0.5,
                     max: 2.0,
                     divisions: 6,
+                    leadingIcon: LinkableIconName.voiceInput,
                     onChanged: (value) {
                       setState(() {
                         _voiceSpeed = value;
@@ -225,6 +229,7 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
                     title: '触觉反馈',
                     subtitle: '操作时提供振动反馈，帮助确认关键动作已触发。',
                     value: _hapticFeedback,
+                    leadingIcon: LinkableIconName.vibrationFlash,
                     onChanged: (value) {
                       setState(() {
                         _hapticFeedback = value;
@@ -239,6 +244,7 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
                     title: '自动朗读结果',
                     subtitle: 'AI 识别完成后自动语音播报，减少额外点击。',
                     value: _autoReadResults,
+                    leadingIcon: LinkableIconName.tts,
                     onChanged: (value) {
                       setState(() {
                         _autoReadResults = value;
@@ -297,7 +303,7 @@ class _StageModeCard extends StatelessWidget {
             children: [
               Expanded(
                 child: _StageModeOptionButton(
-                  icon: Icons.light_mode_outlined,
+                  icon: LinkableIconName.lightMode,
                   label: '日间',
                   isSelected: mode == DemoStageMode.day,
                   onTap: () => onModeChanged(DemoStageMode.day),
@@ -306,7 +312,7 @@ class _StageModeCard extends StatelessWidget {
               const SizedBox(width: AppTheme.spacingM),
               Expanded(
                 child: _StageModeOptionButton(
-                  icon: Icons.dark_mode_outlined,
+                  icon: LinkableIconName.darkMode,
                   label: '深夜',
                   isSelected: mode == DemoStageMode.night,
                   onTap: () => onModeChanged(DemoStageMode.night),
@@ -328,7 +334,7 @@ class _StageModeOptionButton extends StatelessWidget {
     required this.onTap,
   });
 
-  final IconData icon;
+  final LinkableIconName icon;
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
@@ -358,11 +364,9 @@ class _StageModeOptionButton extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              LinkableMaterialIcon(
+              LinkableSvgIcon(
                 icon: icon,
-                color: isSelected
-                    ? AppTheme.stageBackground
-                    : AppTheme.stageTextPrimary,
+                size: 24,
                 semanticLabel: '$label模式',
               ),
               const SizedBox(height: AppTheme.spacingS),
@@ -390,12 +394,14 @@ class _PreferenceSwitchCard extends StatelessWidget {
     required this.subtitle,
     required this.value,
     required this.onChanged,
+    this.leadingIcon,
   });
 
   final String title;
   final String subtitle;
   final bool value;
   final ValueChanged<bool> onChanged;
+  final LinkableIconName? leadingIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -406,13 +412,25 @@ class _PreferenceSwitchCard extends StatelessWidget {
         toggled: value,
         child: SwitchListTile(
           contentPadding: EdgeInsets.zero,
-          title: AccessibleText(
-            title,
-            style: TextStyle(
-              color: AppTheme.stageTextPrimary,
-              fontSize: AppTheme.fontSizeNormal,
-              fontWeight: FontWeight.w700,
-            ),
+          title: Row(
+            children: [
+              if (leadingIcon != null) ...[
+                LinkableSvgIcon(
+                  icon: leadingIcon!,
+                  size: 20,
+                  semanticLabel: title,
+                ),
+                const SizedBox(width: AppTheme.spacingS),
+              ],
+              AccessibleText(
+                title,
+                style: TextStyle(
+                  color: AppTheme.stageTextPrimary,
+                  fontSize: AppTheme.fontSizeNormal,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
           ),
           subtitle: AccessibleText(
             subtitle,
@@ -439,6 +457,7 @@ class _PreferenceSliderCard extends StatelessWidget {
     required this.max,
     required this.divisions,
     required this.onChanged,
+    this.leadingIcon,
   });
 
   final String title;
@@ -448,6 +467,7 @@ class _PreferenceSliderCard extends StatelessWidget {
   final double max;
   final int divisions;
   final ValueChanged<double> onChanged;
+  final LinkableIconName? leadingIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -459,13 +479,25 @@ class _PreferenceSliderCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AccessibleText(
-              title,
-              style: TextStyle(
-                color: AppTheme.stageTextPrimary,
-                fontSize: AppTheme.fontSizeNormal,
-                fontWeight: FontWeight.w700,
-              ),
+            Row(
+              children: [
+                if (leadingIcon != null) ...[
+                  LinkableSvgIcon(
+                    icon: leadingIcon!,
+                    size: 20,
+                    semanticLabel: title,
+                  ),
+                  const SizedBox(width: AppTheme.spacingS),
+                ],
+                AccessibleText(
+                  title,
+                  style: TextStyle(
+                    color: AppTheme.stageTextPrimary,
+                    fontSize: AppTheme.fontSizeNormal,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: AppTheme.spacingXS),
             AccessibleText(

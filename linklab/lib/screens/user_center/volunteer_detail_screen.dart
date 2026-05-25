@@ -3,13 +3,10 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../demo_data/volunteers.dart';
-import '../../models/badge_model.dart';
-import '../../models/schedule_model.dart';
 import '../../models/skill_model.dart';
 import '../../models/user_model.dart';
 import '../../models/volunteer_level_model.dart';
-import '../../services/user_center/badge_service.dart';
-import '../../services/user_center/schedule_service.dart';
+// MVP: badge_service, schedule_service 已砍 (F20/F21/F23)
 import '../../services/user_center/skill_tag_service.dart';
 import '../../services/user_center/volunteer_demo_store.dart';
 import '../../services/user_center/volunteer_level_service.dart';
@@ -35,15 +32,12 @@ class _VolunteerDetailScreenState extends State<VolunteerDetailScreen> {
   final VolunteerDemoStore _demoStore = VolunteerDemoStore();
   final VolunteerLevelService _levelService = VolunteerLevelService();
   final SkillTagService _skillTagService = SkillTagService();
-  final BadgeService _badgeService = BadgeService();
-  final ScheduleService _scheduleService = ScheduleService();
+  // MVP: badge_service, schedule_service 已砍 (F20/F21/F23)
 
   bool _isLoading = true;
   VolunteerProfile? _profile;
   VolunteerLevelInfo? _levelInfo;
   List<SkillModel> _skills = [];
-  List<BadgeModel> _badges = [];
-  ScheduleModel? _schedule;
   DemoVolunteer? _demoVolunteer;
   int _serviceHours = 0;
 
@@ -57,14 +51,16 @@ class _VolunteerDetailScreenState extends State<VolunteerDetailScreen> {
     setState(() => _isLoading = true);
 
     final demoVolunteer = getVolunteerById(widget.volunteerId);
-    await _badgeService.checkAndAwardBadges(widget.volunteerId);
+    // MVP: badge_service 已砍 (F21)
+    // await _badgeService.checkAndAwardBadges(widget.volunteerId);
 
     final profile = await _demoStore.getProfile(widget.volunteerId);
     final activities = await _demoStore.getActivities(widget.volunteerId);
     final levelInfo = await _levelService.getLevelInfo(widget.volunteerId);
     final skills = await _skillTagService.getMySkills(widget.volunteerId);
-    final badges = await _badgeService.getMyBadges(widget.volunteerId);
-    final schedule = await _scheduleService.getSchedule(widget.volunteerId);
+    // MVP: badge_service, schedule_service 已砍 (F20/F21/F23)
+    // final badges = await _badgeService.getMyBadges(widget.volunteerId);
+    // final schedule = await _scheduleService.getSchedule(widget.volunteerId);
 
     final totalMinutes = activities.fold<int>(
       0,
@@ -83,8 +79,7 @@ class _VolunteerDetailScreenState extends State<VolunteerDetailScreen> {
       _profile = profile;
       _levelInfo = levelInfo;
       _skills = skills;
-      _badges = badges;
-      _schedule = schedule;
+      // MVP: badge_service, schedule_service 已砍 (F20/F21/F23)
       _serviceHours = estimatedHours;
       _isLoading = false;
     });
@@ -94,12 +89,11 @@ class _VolunteerDetailScreenState extends State<VolunteerDetailScreen> {
   Widget build(BuildContext context) {
     final levelInfo = _levelInfo;
     final profile = _profile;
-    final schedule = _schedule;
 
     return Scaffold(
       appBar: AppBar(title: const Text('志愿者详情')),
       body:
-          _isLoading || levelInfo == null || profile == null || schedule == null
+          _isLoading || levelInfo == null || profile == null
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
               onRefresh: _loadData,
@@ -146,63 +140,29 @@ class _VolunteerDetailScreenState extends State<VolunteerDetailScreen> {
                                 .toList(),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  _buildInfoSection(
-                    title: '荣誉徽章',
-                    child: Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: _badges.isEmpty
-                          ? const [
-                              Text(
-                                '暂无徽章',
-                                style: TextStyle(color: Colors.grey),
-                              ),
-                            ]
-                          : _badges
-                                .map(
-                                  (badge) => Chip(
-                                    avatar: Text(badge.iconEmoji),
-                                    label: Text(badge.name),
-                                  ),
-                                )
-                                .toList(),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildInfoSection(
-                    title: '可服务时间',
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: _availableScheduleLines.isEmpty
-                          ? const [
-                              Text(
-                                '暂未设置可服务时间',
-                                style: TextStyle(color: Colors.grey),
-                              ),
-                            ]
-                          : _availableScheduleLines
-                                .map(
-                                  (line) => Padding(
-                                    padding: const EdgeInsets.only(bottom: 8),
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const Icon(
-                                          Icons.schedule,
-                                          size: 18,
-                                          color: Colors.teal,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(child: Text(line)),
-                                      ],
-                                    ),
-                                  ),
-                                )
-                                .toList(),
-                    ),
-                  ),
+                  // MVP: 徽章功能已砍 (F21)
+                  // const SizedBox(height: 16),
+                  // _buildInfoSection(
+                  //   title: '荣誉徽章',
+                  //   child: Wrap(
+                  //     spacing: 8,
+                  //     runSpacing: 8,
+                  //     children: const [
+                  //       Text('暂无徽章', style: TextStyle(color: Colors.grey)),
+                  //     ],
+                  //   ),
+                  // ),
+                  // MVP: 排班功能已砍 (F23)
+                  // const SizedBox(height: 16),
+                  // _buildInfoSection(
+                  //   title: '可服务时间',
+                  //   child: Column(
+                  //     crossAxisAlignment: CrossAxisAlignment.start,
+                  //     children: const [
+                  //       Text('暂未设置可服务时间', style: TextStyle(color: Colors.grey)),
+                  //     ],
+                  //   ),
+                  // ),
                 ],
               ),
             ),
@@ -325,20 +285,6 @@ class _VolunteerDetailScreenState extends State<VolunteerDetailScreen> {
       return demoTags;
     }
     return _skills.take(3).map((item) => item.name).toList();
-  }
-
-  List<String> get _availableScheduleLines {
-    final schedule = _schedule;
-    if (schedule == null) return const [];
-
-    return WeekDay.values
-        .where((day) => (schedule.weeklySchedule[day.key] ?? []).isNotEmpty)
-        .map((day) {
-          final slots = schedule.weeklySchedule[day.key] ?? [];
-          final display = slots.map((slot) => slot.displayText).join(' / ');
-          return '${day.displayName}  $display';
-        })
-        .toList();
   }
 
   String get _displayName {

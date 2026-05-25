@@ -1,6 +1,7 @@
 enum DemoAiIntent {
   ocrText('ocr_text', 'OCR / 读文字'),
   sceneDescription('scene_description', '场景描述'),
+  objectIdentify('object_identify', '物体识别'),
   colorRecognition('color_recognition', '颜色识别'),
   moneyRecognition('money_recognition', '钞票 / 面额识别'),
   translation('translation', '翻译 / 转译'),

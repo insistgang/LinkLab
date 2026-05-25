@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../models/community_models.dart';
+import '../../providers/community_provider.dart';
 import '../../services/community/featured_story_service.dart';
 import '../../widgets/accessible/index.dart';
 import '../../widgets/demo/demo_motion.dart';
@@ -10,15 +12,14 @@ import '../../widgets/demo/linkable_icon.dart';
 import '../community/story_detail_screen.dart';
 
 /// 社群降级页：仅展示精选故事和未来蓝图，不开放互动社区入口。
-class CommunityScreen extends StatefulWidget {
+class CommunityScreen extends ConsumerStatefulWidget {
   const CommunityScreen({super.key});
 
   @override
-  State<CommunityScreen> createState() => _CommunityScreenState();
+  ConsumerState<CommunityScreen> createState() => _CommunityScreenState();
 }
 
-class _CommunityScreenState extends State<CommunityScreen> {
-  final _storyService = FeaturedStoryService();
+class _CommunityScreenState extends ConsumerState<CommunityScreen> {
   List<FeaturedStory> _featuredStories = const [];
   bool _isLoading = true;
 
@@ -30,7 +31,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
   Future<void> _loadStories() async {
     setState(() => _isLoading = true);
-    final stories = await _storyService.getDailyFeatured(limit: 3);
+    final storyService = ref.read(featuredStoryProvider);
+    final stories = await storyService.getDailyFeatured(limit: 3);
     if (!mounted) return;
     setState(() {
       _featuredStories = stories;
@@ -75,12 +77,12 @@ class _CommunityScreenState extends State<CommunityScreen> {
             ),
             const SizedBox(height: AppTheme.spacingS),
             DemoReveal(
-              delay: const Duration(milliseconds: 120),
+              delay: const Duration(milliseconds: 160),
               child: _buildStoriesList(),
             ),
             const SizedBox(height: AppTheme.spacingL),
             const DemoReveal(
-              delay: Duration(milliseconds: 160),
+              delay: Duration(milliseconds: 200),
               child: _BlueprintPanel(),
             ),
           ],
@@ -153,7 +155,7 @@ class _CommunityHero extends StatelessWidget {
                 ),
               ),
               child: const LinkableSvgIcon(
-                icon: LinkableIconName.featuredStory,
+                icon: LinkableIconName.community,
                 size: 44,
                 semanticLabel: '社群',
               ),
@@ -275,7 +277,7 @@ class _StoryCard extends StatelessWidget {
                 ),
               ),
               child: const LinkableSvgIcon(
-                icon: LinkableIconName.featuredStory,
+                icon: LinkableIconName.dailyStory,
                 size: 44,
               ),
             ),

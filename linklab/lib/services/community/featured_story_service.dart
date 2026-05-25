@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../config/app_config.dart';
 import '../../core/utils/logger.dart';
 import '../../models/community_models.dart';
 
@@ -28,12 +29,14 @@ class FeaturedStoryService {
   }
 
   SupabaseClient get _supabase {
-    if (!_hasSupabase) {
+    if (_useLocalStories) {
       throw StateError('Supabase not initialized');
     }
     _supabaseClient ??= Supabase.instance.client;
     return _supabaseClient!;
   }
+
+  bool get _useLocalStories => !_hasSupabase || !FeatureFlags.enableCommunity;
 
   /// 提交故事
   Future<void> submitStory({
@@ -44,7 +47,7 @@ class FeaturedStoryService {
     String authorType = 'anonymous',
     String? authorName,
   }) async {
-    if (!_hasSupabase) {
+    if (_useLocalStories) {
       final story = FeaturedStory(
         id: 'story-local-${DateTime.now().millisecondsSinceEpoch}',
         title: title,
@@ -94,7 +97,7 @@ class FeaturedStoryService {
     bool approved = true,
     String? reason,
   }) async {
-    if (!_hasSupabase) {
+    if (_useLocalStories) {
       final index = _findStoryIndex(storyId);
       if (index == -1) throw Exception('故事不存在');
 
@@ -140,7 +143,7 @@ class FeaturedStoryService {
 
   /// 设置为每日精选（管理员）
   Future<void> setAsFeatured(String storyId, DateTime featuredDate) async {
-    if (!_hasSupabase) {
+    if (_useLocalStories) {
       final index = _findStoryIndex(storyId);
       if (index == -1) throw Exception('故事不存在');
 
@@ -183,7 +186,7 @@ class FeaturedStoryService {
 
   /// 获取每日精选
   Future<List<FeaturedStory>> getDailyFeatured({int limit = 5}) async {
-    if (!_hasSupabase) {
+    if (_useLocalStories) {
       final stories =
           _demoStories
               .where(
@@ -225,7 +228,7 @@ class FeaturedStoryService {
     int limit = 20,
     int offset = 0,
   }) async {
-    if (!_hasSupabase) {
+    if (_useLocalStories) {
       final stories =
           _demoStories
               .where(
@@ -263,7 +266,7 @@ class FeaturedStoryService {
     int limit = 20,
     int offset = 0,
   }) async {
-    if (!_hasSupabase) {
+    if (_useLocalStories) {
       final stories =
           _demoStories
               .where((story) => story.status == StoryStatus.pending)
@@ -307,7 +310,7 @@ class FeaturedStoryService {
 
   /// 获取故事详情
   Future<FeaturedStory?> getStoryDetail(String storyId) async {
-    if (!_hasSupabase) {
+    if (_useLocalStories) {
       final index = _findStoryIndex(storyId);
       if (index == -1) {
         return null;
@@ -343,7 +346,7 @@ class FeaturedStoryService {
 
   /// 点赞故事
   Future<void> likeStory(String storyId, String userId) async {
-    if (!_hasSupabase) {
+    if (_useLocalStories) {
       final key = _buildLikeKey(storyId, userId);
       if (_likedStoryKeys.contains(key)) {
         return;
@@ -393,7 +396,7 @@ class FeaturedStoryService {
 
   /// 取消点赞
   Future<void> unlikeStory(String storyId, String userId) async {
-    if (!_hasSupabase) {
+    if (_useLocalStories) {
       final key = _buildLikeKey(storyId, userId);
       if (!_likedStoryKeys.remove(key)) {
         return;
@@ -431,7 +434,7 @@ class FeaturedStoryService {
 
   /// 检查用户是否点赞
   Future<bool> hasLiked(String storyId, String userId) async {
-    if (!_hasSupabase) {
+    if (_useLocalStories) {
       return _likedStoryKeys.contains(_buildLikeKey(storyId, userId));
     }
 
@@ -452,7 +455,7 @@ class FeaturedStoryService {
 
   /// 获取用户提交的故事
   Future<List<FeaturedStory>> getMyStories(String userId) async {
-    if (!_hasSupabase) {
+    if (_useLocalStories) {
       return _demoStories
           .where((story) => _localStoryOwners[story.id] == userId)
           .toList()

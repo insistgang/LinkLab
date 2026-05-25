@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -116,8 +118,12 @@ class DemoMatchingFlowState {
 }
 
 class DemoMatchingFlowController extends Notifier<DemoMatchingFlowState> {
+  Timer? _matchExpireTimer;
+  static const _matchTimeout = Duration(seconds: 60);
+
   @override
   DemoMatchingFlowState build() {
+    ref.onDispose(_cancelTimers);
     return const DemoMatchingFlowState.initial();
   }
 
@@ -183,6 +189,8 @@ class DemoMatchingFlowController extends Notifier<DemoMatchingFlowState> {
         statusMessage: '等待接单',
         visibleSteps: _appendStep('等待接单'),
       );
+
+      _startMatchExpireTimer();
     } catch (error, stackTrace) {
       AppLogger.error('F9 demo matching flow failed', error, stackTrace);
       state = state.copyWith(
@@ -252,6 +260,8 @@ class DemoMatchingFlowController extends Notifier<DemoMatchingFlowState> {
     final candidate = state.currentCandidate;
     if (candidate == null) return;
 
+    _cancelTimers();
+
     final action = ref
         .read(demoMatchingEngineProvider)
         .tryAccept(candidate.volunteer.id);
@@ -283,6 +293,7 @@ class DemoMatchingFlowController extends Notifier<DemoMatchingFlowState> {
   }
 
   Future<void> cancel() async {
+    _cancelTimers();
     ref.read(demoMatchingEngineProvider).cancel();
     await ref
         .read(demoHelpRequestFlowProvider.notifier)
@@ -296,6 +307,7 @@ class DemoMatchingFlowController extends Notifier<DemoMatchingFlowState> {
   }
 
   Future<void> expire() async {
+    _cancelTimers();
     ref.read(demoMatchingEngineProvider).expire();
     await ref.read(demoHelpRequestFlowProvider.notifier).markExpired();
     state = state.copyWith(
@@ -364,5 +376,23 @@ class DemoMatchingFlowController extends Notifier<DemoMatchingFlowState> {
       steps.add(step);
     }
     return List<String>.unmodifiable(steps);
+  }
+
+  void _startMatchExpireTimer() {
+    _cancelTimers();
+    _matchExpireTimer = Timer(_matchTimeout, () {
+      if (state.phase == DemoMatchingUiPhase.waitingForAccept ||
+          state.phase == DemoMatchingUiPhase.tryingCandidate ||
+          state.phase == DemoMatchingUiPhase.candidateRejected ||
+          state.phase == DemoMatchingUiPhase.candidateTimedOut) {
+        AppLogger.warning('F9 demo matching auto-expired after 60 seconds');
+        unawaited(expire());
+      }
+    });
+  }
+
+  void _cancelTimers() {
+    _matchExpireTimer?.cancel();
+    _matchExpireTimer = null;
   }
 }

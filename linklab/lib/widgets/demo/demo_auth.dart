@@ -12,6 +12,7 @@ class DemoAuthBanner extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.icon,
+    this.svgIcon,
     this.chips = const [],
     this.useLogo = false,
   });
@@ -19,6 +20,7 @@ class DemoAuthBanner extends StatelessWidget {
   final String title;
   final String subtitle;
   final IconData icon;
+  final LinkableIconName? svgIcon;
   final List<Widget> chips;
   final bool useLogo;
 
@@ -33,6 +35,7 @@ class DemoAuthBanner extends StatelessWidget {
               ? const AppLogo(size: 62, borderRadius: 18)
               : DemoGlassIconBadge(
                   icon: icon,
+                  svgIcon: svgIcon,
                   size: 62,
                   iconSize: 30,
                   shape: DemoGlassIconShape.circle,
@@ -222,6 +225,7 @@ class DemoSelectionCard extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.icon,
+    this.svgIcon,
     required this.isSelected,
     required this.onTap,
     this.trailing,
@@ -230,6 +234,7 @@ class DemoSelectionCard extends StatelessWidget {
   final String title;
   final String subtitle;
   final IconData icon;
+  final LinkableIconName? svgIcon;
   final bool isSelected;
   final VoidCallback onTap;
   final Widget? trailing;
@@ -257,7 +262,7 @@ class DemoSelectionCard extends StatelessWidget {
                 duration: const Duration(milliseconds: 220),
                 curve: Curves.easeOutCubic,
                 scale: isSelected ? 1 : 0.96,
-                child: DemoGlassIconBadge(icon: icon, size: 54, iconSize: 24),
+                child: DemoGlassIconBadge(icon: icon, svgIcon: svgIcon, size: 54, iconSize: 24),
               ),
               const SizedBox(width: AppTheme.spacingM),
               Expanded(

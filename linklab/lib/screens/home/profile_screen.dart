@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/extensions.dart';
 import '../../models/user_model.dart';
-import '../../services/app_session_service.dart';
+import '../../providers/app_session_provider.dart';
 import '../../services/security/emergency_contact_service.dart';
 import '../../services/security/safety_settings_service.dart';
 import '../../widgets/accessible/index.dart';
@@ -19,14 +20,14 @@ import '../security/emergency_contacts_screen.dart';
 import '../security/location_sharing_screen.dart';
 
 /// 个人中心页面
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   void _refreshSafetyState() {
     if (mounted) {
       setState(() {});
@@ -35,263 +36,258 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final session = AppSessionService.instance;
+    final session = ref.watch(appSessionProvider);
+    final user = session.userProfile;
+    final preferences = session.preferences;
+    final helpCount = session.getRecentHelpHistory(limit: 20).length;
+    final userId = user?.id ?? 'demo-seeker';
+    final safetySnapshotFuture = _loadSafetySnapshot(userId);
 
-    return AnimatedBuilder(
-      animation: session,
-      builder: (context, _) {
-        final user = session.userProfile;
-        final preferences = session.preferences;
-        final helpCount = session.getRecentHelpHistory(limit: 20).length;
-        final userId = user?.id ?? 'demo-seeker';
-        final safetySnapshotFuture = _loadSafetySnapshot(userId);
-
-        return DemoStageScaffold(
-          title: '我的',
-          subtitle: '登录、偏好、安全准备和帮助档案都在这里收口',
-          showBackButton: false,
-          body: ListView(
-            padding: const EdgeInsets.fromLTRB(
-              AppTheme.spacingL,
-              AppTheme.spacingL,
-              AppTheme.spacingL,
-              120,
+    return DemoStageScaffold(
+      title: '我的',
+      subtitle: '登录、偏好、安全准备和帮助档案都在这里收口',
+      showBackButton: false,
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(
+          AppTheme.spacingL,
+          AppTheme.spacingL,
+          AppTheme.spacingL,
+          120,
+        ),
+        children: [
+          DemoReveal(
+            child: _ProfileHero(
+              user: user,
+              preferences: preferences,
+              onEditPreferences: () {
+                pushDemoStageRoute(context, page: const PreferenceScreen());
+              },
             ),
-            children: [
-              DemoReveal(
-                child: _ProfileHero(
-                  user: user,
-                  preferences: preferences,
-                  onEditPreferences: () {
-                    pushDemoStageRoute(context, page: const PreferenceScreen());
-                  },
-                ),
-              ),
-              const SizedBox(height: AppTheme.spacingL),
-              DemoReveal(
-                delay: const Duration(milliseconds: 70),
-                child: Wrap(
-                  spacing: AppTheme.spacingS,
-                  runSpacing: AppTheme.spacingS,
-                  children: [
-                    _ProfileTag(
-                      icon: session.isDayStageMode
-                          ? Icons.light_mode_outlined
-                          : Icons.dark_mode_outlined,
-                      label: session.isDayStageMode ? '荧光日间' : '深夜模式',
-                    ),
-                    _ProfileTag(
-                      icon: Icons.contrast_outlined,
-                      label: preferences.highContrastMode ? '高对比度' : '标准显示',
-                    ),
-                    _ProfileTag(
-                      icon: Icons.text_fields_outlined,
-                      label: '字体 ${preferences.fontScale.toStringAsFixed(1)}x',
-                    ),
-                    _ProfileTag(
-                      icon: Icons.volume_up_outlined,
-                      label: '语速 ${preferences.voiceSpeed.toStringAsFixed(1)}x',
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: AppTheme.spacingXL),
-              const DemoReveal(
-                delay: Duration(milliseconds: 110),
-                child: DemoSectionTitle(
-                  title: '无障碍设置',
-                  subtitle: 'F33 与 F36 的关键偏好都收口在这里。',
-                ),
-              ),
-              const SizedBox(height: AppTheme.spacingM),
-              DemoReveal(
-                delay: const Duration(milliseconds: 140),
-                child: _MenuItem(
-                  icon: Icons.settings_accessibility,
-                  title: '编辑无障碍偏好',
-                  subtitle: _buildPreferenceSummary(preferences),
-                  onTap: () {
-                    pushDemoStageRoute(context, page: const PreferenceScreen());
-                  },
-                ),
-              ),
-              const SizedBox(height: AppTheme.spacingM),
-              DemoReveal(
-                delay: const Duration(milliseconds: 170),
-                child: _MenuItem(
-                  icon: session.isDayStageMode
-                      ? Icons.dark_mode_outlined
-                      : Icons.light_mode_outlined,
-                  title: '切换界面模式',
-                  subtitle: session.isDayStageMode
-                      ? '当前为页面稿的荧光日间风格，点击切回深夜模式'
-                      : '当前为深夜模式，点击切到荧光日间风格',
-                  onTap: () async {
-                    await session.toggleStageMode();
-                    if (!context.mounted) return;
-                    showDemoStageSnackBar(
-                      context,
-                      message: session.isDayStageMode
-                          ? '已切换到荧光日间风格'
-                          : '已切换到深夜模式',
-                      icon: session.isDayStageMode
-                          ? Icons.light_mode_outlined
-                          : Icons.dark_mode_outlined,
-                      accentColor: AppTheme.stageAccent,
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: AppTheme.spacingM),
-              DemoReveal(
-                delay: const Duration(milliseconds: 200),
-                child: _MenuItem(
-                  icon: Icons.record_voice_over_outlined,
-                  title: '自动朗读与触觉反馈',
-                  subtitle: preferences.autoReadResults ? '自动朗读开启' : '自动朗读关闭',
-                  onTap: () {
-                    pushDemoStageRoute(context, page: const PreferenceScreen());
-                  },
-                ),
-              ),
-              const SizedBox(height: AppTheme.spacingXL),
-              const DemoReveal(
-                delay: Duration(milliseconds: 230),
-                child: DemoSectionTitle(
-                  title: '安全与记录',
-                  subtitle: 'SOS 就绪度、联系人和帮助档案的统一入口。',
-                ),
-              ),
-              const SizedBox(height: AppTheme.spacingM),
-              DemoReveal(
-                delay: const Duration(milliseconds: 260),
-                child: FutureBuilder<_SafetySnapshot>(
-                  future: safetySnapshotFuture,
-                  builder: (context, snapshot) {
-                    final safety = snapshot.data;
-                    return _SafetyReadinessCard(
-                      title: safety == null
-                          ? '正在读取 SOS 就绪状态'
-                          : _buildSafetyTitle(safety),
-                      summary: safety == null
-                          ? '正在读取位置共享与联系人配置。'
-                          : _buildSafetySummary(safety),
-                      chips: safety == null
-                          ? const ['读取中']
-                          : [
-                              safety.settings.locationModeLabel,
-                              safety.contactCount == 0
-                                  ? '联系人待补充'
-                                  : '联系人 ${safety.contactCount} 位',
-                              safety.settings.enableVoiceTrigger
-                                  ? '语音提示开启'
-                                  : '仅手动触发',
-                            ],
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: AppTheme.spacingM),
-              _MenuItem(
-                icon: Icons.history_rounded,
-                title: '帮助档案',
-                subtitle: '最近已保存 $helpCount 条主线记录，进入帮助档案查看',
-                onTap: () {
-                  pushDemoStageRoute(
-                    context,
-                    page: const DemoHelpArchiveScreen(),
-                  );
-                },
-              ),
-              const SizedBox(height: AppTheme.spacingM),
-              FutureBuilder<int>(
-                future: EmergencyContactService().getContactCount(userId),
-                builder: (context, snapshot) {
-                  final count = snapshot.data ?? 0;
-                  final subtitle = count == 0
-                      ? '尚未设置联系人，建议至少添加 1 位'
-                      : '已设置 $count / 3 位联系人，SOS 时会自动通知';
-
-                  return _MenuItem(
-                    icon: Icons.contacts_outlined,
-                    title: '紧急联系人',
-                    subtitle: subtitle,
-                    onTap: () async {
-                      await pushDemoStageRoute(
-                        context,
-                        page: EmergencyContactsScreen(userId: userId),
-                      );
-                      _refreshSafetyState();
-                    },
-                  );
-                },
-              ),
-              const SizedBox(height: AppTheme.spacingM),
-              FutureBuilder<_SafetySnapshot>(
-                future: safetySnapshotFuture,
-                builder: (context, snapshot) {
-                  return _MenuItem(
-                    icon: Icons.location_on_outlined,
-                    title: '位置共享',
-                    subtitle: snapshot.hasData
-                        ? _buildLocationSharingSummary(snapshot.data!)
-                        : '配置 SOS 时的位置信息与通知范围',
-                    onTap: () async {
-                      await pushDemoStageRoute(
-                        context,
-                        page: LocationSharingScreen(userId: userId),
-                      );
-                      _refreshSafetyState();
-                    },
-                  );
-                },
-              ),
-              const SizedBox(height: AppTheme.spacingXL),
-              const DemoSectionTitle(
-                title: '演示说明',
-                subtitle: '只展示 MVP 主线，避免半成品功能干扰评审。',
-              ),
-              const SizedBox(height: AppTheme.spacingM),
-              _MenuItem(
-                icon: Icons.rocket_launch_outlined,
-                title: '当前可演示功能',
-                subtitle: '首页、AI、通话、SOS、我的与帮助档案已联通',
-                onTap: () {
-                  _showInfoSheet(
-                    context,
-                    title: '当前演示范围',
-                    message:
-                        '当前主前端已覆盖 onboarding、登录、首页求助入口、个人中心、帮助档案、无障碍偏好编辑和紧急联系人管理。真实认证、消息推送、SOS 通知链路和稳定实时通话仍属于后续工作。',
-                  );
-                },
-              ),
-              const SizedBox(height: AppTheme.spacingM),
-              _MenuItem(
-                icon: Icons.info_outline,
-                title: '关于 LinkLab',
-                subtitle: '版本 1.0.0 Demo',
-                onTap: () {
-                  _showInfoSheet(
-                    context,
-                    title: '关于 LinkLab',
-                    message: '这是一个面向无障碍互助场景的主前端演示版，重点展示从登录到求助、再到个人档案沉淀的用户旅程。',
-                  );
-                },
-              ),
-              const SizedBox(height: AppTheme.spacingXL),
-              AccessibleButton(
-                label: '退出登录',
-                semanticLabel: '退出当前账号',
-                backgroundColor: AppTheme.stageSurfaceStrong,
-                foregroundColor: AppTheme.stageDanger,
-                onPressed: () {
-                  _showLogoutDialog(context);
-                },
-              ),
-            ],
           ),
-        );
-      },
+          const SizedBox(height: AppTheme.spacingL),
+          DemoReveal(
+            delay: const Duration(milliseconds: 70),
+            child: Wrap(
+              spacing: AppTheme.spacingS,
+              runSpacing: AppTheme.spacingS,
+              children: [
+                _ProfileTag(
+                  icon: session.isDayStageMode
+                      ? Icons.light_mode_outlined
+                      : Icons.dark_mode_outlined,
+                  label: session.isDayStageMode ? '荧光日间' : '深夜模式',
+                ),
+                _ProfileTag(
+                  icon: Icons.contrast_outlined,
+                  label: preferences.highContrastMode ? '高对比度' : '标准显示',
+                ),
+                _ProfileTag(
+                  icon: Icons.text_fields_outlined,
+                  label: '字体 ${preferences.fontScale.toStringAsFixed(1)}x',
+                ),
+                _ProfileTag(
+                  icon: Icons.volume_up_outlined,
+                  label: '语速 ${preferences.voiceSpeed.toStringAsFixed(1)}x',
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppTheme.spacingXL),
+          const DemoReveal(
+            delay: Duration(milliseconds: 110),
+            child: DemoSectionTitle(
+              title: '无障碍设置',
+              subtitle: 'F33 与 F36 的关键偏好都收口在这里。',
+            ),
+          ),
+          const SizedBox(height: AppTheme.spacingM),
+          DemoReveal(
+            delay: const Duration(milliseconds: 140),
+            child:           _MenuItem(
+              icon: LinkableIconName.settings,
+              title: '编辑无障碍偏好',
+              subtitle: _buildPreferenceSummary(preferences),
+              onTap: () {
+                pushDemoStageRoute(context, page: const PreferenceScreen());
+              },
+            ),
+          ),
+          const SizedBox(height: AppTheme.spacingM),
+          DemoReveal(
+            delay: const Duration(milliseconds: 170),
+            child: _MenuItem(
+              icon: session.isDayStageMode
+                  ? LinkableIconName.darkMode
+                  : LinkableIconName.lightMode,
+              title: '切换界面模式',
+              subtitle: session.isDayStageMode
+                  ? '当前为页面稿的荧光日间风格，点击切回深夜模式'
+                  : '当前为深夜模式，点击切到荧光日间风格',
+              onTap: () async {
+                await ref.read(appSessionProvider.notifier).toggleStageMode();
+                if (!context.mounted) return;
+                final updatedSession = ref.read(appSessionProvider);
+                showDemoStageSnackBar(
+                  context,
+                  message: updatedSession.isDayStageMode
+                      ? '已切换到荧光日间风格'
+                      : '已切换到深夜模式',
+                  icon: updatedSession.isDayStageMode
+                      ? Icons.light_mode_outlined
+                      : Icons.dark_mode_outlined,
+                  accentColor: AppTheme.stageAccent,
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: AppTheme.spacingM),
+          DemoReveal(
+            delay: const Duration(milliseconds: 200),
+            child: _MenuItem(
+              icon: LinkableIconName.voiceInput,
+              title: '自动朗读与触觉反馈',
+              subtitle: preferences.autoReadResults ? '自动朗读开启' : '自动朗读关闭',
+              onTap: () {
+                pushDemoStageRoute(context, page: const PreferenceScreen());
+              },
+            ),
+          ),
+          const SizedBox(height: AppTheme.spacingXL),
+          const DemoReveal(
+            delay: Duration(milliseconds: 230),
+            child: DemoSectionTitle(
+              title: '安全与记录',
+              subtitle: 'SOS 就绪度、联系人和帮助档案的统一入口。',
+            ),
+          ),
+          const SizedBox(height: AppTheme.spacingM),
+          DemoReveal(
+            delay: const Duration(milliseconds: 260),
+            child: FutureBuilder<_SafetySnapshot>(
+              future: safetySnapshotFuture,
+              builder: (context, snapshot) {
+                final safety = snapshot.data;
+                return _SafetyReadinessCard(
+                  title: safety == null
+                      ? '正在读取 SOS 就绪状态'
+                      : _buildSafetyTitle(safety),
+                  summary: safety == null
+                      ? '正在读取位置共享与联系人配置。'
+                      : _buildSafetySummary(safety),
+                  chips: safety == null
+                      ? const ['读取中']
+                      : [
+                          safety.settings.locationModeLabel,
+                          safety.contactCount == 0
+                              ? '联系人待补充'
+                              : '联系人 ${safety.contactCount} 位',
+                          safety.settings.enableVoiceTrigger
+                              ? '语音提示开启'
+                              : '仅手动触发',
+                        ],
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: AppTheme.spacingM),
+          _MenuItem(
+            icon: LinkableIconName.helpHistory,
+            title: '帮助档案',
+            subtitle: '最近已保存 $helpCount 条主线记录，进入帮助档案查看',
+            onTap: () {
+              pushDemoStageRoute(
+                context,
+                page: const DemoHelpArchiveScreen(),
+              );
+            },
+          ),
+          const SizedBox(height: AppTheme.spacingM),
+          FutureBuilder<int>(
+            future: EmergencyContactService().getContactCount(userId),
+            builder: (context, snapshot) {
+              final count = snapshot.data ?? 0;
+              final subtitle = count == 0
+                  ? '尚未设置联系人，建议至少添加 1 位'
+                  : '已设置 $count / 3 位联系人，SOS 时会自动通知';
+
+              return _MenuItem(
+                icon: LinkableIconName.emergencyContact,
+                title: '紧急联系人',
+                subtitle: subtitle,
+                onTap: () async {
+                  await pushDemoStageRoute(
+                    context,
+                    page: EmergencyContactsScreen(userId: userId),
+                  );
+                  _refreshSafetyState();
+                },
+              );
+            },
+          ),
+          const SizedBox(height: AppTheme.spacingM),
+          FutureBuilder<_SafetySnapshot>(
+            future: safetySnapshotFuture,
+            builder: (context, snapshot) {
+              return _MenuItem(
+                icon: LinkableIconName.locationShare,
+                title: '位置共享',
+                subtitle: snapshot.hasData
+                    ? _buildLocationSharingSummary(snapshot.data!)
+                    : '配置 SOS 时的位置信息与通知范围',
+                onTap: () async {
+                  await pushDemoStageRoute(
+                    context,
+                    page: LocationSharingScreen(userId: userId),
+                  );
+                  _refreshSafetyState();
+                },
+              );
+            },
+          ),
+          const SizedBox(height: AppTheme.spacingXL),
+          const DemoSectionTitle(
+            title: '演示说明',
+            subtitle: '只展示 MVP 主线，避免半成品功能干扰评审。',
+          ),
+          const SizedBox(height: AppTheme.spacingM),
+          _MenuItem(
+            icon: LinkableIconName.needHelp,
+            title: '当前可演示功能',
+            subtitle: '首页、AI、通话、SOS、我的与帮助档案已联通',
+            onTap: () {
+              _showInfoSheet(
+                context,
+                title: '当前演示范围',
+                message:
+                    '当前主前端已覆盖 onboarding、登录、首页求助入口、个人中心、帮助档案、无障碍偏好编辑和紧急联系人管理。真实认证、消息推送、SOS 通知链路和稳定实时通话仍属于后续工作。',
+              );
+            },
+          ),
+          const SizedBox(height: AppTheme.spacingM),
+          _MenuItem(
+            icon: LinkableIconName.help,
+            title: '关于 LinkLab',
+            subtitle: '版本 1.0.0 Demo',
+            onTap: () {
+              _showInfoSheet(
+                context,
+                title: '关于 LinkLab',
+                message: '这是一个面向无障碍互助场景的主前端演示版，重点展示从登录到求助、再到个人档案沉淀的用户旅程。',
+              );
+            },
+          ),
+          const SizedBox(height: AppTheme.spacingXL),
+          AccessibleButton(
+            label: '退出登录',
+            semanticLabel: '退出当前账号',
+            backgroundColor: AppTheme.stageSurfaceStrong,
+            foregroundColor: AppTheme.stageDanger,
+            onPressed: () {
+              _showLogoutDialog(context);
+            },
+          ),
+        ],
+      ),
     );
   }
 
@@ -410,7 +406,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             onPressed: () async {
               Navigator.of(dialogContext).pop();
-              await AppSessionService.instance.logout();
+              await ref.read(appSessionProvider.notifier).logout();
               if (!context.mounted) return;
               pushAndRemoveUntilDemoStageRoute(
                 context,
@@ -456,10 +452,9 @@ class _ProfileHero extends StatelessWidget {
               gradient: AppTheme.stageAccentGradient,
               shape: BoxShape.circle,
             ),
-            child: LinkableMaterialIcon(
-              icon: Icons.person_outline,
+            child: const LinkableSvgIcon(
+              icon: LinkableIconName.personalProfile,
               size: 42,
-              color: AppTheme.stageBackground,
               semanticLabel: '演示用户',
             ),
           ),
@@ -575,9 +570,9 @@ class _SafetyReadinessCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              LinkableMaterialIcon(
-                icon: Icons.shield_outlined,
-                color: AppTheme.stageAccent,
+              const LinkableSvgIcon(
+                icon: LinkableIconName.safetyReady,
+                size: 24,
                 semanticLabel: '安全就绪度',
               ),
               const SizedBox(width: AppTheme.spacingS),
@@ -637,7 +632,7 @@ class _MenuItem extends StatelessWidget {
     required this.onTap,
   });
 
-  final IconData icon;
+  final LinkableIconName icon;
   final String title;
   final String subtitle;
   final VoidCallback onTap;
@@ -655,9 +650,9 @@ class _MenuItem extends StatelessWidget {
               color: AppTheme.stageAccent.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: LinkableMaterialIcon(
+            child: LinkableSvgIcon(
               icon: icon,
-              color: AppTheme.stageAccent,
+              size: 24,
               semanticLabel: title,
             ),
           ),
@@ -687,9 +682,9 @@ class _MenuItem extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AppTheme.spacingS),
-          LinkableMaterialIcon(
-            icon: Icons.arrow_forward_rounded,
-            color: AppTheme.stageTextPrimary,
+          LinkableSvgIcon(
+            icon: LinkableIconName.navigationGuide,
+            size: 24,
             semanticLabel: '进入$title',
           ),
         ],

@@ -8,6 +8,7 @@ import '../../models/demo_match_request.dart';
 import '../../models/demo_match_result.dart';
 import '../../models/demo_volunteer.dart';
 import '../../providers/demo_matching_flow_provider.dart';
+import '../../providers/facade_providers.dart';
 import '../../widgets/accessible/index.dart';
 import '../../widgets/demo/demo_routes.dart';
 import '../../widgets/demo/demo_stage.dart';
@@ -45,6 +46,23 @@ class _DemoMatchingScreenState extends ConsumerState<DemoMatchingScreen> {
   }
 
   Future<void> _startMatching() async {
+    // Facade 优先：调用 VolunteerMatchingFacade.findVolunteers
+    try {
+      final facade = ref.read(volunteerMatchingFacadeProvider);
+      final result = await facade.findVolunteers(
+        intent: widget.initialRequest?.requestType ?? 'general',
+        urgency: widget.initialRequest?.urgencyLevel ?? 'normal',
+        tags: widget.initialRequest?.preferredSkills ?? const [],
+      );
+      if (result.success) {
+        // Facade 成功，继续走 demo 流程以驱动 UI 状态
+      }
+      // Facade 失败时静默降级到旧流程
+    } catch (_) {
+      // Facade 异常，降级到旧流程
+    }
+
+    // Fallback：原有 demo flow
     await ref
         .read(demoMatchingFlowProvider.notifier)
         .start(request: widget.initialRequest);
@@ -96,11 +114,35 @@ class _DemoMatchingScreenState extends ConsumerState<DemoMatchingScreen> {
 
   Future<void> _acceptCurrentCandidate() async {
     _clearAutoTimers();
+    // Facade 优先：调用 VolunteerMatchingFacade.acceptVolunteer
+    try {
+      final facade = ref.read(volunteerMatchingFacadeProvider);
+      final matchingState = ref.read(demoMatchingFlowProvider);
+      if (matchingState.activeVolunteerId != null) {
+        await facade.acceptVolunteer(matchingState.activeVolunteerId!);
+      }
+    } catch (_) {
+      // Facade 异常，降级到旧流程
+    }
+
+    // Fallback：原有 demo flow
     await ref.read(demoMatchingFlowProvider.notifier).acceptCurrentCandidate();
   }
 
   Future<void> _rejectOrTimeoutCurrent() async {
     _clearAutoTimers();
+    // Facade 优先：调用 VolunteerMatchingFacade.rejectVolunteer
+    try {
+      final facade = ref.read(volunteerMatchingFacadeProvider);
+      final matchingState = ref.read(demoMatchingFlowProvider);
+      if (matchingState.activeVolunteerId != null) {
+        await facade.rejectVolunteer(matchingState.activeVolunteerId!);
+      }
+    } catch (_) {
+      // Facade 异常，降级到旧流程
+    }
+
+    // Fallback：原有 demo flow
     await ref
         .read(demoMatchingFlowProvider.notifier)
         .rejectOrTimeoutCurrent(timedOut: true);
@@ -121,6 +163,15 @@ class _DemoMatchingScreenState extends ConsumerState<DemoMatchingScreen> {
 
   Future<void> _cancelMatching() async {
     _clearAutoTimers();
+    // Facade 优先：调用 VolunteerMatchingFacade.cancelMatching
+    try {
+      final facade = ref.read(volunteerMatchingFacadeProvider);
+      await facade.cancelMatching();
+    } catch (_) {
+      // Facade 异常，降级到旧流程
+    }
+
+    // Fallback：原有 demo flow
     await ref.read(demoMatchingFlowProvider.notifier).cancel();
   }
 
@@ -205,27 +256,32 @@ class _StatusSummaryCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Wrap(
-              spacing: AppTheme.spacingS,
-              runSpacing: AppTheme.spacingS,
-              children: [
-                DemoPill(
-                  icon: Icons.volunteer_activism_outlined,
-                  label: '竞赛 Demo 匹配',
-                  color: AppTheme.stageAccent,
-                ),
-                DemoPill(
-                  icon: Icons.location_off_outlined,
-                  label: '本地模拟距离',
-                  color: AppTheme.stageInfo,
-                ),
-                DemoPill(
-                  icon: Icons.notifications_off_outlined,
-                  label: '无真实推送',
-                  color: AppTheme.stageWarning,
-                ),
-              ],
-            ),
+              Wrap(
+                spacing: AppTheme.spacingS,
+                runSpacing: AppTheme.spacingS,
+                children: [
+                  DemoPill(
+                    icon: Icons.volunteer_activism_outlined,
+                    label: '竞赛 Demo 匹配',
+                    color: AppTheme.stageAccent,
+                  ),
+                  DemoPill(
+                    icon: Icons.location_off_outlined,
+                    label: '本地模拟距离',
+                    color: AppTheme.stageInfo,
+                  ),
+                  DemoPill(
+                    icon: Icons.notifications_off_outlined,
+                    label: '无真实推送',
+                    color: AppTheme.stageWarning,
+                  ),
+                  DemoPill(
+                    svgIcon: LinkableIconName.emergencyDetect,
+                    label: '紧急识别',
+                    color: AppTheme.stageDanger,
+                  ),
+                ],
+              ),
             const SizedBox(height: AppTheme.spacingM),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,

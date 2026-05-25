@@ -34,6 +34,9 @@ migrate_working_dir/
 /coverage/
 lib/config/api_config.dart
 
+# Local runtime environment files. Keep Supabase keys out of git history.
+.env
+
 # Symbolication related
 app.*.symbols
 

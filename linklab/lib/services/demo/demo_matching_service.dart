@@ -264,20 +264,19 @@ class DemoMatchingEngineService {
         .where(preferredSkills.contains)
         .toList(growable: false);
 
-    final skillScore = _skillScore(matchedSkills, preferredSkills);
-    final urgencyScore = _urgencyScore(request.urgencyLevel);
+    // AGENTS.md §7.1 权重：availability 0.30, distance 0.25, skill 0.20, trust 0.15, reputation 0.10
+    final availabilityScore = _availabilityScore(volunteer);
     final distanceScore = _distanceScore(volunteer.distanceMeters);
+    final skillScore = _skillScore(matchedSkills, preferredSkills);
+    final trustHistoryScore = _trustHistoryScore(volunteer.helpCount);
     final reputationScore = _reputationScore(volunteer.reputationScore);
-    final responseSpeedScore = _responseSpeedScore(
-      volunteer.estimatedResponseSeconds,
-    );
 
     final score = _roundScore(
-      skillScore * 0.40 +
-          urgencyScore * 0.15 +
-          distanceScore * 0.20 +
-          reputationScore * 0.15 +
-          responseSpeedScore * 0.10,
+      availabilityScore * 0.30 +
+          distanceScore * 0.25 +
+          skillScore * 0.20 +
+          trustHistoryScore * 0.15 +
+          reputationScore * 0.10,
     );
 
     return DemoMatchResult(
@@ -316,22 +315,18 @@ class DemoMatchingEngineService {
     return _clampScore(matchedSkills.length / preferredSkills.length);
   }
 
-  double _urgencyScore(String urgencyLevel) {
-    final normalized = _normalize(urgencyLevel);
-    if (normalized.contains('critical') ||
-        normalized.contains('urgent') ||
-        normalized.contains('high') ||
-        normalized.contains('紧急') ||
-        normalized.contains('高')) {
-      return 0.9;
-    }
-    if (normalized.contains('medium') || normalized.contains('中')) {
-      return 0.65;
-    }
-    if (normalized.contains('low') || normalized.contains('低')) {
-      return 0.35;
-    }
-    return 0.5;
+  double _availabilityScore(DemoVolunteer volunteer) {
+    // AGENTS.md §7.1: 是否在线、是否愿意接单、是否正在服务中
+    if (!volunteer.isOnline) return 0.0;
+    // 在线志愿者基础分 0.7，帮助次数越多说明越活跃
+    final activityBoost = (volunteer.helpCount / 100).clamp(0.0, 0.3);
+    return _clampScore(0.7 + activityBoost);
+  }
+
+  double _trustHistoryScore(int helpCount) {
+    // AGENTS.md §7.1: 优先连接曾经成功协助过的志愿者
+    // 帮助次数越多，历史信任分越高
+    return _clampScore(helpCount / 100);
   }
 
   double _distanceScore(int distanceMeters) {
@@ -344,11 +339,6 @@ class DemoMatchingEngineService {
         ? reputationScore / 5
         : reputationScore;
     return _clampScore(normalized);
-  }
-
-  double _responseSpeedScore(int estimatedResponseSeconds) {
-    final normalizedSeconds = estimatedResponseSeconds.clamp(0, 60) / 60;
-    return _clampScore(1 - normalizedSeconds);
   }
 
   double _clampScore(num value) {

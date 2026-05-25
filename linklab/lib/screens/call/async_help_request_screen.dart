@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/app_theme.dart';
-import '../../services/app_session_service.dart';
+import '../../providers/app_session_provider.dart';
 import '../../services/user_center/async_task_service.dart';
 import '../../widgets/accessible/index.dart';
 import '../user_center/seeker_center_screen.dart';
 
-class AsyncHelpRequestScreen extends StatefulWidget {
+class AsyncHelpRequestScreen extends ConsumerStatefulWidget {
   const AsyncHelpRequestScreen({
     super.key,
     this.initialTaskType,
@@ -19,10 +20,10 @@ class AsyncHelpRequestScreen extends StatefulWidget {
   final bool replaceWithSeekerCenterOnSubmit;
 
   @override
-  State<AsyncHelpRequestScreen> createState() => _AsyncHelpRequestScreenState();
+  ConsumerState<AsyncHelpRequestScreen> createState() => _AsyncHelpRequestScreenState();
 }
 
-class _AsyncHelpRequestScreenState extends State<AsyncHelpRequestScreen> {
+class _AsyncHelpRequestScreenState extends ConsumerState<AsyncHelpRequestScreen> {
   final _formKey = GlobalKey<FormState>();
   final AsyncTaskService _taskService = AsyncTaskService();
 
@@ -35,7 +36,7 @@ class _AsyncHelpRequestScreenState extends State<AsyncHelpRequestScreen> {
   bool _isSubmitting = false;
 
   String get _currentUserId =>
-      AppSessionService.instance.currentUser?.id ?? 'demo-user-id';
+      ref.read(appSessionProvider).userProfile?.id ?? 'demo-user-id';
 
   static const List<_ScenarioOption> _scenarios = [
     _ScenarioOption(
@@ -308,7 +309,7 @@ class _AsyncHelpRequestScreenState extends State<AsyncHelpRequestScreen> {
                       ),
                     ),
                     const SizedBox(height: AppTheme.spacingS),
-                    const _StepText('1. 留言会进入异步任务队列，状态显示为“待志愿者领取”。'),
+                    const _StepText('1. 留言会进入异步任务队列，状态显示为"待志愿者领取"。'),
                     const _StepText('2. 同时在帮助档案里生成一条异步求助记录。'),
                     const _StepText('3. 志愿者回复后，你可以在求助者中心回看结果。'),
                   ],
