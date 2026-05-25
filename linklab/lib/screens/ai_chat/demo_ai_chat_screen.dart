@@ -14,6 +14,7 @@ import '../../models/help_request_status.dart';
 import '../../providers/demo_help_request_flow_provider.dart';
 import '../../providers/demo_services_provider.dart';
 import '../../services/demo/demo_ai_service.dart';
+import '../../services/facades/agent_result.dart';
 import '../../services/facades/agent_service_facade.dart';
 import '../../widgets/accessible/index.dart';
 import '../../widgets/demo/demo_motion.dart';
@@ -56,6 +57,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
   int? _speakingMessageIndex;
   Uint8List? _selectedImageBytes;
   String? _selectedImageName;
+  String? _selectedImagePath;
 
   @override
   void initState() {
@@ -102,7 +104,11 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
     _scrollToBottom();
   }
 
-  void _addBotMessage(String text, {Map<String, dynamic>? data, UiCopy? uiCopy}) {
+  void _addBotMessage(
+    String text, {
+    Map<String, dynamic>? data,
+    UiCopy? uiCopy,
+  }) {
     setState(() {
       _messages.add(
         ChatMessage(
@@ -133,6 +139,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
     final text = _textController.text.trim();
     final imageBytes = _selectedImageBytes;
     final imageName = _selectedImageName;
+    final imagePath = _selectedImagePath;
 
     if (text.isEmpty && imageBytes == null) return;
 
@@ -145,11 +152,12 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
     setState(() {
       _selectedImageBytes = null;
       _selectedImageName = null;
+      _selectedImagePath = null;
     });
 
     await _processAIResponse(
       requestText,
-      imagePath: imageName ?? (imageBytes != null ? 'selected-image' : null),
+      imagePath: imagePath ?? (imageBytes != null ? imageName : null),
     );
   }
 
@@ -170,53 +178,72 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
         .startAiProcessing(intent: input);
     _addBotMessage('AI 正在分析...');
 
-    // 优先使用标准化 AgentInput → AgentResponse 链路
+    // 优先使用统一 Agent facade，真实 OCR/VLM/ASR/TTS 由 facade 决定，
+    // 失败时继续回到 Demo fallback，避免主链路无响应。
     AgentResponse? response;
     try {
-      final agentInput = AgentInput(
-        requestId: _uuid.v4(),
-        userId: 'demo-user',
-        inputType: imagePath != null ? 'mixed' : 'text',
+      final agentResult = await _agentFacade.processInput(
         text: input,
-        imageUri: imagePath,
+        imagePath: imagePath,
+        inputType: imagePath != null ? 'mixed' : 'text',
       );
-      response = await _aiService.processRequest(agentInput);
+      response = _agentResponseFromAgentResult(
+        agentResult,
+        requestId: _uuid.v4(),
+      );
     } catch (e) {
-      // processRequest 失败时降级到旧 process() 方法
-      AppLogger.warning('[DemoAIChat] processRequest failed, fallback to process()', e);
+      // Agent facade 失败时降级到旧 processRequest / process() 方法
+      AppLogger.warning(
+        '[DemoAIChat] Agent facade failed, fallback to DemoAIService',
+        e,
+      );
       try {
-        final history = _buildAIHistory();
-        final result = await _aiService.process(
-          input,
-          imagePath: imagePath,
-          history: history,
+        final agentInput = AgentInput(
+          requestId: _uuid.v4(),
+          userId: 'demo-user',
+          inputType: imagePath != null ? 'mixed' : 'text',
+          text: input,
+          imageUri: imagePath,
         );
-        if (result.success) {
-          response = AgentResponse.fromAIResult(result, requestId: _uuid.v4());
-        } else {
+        response = await _aiService.processRequest(agentInput);
+      } catch (e2) {
+        try {
+          final history = _buildAIHistory();
+          final result = await _aiService.process(
+            input,
+            imagePath: imagePath,
+            history: history,
+          );
+          if (result.success) {
+            response = AgentResponse.fromAIResult(
+              result,
+              requestId: _uuid.v4(),
+            );
+          } else {
+            if (!mounted) return;
+            setState(() {
+              _messages.removeLast();
+            });
+            _addBotMessage('抱歉，处理出错了：${result.error}');
+            await ref
+                .read(demoHelpRequestFlowProvider.notifier)
+                .markCancelled(reason: result.error);
+            setState(() {
+              _isProcessing = false;
+            });
+            return;
+          }
+        } catch (e3) {
           if (!mounted) return;
           setState(() {
             _messages.removeLast();
           });
-          _addBotMessage('抱歉，处理出错了：${result.error}');
-          await ref
-              .read(demoHelpRequestFlowProvider.notifier)
-              .markCancelled(reason: result.error);
+          _addBotMessage('抱歉，处理出错了：$e3');
           setState(() {
             _isProcessing = false;
           });
           return;
         }
-      } catch (e2) {
-        if (!mounted) return;
-        setState(() {
-          _messages.removeLast();
-        });
-        _addBotMessage('抱歉，处理出错了：$e2');
-        setState(() {
-          _isProcessing = false;
-        });
-        return;
       }
     }
 
@@ -288,10 +315,64 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
     );
   }
 
+  AgentResponse _agentResponseFromAgentResult(
+    AgentResult result, {
+    required String requestId,
+  }) {
+    final rawUiCopy = result.uiCopy;
+    final uiCopy = UiCopy(
+      title: _readUiCopyValue(rawUiCopy, 'title', 'AI 已完成处理'),
+      body: _readUiCopyValue(rawUiCopy, 'body', result.answerText),
+      primaryAction: _readUiCopyValue(
+        rawUiCopy,
+        'primaryAction',
+        '继续',
+        fallbackKey: 'primary_action',
+      ),
+      secondaryAction: _readUiCopyValue(
+        rawUiCopy,
+        'secondaryAction',
+        '转人工协助',
+        fallbackKey: 'secondary_action',
+      ),
+    );
+
+    return AgentResponse(
+      requestId: requestId,
+      intent: result.intent,
+      urgency: result.urgency,
+      confidence: result.confidence,
+      canResolveByAi: result.canResolveByAi,
+      answerText: result.answerText,
+      spokenText: result.spokenText,
+      nextAction: result.nextAction,
+      handoffReason: result.handoffReason,
+      recommendedVolunteerTags: result.recommendedVolunteerTags,
+      safetyFlags: result.safetyFlags,
+      uiCopy: uiCopy,
+    );
+  }
+
+  String _readUiCopyValue(
+    Map<String, dynamic>? source,
+    String key,
+    String fallback, {
+    String? fallbackKey,
+  }) {
+    final value =
+        source?[key] ?? (fallbackKey == null ? null : source?[fallbackKey]);
+    final text = value?.toString().trim();
+    return text == null || text.isEmpty ? fallback : text;
+  }
+
   void _startSOSFlowFromAI() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      DemoFlowNavigator.onSOSButtonPressed(ref, context, autoStartUndoWindow: true);
+      DemoFlowNavigator.onSOSButtonPressed(
+        ref,
+        context,
+        autoStartUndoWindow: true,
+      );
     });
   }
 
@@ -371,6 +452,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
 
     setState(() {
       _selectedImageBytes = bytes;
+      _selectedImagePath = pickedFile.path.isEmpty ? null : pickedFile.path;
       _selectedImageName = pickedFile.name.isEmpty
           ? 'selected-image'
           : pickedFile.name;
@@ -464,7 +546,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
           _messages.removeLast();
         }
       });
-      _addBotMessage('语音识别失败：$e');
+      _addBotMessage('语音识别遇到了问题，请检查麦克风权限后重试，也可以直接输入文字。');
     }
   }
 
@@ -642,6 +724,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
                         onPressed: () => setState(() {
                           _selectedImageBytes = null;
                           _selectedImageName = null;
+                          _selectedImagePath = null;
                         }),
                       ),
                     ],
@@ -672,10 +755,14 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
                         color: _isListening
                             ? AppTheme.stageDanger.withValues(alpha: 0.2)
                             : AppTheme.stageSurface,
-                        borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.borderRadiusMedium,
+                        ),
                         child: InkWell(
                           onTap: _toggleVoiceInput,
-                          borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.borderRadiusMedium,
+                          ),
                           child: SizedBox(
                             width: AppTheme.minTouchTarget,
                             height: AppTheme.minTouchTarget,
@@ -985,3 +1072,4 @@ class _ChatMessageBubble extends StatelessWidget {
     );
   }
 }
+
