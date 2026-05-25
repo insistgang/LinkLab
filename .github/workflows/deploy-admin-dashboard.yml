@@ -35,6 +35,14 @@ jobs:
       - name: Enable Flutter web
         run: flutter config --enable-web
 
+      - name: Create .env for web build
+        working-directory: linklab
+        run: |
+          cat > .env << 'ENVEOF'
+          SUPABASE_URL=${{ vars.SUPABASE_URL }}
+          SUPABASE_ANON_KEY=${{ vars.SUPABASE_ANON_KEY }}
+          ENVEOF
+
       - name: Generate api_config.dart from example
         working-directory: linklab
         run: cp lib/config/api_config.example.dart lib/config/api_config.dart
