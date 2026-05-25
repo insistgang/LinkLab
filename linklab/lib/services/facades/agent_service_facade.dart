@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
@@ -142,9 +143,11 @@ class AgentServiceFacade {
     /// 图片输入：直接调用智谱 GLM-4-vision 多模态理解
   /// 不再做关键词路由，让大模型自己判断图片内容
   Future<AgentResult> _processImageInput(String text, String imagePath) async {
-    final file = File(imagePath);
-    if (!file.existsSync()) {
-      return AgentResult.error('图片文件不存在', intent: 'unknown');
+    if (!kIsWeb) {
+      final file = File(imagePath);
+      if (!file.existsSync()) {
+        return AgentResult.error('图片文件不存在', intent: 'unknown');
+      }
     }
 
     // 优先尝试真实多模态 API
@@ -178,7 +181,13 @@ class AgentServiceFacade {
 
   /// 调用智谱 GLM-4-vision 进行多模态图片理解
   Future<AgentResult> _visionWithLLM(String userText, String imagePath) async {
-    final bytes = await File(imagePath).readAsBytes();
+    List<int> bytes;
+    if (kIsWeb) {
+      final response = await http.get(Uri.parse(imagePath));
+      bytes = response.bodyBytes;
+    } else {
+      bytes = await File(imagePath).readAsBytes();
+    }
     if (bytes.length > 10 * 1024 * 1024) {
       return AgentResult.error('图片过大，请压缩后重试', intent: 'unknown');
     }
