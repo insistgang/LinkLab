@@ -1,32 +1,14 @@
-/// API 配置示例文件。
-/// 复制此文件为 `api_config.dart` 并按本地实验需要填入真实密钥。
-///
-/// 注意：`api_config.dart` 不应提交到版本控制，仓库已通过 `.gitignore` 忽略该文件。
-///
-/// === 获取API密钥的地址 ===
-///
-/// 百度OCR API：
-/// - 官网：https://ai.baidu.com/tech/ocr
-/// - 注册百度AI开放平台账号，创建应用获取API Key和Secret Key
-///
-/// 通义千问VL API：
-/// - 官网：https://dashscope.aliyun.com/
-/// - 注册阿里云账号，开通DashScope服务获取API Key
-///
-/// 科大讯飞语音API：
-/// - 官网：https://www.xfyun.cn/
-/// - 注册讯飞开放平台账号，创建应用获取AppID、API Key和API Secret
-///
-/// ============================================
-library;
-
+/// 本地 API 配置文件。
+/// AGENTS.md §4.2 / §4.6：竞赛版默认走 Demo 主线，此文件只允许保存本地实验配置，
+/// 不得提交到版本控制；请以 `api_config.example.dart` 为模板复制生成。
 class APIConfig {
   // ==================== 百度OCR API配置 ====================
   /// 百度OCR API Key
-  static String baiduOcrApiKey = 'YOUR_BAIDU_OCR_API_KEY';
+  /// 获取地址：https://ai.baidu.com/tech/ocr
+  static String baiduOcrApiKey = '';
 
   /// 百度OCR Secret Key
-  static String baiduOcrSecretKey = 'YOUR_BAIDU_OCR_SECRET_KEY';
+  static String baiduOcrSecretKey = '';
 
   /// 百度OCR Access Token（自动获取，无需手动设置）
   static String? _baiduOcrAccessToken;
@@ -58,7 +40,8 @@ class APIConfig {
 
   // ==================== 通义千问VL API配置 ====================
   /// 通义千问API Key
-  static String qwenApiKey = 'YOUR_QWEN_API_KEY';
+  /// 获取地址：https://dashscope.aliyun.com/
+  static String qwenApiKey = '';
 
   /// 通义千问VL服务端点
   static const String qwenBaseUrl = 'https://dashscope.aliyuncs.com/api/v1';
@@ -74,13 +57,14 @@ class APIConfig {
 
   // ==================== 科大讯飞语音API配置 ====================
   /// 科大讯飞APP ID
-  static String xfyunAppId = 'YOUR_XFYUN_APP_ID';
+  /// 获取地址：https://www.xfyun.cn/
+  static String xfyunAppId = '';
 
   /// 科大讯飞API Key
-  static String xfyunApiKey = 'YOUR_XFYUN_API_KEY';
+  static String xfyunApiKey = '';
 
   /// 科大讯飞API Secret
-  static String xfyunApiSecret = 'YOUR_XFYUN_API_SECRET';
+  static String xfyunApiSecret = '';
 
   /// 科大讯飞语音听写（ASR）WebSocket地址
   static const String xfyunAsrWsUrl = 'wss://iat-api.xfyun.cn/v2/iat';
@@ -93,6 +77,41 @@ class APIConfig {
 
   /// 科大讯飞语音合成HTTP地址（备选）
   static const String xfyunTtsHttpUrl = 'http://api.xfyun.cn/v1/service/v1/tts';
+
+  // ==================== MiniMax TTS API配置 ====================
+  /// MiniMax API Key
+  /// 获取地址：https://platform.minimaxi.com/
+  static String minimaxApiKey = '';
+
+  /// MiniMax API 服务端点
+  static const String minimaxApiHost = 'https://api.minimaxi.com';
+
+  /// MiniMax TTS API地址
+  static const String minimaxTtsEndpoint = '$minimaxApiHost/v1/t2a_v2';
+
+  /// MiniMax TTS 模型名称
+  static const String minimaxTtsModel = 'speech-2.8-hd';
+
+  // ==================== 百度翻译API配置（可选） ====================
+  /// 百度翻译APP ID
+  static String baiduTranslateAppId = '';
+
+  /// 百度翻译密钥
+  static String baiduTranslateSecret = '';
+
+  /// 百度翻译API地址
+  static const String baiduTranslateUrl = 'https://fanyi-api.baidu.com/api/trans/vip/translate';
+
+  // ==================== 智谱AI视觉API配置 ====================
+  /// 智谱AI API Key
+  /// 获取地址：https://open.bigmodel.cn/
+  static String zhipuApiKey = '';
+
+  /// 智谱AI服务端点
+  static const String zhipuBaseUrl = 'https://open.bigmodel.cn/api/paas/v4';
+
+  /// 智谱AI视觉模型名称
+  static const String zhipuVlModel = 'glm-4v-flash';
 
   // ==================== 通用配置 ====================
   /// 请求超时时间（秒）
@@ -114,22 +133,32 @@ class APIConfig {
 
   /// 验证百度OCR配置是否完整
   static bool get isBaiduOcrConfigured {
-    return baiduOcrApiKey.isNotEmpty &&
-        baiduOcrSecretKey.isNotEmpty &&
-        baiduOcrApiKey != 'YOUR_BAIDU_OCR_API_KEY';
+    return baiduOcrApiKey.isNotEmpty && baiduOcrSecretKey.isNotEmpty;
   }
 
   /// 验证通义千问配置是否完整
   static bool get isQwenConfigured {
-    return qwenApiKey.isNotEmpty && qwenApiKey != 'YOUR_QWEN_API_KEY';
+    return qwenApiKey.isNotEmpty;
   }
 
   /// 验证科大讯飞配置是否完整
   static bool get isXfyunConfigured {
-    return xfyunAppId.isNotEmpty &&
-        xfyunApiKey.isNotEmpty &&
-        xfyunApiSecret.isNotEmpty &&
-        xfyunAppId != 'YOUR_XFYUN_APP_ID';
+    return xfyunAppId.isNotEmpty && xfyunApiKey.isNotEmpty && xfyunApiSecret.isNotEmpty;
+  }
+
+  /// 验证百度翻译配置是否完整
+  static bool get isBaiduTranslateConfigured {
+    return baiduTranslateAppId.isNotEmpty && baiduTranslateSecret.isNotEmpty;
+  }
+
+  /// 验证MiniMax TTS配置是否完整
+  static bool get isMinimaxTtsConfigured {
+    return minimaxApiKey.isNotEmpty;
+  }
+
+  /// 验证智谱AI配置是否完整
+  static bool get isZhipuConfigured {
+    return zhipuApiKey.isNotEmpty;
   }
 
   /// 获取配置状态摘要
@@ -138,12 +167,15 @@ class APIConfig {
       'baiduOcr': isBaiduOcrConfigured,
       'qwenVL': isQwenConfigured,
       'xfyun': isXfyunConfigured,
+      'baiduTranslate': isBaiduTranslateConfigured,
+      'minimaxTts': isMinimaxTtsConfigured,
+      'zhipuVl': isZhipuConfigured,
     };
   }
 
   /// 检查是否有任何AI服务已配置
   static bool get hasAnyServiceConfigured {
-    return isBaiduOcrConfigured || isQwenConfigured || isXfyunConfigured;
+    return isBaiduOcrConfigured || isQwenConfigured || isXfyunConfigured || isMinimaxTtsConfigured || isZhipuConfigured;
   }
 
   // ==================== 配置初始化方法 ====================
@@ -157,6 +189,9 @@ class APIConfig {
     String? xfyunApp,
     String? xfyunKey,
     String? xfyunSecret,
+    String? translateAppId,
+    String? translateSecret,
+    String? zhipuKey,
   }) {
     if (baiduOcrKey != null) baiduOcrApiKey = baiduOcrKey;
     if (baiduOcrSecret != null) baiduOcrSecretKey = baiduOcrSecret;
@@ -164,6 +199,9 @@ class APIConfig {
     if (xfyunApp != null) xfyunAppId = xfyunApp;
     if (xfyunKey != null) xfyunApiKey = xfyunKey;
     if (xfyunSecret != null) xfyunApiSecret = xfyunSecret;
+    if (translateAppId != null) baiduTranslateAppId = translateAppId;
+    if (translateSecret != null) baiduTranslateSecret = translateSecret;
+    if (zhipuKey != null) zhipuApiKey = zhipuKey;
   }
 
   /// 重置所有配置（用于测试）
@@ -176,6 +214,9 @@ class APIConfig {
     xfyunAppId = '';
     xfyunApiKey = '';
     xfyunApiSecret = '';
+    baiduTranslateAppId = '';
+    baiduTranslateSecret = '';
+    zhipuApiKey = '';
   }
 }
 
