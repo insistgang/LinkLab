@@ -8,8 +8,10 @@ import '../../providers/app_session_provider.dart';
 import '../../widgets/accessible/index.dart';
 import '../../widgets/demo/demo_motion.dart';
 import '../../widgets/demo/demo_overlays.dart';
+import '../../widgets/demo/demo_routes.dart';
 import '../../widgets/demo/demo_stage.dart';
 import '../../widgets/demo/linkable_icon.dart';
+import 'volunteer_growth_screen.dart';
 
 /// 待帮助列表页面（志愿者模式）
 /// 显示待处理的求助请求，志愿者可以响应
@@ -87,8 +89,18 @@ class _PendingHelpScreenState extends ConsumerState<PendingHelpScreen> {
               ),
               children: [
                 // 欢迎卡片
+                DemoReveal(child: _WelcomeCard(volunteerName: volunteerName)),
+                const SizedBox(height: AppTheme.spacingL),
                 DemoReveal(
-                  child: _WelcomeCard(volunteerName: volunteerName),
+                  delay: const Duration(milliseconds: 60),
+                  child: _GrowthEntryCard(
+                    onTap: () {
+                      pushDemoStageRoute(
+                        context,
+                        page: const VolunteerGrowthScreen(),
+                      );
+                    },
+                  ),
                 ),
                 const SizedBox(height: AppTheme.spacingL),
                 // 统计卡片
@@ -107,7 +119,8 @@ class _PendingHelpScreenState extends ConsumerState<PendingHelpScreen> {
                       Expanded(
                         child: _StatCard(
                           label: '紧急',
-                          value: '${_pendingItems.where((i) => i.urgency == 'emergency').length}',
+                          value:
+                              '${_pendingItems.where((i) => i.urgency == 'emergency').length}',
                           color: AppTheme.stageDanger,
                         ),
                       ),
@@ -125,10 +138,7 @@ class _PendingHelpScreenState extends ConsumerState<PendingHelpScreen> {
                 const SizedBox(height: AppTheme.spacingXL),
                 // 紧急求助区域
                 if (_pendingItems.any((i) => i.urgency == 'emergency')) ...[
-                  const DemoSectionTitle(
-                    title: '紧急求助',
-                    subtitle: '需要立即响应的请求',
-                  ),
+                  const DemoSectionTitle(title: '紧急求助', subtitle: '需要立即响应的请求'),
                   const SizedBox(height: AppTheme.spacingM),
                   ..._pendingItems
                       .where((item) => item.urgency == 'emergency')
@@ -250,6 +260,70 @@ class _PendingHelpScreenState extends ConsumerState<PendingHelpScreen> {
         ),
       );
     }
+  }
+}
+
+class _GrowthEntryCard extends StatelessWidget {
+  const _GrowthEntryCard({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return DemoSurfaceCard(
+      semanticLabel: '志愿者贡献成长入口',
+      hint: '双击查看贡献等级说明和最近贡献记录',
+      onTap: onTap,
+      color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.96),
+      child: Row(
+        children: [
+          Container(
+            width: AppTheme.minTouchTarget,
+            height: AppTheme.minTouchTarget,
+            decoration: BoxDecoration(
+              color: AppTheme.stageSuccess.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const LinkableSvgIcon(
+              icon: LinkableIconName.points,
+              size: 40,
+              semanticLabel: '贡献成长',
+            ),
+          ),
+          const SizedBox(width: AppTheme.spacingM),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AccessibleText(
+                  '贡献成长',
+                  style: TextStyle(
+                    color: AppTheme.stageTextPrimary,
+                    fontSize: AppTheme.fontSizeNormal,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: AppTheme.spacingXS),
+                AccessibleText(
+                  '查看贡献等级说明，最近贡献记录会和贡献值保持一致。',
+                  style: TextStyle(
+                    color: AppTheme.stageTextSecondary,
+                    fontSize: AppTheme.fontSizeSmall,
+                    height: 1.45,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: AppTheme.spacingS),
+          const LinkableSvgIcon(
+            icon: LinkableIconName.navigationGuide,
+            size: 24,
+            semanticLabel: '进入贡献成长',
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -378,10 +452,11 @@ class _PendingHelpCard extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: (isEmergency
-                          ? AppTheme.stageDanger
-                          : AppTheme.stageAccent)
-                      .withValues(alpha: 0.14),
+                  color:
+                      (isEmergency
+                              ? AppTheme.stageDanger
+                              : AppTheme.stageAccent)
+                          .withValues(alpha: 0.14),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: LinkableSvgIcon(

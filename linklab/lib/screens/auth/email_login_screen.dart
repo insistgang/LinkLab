@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../config/app_config.dart';
 import '../../core/theme/app_theme.dart';
 import '../../providers/app_session_provider.dart';
 import '../../widgets/accessible/index.dart';
@@ -146,11 +147,15 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authReady = FeatureFlags.enableSupabaseAuth;
+
     return DemoStageLiveBuilder(
       builder: (context) {
         return DemoStageScaffold(
           title: '邮箱登录',
-          subtitle: 'RealMode 使用 Supabase Auth，不接短信服务商',
+          subtitle: authReady
+              ? 'RealMode 使用 Supabase Auth，不接短信服务商'
+              : '入口已保留，当前 DemoMode 不启动真实认证',
           body: Form(
             key: _formKey,
             child: ListView(
@@ -164,15 +169,17 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                 DemoReveal(
                   child: DemoAuthBanner(
                     title: '使用邮箱进入 LinkAble',
-                    subtitle: '本阶段只接真实登录态。不会创建业务表，也不会触发匹配、AI、WebRTC 或 SOS。',
+                    subtitle: authReady
+                        ? '本阶段只接真实登录态。不会创建业务表，也不会触发匹配、AI、WebRTC 或 SOS。'
+                        : '当前仍在竞赛 Demo 主线。邮箱页面保留在这里，真实登录需要切换到 RealMode。',
                     icon: Icons.alternate_email_rounded,
                     chips: [
                       DemoPill(
-                        label: 'Supabase Auth',
+                        label: authReady ? 'Supabase Auth' : '入口保留',
                         color: AppTheme.stageAccent,
                       ),
                       DemoPill(
-                        label: 'Anon key only',
+                        label: authReady ? 'Anon key only' : 'DemoMode',
                         color: AppTheme.stageSuccess,
                       ),
                     ],

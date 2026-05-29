@@ -47,10 +47,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       title: '我的',
       subtitle: '登录、偏好、安全准备和帮助档案都在这里收口',
       showBackButton: false,
+      showStatusStrip: false,
+      showThemeModeButton: false,
+      headerTopPadding: AppTheme.spacingXS,
       body: ListView(
         padding: const EdgeInsets.fromLTRB(
           AppTheme.spacingL,
-          AppTheme.spacingL,
+          AppTheme.spacingS,
           AppTheme.spacingL,
           120,
         ),
@@ -103,7 +106,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           const SizedBox(height: AppTheme.spacingM),
           DemoReveal(
             delay: const Duration(milliseconds: 140),
-            child:           _MenuItem(
+            child: _MenuItem(
               icon: LinkableIconName.settings,
               title: '编辑无障碍偏好',
               subtitle: _buildPreferenceSummary(preferences),
@@ -144,7 +147,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           DemoReveal(
             delay: const Duration(milliseconds: 200),
             child: _MenuItem(
-              icon: LinkableIconName.voiceInput,
+              icon: LinkableIconName.tts,
+              secondaryIcon: LinkableIconName.haptic,
               title: '自动朗读与触觉反馈',
               subtitle: preferences.autoReadResults ? '自动朗读开启' : '自动朗读关闭',
               onTap: () {
@@ -195,10 +199,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             title: '帮助档案',
             subtitle: '最近已保存 $helpCount 条主线记录，进入帮助档案查看',
             onTap: () {
-              pushDemoStageRoute(
-                context,
-                page: const DemoHelpArchiveScreen(),
-              );
+              pushDemoStageRoute(context, page: const DemoHelpArchiveScreen());
             },
           ),
           const SizedBox(height: AppTheme.spacingM),
@@ -445,19 +446,7 @@ class _ProfileHero extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
-            width: 86,
-            height: 86,
-            decoration: BoxDecoration(
-              gradient: AppTheme.stageAccentGradient,
-              shape: BoxShape.circle,
-            ),
-            child: const LinkableSvgIcon(
-              icon: LinkableIconName.personalProfile,
-              size: 42,
-              semanticLabel: '演示用户',
-            ),
-          ),
+          _ProfileIdentityAvatar(user: user),
           const SizedBox(width: AppTheme.spacingL),
           Expanded(
             child: Column(
@@ -492,7 +481,7 @@ class _ProfileHero extends StatelessWidget {
                 DemoPill(
                   icon: Icons.auto_awesome_outlined,
                   label: preferences.autoReadResults ? '自动朗读开启' : '自动朗读关闭',
-                  color: AppTheme.stageSuccess,
+                  color: AppTheme.stageAccentLight,
                 ),
               ],
             ),
@@ -531,6 +520,172 @@ class _ProfileHero extends StatelessWidget {
   }
 }
 
+class _ProfileIdentityAvatar extends StatelessWidget {
+  const _ProfileIdentityAvatar({required this.user});
+
+  final UserModel? user;
+
+  @override
+  Widget build(BuildContext context) {
+    final displayName = user?.displayName.trim();
+    final initials = _buildInitials(displayName);
+    final roleLabel = _buildRoleBadge(user);
+
+    return Semantics(
+      image: true,
+      label:
+          '个人头像，$roleLabel，名称 ${displayName?.isNotEmpty == true ? displayName : '演示用户'}',
+      child: ExcludeSemantics(
+        child: SizedBox(
+          width: 96,
+          height: 96,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(28),
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.white.withValues(alpha: 0.72),
+                        AppTheme.stageSurfaceStrong.withValues(alpha: 0.92),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    border: Border.all(
+                      color: AppTheme.stageAccent.withValues(alpha: 0.64),
+                      width: 2,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.stageAccent.withValues(alpha: 0.18),
+                        blurRadius: 22,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Positioned.fill(
+                child: Padding(
+                  padding: const EdgeInsets.all(9),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(24),
+                      gradient: LinearGradient(
+                        colors: [
+                          AppTheme.stageAccent,
+                          AppTheme.stageAccentLight,
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            initials,
+                            maxLines: 1,
+                            softWrap: false,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 34,
+                              fontWeight: FontWeight.w900,
+                              height: 1,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                left: 13,
+                top: 13,
+                child: Container(
+                  width: 16,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    color: AppTheme.stageAccentLight,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2),
+                  ),
+                ),
+              ),
+              Positioned(
+                right: -2,
+                bottom: -2,
+                child: Container(
+                  constraints: const BoxConstraints(
+                    minWidth: 42,
+                    minHeight: 34,
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: AppTheme.stageAccent,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.72),
+                      width: 2,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.10),
+                        blurRadius: 12,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      roleLabel,
+                      maxLines: 1,
+                      softWrap: false,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: AppTheme.fontSizeXSmall,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _buildInitials(String? displayName) {
+    final name = displayName?.trim();
+    if (name == null || name.isEmpty) {
+      return 'LA';
+    }
+
+    final first = name.characters.first;
+    if (RegExp(r'[A-Za-z]').hasMatch(first)) {
+      return first.toUpperCase();
+    }
+    return first;
+  }
+
+  String _buildRoleBadge(UserModel? user) {
+    if (user == null) return 'Demo';
+    if (user.isSeeker && user.isVolunteer) return '互助';
+    if (user.isVolunteer) return '志愿者';
+    return '求助者';
+  }
+}
+
 class _SafetySnapshot {
   const _SafetySnapshot({required this.contactCount, required this.settings});
 
@@ -546,7 +701,7 @@ class _ProfileTag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DemoPill(icon: icon, label: label, color: AppTheme.stageInfo);
+    return DemoPill(icon: icon, label: label, color: AppTheme.stageAccentLight);
   }
 }
 
@@ -613,7 +768,7 @@ class _SafetyReadinessCard extends StatelessWidget {
                   (item) => DemoPill(
                     icon: Icons.check_circle_outline,
                     label: item,
-                    color: AppTheme.stageAccent,
+                    color: AppTheme.stageAccentLight,
                   ),
                 )
                 .toList(),
@@ -630,9 +785,11 @@ class _MenuItem extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.onTap,
+    this.secondaryIcon,
   });
 
   final LinkableIconName icon;
+  final LinkableIconName? secondaryIcon;
   final String title;
   final String subtitle;
   final VoidCallback onTap;
@@ -650,10 +807,10 @@ class _MenuItem extends StatelessWidget {
               color: AppTheme.stageAccent.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: LinkableSvgIcon(
+            child: _MenuItemIcon(
               icon: icon,
-              size: 24,
-              semanticLabel: title,
+              secondaryIcon: secondaryIcon,
+              title: title,
             ),
           ),
           const SizedBox(width: AppTheme.spacingM),
@@ -686,6 +843,55 @@ class _MenuItem extends StatelessWidget {
             icon: LinkableIconName.navigationGuide,
             size: 24,
             semanticLabel: '进入$title',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MenuItemIcon extends StatelessWidget {
+  const _MenuItemIcon({
+    required this.icon,
+    required this.title,
+    this.secondaryIcon,
+  });
+
+  final LinkableIconName icon;
+  final LinkableIconName? secondaryIcon;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    final secondary = secondaryIcon;
+    if (secondary == null) {
+      return LinkableSvgIcon(icon: icon, size: 24, semanticLabel: title);
+    }
+
+    return ExcludeSemantics(
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Positioned(
+            left: 9,
+            bottom: 10,
+            child: LinkableSvgIcon(icon: icon, size: 25),
+          ),
+          Positioned(
+            right: 8,
+            top: 8,
+            child: Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.88),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppTheme.stageAccent.withValues(alpha: 0.28),
+                ),
+              ),
+              child: Center(child: LinkableSvgIcon(icon: secondary, size: 18)),
+            ),
           ),
         ],
       ),

@@ -1,8 +1,10 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../config/app_config.dart';
 import '../../core/theme/app_theme.dart';
+import '../../providers/call_camera_provider.dart';
 import '../../providers/demo_call_flow_provider.dart';
 import '../../providers/facade_providers.dart';
 import '../../services/demo_call_service.dart' show DemoVolunteer;
@@ -70,10 +72,11 @@ class _DemoCallScreenState extends ConsumerState<DemoCallScreen> {
   @override
   Widget build(BuildContext context) {
     final callState = ref.watch(demoCallFlowProvider);
+    final cameraState = ref.watch(callCameraProvider);
 
     return DemoStageScaffold(
       title: '实时语音协助',
-      subtitle: 'F11 本地 Demo Call，不建立真实 WebRTC',
+      subtitle: 'F11 本地 Demo Call，可开启本机摄像头预览',
       body: ListView(
         padding: const EdgeInsets.fromLTRB(
           AppTheme.spacingM,
@@ -87,6 +90,15 @@ class _DemoCallScreenState extends ConsumerState<DemoCallScreen> {
           _VolunteerCard(volunteer: callState.volunteer),
           const SizedBox(height: AppTheme.spacingM),
           _DemoVoiceCard(state: callState),
+          const SizedBox(height: AppTheme.spacingM),
+          _CallCameraCard(
+            callState: callState,
+            cameraState: cameraState,
+            onStartPreview: () =>
+                ref.read(callCameraProvider.notifier).startPreview(),
+            onStopPreview: () =>
+                ref.read(callCameraProvider.notifier).stopPreview(),
+          ),
           const SizedBox(height: AppTheme.spacingM),
           _DemoNoticeCard(state: callState),
           const SizedBox(height: AppTheme.spacingM),
@@ -119,6 +131,7 @@ class _DemoCallScreenState extends ConsumerState<DemoCallScreen> {
       return;
     }
     _navigatingToRating = true;
+    await ref.read(callCameraProvider.notifier).stopPreview();
 
     // Facade 优先：调用 CallSessionFacade.endCall
     try {
@@ -150,6 +163,7 @@ class _DemoCallScreenState extends ConsumerState<DemoCallScreen> {
   }
 
   Future<void> _returnToMatching() async {
+    await ref.read(callCameraProvider.notifier).stopPreview();
     await ref.read(demoCallFlowProvider.notifier).failReconnect();
     if (!mounted) {
       return;
@@ -429,6 +443,123 @@ class _DemoVoiceCard extends StatelessWidget {
                 ),
               );
             }),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CallCameraCard extends StatelessWidget {
+  const _CallCameraCard({
+    required this.callState,
+    required this.cameraState,
+    required this.onStartPreview,
+    required this.onStopPreview,
+  });
+
+  final DemoCallFlowState callState;
+  final CallCameraState cameraState;
+  final VoidCallback onStartPreview;
+  final VoidCallback onStopPreview;
+
+  @override
+  Widget build(BuildContext context) {
+    final canUseCamera =
+        callState.phase == DemoCallUiPhase.connected ||
+        callState.phase == DemoCallUiPhase.connecting ||
+        callState.phase == DemoCallUiPhase.reconnecting;
+    final controller = cameraState.session?.controller;
+
+    return DemoSurfaceCard(
+      semanticLabel: '通话摄像头，本机预览，${cameraState.message}',
+      color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.92),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const DemoSectionTitle(
+            title: '摄像头协助',
+            subtitle: '需要看清物品或环境时，可开启真实本机摄像头预览。',
+          ),
+          const SizedBox(height: AppTheme.spacingM),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
+            child: AspectRatio(
+              aspectRatio: 16 / 9,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: AppTheme.stageBackground.withValues(alpha: 0.86),
+                  border: Border.all(
+                    color: AppTheme.stageBorder.withValues(alpha: 0.62),
+                  ),
+                ),
+                child: cameraState.hasRealPreview && controller != null
+                    ? CameraPreview(controller)
+                    : Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(AppTheme.spacingM),
+                          child: AccessibleText(
+                            cameraState.message,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: AppTheme.stageTextSecondary,
+                              fontSize: AppTheme.fontSizeSmall,
+                              height: 1.45,
+                            ),
+                          ),
+                        ),
+                      ),
+              ),
+            ),
+          ),
+          const SizedBox(height: AppTheme.spacingM),
+          AccessibleText(
+            cameraState.isLive
+                ? '摄像头只在本机显示，不上传画面，也不建立真实视频通话。'
+                : '点击后会请求系统摄像头权限，用于现场演示时看清物品/环境。',
+            style: TextStyle(
+              color: AppTheme.stageTextSecondary,
+              fontSize: AppTheme.fontSizeSmall,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: AppTheme.spacingM),
+          ElevatedButton.icon(
+            onPressed: !canUseCamera || cameraState.isStarting
+                ? null
+                : cameraState.isLive
+                ? onStopPreview
+                : onStartPreview,
+            icon: Icon(
+              cameraState.isLive
+                  ? Icons.videocam_off_outlined
+                  : Icons.videocam_outlined,
+            ),
+            label: Text(
+              cameraState.isStarting
+                  ? '正在开启'
+                  : cameraState.isLive
+                  ? '关闭摄像头'
+                  : '开启摄像头',
+            ),
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size(48, 52),
+              backgroundColor: cameraState.isLive
+                  ? AppTheme.stageDanger
+                  : AppTheme.stageAccent,
+              foregroundColor: Colors.black,
+              disabledBackgroundColor: AppTheme.stageBorder,
+              disabledForegroundColor: AppTheme.stageTextHint,
+              textStyle: const TextStyle(
+                fontSize: AppTheme.fontSizeSmall,
+                fontWeight: FontWeight.w800,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(
+                  AppTheme.borderRadiusMedium,
+                ),
+              ),
+            ),
           ),
         ],
       ),

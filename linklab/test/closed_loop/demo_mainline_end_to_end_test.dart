@@ -21,14 +21,11 @@ void main() {
     expect(find.text('社群'), findsOneWidget);
     expect(find.text('我的'), findsOneWidget);
 
-    final holdGesture = await tester.startGesture(
-      tester.getCenter(find.byKey(const ValueKey('seeker_sos_hold_button'))),
+    expect(
+      find.byKey(const ValueKey('seeker_sos_hold_button')),
+      findsOneWidget,
     );
-    await tester.pump(const Duration(seconds: 1));
-    expect(find.textContaining('继续按住'), findsOneWidget);
-    await holdGesture.up();
-    await tester.pumpAndSettle();
-    expect(find.text('长按求助'), findsOneWidget);
+    expect(find.text('点击启动紧急求助'), findsOneWidget);
 
     await tester.tap(find.text('AI助手').last);
     await tester.pumpAndSettle();
@@ -69,7 +66,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('共感 LinkAble'), findsWidgets);
-    expect(find.text('长按求助'), findsOneWidget);
+    expect(find.text('点击启动紧急求助'), findsOneWidget);
 
     final history = readLocalHelpHistoryModels();
     expect(history.first.status, 'completed');

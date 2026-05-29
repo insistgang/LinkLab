@@ -585,13 +585,13 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
                                 DemoPill(
                                   icon: Icons.multitrack_audio_rounded,
                                   label: 'AI 助手在线',
-                                  color: AppTheme.stageAccent,
+                                  color: AppTheme.stageAccentLight,
                                 ),
                                 const SizedBox(width: AppTheme.spacingS),
                                 DemoPill(
                                   icon: Icons.headset_mic_outlined,
                                   label: '可转真人',
-                                  color: AppTheme.stageSuccess,
+                                  color: AppTheme.stageAccentLight,
                                 ),
                               ],
                             ),
@@ -612,17 +612,17 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
                                 DemoPill(
                                   label: 'OCR',
                                   icon: Icons.document_scanner_outlined,
-                                  color: AppTheme.stageInfo,
+                                  color: AppTheme.stageAccentLight,
                                 ),
                                 DemoPill(
                                   label: '场景描述',
                                   icon: Icons.visibility_outlined,
-                                  color: AppTheme.stageWarning,
+                                  color: AppTheme.stageAccentLight,
                                 ),
                                 DemoPill(
                                   label: '紧急词检测',
                                   icon: Icons.warning_amber_rounded,
-                                  color: AppTheme.stageDanger,
+                                  color: AppTheme.stageAccentLight,
                                 ),
                               ],
                             ),
@@ -766,10 +766,14 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
                           child: SizedBox(
                             width: AppTheme.minTouchTarget,
                             height: AppTheme.minTouchTarget,
-                            child: LinkableSvgIcon(
-                              icon: LinkableIconName.voiceInput,
-                              size: AppTheme.fontSizeLarge,
-                              semanticLabel: _isListening ? '停止录音' : '语音输入',
+                            child: Icon(
+                              _isListening
+                                  ? Icons.stop_rounded
+                                  : Icons.mic_rounded,
+                              color: _isListening
+                                  ? AppTheme.stageDanger
+                                  : AppTheme.stageAccent,
+                              size: 28,
                             ),
                           ),
                         ),
@@ -1072,4 +1076,3 @@ class _ChatMessageBubble extends StatelessWidget {
     );
   }
 }
-

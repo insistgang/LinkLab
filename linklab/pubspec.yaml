@@ -72,9 +72,6 @@ dependencies:
   # Audio recording for call recording
   flutter_sound: ^9.28.0
 
-  # Audio recording for ASR
-  record: ^5.0.4
-
   # Camera for taking photos
   camera: ^0.11.1
 
@@ -146,8 +143,8 @@ flutter:
 
   assets:
     - .env
-    - assets/brand/logo.svg
     - assets/brand/link_hand.svg
+    - assets/brand/logo4.svg
     - assets/demo_data/
     - assets/icons/linkable/
 

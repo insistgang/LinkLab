@@ -85,28 +85,28 @@ class AgentServiceFacade {
     if (userMessage.trim().isEmpty) return null;
 
     try {
-      final url = Uri.parse('https://open.bigmodel.cn/api/paas/v4/chat/completions');
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ec06750a1d0447cb8bcfd28879a57bff.4yNBx2M2CBNd6zXu',
-        },
-        body: jsonEncode({
-          'model': 'glm-4-flash',
-          'messages': [
-            {'role': 'system', 'content': _systemPrompt},
-            {'role': 'user', 'content': userMessage},
-          ],
-          'temperature': 0.7,
-          'max_tokens': 500,
-        }),
-      ).timeout(const Duration(seconds: 15));
+      final url = Uri.parse('${APIConfig.zhipuBaseUrl}/chat/completions');
+      final response = await http
+          .post(
+            url,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ${APIConfig.zhipuApiKey}',
+            },
+            body: jsonEncode({
+              'model': 'glm-4-flash',
+              'messages': [
+                {'role': 'system', 'content': _systemPrompt},
+                {'role': 'user', 'content': userMessage},
+              ],
+              'temperature': 0.7,
+              'max_tokens': 500,
+            }),
+          )
+          .timeout(const Duration(seconds: 15));
 
       if (response.statusCode != 200) {
-        AppLogger.warning(
-          '[AgentFacade] GLM-4 调用失败: ' + response.statusCode.toString(),
-        );
+        AppLogger.warning('[AgentFacade] GLM-4 调用失败: ${response.statusCode}');
         return null;
       }
 
@@ -114,7 +114,11 @@ class AgentServiceFacade {
       final choices = data['choices'] as List<dynamic>?;
       if (choices == null || choices.isEmpty) return null;
 
-      final content = choices[0]['message']?['content'] as String?;
+      final firstChoice = choices.first;
+      if (firstChoice is! Map<String, dynamic>) return null;
+      final message = firstChoice['message'];
+      if (message is! Map<String, dynamic>) return null;
+      final content = message['content'] as String?;
       if (content == null || content.trim().isEmpty) return null;
 
       AppLogger.info('[AgentFacade] GLM-4 回复成功');
@@ -134,13 +138,13 @@ class AgentServiceFacade {
           'secondaryAction': '转人工协助',
         },
       );
-    } catch (e) {
+    } catch (_) {
       AppLogger.warning('[AgentFacade] GLM-4 调用异常，降级到 Demo');
       return null;
     }
   }
 
-    /// 图片输入：直接调用智谱 GLM-4-vision 多模态理解
+  /// 图片输入：直接调用智谱 GLM-4-vision 多模态理解
   /// 不再做关键词路由，让大模型自己判断图片内容
   Future<AgentResult> _processImageInput(String text, String imagePath) async {
     if (!kIsWeb) {
@@ -173,7 +177,14 @@ class AgentServiceFacade {
     if (_containsAny(normalized, const ['文字', '读', 'ocr', '路牌', '通知', '票据'])) {
       return recognizeText(imagePath);
     }
-    if (_containsAny(normalized, const ['产品', '商品', '包装', '物体', '东西', 'object'])) {
+    if (_containsAny(normalized, const [
+      '产品',
+      '商品',
+      '包装',
+      '物体',
+      '东西',
+      'object',
+    ])) {
       return identifyObject(imagePath);
     }
     return describeScene(imagePath);
@@ -193,49 +204,63 @@ class AgentServiceFacade {
     }
 
     final base64Image = base64Encode(bytes);
-    final mimeType = imagePath.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
+    final mimeType = imagePath.toLowerCase().endsWith('.png')
+        ? 'image/png'
+        : 'image/jpeg';
 
     final prompt = userText.trim().isEmpty || userText.trim() == '这是什么？'
         ? '请识别这张图片的内容，用简洁的中文描述。如果是药品，读出药品名称、用法用量、有效期。如果是钞票，说出面额。如果是路牌/文字，读出内容。'
-        : '用户问：' + userText + '\n请根据图片内容回答。';
+        : '用户问：$userText\n请根据图片内容回答。';
 
-    final url = Uri.parse('https://open.bigmodel.cn/api/paas/v4/chat/completions');
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ec06750a1d0447cb8bcfd28879a57bff.4yNBx2M2CBNd6zXu',
-      },
-      body: jsonEncode({
-        'model': 'glm-4v-flash',
-        'messages': [
-          {'role': 'system', 'content': _systemPrompt},
-          {
-            'role': 'user',
-            'content': [
-              {'type': 'text', 'text': prompt},
+    final url = Uri.parse('${APIConfig.zhipuBaseUrl}/chat/completions');
+    final response = await http
+        .post(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ${APIConfig.zhipuApiKey}',
+          },
+          body: jsonEncode({
+            'model': 'glm-4v-flash',
+            'messages': [
+              {'role': 'system', 'content': _systemPrompt},
               {
-                'type': 'image_url',
-                'image_url': {'url': 'data:' + mimeType + ';base64,' + base64Image},
+                'role': 'user',
+                'content': [
+                  {'type': 'text', 'text': prompt},
+                  {
+                    'type': 'image_url',
+                    'image_url': {'url': 'data:$mimeType;base64,$base64Image'},
+                  },
+                ],
               },
             ],
-          },
-        ],
-        'temperature': 0.7,
-        'max_tokens': 500,
-      }),
-    ).timeout(const Duration(seconds: 20));
+            'temperature': 0.7,
+            'max_tokens': 500,
+          }),
+        )
+        .timeout(const Duration(seconds: 20));
 
     if (response.statusCode != 200) {
-      throw Exception('GLM-4-vision 调用失败: ' + response.statusCode.toString());
+      throw Exception('GLM-4-vision 调用失败: ${response.statusCode}');
     }
 
     final data = jsonDecode(response.body) as Map<String, dynamic>;
     final choices = data['choices'] as List<dynamic>?;
     if (choices == null || choices.isEmpty) throw Exception('GLM-4-vision 无返回');
 
-    final content = choices[0]['message']?['content'] as String?;
-    if (content == null || content.trim().isEmpty) throw Exception('GLM-4-vision 返回为空');
+    final firstChoice = choices.first;
+    if (firstChoice is! Map<String, dynamic>) {
+      throw Exception('GLM-4-vision 返回结构无效');
+    }
+    final message = firstChoice['message'];
+    if (message is! Map<String, dynamic>) {
+      throw Exception('GLM-4-vision 消息结构无效');
+    }
+    final content = message['content'] as String?;
+    if (content == null || content.trim().isEmpty) {
+      throw Exception('GLM-4-vision 返回为空');
+    }
 
     AppLogger.info('[AgentFacade] GLM-4-vision 识别成功');
 
@@ -255,6 +280,7 @@ class AgentServiceFacade {
       },
     );
   }
+
   bool _containsAny(String value, List<String> keywords) {
     return keywords.any(value.contains);
   }
@@ -708,4 +734,3 @@ class AgentServiceFacade {
     }
   }
 }
-

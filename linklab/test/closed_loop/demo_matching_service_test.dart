@@ -230,7 +230,7 @@ void main() {
           avatarLabel: '远',
           distanceMeters: 101,
           skills: [demoSkillGeneralDirections],
-          reputationScore: 0.9,
+          reputationScore: 0.9005,
           isOnline: true,
           helpCount: 10,
           estimatedResponseSeconds: 10,

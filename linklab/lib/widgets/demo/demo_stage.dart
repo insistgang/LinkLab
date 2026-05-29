@@ -20,6 +20,9 @@ class DemoStageScaffold extends StatelessWidget {
     this.showBackButton = true,
     this.onBackPressed,
     this.extendBody = false,
+    this.showStatusStrip = false,
+    this.showThemeModeButton = true,
+    this.headerTopPadding = AppTheme.spacingM,
   });
 
   final String title;
@@ -30,6 +33,9 @@ class DemoStageScaffold extends StatelessWidget {
   final bool showBackButton;
   final VoidCallback? onBackPressed;
   final bool extendBody;
+  final bool showStatusStrip;
+  final bool showThemeModeButton;
+  final double headerTopPadding;
 
   @override
   Widget build(BuildContext context) {
@@ -53,14 +59,16 @@ class DemoStageScaffold extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.fromLTRB(
                           AppTheme.spacingM,
-                          AppTheme.spacingM,
+                          0,
                           AppTheme.spacingM,
                           0,
-                        ),
+                        ).copyWith(top: headerTopPadding),
                         child: Column(
                           children: [
-                            const _DemoStageStatusStrip(),
-                            const SizedBox(height: AppTheme.spacingM),
+                            if (showStatusStrip) ...[
+                              const _DemoStageStatusStrip(),
+                              const SizedBox(height: AppTheme.spacingM),
+                            ],
                             Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: AppTheme.spacingXS,
@@ -70,6 +78,7 @@ class DemoStageScaffold extends StatelessWidget {
                                 subtitle: subtitle,
                                 actions: actions,
                                 showBackButton: showBackButton,
+                                showThemeModeButton: showThemeModeButton,
                                 onBackPressed: onBackPressed,
                               ),
                             ),
@@ -461,6 +470,7 @@ class _DemoStageHeader extends StatelessWidget {
     this.subtitle,
     this.actions,
     required this.showBackButton,
+    required this.showThemeModeButton,
     this.onBackPressed,
   });
 
@@ -468,6 +478,7 @@ class _DemoStageHeader extends StatelessWidget {
   final String? subtitle;
   final List<Widget>? actions;
   final bool showBackButton;
+  final bool showThemeModeButton;
   final VoidCallback? onBackPressed;
 
   @override
@@ -547,8 +558,10 @@ class _DemoStageHeader extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: AppTheme.spacingS),
-        _ThemeModeButton(),
+        if (showThemeModeButton) ...[
+          const SizedBox(width: AppTheme.spacingS),
+          _ThemeModeButton(),
+        ],
         if (actions != null) ...[
           const SizedBox(width: AppTheme.spacingS),
           ...actions!,

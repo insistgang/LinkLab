@@ -111,26 +111,55 @@ class LoginScreen extends StatelessWidget {
                 },
               ),
               const SizedBox(height: AppTheme.spacingM),
-              AccessibleButton(
-                label: isRealMode ? '手机号界面保留' : '首次使用',
-                semanticLabel: isRealMode
-                    ? '手机号验证码界面保留，本阶段不接真实短信'
-                    : '首次使用，查看功能引导',
-                hint: isRealMode ? '双击查看保留的手机号界面' : '双击查看应用功能引导',
-                icon: isRealMode
-                    ? Icons.phone_android_rounded
-                    : Icons.arrow_outward_rounded,
-                backgroundColor: AppTheme.stageSurfaceStrong,
-                foregroundColor: AppTheme.stageTextPrimary,
-                onPressed: () {
-                  pushDemoStageRoute(
-                    context,
-                    page: isRealMode
-                        ? const PhoneLoginScreen()
-                        : const OnboardingScreen(),
-                  );
-                },
-              ),
+              if (isRealMode)
+                AccessibleButton(
+                  label: '手机号界面保留',
+                  semanticLabel: '手机号验证码界面保留，本阶段不接真实短信',
+                  hint: '双击查看保留的手机号界面',
+                  icon: Icons.phone_android_rounded,
+                  backgroundColor: AppTheme.stageSurfaceStrong,
+                  foregroundColor: AppTheme.stageTextPrimary,
+                  onPressed: () {
+                    pushDemoStageRoute(
+                      context,
+                      page: const PhoneLoginScreen(),
+                    );
+                  },
+                )
+              else
+                Row(
+                  children: [
+                    Expanded(
+                      child: _SecondaryLoginButton(
+                        label: '邮箱登录',
+                        semanticLabel: '使用邮箱和密码登录',
+                        hint: '双击进入邮箱登录页面',
+                        icon: Icons.alternate_email_rounded,
+                        onPressed: () {
+                          pushDemoStageRoute(
+                            context,
+                            page: const EmailLoginScreen(),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: AppTheme.spacingM),
+                    Expanded(
+                      child: _SecondaryLoginButton(
+                        label: '首次使用',
+                        semanticLabel: '首次使用，查看功能引导',
+                        hint: '双击查看应用功能引导',
+                        icon: Icons.arrow_outward_rounded,
+                        onPressed: () {
+                          pushDemoStageRoute(
+                            context,
+                            page: const OnboardingScreen(),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               const SizedBox(height: AppTheme.spacingM),
               AccessibleText(
                 '本应用已针对屏幕阅读器优化。开启手机无障碍功能即可使用语音引导。',
@@ -145,6 +174,53 @@ class LoginScreen extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _SecondaryLoginButton extends StatelessWidget {
+  const _SecondaryLoginButton({
+    required this.label,
+    required this.semanticLabel,
+    required this.hint,
+    required this.icon,
+    required this.onPressed,
+  });
+
+  final String label;
+  final String semanticLabel;
+  final String hint;
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: semanticLabel,
+      hint: hint,
+      child: OutlinedButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icon, size: 22),
+        label: Text(
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppTheme.stageTextPrimary,
+          backgroundColor: AppTheme.stageSurfaceStrong,
+          side: BorderSide(color: AppTheme.stageBorder),
+          minimumSize: const Size(double.infinity, 56),
+          textStyle: const TextStyle(
+            fontSize: AppTheme.fontSizeNormal,
+            fontWeight: FontWeight.w800,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(22),
+          ),
+        ),
+      ),
     );
   }
 }

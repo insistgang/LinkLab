@@ -14,11 +14,11 @@ Widget buildLinkLabApp() {
   return const ProviderScope(child: LinkLabApp());
 }
 
-/// 兼容旧测试入口。当前默认启动已切到 RealMode Phase-1。
+/// 兼容旧测试入口。当前默认启动锁定竞赛 Demo 主线。
 Widget buildCompetitionDemoApp() => buildLinkLabApp();
 
 Future<void> initializeLinkLabApp({
-  bool preferRealMode = true,
+  bool preferRealMode = false,
   bool enablePresenterSessionOnFallback = true,
   bool enableAuthAutoRefresh = true,
 }) async {
@@ -41,7 +41,7 @@ Future<void> initializeLinkLabApp({
     }
   }
 
-  // Demo 数据作为 fallback 资产始终可用；Phase-1 不触发真实业务表查询。
+  // Demo 数据作为 fallback 资产始终可用；默认启动不触发真实业务表查询。
   await DemoDataLoader.initialize();
 
   // 注意：此处 ProviderScope 尚未创建，只能直接操作底层服务实例。

@@ -9,7 +9,7 @@ class AppLogo extends StatelessWidget {
     this.borderRadius = 12,
   });
 
-  static const assetPath = 'assets/brand/logo.svg';
+  static const assetPath = 'assets/brand/logo4.svg';
 
   final double size;
   final String? semanticLabel;

@@ -1,8 +1,7 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../config/app_config.dart';
 import '../../core/theme/app_theme.dart';
@@ -409,7 +408,7 @@ class _HeroPanel extends StatelessWidget {
               DemoPill(
                 icon: Icons.settings_accessibility_outlined,
                 label: preferenceSummary,
-                color: AppTheme.stageSuccess,
+                color: AppTheme.stageAccentLight,
               ),
             ],
           ),
@@ -474,7 +473,7 @@ class _HeroPanel extends StatelessWidget {
           const SizedBox(height: AppTheme.spacingM),
           Center(
             child: AccessibleText(
-              '按住 Logo 3 秒，进入 SOS 请求。',
+              '点击启动紧急求助',
               style: TextStyle(
                 color: AppTheme.stageTextSecondary,
                 fontSize: AppTheme.fontSizeSmall,
@@ -488,19 +487,23 @@ class _HeroPanel extends StatelessWidget {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: onVolunteerPressed,
-                  icon: const LinkableSvgIcon(
-                    icon: LinkableIconName.volunteerMatch,
-                    size: 24,
-                    semanticLabel: '志愿者匹配',
+                  icon: const Icon(Icons.phone_in_talk_outlined, size: 24),
+                  label: const Text(
+                    '直接匹配志愿者',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  label: const Text('直接匹配志愿者'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.white,
                     backgroundColor: AppTheme.stageAccent,
                     side: BorderSide(
                       color: Colors.white.withValues(alpha: 0.5),
                     ),
-                    minimumSize: const Size(double.infinity, 56),
+                    textStyle: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                    ),
+                    minimumSize: const Size(double.infinity, 64),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(22),
                     ),
@@ -515,177 +518,59 @@ class _HeroPanel extends StatelessWidget {
   }
 }
 
-class _PrimaryHelpCluster extends StatefulWidget {
+class _PrimaryHelpCluster extends StatelessWidget {
   const _PrimaryHelpCluster({required this.onEmergencyPressed});
+
+  static const _logoAssetPath = 'assets/brand/logo4.svg';
 
   final VoidCallback onEmergencyPressed;
 
   @override
-  State<_PrimaryHelpCluster> createState() => _PrimaryHelpClusterState();
-}
-
-class _PrimaryHelpClusterState extends State<_PrimaryHelpCluster> {
-  static const int _holdDurationMs = 3000;
-
-  Timer? _holdTimer;
-  bool _isHolding = false;
-  bool _didTrigger = false;
-  double _holdProgress = 0;
-
-  int get _remainingHoldSeconds {
-    final remainingMs = ((1 - _holdProgress) * _holdDurationMs).ceil();
-    return (remainingMs / 1000).ceil().clamp(1, 3).toInt();
-  }
-
-  @override
-  void dispose() {
-    _holdTimer?.cancel();
-    super.dispose();
-  }
-
-  void _startHold() {
-    _holdTimer?.cancel();
-    setState(() {
-      _isHolding = true;
-      _didTrigger = false;
-      _holdProgress = 0;
-    });
-
-    final startedAt = DateTime.now();
-    _holdTimer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
-      if (!mounted || _didTrigger) {
-        timer.cancel();
-        return;
-      }
-
-      final elapsed = DateTime.now().difference(startedAt).inMilliseconds;
-      final progress = (elapsed / _holdDurationMs).clamp(0.0, 1.0);
-      setState(() => _holdProgress = progress);
-
-      if (progress >= 1.0) {
-        timer.cancel();
-        _triggerEmergency();
-      }
-    });
-  }
-
-  void _cancelHold() {
-    _holdTimer?.cancel();
-    if (!mounted) return;
-    setState(() {
-      _isHolding = false;
-      _holdProgress = 0;
-    });
-  }
-
-  void _triggerEmergency() {
-    if (!mounted || _didTrigger) return;
-    setState(() {
-      _isHolding = false;
-      _didTrigger = true;
-      _holdProgress = 1;
-    });
-    widget.onEmergencyPressed();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final buttonSize = _isHolding ? 198.0 : 188.0;
-    final progressRingSize = buttonSize - 10;
-    final primaryLabel = _isHolding ? '继续按住，$_remainingHoldSeconds秒' : '长按求助';
-    final secondsLabel = _isHolding ? '${_remainingHoldSeconds}S' : '3S';
-
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final buttonSize = screenWidth < 360 ? 188.0 : 210.0;
     return Semantics(
       button: true,
-      label: '长按三秒进入 SOS 请求',
-      hint: '按住三秒后直接进入 SOS 紧急连线',
-      onLongPress: _triggerEmergency,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Material(
-            color: Colors.transparent,
-            child: Listener(
-              key: const ValueKey('seeker_sos_hold_button'),
-              behavior: HitTestBehavior.opaque,
-              onPointerDown: (_) => _startHold(),
-              onPointerUp: (_) => _cancelHold(),
-              onPointerCancel: (_) => _cancelHold(),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 180),
-                curve: Curves.easeOutCubic,
-                width: buttonSize,
-                height: buttonSize,
-                decoration: BoxDecoration(
-                  gradient: AppTheme.stageAccentGradient,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.72),
-                    width: 3,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppTheme.stageAccent.withValues(
-                        alpha: _isHolding ? 0.54 : 0.32,
-                      ),
-                      blurRadius: _isHolding ? 42 : 28,
-                      offset: const Offset(0, 16),
-                    ),
-                  ],
+      label: '启动 SOS 紧急求助',
+      hint: '双击进入紧急求助流程，可在下一页撤销',
+      onTap: onEmergencyPressed,
+      child: Material(
+        color: Colors.transparent,
+        shape: const CircleBorder(),
+        child: InkResponse(
+          key: const ValueKey('seeker_sos_hold_button'),
+          onTap: onEmergencyPressed,
+          customBorder: const CircleBorder(),
+          containedInkWell: true,
+          radius: buttonSize / 2,
+          child: Ink(
+            width: buttonSize,
+            height: buttonSize,
+            decoration: BoxDecoration(
+              color: AppTheme.stageAccent,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.stageAccent.withValues(alpha: 0.34),
+                  blurRadius: 32,
+                  offset: const Offset(0, 16),
                 ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    if (_isHolding)
-                      SizedBox(
-                        width: progressRingSize,
-                        height: progressRingSize,
-                        child: CircularProgressIndicator(
-                          value: _holdProgress,
-                          strokeWidth: 8,
-                          strokeCap: StrokeCap.round,
-                          backgroundColor: Colors.white.withValues(alpha: 0.22),
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            AppTheme.stageTextPrimary,
-                          ),
-                        ),
-                      ),
-                    AnimatedScale(
-                      scale: _isHolding ? 0.9 : 1,
-                      duration: const Duration(milliseconds: 180),
-                      child: const AppLogo(
-                        size: 86,
-                        borderRadius: 22,
-                        semanticLabel: 'LinkAble SOS 长按按钮',
-                      ),
-                    ),
-                  ],
+              ],
+            ),
+            child: Center(
+              child: ExcludeSemantics(
+                child: ClipOval(
+                  child: SvgPicture.asset(
+                    _logoAssetPath,
+                    width: buttonSize,
+                    height: buttonSize,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
             ),
           ),
-          const SizedBox(height: AppTheme.spacingM),
-          AccessibleText(
-            primaryLabel,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-              height: 1.08,
-            ),
-          ),
-          const SizedBox(height: AppTheme.spacingXS),
-          AccessibleText(
-            secondsLabel,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: AppTheme.fontSizeLarge,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

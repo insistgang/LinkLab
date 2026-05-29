@@ -1,5 +1,5 @@
 // 应用配置
-// Phase-1 只负责 RealMode 启动、Supabase client 初始化与 Demo fallback。
+// 竞赛 MVP 默认 Demo-first；RealMode 只在显式开启时初始化基础设施。
 
 import '../core/utils/logger.dart';
 
@@ -16,9 +16,8 @@ class AppConfig {
   static const String _supabaseUrlEnvKey = 'SUPABASE_URL';
   static const String _supabaseAnonKeyEnvKey = 'SUPABASE_ANON_KEY';
 
-  // Phase-1 取消旧的 Demo-only 锁。真实业务能力仍由 FeatureFlags 单独收口。
-  // 竞赛版：当缺少有效 Supabase 配置时，自动锁定 Demo 主线。
-  static bool get isCompetitionDemoOnly => !hasSupabaseConfig;
+  // 竞赛版：默认锁定 Demo 主线，避免真实配置污染 3 分钟演示。
+  static bool get isCompetitionDemoOnly => demoMode;
 
   static AppMode _mode = AppMode.demo;
   static bool _presenterMode = false;
@@ -35,7 +34,7 @@ class AppConfig {
   /// Supabase anon key，仅来自 .env。不要在日志或 UI 中输出。
   static String get supabaseAnonKey => _supabaseAnonKey;
 
-  /// Phase-1 判定：只有 URL 与 anon key 都有效，才允许默认 RealMode。
+  /// 只有 URL 与 anon key 都有效，才允许显式 RealMode 初始化。
   static bool get hasSupabaseConfig =>
       _isValidSupabaseUrl(_supabaseUrl) &&
       _supabaseAnonKey.isNotEmpty &&
@@ -70,12 +69,12 @@ class AppConfig {
   /// 从 .env 读取运行配置。
   ///
   /// 规则：
-  /// - 有 SUPABASE_URL + SUPABASE_ANON_KEY：默认 RealMode。
-  /// - 缺任一项：自动 fallback 到 DemoMode。
+  /// - 默认 fallback 到 DemoMode，保障竞赛主线不依赖外部服务。
+  /// - 显式 `preferRealMode: true` 且配置完整时才进入 RealMode。
   /// - SUPABASE_SERVICE_ROLE_KEY 即使存在也不会读取或使用。
   static void configureFromEnvironment(
     Map<String, String> env, {
-    bool preferRealMode = true,
+    bool preferRealMode = false,
     bool enablePresenterSessionOnFallback = true,
   }) {
     _supabaseUrl = (env[_supabaseUrlEnvKey] ?? '').trim();
@@ -89,8 +88,11 @@ class AppConfig {
       return;
     }
 
+    final fallbackReason = hasSupabaseConfig
+        ? '竞赛 MVP 默认锁定 Demo 主线'
+        : '缺少有效的 SUPABASE_URL 或 SUPABASE_ANON_KEY';
     configureDemoFallback(
-      reason: '缺少有效的 SUPABASE_URL 或 SUPABASE_ANON_KEY',
+      reason: fallbackReason,
       enablePresenterSession: enablePresenterSessionOnFallback,
     );
   }

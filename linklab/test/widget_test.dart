@@ -9,7 +9,7 @@ import 'package:linklab/screens/auth/login_screen.dart';
 import 'package:linklab/screens/home/home_screen.dart';
 
 void main() {
-  testWidgets('RealMode Phase-3 默认初始化 Auth 与最小数据库入口', (tester) async {
+  testWidgets('默认初始化锁定 Demo 主线并启用演示员会话', (tester) async {
     TestWidgetsFlutterBinding.ensureInitialized();
     SharedPreferences.setMockInitialValues({});
     tester.view.physicalSize = const Size(1280, 2400);
@@ -24,17 +24,16 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(MaterialApp), findsOneWidget);
-    expect(AppConfig.demoMode, isFalse);
-    expect(AppConfig.isRealMode, isTrue);
-    expect(AppConfig.hasSupabaseConfig, isTrue);
-    expect(AppConfig.presenterMode, isFalse);
-    expect(AppConfig.supabaseInitialized, isTrue);
-    expect(FeatureFlags.enableSupabaseAuth, isTrue);
+    expect(AppConfig.demoMode, isTrue);
+    expect(AppConfig.isRealMode, isFalse);
+    expect(AppConfig.presenterMode, isTrue);
+    expect(AppConfig.supabaseInitialized, isFalse);
+    expect(FeatureFlags.enableSupabaseAuth, isFalse);
     expect(FeatureFlags.enableWebRTC, isFalse);
     expect(FeatureFlags.enableRealMatching, isFalse);
     expect(FeatureFlags.enablePushNotification, isFalse);
     expect(FeatureFlags.enableRealAI, isFalse);
-    expect(FeatureFlags.enableDatabaseSync, isTrue);
+    expect(FeatureFlags.enableDatabaseSync, isFalse);
     expect(FeatureFlags.enableLocationService, isFalse);
     expect(FeatureFlags.enableRealSMS, isFalse);
     expect(FeatureFlags.enableCommunity, isFalse);
@@ -43,10 +42,9 @@ void main() {
     expect(FeatureFlags.enableSchedule, isFalse);
     expect(FeatureFlags.enableAdminDashboard, isFalse);
     expect(FeatureFlags.enableCallRecording, isFalse);
-    expect(find.text('欢迎使用'), findsOneWidget);
-    expect(find.text('邮箱登录'), findsOneWidget);
-    expect(find.text('手机号界面保留'), findsOneWidget);
-    expect(find.text('让帮助真实发生\n连接每一次需要'), findsNothing);
+    expect(find.text('让帮助真实发生\n连接每一次需要'), findsOneWidget);
+    expect(find.text('欢迎使用'), findsNothing);
+    expect(find.text('邮箱登录'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
@@ -66,7 +64,7 @@ void main() {
     expect(FeatureFlags.enableRealAI, isFalse);
   });
 
-  testWidgets('DemoMode 登录页保留本地手机号入口', (tester) async {
+  testWidgets('DemoMode 登录页保留手机号主入口与邮箱入口', (tester) async {
     TestWidgetsFlutterBinding.ensureInitialized();
     SharedPreferences.setMockInitialValues({});
     AppConfig.configureCompetitionDemoDefaults(enablePresenterSession: false);
@@ -79,7 +77,13 @@ void main() {
     expect(AppConfig.demoMode, isTrue);
     expect(find.text('手机号登录'), findsOneWidget);
     expect(find.text('首次使用'), findsOneWidget);
-    expect(find.text('邮箱登录'), findsNothing);
+    expect(find.text('邮箱登录'), findsOneWidget);
+
+    await tester.tap(find.text('邮箱登录'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('使用邮箱进入 LinkAble'), findsOneWidget);
+    expect(find.text('入口保留'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

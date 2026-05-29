@@ -1,11 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:record/record.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../../config/api_config.dart';
@@ -17,12 +14,10 @@ class XfyunAsrService {
   XfyunAsrService._internal();
 
   WebSocketChannel? _channel;
-  final AudioRecorder _recorder = AudioRecorder();
 
   bool _isListening = false;
   bool _isConnected = false;
   final StringBuffer _resultBuffer = StringBuffer();
-  Completer<String>? _recognitionCompleter;
 
   static const int _frameSize = 1280;
   static const int _sampleRate = 16000;
@@ -99,70 +94,12 @@ class XfyunAsrService {
       await stopListening();
     }
 
-    _isListening = true;
-    _resultBuffer.clear();
-    _recognitionCompleter = Completer<String>();
-
-    try {
-      final wsUrl = _buildAuthUrl();
-      _channel = WebSocketChannel.connect(Uri.parse(wsUrl));
-
-      _channel!.stream.listen(
-        (message) {
-          _handleMessage(message, _recognitionCompleter!);
-        },
-        onError: (error) {
-          AppLogger.error('ASR WebSocket 错误', error);
-          _isListening = false;
-          if (_recognitionCompleter != null &&
-              !_recognitionCompleter!.isCompleted) {
-            _recognitionCompleter!
-                .completeError(Exception('WebSocket 错误: $error'));
-          }
-        },
-        onDone: () {
-          _isListening = false;
-          if (_recognitionCompleter != null &&
-              !_recognitionCompleter!.isCompleted) {
-            _recognitionCompleter!.complete(_resultBuffer.toString());
-          }
-        },
-      );
-
-      await _channel!.ready;
-      _isConnected = true;
-
-      await _sendFirstFrame();
-
-      await _recorder.start(
-        const RecordConfig(
-          encoder: AudioEncoder.pcm16bits,
-          sampleRate: _sampleRate,
-          numChannels: 1,
-          bitRate: 256000,
-        ),
-        path: await _tempAudioPath,
-      );
-
-      _startAudioCaptureLoop();
-
-      return _recognitionCompleter!.future;
-    } catch (e) {
-      _isListening = false;
-      await _cleanup();
-      rethrow;
-    }
+    throw UnsupportedError('实时讯飞 ASR 录音未启用，已回退到设备本地语音识别');
   }
 
   /// 停止录音并返回识别结果
   Future<void> stopListening() async {
     if (!_isListening) return;
-
-    try {
-      await _recorder.stop();
-    } catch (e) {
-      AppLogger.warning('停止录音失败: $e');
-    }
 
     if (_isConnected && _channel != null) {
       _sendLastFrame();
@@ -170,34 +107,6 @@ class XfyunAsrService {
 
     await Future.delayed(const Duration(milliseconds: 500));
     await _cleanup();
-  }
-
-  // ────────────── 音频采集循环 ──────────────
-
-  Timer? _audioTimer;
-
-  void _startAudioCaptureLoop() {
-    _audioTimer = Timer.periodic(const Duration(milliseconds: 100), (_) async {
-      if (!_isListening || !_isConnected || _channel == null) {
-        _audioTimer?.cancel();
-        return;
-      }
-
-      try {
-        final path = await _tempAudioPath;
-        final file = File(path);
-        final bytes = await file.readAsBytes();
-        if (bytes.isNotEmpty) {
-          final dataFrame = _buildDataFrame(bytes, isFirst: false);
-          _channel!.sink.add(jsonEncode(dataFrame));
-          await file.writeAsBytes([]);
-        }
-      } on FileSystemException {
-        // 文件尚不存在，忽略
-      } catch (e) {
-        AppLogger.debug('音频采集循环异常: $e');
-      }
-    });
   }
 
   // ────────────── WebSocket 帧构建 ──────────────
@@ -257,10 +166,9 @@ class XfyunAsrService {
   Future<void> _sendAudioFrames(Uint8List audioData) async {
     int offset = 0;
     while (offset < audioData.length) {
-      final end =
-          (offset + _frameSize) > audioData.length
-              ? audioData.length
-              : offset + _frameSize;
+      final end = (offset + _frameSize) > audioData.length
+          ? audioData.length
+          : offset + _frameSize;
       final chunk = audioData.sublist(offset, end);
       final frame = _buildDataFrame(chunk);
       _channel!.sink.add(jsonEncode(frame));
@@ -390,23 +298,7 @@ class XfyunAsrService {
 
   // ────────────── 辅助方法 ──────────────
 
-  Future<String> get _tempAudioPath async {
-    final dir = await getTemporaryDirectory();
-    return '${dir.path}${Platform.pathSeparator}xfyun_asr_temp.wav';
-  }
-
   Future<void> _cleanup() async {
-    _audioTimer?.cancel();
-    _audioTimer = null;
-
-    try {
-      if (await _recorder.isRecording()) {
-        await _recorder.stop();
-      }
-    } catch (e) {
-      // ignore
-    }
-
     if (_channel != null) {
       try {
         await _channel!.sink.close();
@@ -422,6 +314,5 @@ class XfyunAsrService {
 
   void dispose() {
     _cleanup();
-    _recorder.dispose();
   }
 }

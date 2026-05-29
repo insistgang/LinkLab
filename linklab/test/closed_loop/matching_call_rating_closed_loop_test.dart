@@ -22,7 +22,7 @@ void main() {
 
     await tester.pump(const Duration(seconds: 3));
     await tester.pump();
-    expect(find.textContaining('通话中'), findsOneWidget);
+    expect(find.text('通话中'), findsOneWidget);
 
     final connectedHistory = readLocalHelpHistoryModels();
     expect(connectedHistory.first.status, 'connected');
@@ -38,7 +38,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('共感 LinkAble'), findsWidgets);
-    expect(find.text('长按求助'), findsOneWidget);
+    expect(find.text('点击启动紧急求助'), findsOneWidget);
 
     final completedHistory = readLocalHelpHistoryModels();
     expect(completedHistory.first.status, 'completed');

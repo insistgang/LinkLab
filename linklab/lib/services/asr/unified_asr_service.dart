@@ -24,6 +24,8 @@ class UnifiedAsrService {
 
   bool _isUsingLocalAsr = false;
   bool _speechInitialized = false;
+  String _lastLocalRecognized = '';
+  Timer? _localCompletionTimer;
 
   /// 当前活跃的识别 Completer，供 onError / stop 共同访问
   Completer<String>? _activeCompleter;
@@ -82,8 +84,8 @@ class UnifiedAsrService {
       } catch (e) {
         AppLogger.warning('[UnifiedASR] 停止本地录音失败: $e');
       }
-      await Future.delayed(const Duration(milliseconds: 300));
-      _forceCompleteIfNeeded();
+      await Future.delayed(const Duration(milliseconds: 500));
+      _completeLocalListening();
       _isUsingLocalAsr = false;
     } else {
       try {
@@ -94,13 +96,32 @@ class UnifiedAsrService {
     }
   }
 
-  /// 当 completer 仍悬空时，用空串兜底 complete
-  void _forceCompleteIfNeeded() {
+  /// 当 completer 仍悬空时，用最近一次非空转写兜底 complete。
+  void _completeLocalListening({String? text, Object? error}) {
     final c = _activeCompleter;
     if (c != null && !c.isCompleted) {
-      AppLogger.warning('[UnifiedASR] force-complete 悬空 completer');
-      c.complete('');
+      _localCompletionTimer?.cancel();
+      final recognized = normalizeRecognizedText(text ?? _lastLocalRecognized);
+      if (recognized.isNotEmpty) {
+        AppLogger.info('[UnifiedASR] 本地语音识别完成: $recognized');
+        c.complete(recognized);
+      } else if (error != null) {
+        c.completeError(error);
+      } else {
+        AppLogger.warning('[UnifiedASR] 本地语音识别结束但没有文本结果');
+        c.complete('');
+      }
     }
+  }
+
+  void _scheduleCompleteLocalListening({
+    Duration delay = const Duration(milliseconds: 450),
+  }) {
+    final c = _activeCompleter;
+    if (c == null || c.isCompleted) return;
+
+    _localCompletionTimer?.cancel();
+    _localCompletionTimer = Timer(delay, _completeLocalListening);
   }
 
   // ────────────── speech_to_text 本地识别 ──────────────
@@ -110,12 +131,18 @@ class UnifiedAsrService {
       final available = await _speech.initialize(
         onError: (error) {
           AppLogger.error('[UnifiedASR] speech_to_text onError', error);
-          _forceCompleteIfNeeded();
+          if (error.permanent) {
+            _completeLocalListening(
+              error: Exception(_friendlySpeechError(error.errorMsg)),
+            );
+          } else {
+            _scheduleCompleteLocalListening();
+          }
         },
         onStatus: (status) {
           AppLogger.info('[UnifiedASR] speech_to_text 状态: $status');
-          if (status == 'notListening' || status == 'done') {
-            _forceCompleteIfNeeded();
+          if (isTerminalSpeechStatus(status)) {
+            _scheduleCompleteLocalListening();
           }
         },
       );
@@ -125,43 +152,76 @@ class UnifiedAsrService {
       _speechInitialized = true;
     }
 
+    if (_speech.isListening) {
+      await _speech.stop();
+    }
+
     _isUsingLocalAsr = true;
     final completer = Completer<String>();
     _activeCompleter = completer;
-    String lastRecognized = '';
+    _lastLocalRecognized = '';
+    _localCompletionTimer?.cancel();
 
     await _speech.listen(
       onResult: (result) {
-        lastRecognized = result.recognizedWords;
-        if (result.finalResult && !completer.isCompleted) {
-          completer.complete(lastRecognized);
+        final recognized = normalizeRecognizedText(result.recognizedWords);
+        if (recognized.isNotEmpty) {
+          _lastLocalRecognized = recognized;
+        }
+        if (result.finalResult) {
+          _completeLocalListening(text: recognized);
         }
       },
       localeId: 'zh_CN',
-      listenMode: stt.ListenMode.dictation,
-      cancelOnError: true,
+      listenFor: const Duration(seconds: 8),
+      pauseFor: const Duration(seconds: 2),
+      listenOptions: stt.SpeechListenOptions(
+        listenMode: stt.ListenMode.dictation,
+        cancelOnError: true,
+        partialResults: true,
+      ),
     );
 
     try {
       return await completer.future.timeout(
-        const Duration(seconds: 10),
+        const Duration(seconds: 12),
         onTimeout: () {
-          if (!completer.isCompleted) {
-            if (lastRecognized.isNotEmpty) {
-              completer.complete(lastRecognized);
-              return lastRecognized;
-            }
-            completer.completeError(TimeoutException('本地语音识别超时'));
+          final recognized = normalizeRecognizedText(_lastLocalRecognized);
+          if (recognized.isNotEmpty) {
+            return recognized;
           }
           throw TimeoutException('本地语音识别超时');
         },
       );
     } finally {
+      _localCompletionTimer?.cancel();
+      _localCompletionTimer = null;
       _activeCompleter = null;
     }
   }
 
+  static bool isTerminalSpeechStatus(String status) {
+    return status == 'notListening' ||
+        status == 'done' ||
+        status == 'doneNoResult';
+  }
+
+  static String normalizeRecognizedText(String text) {
+    return text.trim().replaceAll(RegExp(r'\s+'), ' ');
+  }
+
+  String _friendlySpeechError(String errorMsg) {
+    if (errorMsg.contains('permission') || errorMsg.contains('not-allowed')) {
+      return '麦克风权限未开启，请允许浏览器使用麦克风。';
+    }
+    if (errorMsg.contains('language')) {
+      return '当前浏览器暂不支持这个语音识别语言。';
+    }
+    return '语音识别不可用，请检查麦克风权限或稍后重试。';
+  }
+
   void dispose() {
+    _localCompletionTimer?.cancel();
     _xfyunAsr.dispose();
     _speech.stop();
     _activeCompleter = null;
