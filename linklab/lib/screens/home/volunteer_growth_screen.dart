@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/extensions.dart';
+import '../../core/utils/logger.dart';
 import '../../models/point_transaction_model.dart';
 import '../../models/skill_model.dart';
 import '../../models/volunteer_level_model.dart';
@@ -35,23 +36,59 @@ class _VolunteerGrowthScreenState extends ConsumerState<VolunteerGrowthScreen> {
   }
 
   Future<_VolunteerGrowthData> _loadData() async {
-    final session = ref.read(appSessionProvider);
-    final volunteerId = session.userProfile?.id ?? 'demo-volunteer-id';
+    try {
+      final session = ref.read(appSessionProvider);
+      final volunteerId = session.userProfile?.id ?? 'demo-volunteer-id';
 
-    final level = await _levelService.getLevelInfo(volunteerId);
-    final transactions = await _demoStore.getTransactions(volunteerId);
-    final visibleTransactions = transactions.take(6).toList();
-    final contributionTotal = _sumContribution(visibleTransactions);
-    final skills = await _demoStore.getSkills(volunteerId);
-    final activities = await _demoStore.getActivities(volunteerId);
+      VolunteerLevelInfo level;
+      try {
+        level = await _levelService.getLevelInfo(volunteerId);
+      } catch (_) {
+        level = const VolunteerLevelInfo(
+          currentLevel: 1,
+          currentPoints: 0,
+          pointsToNextLevel: 100,
+          progressPercent: 0.0,
+        );
+      }
 
-    return _VolunteerGrowthData(
-      level: _levelFromContributionTotal(contributionTotal, fallback: level),
-      transactions: visibleTransactions,
-      contributionTotal: contributionTotal,
-      skills: skills.take(6).toList(),
-      completedCount: activities.length,
-    );
+      List<PointTransactionModel> visibleTransactions;
+      int contributionTotal;
+      try {
+        final transactions = await _demoStore.getTransactions(volunteerId);
+        visibleTransactions = transactions.take(6).toList();
+        contributionTotal = _sumContribution(visibleTransactions);
+      } catch (_) {
+        visibleTransactions = [];
+        contributionTotal = 0;
+      }
+
+      List<SkillModel> skills;
+      try {
+        skills = await _demoStore.getSkills(volunteerId);
+      } catch (_) {
+        skills = [];
+      }
+
+      int completedCount;
+      try {
+        final activities = await _demoStore.getActivities(volunteerId);
+        completedCount = activities.length;
+      } catch (_) {
+        completedCount = 0;
+      }
+
+      return _VolunteerGrowthData(
+        level: _levelFromContributionTotal(contributionTotal, fallback: level),
+        transactions: visibleTransactions,
+        contributionTotal: contributionTotal,
+        skills: skills.take(6).toList(),
+        completedCount: completedCount,
+      );
+    } catch (e, st) {
+      AppLogger.error('成长值数据加载失败', e, st);
+      return _VolunteerGrowthData.fallback();
+    }
   }
 
   int _sumContribution(List<PointTransactionModel> transactions) {
@@ -107,10 +144,31 @@ class _VolunteerGrowthScreenState extends ConsumerState<VolunteerGrowthScreen> {
     return DemoStageScaffold(
       title: '成长值',
       subtitle: '志愿者服务记录、演示贡献值和技能覆盖',
-      showBackButton: false,
+      showBackButton: true,
       body: FutureBuilder<_VolunteerGrowthData>(
         future: _future,
         builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.error_outline, size: 48, color: AppTheme.stageDanger),
+                  const SizedBox(height: AppTheme.spacingM),
+                  AccessibleText(
+                    '加载失败，请稍后重试',
+                    style: TextStyle(color: AppTheme.stageTextPrimary),
+                  ),
+                  const SizedBox(height: AppTheme.spacingM),
+                  AccessibleIconButton(
+                    icon: Icons.refresh,
+                    semanticLabel: '重试',
+                    onPressed: _refresh,
+                  ),
+                ],
+              ),
+            );
+          }
           if (!snapshot.hasData) {
             return Semantics(
               label: '正在加载志愿者成长值',
@@ -466,7 +524,7 @@ class _SkillPanel extends StatelessWidget {
             DemoPill(
               label: '实时语音协助',
               icon: Icons.record_voice_over_outlined,
-              color: AppTheme.stageAccent,
+              color: AppTheme.stageAccentLight,
             )
           else
             for (final skill in skills)
@@ -475,9 +533,7 @@ class _SkillPanel extends StatelessWidget {
                 icon: skill.isVerified
                     ? Icons.verified_outlined
                     : Icons.label_outline,
-                color: skill.isVerified
-                    ? AppTheme.stageSuccess
-                    : AppTheme.stageInfo,
+                color: AppTheme.stageAccentLight,
               ),
         ],
       ),
@@ -687,6 +743,21 @@ class _VolunteerGrowthData {
     required this.skills,
     required this.completedCount,
   });
+
+  factory _VolunteerGrowthData.fallback() {
+    return _VolunteerGrowthData(
+      level: const VolunteerLevelInfo(
+        currentLevel: 1,
+        currentPoints: 0,
+        pointsToNextLevel: 100,
+        progressPercent: 0.0,
+      ),
+      contributionTotal: 0,
+      transactions: [],
+      skills: [],
+      completedCount: 0,
+    );
+  }
 
   final VolunteerLevelInfo level;
   final int contributionTotal;

@@ -122,19 +122,15 @@ class _PreferenceScreenState extends ConsumerState<PreferenceScreen> {
                         label: _stageMode == DemoStageMode.day
                             ? '荧光日间'
                             : '深夜模式',
-                        color: _stageMode == DemoStageMode.day
-                            ? AppTheme.stageInfo
-                            : AppTheme.stageAccent,
+                        color: AppTheme.stageAccentLight,
                       ),
                       DemoPill(
                         label: _highContrastMode ? '高对比度开启' : '标准显示',
-                        color: _highContrastMode
-                            ? AppTheme.stageWarning
-                            : AppTheme.stageAccent,
+                        color: AppTheme.stageAccentLight,
                       ),
                       DemoPill(
                         label: '字体 ${_fontScale.toStringAsFixed(1)}x',
-                        color: AppTheme.stageInfo,
+                        color: AppTheme.stageAccentLight,
                       ),
                     ],
                   ),

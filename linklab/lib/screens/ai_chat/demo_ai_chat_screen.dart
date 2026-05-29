@@ -557,6 +557,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
         return DemoStageScaffold(
           title: widget.title,
           subtitle: '支持文字、图片与语音预置输入',
+          showBackButton: false,
           body: Column(
             children: [
               Padding(

@@ -76,14 +76,14 @@ class AppTheme {
   static DemoStageMode _stageMode = DemoStageMode.day;
 
   static const _StagePalette _nightStagePalette = _StagePalette(
-    background: Color(0xFF0D1117),      // 深色背景
-    backgroundSoft: Color(0xFF161B22),  // 稍浅的深色
-    surface: Color(0xFF21262D),         // 卡片/组件背景
-    surfaceStrong: Color(0xFF2D333B),   // 更强的表面色
-    border: Color(0xFF373E47),          // 边框颜色
+    background: Color(0xFF080510),      // 极深紫黑背景
+    backgroundSoft: Color(0xFF0E0A1C),  // 暗紫背景
+    surface: Color(0xFF2A1B54),         // 卡片背景 - 靠近按钮紫色调
+    surfaceStrong: Color(0xFF352268),   // 导航栏/强表面 - 中紫
+    border: Color(0xFF3D2A6E),          // 边框颜色（紫色边框）
     textPrimary: Color(0xFFF0F6FC),     // 主要文字 - 白色
-    textSecondary: Color(0xFF9CA3AF),   // 次要文字 - 灰色
-    textHint: Color(0xFF6E7681),        // 提示文字
+    textSecondary: Color(0xFFB8A9D4),   // 次要文字 - 浅紫灰
+    textHint: Color(0xFF8B7AAF),        // 提示文字
     accent: Color(0xFFB88CFF),          // 强调色 - 紫色
     accentLight: Color(0xFFD4BBFF),     // 浅强调色
     success: Color(0xFF56D364),         // 成功 - 绿色
@@ -97,7 +97,7 @@ class AppTheme {
       end: Alignment.bottomRight,
     ),
     panelGradient: LinearGradient(
-      colors: [Color(0xFF161B22), Color(0xFF0D1117), Color(0xFF010409)],
+      colors: [Color(0xFF100B20), Color(0xFF0A0716), Color(0xFF060410)],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     ),
@@ -622,9 +622,9 @@ class AppTheme {
         ),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: Color(0xFF161B22),
+        backgroundColor: Color(0xFF352268),
         selectedItemColor: highContrastPrimary,
-        unselectedItemColor: Color(0xFF8B949E),
+        unselectedItemColor: Color(0xFFB8A9D4),
         selectedLabelStyle: TextStyle(
           fontSize: fontSizeNormal,
           fontWeight: FontWeight.bold,
@@ -634,12 +634,12 @@ class AppTheme {
         elevation: 8,
       ),
       dividerTheme: const DividerThemeData(
-        color: Color(0xFF373E47),
+        color: Color(0xFF3A2D5E),
         thickness: 1,
         space: spacingM,
       ),
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: const Color(0xFF2D333B),
+        backgroundColor: const Color(0xFF352268),
         contentTextStyle: const TextStyle(
           fontSize: fontSizeNormal,
           color: highContrastText,
