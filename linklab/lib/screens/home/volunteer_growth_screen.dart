@@ -153,7 +153,11 @@ class _VolunteerGrowthScreenState extends ConsumerState<VolunteerGrowthScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.error_outline, size: 48, color: AppTheme.stageDanger),
+                  Icon(
+                    Icons.error_outline,
+                    size: 48,
+                    color: AppTheme.stageDanger,
+                  ),
                   const SizedBox(height: AppTheme.spacingM),
                   AccessibleText(
                     '加载失败，请稍后重试',
@@ -745,8 +749,8 @@ class _VolunteerGrowthData {
   });
 
   factory _VolunteerGrowthData.fallback() {
-    return _VolunteerGrowthData(
-      level: const VolunteerLevelInfo(
+    return const _VolunteerGrowthData(
+      level: VolunteerLevelInfo(
         currentLevel: 1,
         currentPoints: 0,
         pointsToNextLevel: 100,

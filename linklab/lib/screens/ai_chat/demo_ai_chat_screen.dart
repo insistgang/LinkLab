@@ -32,6 +32,7 @@ class DemoAIChatScreen extends ConsumerStatefulWidget {
     this.initialPrompt,
     this.quickPrompts = const [],
     this.autoSendInitialPrompt = false,
+    this.embeddedInTab = false,
   });
 
   final String title;
@@ -39,6 +40,7 @@ class DemoAIChatScreen extends ConsumerStatefulWidget {
   final String? initialPrompt;
   final List<String> quickPrompts;
   final bool autoSendInitialPrompt;
+  final bool embeddedInTab;
 
   @override
   ConsumerState<DemoAIChatScreen> createState() => _DemoAIChatScreenState();
@@ -254,7 +256,10 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
     });
 
     final isEmergency = response.urgency == 'emergency';
-    final shouldTransfer = response.nextAction == 'match_volunteer';
+    final shouldTransfer =
+        response.nextAction == 'match_volunteer' ||
+        response.nextAction == 'show_fallback' ||
+        (!response.canResolveByAi && !isEmergency);
 
     _addBotMessage(
       response.answerText,
@@ -267,7 +272,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
     } else if (shouldTransfer) {
       _showTransferToHumanOption();
     }
-    if (!isEmergency && !shouldTransfer) {
+    if (!isEmergency && !shouldTransfer && response.canResolveByAi) {
       await ref
           .read(demoHelpRequestFlowProvider.notifier)
           .resolveByAI(summary: response.answerText);
@@ -554,304 +559,404 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
   Widget build(BuildContext context) {
     return DemoStageLiveBuilder(
       builder: (context) {
+        final mediaQuery = MediaQuery.of(context);
+        final textScale = mediaQuery.textScaler.scale(1);
+        final compactLayout = mediaQuery.size.width < 380 || textScale > 1.35;
+        final chatBody = _buildChatBody(compactLayout: compactLayout);
+        final inputBar = _buildInputBar();
+
+        if (widget.embeddedInTab) {
+          return Material(
+            color: Colors.transparent,
+            child: SizedBox.expand(
+              child: DecoratedBox(
+                decoration: BoxDecoration(gradient: AppTheme.stageHeroGradient),
+                child: SafeArea(
+                  bottom: false,
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      compactLayout ? AppTheme.spacingM : AppTheme.spacingL,
+                      AppTheme.spacingM,
+                      compactLayout ? AppTheme.spacingM : AppTheme.spacingL,
+                      AppTheme.spacingS,
+                    ),
+                    child: Column(
+                      children: [
+                        _buildEmbeddedHeader(compactLayout: compactLayout),
+                        SizedBox(
+                          height: compactLayout
+                              ? AppTheme.spacingS
+                              : AppTheme.spacingM,
+                        ),
+                        Expanded(child: chatBody),
+                        const SizedBox(height: AppTheme.spacingS),
+                        inputBar,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+
         return DemoStageScaffold(
           title: widget.title,
-          subtitle: '支持文字、图片与语音预置输入',
-          showBackButton: false,
-          body: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppTheme.spacingL,
-                  AppTheme.spacingL,
-                  AppTheme.spacingL,
-                  0,
-                ),
-                child: Column(
-                  children: [
-                    DemoReveal(
-                      child: DemoSurfaceCard(
-                        color: AppTheme.stageSurfaceStrong.withValues(
-                          alpha: 0.94,
-                        ),
-                        borderColor: AppTheme.stageBorder.withValues(
-                          alpha: 0.4,
-                        ),
-                        padding: const EdgeInsets.all(AppTheme.spacingM),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                DemoPill(
-                                  icon: Icons.multitrack_audio_rounded,
-                                  label: 'AI 助手在线',
-                                  color: AppTheme.stageAccentLight,
-                                ),
-                                const SizedBox(width: AppTheme.spacingS),
-                                DemoPill(
-                                  icon: Icons.headset_mic_outlined,
-                                  label: '可转真人',
-                                  color: AppTheme.stageAccentLight,
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: AppTheme.spacingM),
-                            AccessibleText(
-                              '先由 AI 快速完成 OCR、场景描述与颜色识别；不确定时再无缝转接志愿者。',
-                              style: TextStyle(
-                                color: AppTheme.stageTextSecondary,
-                                fontSize: AppTheme.fontSizeSmall,
-                                height: 1.5,
-                              ),
-                            ),
-                            const SizedBox(height: AppTheme.spacingM),
-                            Wrap(
-                              spacing: AppTheme.spacingS,
-                              runSpacing: AppTheme.spacingS,
-                              children: [
-                                DemoPill(
-                                  label: 'OCR',
-                                  icon: Icons.document_scanner_outlined,
-                                  color: AppTheme.stageAccentLight,
-                                ),
-                                DemoPill(
-                                  label: '场景描述',
-                                  icon: Icons.visibility_outlined,
-                                  color: AppTheme.stageAccentLight,
-                                ),
-                                DemoPill(
-                                  label: '紧急词检测',
-                                  icon: Icons.warning_amber_rounded,
-                                  color: AppTheme.stageAccentLight,
-                                ),
-                              ],
-                            ),
-                            if (widget.quickPrompts.isNotEmpty) ...[
-                              const SizedBox(height: AppTheme.spacingM),
-                              SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                  children: [
-                                    for (final prompt
-                                        in widget.quickPrompts) ...[
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                          right: AppTheme.spacingS,
-                                        ),
-                                        child: ActionChip(
-                                          backgroundColor: AppTheme.stageAccent
-                                              .withValues(alpha: 0.14),
-                                          side: BorderSide(
-                                            color: AppTheme.stageAccent
-                                                .withValues(alpha: 0.24),
-                                          ),
-                                          label: Text(
-                                            prompt,
-                                            style: TextStyle(
-                                              color: AppTheme.stageTextPrimary,
-                                            ),
-                                          ),
-                                          onPressed: _isProcessing
-                                              ? null
-                                              : () =>
-                                                    _sendPresetMessage(prompt),
-                                        ),
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: ListView.builder(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.fromLTRB(
-                    AppTheme.spacingL,
-                    AppTheme.spacingL,
-                    AppTheme.spacingL,
-                    AppTheme.spacingL,
-                  ),
-                  itemCount: _messages.length,
-                  itemBuilder: (context, index) {
-                    return _ChatMessageBubble(
-                      message: _messages[index],
-                      onTransferToHuman: _startMatchingFlow,
-                      onStartSOS: _startSOSFlowFromAI,
-                      onSpeak: () => _speakText(_messages[index].text, index),
-                      isSpeaking: _speakingMessageIndex == index,
-                    );
-                  },
-                ),
-              ),
-            ],
+          subtitle: compactLayout ? '文字、图片、语音输入' : '支持文字、图片与语音预置输入',
+          showBackButton: true,
+          body: chatBody,
+          bottomBar: inputBar,
+        );
+      },
+    );
+  }
+
+  Widget _buildEmbeddedHeader({required bool compactLayout}) {
+    return Semantics(
+      header: true,
+      label: 'AI 助手，第一响应入口',
+      child: Row(
+        children: [
+          const DemoGlassIconBadge(
+            icon: Icons.multitrack_audio_rounded,
+            size: 48,
+            iconSize: 24,
+            shape: DemoGlassIconShape.circle,
+            semanticLabel: 'AI 助手',
           ),
-          bottomBar: Column(
-            mainAxisSize: MainAxisSize.min,
+          const SizedBox(width: AppTheme.spacingM),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AccessibleText(
+                  widget.title,
+                  isHeader: true,
+                  style: TextStyle(
+                    color: AppTheme.stageTextPrimary,
+                    fontSize: compactLayout
+                        ? AppTheme.fontSizeNormal
+                        : AppTheme.fontSizeLarge,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: AppTheme.spacingXS),
+                AccessibleText(
+                  'AI 先判断，必要时转真人',
+                  style: TextStyle(
+                    color: AppTheme.stageTextSecondary,
+                    fontSize: AppTheme.fontSizeSmall,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          DemoPill(
+            icon: Icons.offline_bolt_outlined,
+            label: '本地可用',
+            color: AppTheme.stageAccentLight,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChatBody({required bool compactLayout}) {
+    return Column(
+      children: [
+        _buildAssistantContextCard(compactLayout: compactLayout),
+        Expanded(child: _buildMessageList(compactLayout: compactLayout)),
+      ],
+    );
+  }
+
+  Widget _buildAssistantContextCard({required bool compactLayout}) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        widget.embeddedInTab ? 0 : AppTheme.spacingL,
+        widget.embeddedInTab ? 0 : AppTheme.spacingL,
+        widget.embeddedInTab ? 0 : AppTheme.spacingL,
+        0,
+      ),
+      child: DemoReveal(
+        child: DemoSurfaceCard(
+          color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.94),
+          borderColor: AppTheme.stageBorder.withValues(alpha: 0.4),
+          padding: EdgeInsets.all(
+            compactLayout ? AppTheme.spacingS : AppTheme.spacingM,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (_selectedImageBytes != null)
-                DemoSurfaceCard(
-                  margin: const EdgeInsets.only(bottom: AppTheme.spacingM),
-                  padding: const EdgeInsets.all(AppTheme.spacingS),
+              Wrap(
+                spacing: AppTheme.spacingS,
+                runSpacing: AppTheme.spacingS,
+                children: [
+                  DemoPill(
+                    icon: Icons.multitrack_audio_rounded,
+                    label: 'AI 助手在线',
+                    color: AppTheme.stageAccentLight,
+                  ),
+                  DemoPill(
+                    icon: Icons.headset_mic_outlined,
+                    label: '可转真人',
+                    color: AppTheme.stageAccentLight,
+                  ),
+                ],
+              ),
+              if (!compactLayout) ...[
+                const SizedBox(height: AppTheme.spacingM),
+                AccessibleText(
+                  '先由 AI 快速完成 OCR、场景描述与颜色识别；不确定时再无缝转接志愿者。',
+                  style: TextStyle(
+                    color: AppTheme.stageTextSecondary,
+                    fontSize: AppTheme.fontSizeSmall,
+                    height: 1.5,
+                  ),
+                ),
+              ],
+              const SizedBox(height: AppTheme.spacingM),
+              Wrap(
+                spacing: AppTheme.spacingS,
+                runSpacing: AppTheme.spacingS,
+                children: [
+                  DemoPill(
+                    label: 'OCR',
+                    icon: Icons.document_scanner_outlined,
+                    color: AppTheme.stageAccentLight,
+                  ),
+                  DemoPill(
+                    label: '场景描述',
+                    icon: Icons.visibility_outlined,
+                    color: AppTheme.stageAccentLight,
+                  ),
+                  DemoPill(
+                    label: '紧急词检测',
+                    icon: Icons.warning_amber_rounded,
+                    color: AppTheme.stageAccentLight,
+                  ),
+                ],
+              ),
+              if (widget.quickPrompts.isNotEmpty) ...[
+                const SizedBox(height: AppTheme.spacingM),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.memory(
-                          _selectedImageBytes!,
-                          width: 60,
-                          height: 60,
-                          fit: BoxFit.cover,
+                      for (final prompt in widget.quickPrompts) ...[
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            right: AppTheme.spacingS,
+                          ),
+                          child: ActionChip(
+                            backgroundColor: AppTheme.stageAccent.withValues(
+                              alpha: 0.14,
+                            ),
+                            side: BorderSide(
+                              color: AppTheme.stageAccent.withValues(
+                                alpha: 0.24,
+                              ),
+                            ),
+                            label: Text(
+                              prompt,
+                              style: TextStyle(
+                                color: AppTheme.stageTextPrimary,
+                              ),
+                            ),
+                            onPressed: _isProcessing
+                                ? null
+                                : () => _sendPresetMessage(prompt),
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: AppTheme.spacingM),
-                      Expanded(
-                        child: AccessibleText(
-                          _selectedImageName ?? '已选择图片',
-                          style: TextStyle(color: AppTheme.stageTextPrimary),
-                        ),
-                      ),
-                      AccessibleIconButton(
-                        icon: Icons.close,
-                        semanticLabel: '移除已选择的图片',
-                        iconColor: AppTheme.stageTextSecondary,
-                        onPressed: () => setState(() {
-                          _selectedImageBytes = null;
-                          _selectedImageName = null;
-                          _selectedImagePath = null;
-                        }),
-                      ),
+                      ],
                     ],
                   ),
                 ),
-              Container(
-                padding: const EdgeInsets.all(AppTheme.spacingS),
-                decoration: AppTheme.stageCardDecoration(
-                  color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.96),
-                  borderRadius: BorderRadius.circular(28),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMessageList({required bool compactLayout}) {
+    return ListView.builder(
+      controller: _scrollController,
+      padding: EdgeInsets.fromLTRB(
+        widget.embeddedInTab ? 0 : AppTheme.spacingL,
+        compactLayout ? AppTheme.spacingM : AppTheme.spacingL,
+        widget.embeddedInTab ? 0 : AppTheme.spacingL,
+        AppTheme.spacingL,
+      ),
+      itemCount: _messages.length,
+      itemBuilder: (context, index) {
+        return _ChatMessageBubble(
+          message: _messages[index],
+          onTransferToHuman: _startMatchingFlow,
+          onStartSOS: _startSOSFlowFromAI,
+          onSpeak: () => _speakText(_messages[index].text, index),
+          isSpeaking: _speakingMessageIndex == index,
+        );
+      },
+    );
+  }
+
+  Widget _buildInputBar() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (_selectedImageBytes != null)
+          DemoSurfaceCard(
+            margin: const EdgeInsets.only(bottom: AppTheme.spacingM),
+            padding: const EdgeInsets.all(AppTheme.spacingS),
+            child: Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.memory(
+                    _selectedImageBytes!,
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                  ),
                 ),
-                child: Row(
-                  children: [
-                    AccessibleIconButton(
-                      icon: Icons.camera_alt_outlined,
-                      semanticLabel: '拍照',
-                      backgroundColor: AppTheme.stageSurface,
-                      iconColor: AppTheme.stageAccent,
-                      onPressed: _showImagePickerOptions,
+                const SizedBox(width: AppTheme.spacingM),
+                Expanded(
+                  child: AccessibleText(
+                    _selectedImageName ?? '已选择图片',
+                    style: TextStyle(color: AppTheme.stageTextPrimary),
+                  ),
+                ),
+                AccessibleIconButton(
+                  icon: Icons.close,
+                  semanticLabel: '移除已选择的图片',
+                  iconColor: AppTheme.stageTextSecondary,
+                  onPressed: () => setState(() {
+                    _selectedImageBytes = null;
+                    _selectedImageName = null;
+                    _selectedImagePath = null;
+                  }),
+                ),
+              ],
+            ),
+          ),
+        Container(
+          padding: const EdgeInsets.all(AppTheme.spacingS),
+          decoration: AppTheme.stageCardDecoration(
+            color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.96),
+            borderRadius: BorderRadius.circular(28),
+          ),
+          child: Row(
+            children: [
+              AccessibleIconButton(
+                icon: Icons.camera_alt_outlined,
+                semanticLabel: '拍照',
+                backgroundColor: AppTheme.stageSurface,
+                iconColor: AppTheme.stageAccent,
+                onPressed: _showImagePickerOptions,
+              ),
+              const SizedBox(width: AppTheme.spacingS),
+              Semantics(
+                button: true,
+                label: _isListening ? '停止录音' : '语音输入',
+                hint: '双击执行${_isListening ? '停止录音' : '语音输入'}',
+                enabled: !_isProcessing,
+                child: Material(
+                  color: _isListening
+                      ? AppTheme.stageDanger.withValues(alpha: 0.2)
+                      : AppTheme.stageSurface,
+                  borderRadius: BorderRadius.circular(
+                    AppTheme.borderRadiusMedium,
+                  ),
+                  child: InkWell(
+                    onTap: _toggleVoiceInput,
+                    borderRadius: BorderRadius.circular(
+                      AppTheme.borderRadiusMedium,
                     ),
-                    const SizedBox(width: AppTheme.spacingS),
-                    Semantics(
-                      button: true,
-                      label: _isListening ? '停止录音' : '语音输入',
-                      hint: '双击执行${_isListening ? '停止录音' : '语音输入'}',
-                      enabled: !_isProcessing,
-                      child: Material(
+                    child: SizedBox(
+                      width: AppTheme.minTouchTarget,
+                      height: AppTheme.minTouchTarget,
+                      child: Icon(
+                        _isListening ? Icons.stop_rounded : Icons.mic_rounded,
                         color: _isListening
-                            ? AppTheme.stageDanger.withValues(alpha: 0.2)
-                            : AppTheme.stageSurface,
-                        borderRadius: BorderRadius.circular(
-                          AppTheme.borderRadiusMedium,
-                        ),
-                        child: InkWell(
-                          onTap: _toggleVoiceInput,
-                          borderRadius: BorderRadius.circular(
-                            AppTheme.borderRadiusMedium,
-                          ),
-                          child: SizedBox(
-                            width: AppTheme.minTouchTarget,
-                            height: AppTheme.minTouchTarget,
-                            child: Icon(
-                              _isListening
-                                  ? Icons.stop_rounded
-                                  : Icons.mic_rounded,
-                              color: _isListening
-                                  ? AppTheme.stageDanger
-                                  : AppTheme.stageAccent,
-                              size: 28,
-                            ),
-                          ),
+                            ? AppTheme.stageDanger
+                            : AppTheme.stageAccent,
+                        size: 28,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppTheme.spacingS),
+              Expanded(
+                child: TextField(
+                  controller: _textController,
+                  style: TextStyle(color: AppTheme.stageTextPrimary),
+                  decoration: InputDecoration(
+                    hintText: '输入消息...',
+                    hintStyle: TextStyle(color: AppTheme.stageTextHint),
+                    filled: true,
+                    fillColor: AppTheme.stageSurface,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(22),
+                      borderSide: BorderSide.none,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(22),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(22),
+                      borderSide: BorderSide(
+                        color: AppTheme.stageAccent,
+                        width: 1.5,
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: AppTheme.spacingM,
+                      vertical: AppTheme.spacingM,
+                    ),
+                  ),
+                  textInputAction: TextInputAction.send,
+                  onSubmitted: (_) => _sendMessage(),
+                  enabled: !_isProcessing,
+                ),
+              ),
+              const SizedBox(width: AppTheme.spacingS),
+              Container(
+                decoration: BoxDecoration(
+                  gradient: AppTheme.stageAccentGradient,
+                  shape: BoxShape.circle,
+                ),
+                child: Semantics(
+                  button: true,
+                  label: '发送消息',
+                  hint: '双击执行发送消息',
+                  enabled: !_isProcessing,
+                  child: Material(
+                    color: Colors.transparent,
+                    shape: const CircleBorder(),
+                    child: InkWell(
+                      onTap: _isProcessing ? null : _sendMessage,
+                      customBorder: const CircleBorder(),
+                      child: const SizedBox(
+                        width: AppTheme.minTouchTarget,
+                        height: AppTheme.minTouchTarget,
+                        child: LinkableSvgIcon(
+                          icon: LinkableIconName.send,
+                          size: AppTheme.fontSizeLarge,
+                          semanticLabel: '发送消息',
                         ),
                       ),
                     ),
-                    const SizedBox(width: AppTheme.spacingS),
-                    Expanded(
-                      child: TextField(
-                        controller: _textController,
-                        style: TextStyle(color: AppTheme.stageTextPrimary),
-                        decoration: InputDecoration(
-                          hintText: '输入消息...',
-                          hintStyle: TextStyle(color: AppTheme.stageTextHint),
-                          filled: true,
-                          fillColor: AppTheme.stageSurface,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(22),
-                            borderSide: BorderSide.none,
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(22),
-                            borderSide: BorderSide.none,
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(22),
-                            borderSide: BorderSide(
-                              color: AppTheme.stageAccent,
-                              width: 1.5,
-                            ),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: AppTheme.spacingM,
-                            vertical: AppTheme.spacingM,
-                          ),
-                        ),
-                        textInputAction: TextInputAction.send,
-                        onSubmitted: (_) => _sendMessage(),
-                        enabled: !_isProcessing,
-                      ),
-                    ),
-                    const SizedBox(width: AppTheme.spacingS),
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: AppTheme.stageAccentGradient,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Semantics(
-                        button: true,
-                        label: '发送消息',
-                        hint: '双击执行发送消息',
-                        enabled: !_isProcessing,
-                        child: Material(
-                          color: Colors.transparent,
-                          shape: const CircleBorder(),
-                          child: InkWell(
-                            onTap: _isProcessing ? null : _sendMessage,
-                            customBorder: const CircleBorder(),
-                            child: const SizedBox(
-                              width: AppTheme.minTouchTarget,
-                              height: AppTheme.minTouchTarget,
-                              child: LinkableSvgIcon(
-                                icon: LinkableIconName.send,
-                                size: AppTheme.fontSizeLarge,
-                                semanticLabel: '发送消息',
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ],
           ),
-        );
-      },
+        ),
+      ],
     );
   }
 }
@@ -906,17 +1011,56 @@ class _ChatMessageBubble extends StatelessWidget {
         message.data?['action'] == 'sos_triggered';
   }
 
-  bool get _showTransferAction {
+  bool get _hasStandardAgentResponse {
+    return message.data?.containsKey('next_action') == true ||
+        message.data?.containsKey('can_resolve_by_ai') == true;
+  }
+
+  String? get _standardNextAction {
+    return message.data?['next_action'] as String? ??
+        message.data?['nextAction'] as String?;
+  }
+
+  bool get _canResolveByAI {
+    return message.data?['can_resolve_by_ai'] as bool? ??
+        message.data?['canResolveByAi'] as bool? ??
+        true;
+  }
+
+  bool get _requiresTransferAction {
     if (!_isFinalBotResult || _isEmergencyResult) return false;
-    // AgentResponse 标准字段
-    final nextAction = message.data?['next_action'] as String?;
-    if (nextAction == 'match_volunteer') return true;
+    if (_hasStandardAgentResponse) {
+      return _standardNextAction == 'match_volunteer' ||
+          _standardNextAction == 'show_fallback' ||
+          !_canResolveByAI;
+    }
     // 兼容旧格式
     return message.data?['canTransferToHuman'] != false;
   }
 
+  bool get _canOfferManualReview {
+    return _isFinalBotResult &&
+        !_isEmergencyResult &&
+        !_requiresTransferAction &&
+        _canResolveByAI;
+  }
+
   bool get _showSOSAction {
     return _isFinalBotResult && _isEmergencyResult;
+  }
+
+  String get _transferActionLabel {
+    final label = message.uiCopy?.primaryAction.trim();
+    if (label == null || label.isEmpty) {
+      return '连接志愿者';
+    }
+    if (label.contains('继续') ||
+        label.contains('重新') ||
+        label.contains('等待') ||
+        label.contains('稍后')) {
+      return '连接志愿者';
+    }
+    return label;
   }
 
   @override
@@ -994,26 +1138,10 @@ class _ChatMessageBubble extends StatelessWidget {
                     ),
                   if (!message.isUser && !message.text.contains('AI 正在分析')) ...[
                     const SizedBox(height: AppTheme.spacingXS),
-                    // uiCopy 主操作按钮（如有）
-                    if (message.uiCopy != null) ...[
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.stageAccent,
-                            foregroundColor: AppTheme.stageBackground,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          onPressed: onTransferToHuman,
-                          child: Text(message.uiCopy!.primaryAction),
-                        ),
-                      ),
-                      const SizedBox(height: AppTheme.spacingXS),
-                    ],
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
+                    Wrap(
+                      spacing: AppTheme.spacingS,
+                      runSpacing: AppTheme.spacingS,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         AccessibleIconButton(
                           icon: isSpeaking
@@ -1030,20 +1158,28 @@ class _ChatMessageBubble extends StatelessWidget {
                               : AppTheme.stageTextSecondary,
                           onPressed: onSpeak,
                         ),
-                        if (_showTransferAction)
+                        if (_showSOSAction)
+                          _BubbleActionButton(
+                            label: '进入 SOS',
+                            icon: Icons.emergency_outlined,
+                            foregroundColor: AppTheme.stageBackground,
+                            backgroundColor: AppTheme.stageDanger,
+                            onPressed: onStartSOS,
+                          )
+                        else if (_requiresTransferAction)
+                          _BubbleActionButton(
+                            label: _transferActionLabel,
+                            icon: Icons.headset_mic_outlined,
+                            foregroundColor: AppTheme.stageBackground,
+                            backgroundColor: AppTheme.stageAccent,
+                            onPressed: onTransferToHuman,
+                          )
+                        else if (_canOfferManualReview)
                           TextButton(
                             onPressed: onTransferToHuman,
                             child: Text(
-                              '转人工',
+                              '转人工复核',
                               style: TextStyle(color: AppTheme.stageAccent),
-                            ),
-                          ),
-                        if (_showSOSAction)
-                          TextButton(
-                            onPressed: onStartSOS,
-                            child: Text(
-                              '进入 SOS',
-                              style: TextStyle(color: AppTheme.stageDanger),
                             ),
                           ),
                       ],
@@ -1072,6 +1208,53 @@ class _ChatMessageBubble extends StatelessWidget {
               ),
             ],
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BubbleActionButton extends StatelessWidget {
+  const _BubbleActionButton({
+    required this.label,
+    required this.icon,
+    required this.foregroundColor,
+    required this.backgroundColor,
+    required this.onPressed,
+  });
+
+  final String label;
+  final IconData icon;
+  final Color foregroundColor;
+  final Color backgroundColor;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: label,
+      hint: '双击执行$label',
+      child: ElevatedButton.icon(
+        style: ElevatedButton.styleFrom(
+          foregroundColor: foregroundColor,
+          backgroundColor: backgroundColor,
+          minimumSize: const Size(0, AppTheme.minTouchTarget),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppTheme.spacingM,
+            vertical: AppTheme.spacingS,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+          ),
+        ),
+        onPressed: onPressed,
+        icon: Icon(icon, size: AppTheme.fontSizeNormal),
+        label: Text(
+          label,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
         ),
       ),
     );

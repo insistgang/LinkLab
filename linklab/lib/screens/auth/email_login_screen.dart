@@ -155,7 +155,7 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
           title: '邮箱登录',
           subtitle: authReady
               ? 'RealMode 使用 Supabase Auth，不接短信服务商'
-              : '入口已保留，当前 DemoMode 不启动真实认证',
+              : 'DemoMode 使用本地邮箱账号，不依赖外部认证',
           body: Form(
             key: _formKey,
             child: ListView(
@@ -171,11 +171,11 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                     title: '使用邮箱进入 LinkAble',
                     subtitle: authReady
                         ? '本阶段只接真实登录态。不会创建业务表，也不会触发匹配、AI、WebRTC 或 SOS。'
-                        : '当前仍在竞赛 Demo 主线。邮箱页面保留在这里，真实登录需要切换到 RealMode。',
+                        : '当前仍在竞赛 Demo 主线。输入任意有效邮箱和 6 位以上密码，即可使用本地账号进入应用。',
                     icon: Icons.alternate_email_rounded,
                     chips: [
                       DemoPill(
-                        label: authReady ? 'Supabase Auth' : '入口保留',
+                        label: authReady ? 'Supabase Auth' : '本地登录',
                         color: AppTheme.stageAccent,
                       ),
                       DemoPill(
@@ -256,7 +256,9 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                   child: DemoSurfaceCard(
                     color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.96),
                     child: AccessibleText(
-                      '手机号验证码界面仍保留，但 Phase-2 不接真实短信。需要真实手机号登录时，要单独配置短信服务商。',
+                      authReady
+                          ? '手机号验证码界面仍保留，但 Phase-2 不接真实短信。需要真实手机号登录时，要单独配置短信服务商。'
+                          : '本地邮箱登录仅用于手机试装和竞赛演示。真实账号登录会在 RealMode 且 Supabase 配置完整时启用。',
                       style: TextStyle(
                         color: AppTheme.stageTextSecondary,
                         fontSize: AppTheme.fontSizeSmall,
@@ -274,7 +276,7 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
               AccessibleButton(
                 label: '邮箱登录',
                 semanticLabel: '使用邮箱和密码登录',
-                hint: '双击使用 Supabase Auth 登录',
+                hint: authReady ? '双击使用 Supabase Auth 登录' : '双击使用本地演示邮箱账号登录',
                 icon: Icons.login_rounded,
                 isLoading: _isLoading,
                 backgroundColor: AppTheme.stageAccent,
@@ -282,29 +284,99 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                 onPressed: _isLoading ? null : _signIn,
               ),
               const SizedBox(height: AppTheme.spacingM),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: _isLoading ? null : _signUp,
-                      icon: const Icon(Icons.person_add_alt_1_rounded),
-                      label: const Text('注册'),
-                    ),
-                  ),
-                  const SizedBox(width: AppTheme.spacingM),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: _isLoading ? null : _sendLoginLink,
-                      icon: const Icon(Icons.mark_email_read_outlined),
-                      label: const Text('发登录邮件'),
-                    ),
-                  ),
-                ],
+              _EmailAuthSecondaryActions(
+                isLoading: _isLoading,
+                onSignUp: _signUp,
+                onSendLoginLink: _sendLoginLink,
               ),
             ],
           ),
         );
       },
+    );
+  }
+}
+
+class _EmailAuthSecondaryActions extends StatelessWidget {
+  const _EmailAuthSecondaryActions({
+    required this.isLoading,
+    required this.onSignUp,
+    required this.onSendLoginLink,
+  });
+
+  final bool isLoading;
+  final VoidCallback onSignUp;
+  final VoidCallback onSendLoginLink;
+
+  @override
+  Widget build(BuildContext context) {
+    final textScale = MediaQuery.textScalerOf(context).scale(1);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final useVerticalLayout =
+            constraints.maxWidth < 360 || textScale > 1.35;
+        final children = [
+          _SecondaryActionButton(
+            label: '注册',
+            icon: Icons.person_add_alt_1_rounded,
+            onPressed: isLoading ? null : onSignUp,
+          ),
+          _SecondaryActionButton(
+            label: '发登录邮件',
+            icon: Icons.mark_email_read_outlined,
+            onPressed: isLoading ? null : onSendLoginLink,
+          ),
+        ];
+
+        if (useVerticalLayout) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              children[0],
+              const SizedBox(height: AppTheme.spacingS),
+              children[1],
+            ],
+          );
+        }
+
+        return Row(
+          children: [
+            Expanded(child: children[0]),
+            const SizedBox(width: AppTheme.spacingM),
+            Expanded(child: children[1]),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _SecondaryActionButton extends StatelessWidget {
+  const _SecondaryActionButton({
+    required this.label,
+    required this.icon,
+    required this.onPressed,
+  });
+
+  final String label;
+  final IconData icon;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icon),
+        label: Text(
+          label,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
+        ),
+      ),
     );
   }
 }

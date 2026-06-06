@@ -15,6 +15,9 @@ replay_pid*.log
 **/.pub/
 **/coverage/
 
+# Local packaged APKs, smoke-test screenshots, browser profiles and logs.
+/dist/
+
 # Local API config must stay untracked; use api_config.example.dart as template.
 linklab/lib/config/api_config.dart
 

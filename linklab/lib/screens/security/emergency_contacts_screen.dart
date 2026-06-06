@@ -5,6 +5,8 @@ import '../../core/utils/extensions.dart';
 import '../../models/emergency_contact_model.dart';
 import '../../services/security/emergency_contact_service.dart';
 import '../../widgets/accessible/index.dart';
+import '../../widgets/demo/demo_overlays.dart';
+import '../../widgets/demo/demo_stage.dart';
 import '../../widgets/demo/linkable_icon.dart';
 
 /// 紧急联系人管理页面
@@ -46,9 +48,12 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
   Future<void> _openEditor({EmergencyContactModel? contact}) async {
     if (contact == null && _contacts.length >= 3) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
+      showDemoStageSnackBar(
         context,
-      ).showSnackBar(const SnackBar(content: Text('最多只能添加3个紧急联系人')));
+        message: '最多只能添加 3 个紧急联系人',
+        icon: Icons.info_outline,
+        accentColor: AppTheme.stageAccent,
+      );
       return;
     }
 
@@ -82,14 +87,20 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
 
       await _loadContacts();
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(contact == null ? '紧急联系人已添加' : '紧急联系人已更新')),
+      showDemoStageSnackBar(
+        context,
+        message: contact == null ? '紧急联系人已添加' : '紧急联系人已更新',
+        icon: Icons.check_circle_outline,
+        accentColor: AppTheme.stageAccent,
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
+      showDemoStageSnackBar(
         context,
-      ).showSnackBar(SnackBar(content: Text('操作失败: $e')));
+        message: '操作失败：$e',
+        icon: Icons.error_outline,
+        accentColor: AppTheme.stageAccent,
+      );
     }
   }
 
@@ -116,7 +127,7 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.emergencyColor,
+                  backgroundColor: AppTheme.stageAccent,
                   foregroundColor: AppTheme.textOnPrimary,
                 ),
                 onPressed: () => Navigator.of(context).pop(true),
@@ -133,90 +144,104 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
       await _contactService.deleteContact(contact.id);
       await _loadContacts();
       if (!mounted) return;
-      ScaffoldMessenger.of(
+      showDemoStageSnackBar(
         context,
-      ).showSnackBar(const SnackBar(content: Text('联系人已删除')));
+        message: '联系人已删除',
+        icon: Icons.check_circle_outline,
+        accentColor: AppTheme.stageAccent,
+      );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
+      showDemoStageSnackBar(
         context,
-      ).showSnackBar(SnackBar(content: Text('删除失败: $e')));
+        message: '删除失败：$e',
+        icon: Icons.error_outline,
+        accentColor: AppTheme.stageAccent,
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return AccessibleScaffold(
+    return DemoStageScaffold(
       title: '紧急联系人',
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: _loadContacts,
-          child: ListView(
-            padding: const EdgeInsets.all(AppTheme.spacingL),
-            children: [
-              _SummaryBanner(contactCount: _contacts.length),
+      subtitle: '配置 SOS 时同步通知的家人或看护人',
+      body: RefreshIndicator(
+        onRefresh: _loadContacts,
+        color: AppTheme.stageAccent,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(
+            AppTheme.spacingL,
+            AppTheme.spacingL,
+            AppTheme.spacingL,
+            AppTheme.spacingXXL,
+          ),
+          children: [
+            _SummaryBanner(contactCount: _contacts.length),
+            const SizedBox(height: AppTheme.spacingL),
+            if (_isLoading)
+              Padding(
+                padding: const EdgeInsets.only(top: AppTheme.spacingXXL),
+                child: Center(
+                  child: CircularProgressIndicator(color: AppTheme.stageAccent),
+                ),
+              )
+            else if (_contacts.isEmpty)
+              _EmptyState(onAddPressed: () => _openEditor())
+            else ...[
+              AccessibleText(
+                '已设置联系人',
+                style: TextStyle(
+                  color: AppTheme.stageTextPrimary,
+                  fontSize: AppTheme.fontSizeLarge,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: AppTheme.spacingM),
+              ..._contacts.asMap().entries.map(
+                (entry) => Padding(
+                  padding: const EdgeInsets.only(bottom: AppTheme.spacingM),
+                  child: _ContactCard(
+                    contact: entry.value,
+                    displayPriority: entry.key + 1,
+                    onEdit: () => _openEditor(contact: entry.value),
+                    onDelete: () => _deleteContact(entry.value),
+                  ),
+                ),
+              ),
               const SizedBox(height: AppTheme.spacingL),
-              if (_isLoading)
-                const Padding(
-                  padding: EdgeInsets.only(top: AppTheme.spacingXXL),
-                  child: Center(child: CircularProgressIndicator()),
+              if (_contacts.length < 3)
+                AccessibleButton(
+                  label: '添加紧急联系人',
+                  semanticLabel: '添加紧急联系人',
+                  icon: Icons.person_add_alt_1,
+                  backgroundColor: AppTheme.stageAccent,
+                  onPressed: () => _openEditor(),
                 )
-              else if (_contacts.isEmpty)
-                _EmptyState(onAddPressed: () => _openEditor())
-              else ...[
-                const AccessibleText(
-                  '已设置联系人',
-                  style: TextStyle(
-                    fontSize: AppTheme.fontSizeLarge,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: AppTheme.spacingM),
-                ..._contacts.asMap().entries.map(
-                  (entry) => Padding(
-                    padding: const EdgeInsets.only(bottom: AppTheme.spacingM),
-                    child: _ContactCard(
-                      contact: entry.value,
-                      displayPriority: entry.key + 1,
-                      onEdit: () => _openEditor(contact: entry.value),
-                      onDelete: () => _deleteContact(entry.value),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: AppTheme.spacingL),
-                if (_contacts.length < 3)
-                  AccessibleButton(
-                    label: '添加紧急联系人',
-                    semanticLabel: '添加紧急联系人',
-                    icon: Icons.person_add_alt_1,
-                    onPressed: () => _openEditor(),
-                  )
-                else
-                  const AccessibleCard(
-                    margin: EdgeInsets.zero,
-                    child: Row(
-                      children: [
-                        LinkableMaterialIcon(
-                          icon: Icons.verified_user_outlined,
-                          color: AppTheme.secondaryColor,
-                          semanticLabel: '联系人上限',
-                        ),
-                        SizedBox(width: AppTheme.spacingM),
-                        Expanded(
-                          child: AccessibleText(
-                            '已达到 3 位联系人上限。SOS 将按优先级从上到下通知。',
-                            style: TextStyle(
-                              fontSize: AppTheme.fontSizeNormal,
-                              color: AppTheme.textSecondary,
-                            ),
+              else
+                DemoSurfaceCard(
+                  child: Row(
+                    children: [
+                      LinkableMaterialIcon(
+                        icon: Icons.verified_user_outlined,
+                        color: AppTheme.stageAccent,
+                        semanticLabel: '联系人上限',
+                      ),
+                      const SizedBox(width: AppTheme.spacingM),
+                      Expanded(
+                        child: AccessibleText(
+                          '已达到 3 位联系人上限。SOS 将按优先级从上到下通知。',
+                          style: TextStyle(
+                            fontSize: AppTheme.fontSizeNormal,
+                            color: AppTheme.stageTextSecondary,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-              ],
+                ),
             ],
-          ),
+          ],
         ),
       ),
     );
@@ -233,23 +258,49 @@ class _SummaryBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppTheme.spacingL),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppTheme.emergencyColor, AppTheme.warningColor],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        gradient: AppTheme.stageAccentGradient,
+        border: Border.all(color: Colors.white.withValues(alpha: 0.22)),
         borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
+        boxShadow: AppTheme.elevatedShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const AccessibleText(
-            'SOS 安全通知',
-            style: TextStyle(
-              fontSize: AppTheme.fontSizeXLarge,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.textOnPrimary,
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(
+                    AppTheme.borderRadiusMedium,
+                  ),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.22),
+                  ),
+                ),
+                child: LinkableMaterialIcon(
+                  icon: contactCount == 0
+                      ? Icons.contact_emergency_outlined
+                      : Icons.verified_user_outlined,
+                  color: AppTheme.textOnPrimary,
+                  semanticLabel: contactCount == 0 ? '待添加紧急联系人' : '紧急联系人已配置',
+                ),
+              ),
+              const SizedBox(width: AppTheme.spacingM),
+              const Expanded(
+                child: AccessibleText(
+                  'SOS 安全通知',
+                  style: TextStyle(
+                    fontSize: AppTheme.fontSizeXLarge,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textOnPrimary,
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: AppTheme.spacingS),
           AccessibleText(
@@ -262,7 +313,46 @@ class _SummaryBanner extends StatelessWidget {
               height: 1.5,
             ),
           ),
+          const SizedBox(height: AppTheme.spacingM),
+          Wrap(
+            spacing: AppTheme.spacingS,
+            runSpacing: AppTheme.spacingS,
+            children: [
+              _SummaryChip(label: contactCount == 0 ? '待补充联系人' : '联系人已就绪'),
+              _SummaryChip(label: '$contactCount / 3 位联系人'),
+              const _SummaryChip(label: 'SOS 时同步展示'),
+            ],
+          ),
         ],
+      ),
+    );
+  }
+}
+
+class _SummaryChip extends StatelessWidget {
+  const _SummaryChip({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppTheme.spacingM,
+        vertical: AppTheme.spacingS,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.16),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.24)),
+      ),
+      child: AccessibleText(
+        label,
+        style: const TextStyle(
+          fontSize: AppTheme.fontSizeSmall,
+          fontWeight: FontWeight.w600,
+          color: AppTheme.textOnPrimary,
+        ),
       ),
     );
   }
@@ -275,32 +365,32 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AccessibleCard(
-      margin: EdgeInsets.zero,
+    return DemoSurfaceCard(
       padding: const EdgeInsets.all(AppTheme.spacingXL),
       child: Column(
         children: [
-          const LinkableMaterialIcon(
+          LinkableMaterialIcon(
             icon: Icons.contact_emergency_outlined,
             size: 72,
-            color: AppTheme.textHint,
+            color: AppTheme.stageAccent,
             semanticLabel: '暂无紧急联系人',
           ),
           const SizedBox(height: AppTheme.spacingM),
-          const AccessibleText(
+          AccessibleText(
             '暂无紧急联系人',
             style: TextStyle(
+              color: AppTheme.stageTextPrimary,
               fontSize: AppTheme.fontSizeLarge,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: AppTheme.spacingS),
-          const AccessibleText(
+          AccessibleText(
             '添加联系人后，演示版 SOS 页面会显示这些联系人将同步收到通知。',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: AppTheme.fontSizeNormal,
-              color: AppTheme.textSecondary,
+              color: AppTheme.stageTextSecondary,
               height: 1.6,
             ),
           ),
@@ -309,6 +399,7 @@ class _EmptyState extends StatelessWidget {
             label: '添加第一位联系人',
             semanticLabel: '添加第一位紧急联系人',
             icon: Icons.add,
+            backgroundColor: AppTheme.stageAccent,
             onPressed: onAddPressed,
           ),
         ],
@@ -332,9 +423,8 @@ class _ContactCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AccessibleCard(
+    return DemoSurfaceCard(
       semanticLabel: '紧急联系人 ${contact.name}',
-      margin: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -345,18 +435,21 @@ class _ContactCard extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: AppTheme.emergencyColor.withValues(alpha: 0.1),
+                  color: AppTheme.stageAccent.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(
                     AppTheme.borderRadiusMedium,
+                  ),
+                  border: Border.all(
+                    color: AppTheme.stageAccent.withValues(alpha: 0.18),
                   ),
                 ),
                 child: Center(
                   child: AccessibleText(
                     '$displayPriority',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: AppTheme.fontSizeLarge,
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.emergencyColor,
+                      color: AppTheme.stageAccent,
                     ),
                   ),
                 ),
@@ -368,7 +461,8 @@ class _ContactCard extends StatelessWidget {
                   children: [
                     AccessibleText(
                       contact.name,
-                      style: const TextStyle(
+                      style: TextStyle(
+                        color: AppTheme.stageTextPrimary,
                         fontSize: AppTheme.fontSizeLarge,
                         fontWeight: FontWeight.bold,
                       ),
@@ -376,9 +470,9 @@ class _ContactCard extends StatelessWidget {
                     const SizedBox(height: AppTheme.spacingXS),
                     AccessibleText(
                       contact.phone.maskedPhone,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: AppTheme.fontSizeNormal,
-                        color: AppTheme.textSecondary,
+                        color: AppTheme.stageTextSecondary,
                       ),
                     ),
                     if (contact.relationship != null) ...[
@@ -389,14 +483,14 @@ class _ContactCard extends StatelessWidget {
                           vertical: AppTheme.spacingXS,
                         ),
                         decoration: BoxDecoration(
-                          color: AppTheme.primaryColor.withValues(alpha: 0.08),
+                          color: AppTheme.stageAccent.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(999),
                         ),
                         child: AccessibleText(
                           contact.relationshipLabel,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: AppTheme.fontSizeSmall,
-                            color: AppTheme.primaryColor,
+                            color: AppTheme.stageAccent,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -418,9 +512,9 @@ class _ContactCard extends StatelessWidget {
                   ),
                   IconButton(
                     onPressed: onDelete,
-                    icon: const LinkableMaterialIcon(
+                    icon: LinkableMaterialIcon(
                       icon: Icons.delete_outline,
-                      color: AppTheme.emergencyColor,
+                      color: AppTheme.stageAccent,
                       semanticLabel: '删除联系人',
                     ),
                     tooltip: '删除联系人',
@@ -434,9 +528,9 @@ class _ContactCard extends StatelessWidget {
           const SizedBox(height: AppTheme.spacingM),
           AccessibleText(
             '通知顺序：第 $displayPriority 位',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: AppTheme.fontSizeSmall,
-              color: AppTheme.textHint,
+              color: AppTheme.stageTextHint,
             ),
           ),
         ],

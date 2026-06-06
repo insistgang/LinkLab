@@ -138,7 +138,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         // 志愿者模式：待帮助列表、AI 助手、社群、我的
         return const [
           PendingHelpScreen(),
-          DemoAIChatScreen(),
+          DemoAIChatScreen(embeddedInTab: true),
           CommunityScreen(),
           ProfileScreen(),
         ];
@@ -146,7 +146,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         // 求助者模式：首页、AI 助手、社群、我的
         return const [
           SeekerHomeScreen(),
-          DemoAIChatScreen(),
+          DemoAIChatScreen(embeddedInTab: true),
           CommunityScreen(),
           ProfileScreen(),
         ];

@@ -40,6 +40,15 @@ class DemoStageScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final session = AppSessionService.instance;
+    final mediaQuery = MediaQuery.of(context);
+    final screenWidth = mediaQuery.size.width;
+    final compactPhone = screenWidth < 360;
+    final bottomHorizontalPadding = compactPhone
+        ? AppTheme.spacingM
+        : AppTheme.spacingL;
+    final bottomVerticalPadding = compactPhone
+        ? AppTheme.spacingS
+        : AppTheme.spacingL;
 
     return AnimatedBuilder(
       animation: session,
@@ -109,16 +118,28 @@ class DemoStageScaffold extends StatelessWidget {
             ),
             bottomNavigationBar: bottomBar == null
                 ? null
-                : SafeArea(
-                    top: false,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        AppTheme.spacingL,
-                        AppTheme.spacingS,
-                        AppTheme.spacingL,
-                        AppTheme.spacingL,
+                : AnimatedPadding(
+                    duration: const Duration(milliseconds: 180),
+                    curve: Curves.easeOutCubic,
+                    padding: EdgeInsets.only(
+                      bottom: mediaQuery.viewInsets.bottom,
+                    ),
+                    child: SafeArea(
+                      top: false,
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 520),
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(
+                              bottomHorizontalPadding,
+                              AppTheme.spacingS,
+                              bottomHorizontalPadding,
+                              bottomVerticalPadding,
+                            ),
+                            child: bottomBar,
+                          ),
+                        ),
                       ),
-                      child: bottomBar,
                     ),
                   ),
           ),

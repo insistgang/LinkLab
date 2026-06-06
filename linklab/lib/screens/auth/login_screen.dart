@@ -120,45 +120,59 @@ class LoginScreen extends StatelessWidget {
                   backgroundColor: AppTheme.stageSurfaceStrong,
                   foregroundColor: AppTheme.stageTextPrimary,
                   onPressed: () {
-                    pushDemoStageRoute(
-                      context,
-                      page: const PhoneLoginScreen(),
-                    );
+                    pushDemoStageRoute(context, page: const PhoneLoginScreen());
                   },
                 )
               else
-                Row(
-                  children: [
-                    Expanded(
-                      child: _SecondaryLoginButton(
-                        label: '邮箱登录',
-                        semanticLabel: '使用邮箱和密码登录',
-                        hint: '双击进入邮箱登录页面',
-                        icon: Icons.alternate_email_rounded,
-                        onPressed: () {
-                          pushDemoStageRoute(
-                            context,
-                            page: const EmailLoginScreen(),
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: AppTheme.spacingM),
-                    Expanded(
-                      child: _SecondaryLoginButton(
-                        label: '首次使用',
-                        semanticLabel: '首次使用，查看功能引导',
-                        hint: '双击查看应用功能引导',
-                        icon: Icons.arrow_outward_rounded,
-                        onPressed: () {
-                          pushDemoStageRoute(
-                            context,
-                            page: const OnboardingScreen(),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final textScale = MediaQuery.textScalerOf(context).scale(1);
+                    final useVerticalLayout =
+                        constraints.maxWidth < 360 || textScale > 1.35;
+                    final emailButton = _SecondaryLoginButton(
+                      label: '邮箱登录',
+                      semanticLabel: '使用邮箱和密码登录',
+                      hint: '双击进入邮箱登录页面',
+                      icon: Icons.alternate_email_rounded,
+                      onPressed: () {
+                        pushDemoStageRoute(
+                          context,
+                          page: const EmailLoginScreen(),
+                        );
+                      },
+                    );
+                    final onboardingButton = _SecondaryLoginButton(
+                      label: '首次使用',
+                      semanticLabel: '首次使用，查看功能引导',
+                      hint: '双击查看应用功能引导',
+                      icon: Icons.arrow_outward_rounded,
+                      onPressed: () {
+                        pushDemoStageRoute(
+                          context,
+                          page: const OnboardingScreen(),
+                        );
+                      },
+                    );
+
+                    if (useVerticalLayout) {
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          emailButton,
+                          const SizedBox(height: AppTheme.spacingS),
+                          onboardingButton,
+                        ],
+                      );
+                    }
+
+                    return Row(
+                      children: [
+                        Expanded(child: emailButton),
+                        const SizedBox(width: AppTheme.spacingM),
+                        Expanded(child: onboardingButton),
+                      ],
+                    );
+                  },
                 ),
               const SizedBox(height: AppTheme.spacingM),
               AccessibleText(
@@ -204,8 +218,9 @@ class _SecondaryLoginButton extends StatelessWidget {
         icon: Icon(icon, size: 22),
         label: Text(
           label,
-          maxLines: 1,
+          maxLines: 2,
           overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
         ),
         style: OutlinedButton.styleFrom(
           foregroundColor: AppTheme.stageTextPrimary,

@@ -2,7 +2,8 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:linklab/screens/ai_chat/demo_ai_chat_screen.dart';
 
@@ -12,17 +13,28 @@ void main() {
   testWidgets('AI 对话识别 need_human 后进入匹配页，并写入 matching 状态', (tester) async {
     await prepareSignedInDemoEnvironment(clearHelpHistory: true);
 
-    await pumpDemoShell(
-      tester,
-      home: const DemoAIChatScreen(
-        initialPrompt: '这个问题太复杂了，我需要更可靠的人工协助',
-        autoSendInitialPrompt: true,
+    tester.view.physicalSize = const Size(1280, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+    await tester.pumpWidget(
+      const ProviderScope(
+        child: MaterialApp(
+          home: DemoAIChatScreen(
+            initialPrompt: '这个问题太复杂了，我需要更可靠的人工协助',
+            autoSendInitialPrompt: true,
+          ),
+        ),
       ),
     );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
 
     await tester.pump();
     await tester.pump(const Duration(seconds: 3));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 500));
 
     expect(find.text('需要人工帮助？'), findsOneWidget);
 
@@ -45,6 +57,7 @@ void main() {
       scrollable: find.byType(Scrollable).last,
     );
     await tester.tap(find.text('取消匹配'), warnIfMissed: false);
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
   });
 }

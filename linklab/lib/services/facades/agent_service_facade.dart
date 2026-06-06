@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 import '../../config/api_config.dart';
+import '../../config/app_config.dart';
 import '../../core/utils/logger.dart';
 import '../../models/ai_result_model.dart';
 import '../../models/demo_ai_intent.dart';
@@ -22,9 +23,12 @@ import 'agent_result.dart';
 /// UI 层只允许通过本 facade 调用 AI 能力。
 class AgentServiceFacade {
   final DemoAIService _demoService;
-  final UnifiedTtsService _ttsService;
-  final UnifiedAsrService _asrService;
-  final VisionService _visionService;
+  final UnifiedTtsService? _ttsServiceOverride;
+  final UnifiedAsrService? _asrServiceOverride;
+  final VisionService? _visionServiceOverride;
+  UnifiedTtsService? _ttsServiceCache;
+  UnifiedAsrService? _asrServiceCache;
+  VisionService? _visionServiceCache;
 
   AgentServiceFacade({
     DemoAIService? demoService,
@@ -32,9 +36,18 @@ class AgentServiceFacade {
     UnifiedAsrService? asrService,
     VisionService? visionService,
   }) : _demoService = demoService ?? DemoAIService(),
-       _ttsService = ttsService ?? UnifiedTtsService(),
-       _asrService = asrService ?? UnifiedAsrService(),
-       _visionService = visionService ?? VisionService();
+       _ttsServiceOverride = ttsService,
+       _asrServiceOverride = asrService,
+       _visionServiceOverride = visionService;
+
+  UnifiedTtsService get _ttsService =>
+      _ttsServiceOverride ?? (_ttsServiceCache ??= UnifiedTtsService());
+
+  UnifiedAsrService get _asrService =>
+      _asrServiceOverride ?? (_asrServiceCache ??= UnifiedAsrService());
+
+  VisionService get _visionService =>
+      _visionServiceOverride ?? (_visionServiceCache ??= VisionService());
 
   // ────────────────────────── 统一输入处理 ──────────────────────────
 
@@ -48,8 +61,12 @@ class AgentServiceFacade {
     String? imagePath,
     String inputType = 'text',
   }) async {
-    final input = text ?? '';
+    final input = text?.trim() ?? '';
     try {
+      if (!FeatureFlags.enableRealAI || AppConfig.isDemoMode) {
+        return _processDemoInput(input, imagePath: imagePath);
+      }
+
       if (imagePath != null && imagePath.trim().isNotEmpty) {
         return _processImageInput(input, imagePath.trim());
       }
@@ -67,6 +84,15 @@ class AgentServiceFacade {
     }
   }
 
+  Future<AgentResult> _processDemoInput(
+    String input, {
+    String? imagePath,
+  }) async {
+    final prompt = input.isEmpty && imagePath != null ? '这是什么？' : input;
+    final result = await _demoService.process(prompt, imagePath: imagePath);
+    return _mapAIResultToAgentResult(result);
+  }
+
   /// 智谱 GLM-4 系统提示词
   static const _systemPrompt =
       '你是 LinkAble 共感助手，一个专为视障、听障、老年等有障碍需求的用户设计的 AI 互助助手。'
@@ -81,6 +107,7 @@ class AgentServiceFacade {
   /// 调用智谱 GLM-4-flash 进行真实对话
   /// 返回 null 表示调用失败，应降级到 Demo
   Future<AgentResult?> _chatWithLLM(String userMessage) async {
+    if (!FeatureFlags.enableRealAI) return null;
     if (!APIConfig.isZhipuConfigured) return null;
     if (userMessage.trim().isEmpty) return null;
 
@@ -155,7 +182,7 @@ class AgentServiceFacade {
     }
 
     // 优先尝试真实多模态 API
-    if (APIConfig.isZhipuConfigured) {
+    if (FeatureFlags.enableRealAI && APIConfig.isZhipuConfigured) {
       try {
         return await _visionWithLLM(text, imagePath);
       } catch (e) {
@@ -304,7 +331,7 @@ class AgentServiceFacade {
   /// OCR 文字识别
   Future<AgentResult> recognizeText(String imagePath) async {
     // 1. 检查是否配置了百度OCR
-    if (APIConfig.isBaiduOcrConfigured) {
+    if (FeatureFlags.enableRealAI && APIConfig.isBaiduOcrConfigured) {
       try {
         final ocrService = BaiduOCRService();
         final isAvailable = await ocrService.isAvailable();
@@ -345,7 +372,7 @@ class AgentServiceFacade {
   /// 场景描述
   Future<AgentResult> describeScene(String imagePath) async {
     // 1. 优先使用智谱AI
-    if (_visionService.hasRealService) {
+    if (FeatureFlags.enableRealAI && _visionService.hasRealService) {
       final result = await _visionService.describeScene(imagePath);
       if (result.success) {
         return AgentResult.success(
@@ -376,7 +403,7 @@ class AgentServiceFacade {
   /// 颜色识别
   Future<AgentResult> recognizeColor(String imagePath) async {
     // 1. 优先使用智谱AI
-    if (_visionService.hasRealService) {
+    if (FeatureFlags.enableRealAI && _visionService.hasRealService) {
       final result = await _visionService.recognizeColor(imagePath);
       if (result.success) {
         return AgentResult.success(
@@ -407,7 +434,7 @@ class AgentServiceFacade {
   /// 药品确认
   Future<AgentResult> checkMedicine(String imagePath) async {
     // 1. 优先使用智谱AI
-    if (_visionService.hasRealService) {
+    if (FeatureFlags.enableRealAI && _visionService.hasRealService) {
       final result = await _visionService.checkMedicine(imagePath);
       if (result.success) {
         return AgentResult.success(
@@ -445,7 +472,7 @@ class AgentServiceFacade {
   /// 钞票识别
   Future<AgentResult> recognizeMoney(String imagePath) async {
     // 1. 优先使用智谱AI
-    if (_visionService.hasRealService) {
+    if (FeatureFlags.enableRealAI && _visionService.hasRealService) {
       final result = await _visionService.recognizeMoney(imagePath);
       if (result.success) {
         return AgentResult.success(
@@ -479,7 +506,7 @@ class AgentServiceFacade {
   /// 物体识别
   Future<AgentResult> identifyObject(String imagePath) async {
     // 1. 优先使用智谱AI
-    if (_visionService.hasRealService) {
+    if (FeatureFlags.enableRealAI && _visionService.hasRealService) {
       final result = await _visionService.identifyObject(imagePath);
       if (result.success) {
         return AgentResult.success(

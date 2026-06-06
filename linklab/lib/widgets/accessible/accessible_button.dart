@@ -84,9 +84,12 @@ class AccessibleButton extends StatelessWidget {
             borderRadius ?? AppTheme.borderRadiusLarge,
           ),
           child: Container(
-            height: btnHeight,
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingL),
+            constraints: BoxConstraints(minHeight: btnHeight),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppTheme.spacingL,
+              vertical: AppTheme.spacingM,
+            ),
             child: isLoading
                 ? Center(
                     child: CircularProgressIndicator(
@@ -106,14 +109,19 @@ class AccessibleButton extends StatelessWidget {
                         ),
                         const SizedBox(width: AppTheme.spacingM),
                       ],
-                      Text(
-                        label,
-                        style: TextStyle(
-                          color: fgColor,
-                          fontSize: isEmergency
-                              ? AppTheme.fontSizeXLarge
-                              : AppTheme.fontSizeLarge,
-                          fontWeight: FontWeight.bold,
+                      Flexible(
+                        child: Text(
+                          label,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: fgColor,
+                            fontSize: isEmergency
+                                ? AppTheme.fontSizeXLarge
+                                : AppTheme.fontSizeLarge,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ],

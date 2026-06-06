@@ -473,7 +473,7 @@ class _HeroPanel extends StatelessWidget {
           const SizedBox(height: AppTheme.spacingM),
           Center(
             child: AccessibleText(
-              '点击启动紧急求助',
+              '点击启动SOS紧急求助',
               style: TextStyle(
                 color: AppTheme.stageTextSecondary,
                 fontSize: AppTheme.fontSizeSmall,
@@ -529,6 +529,7 @@ class _PrimaryHelpCluster extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final buttonSize = screenWidth < 360 ? 188.0 : 210.0;
+    final logoSize = buttonSize;
     return Semantics(
       button: true,
       label: '启动 SOS 紧急求助',
@@ -547,13 +548,13 @@ class _PrimaryHelpCluster extends StatelessWidget {
             width: buttonSize,
             height: buttonSize,
             decoration: BoxDecoration(
-              color: AppTheme.stageAccent,
+              gradient: AppTheme.stageAccentGradient,
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.stageAccent.withValues(alpha: 0.34),
-                  blurRadius: 32,
-                  offset: const Offset(0, 16),
+                  color: AppTheme.stageAccent.withValues(alpha: 0.24),
+                  blurRadius: 22,
+                  offset: const Offset(0, 10),
                 ),
               ],
             ),
@@ -562,8 +563,8 @@ class _PrimaryHelpCluster extends StatelessWidget {
                 child: ClipOval(
                   child: SvgPicture.asset(
                     _logoAssetPath,
-                    width: buttonSize,
-                    height: buttonSize,
+                    width: logoSize,
+                    height: logoSize,
                     fit: BoxFit.cover,
                   ),
                 ),

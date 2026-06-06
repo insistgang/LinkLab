@@ -6,7 +6,6 @@ import '../../models/user_model.dart';
 import '../../providers/app_session_provider.dart';
 import '../../widgets/accessible/index.dart';
 import '../../widgets/demo/demo_auth.dart';
-import '../../widgets/demo/demo_motion.dart';
 import '../../widgets/demo/demo_overlays.dart';
 import '../../widgets/demo/demo_routes.dart';
 import '../../widgets/demo/demo_stage.dart';
@@ -72,7 +71,7 @@ class _PreferenceScreenState extends ConsumerState<PreferenceScreen> {
         context,
         message: '显示与无障碍偏好已更新',
         icon: Icons.check_circle_outline,
-        accentColor: AppTheme.stageSuccess,
+        accentColor: AppTheme.stageAccent,
       );
       Navigator.of(context).pop();
       return;
@@ -98,24 +97,87 @@ class _PreferenceScreenState extends ConsumerState<PreferenceScreen> {
   Widget build(BuildContext context) {
     return DemoStageLiveBuilder(
       builder: (context) {
-        return DemoStageScaffold(
+        final isEditMode = widget.isEditMode;
+        return _PreferencePageShell(
           title: '无障碍偏好',
-          subtitle: widget.isEditMode ? '当前修改会立即生效' : '最后一步，完成后进入主线演示',
+          subtitle: isEditMode ? '当前修改会立即生效' : '最后一步，完成后进入主线演示',
           body: DemoAuthFormTheme(
             child: ListView(
               padding: const EdgeInsets.fromLTRB(
                 AppTheme.spacingL,
                 AppTheme.spacingL,
                 AppTheme.spacingL,
-                120,
+                AppTheme.spacingL,
               ),
               children: [
-                DemoReveal(
-                  child: DemoAuthBanner(
+                if (isEditMode) ...[
+                  DemoSurfaceCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                color: AppTheme.stageAccent.withValues(
+                                  alpha: 0.12,
+                                ),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: AppTheme.stageAccent.withValues(
+                                    alpha: 0.2,
+                                  ),
+                                ),
+                              ),
+                              child: const LinkableSvgIcon(
+                                icon: LinkableIconName.personalizedExperience,
+                                semanticLabel: '无障碍偏好',
+                              ),
+                            ),
+                            const SizedBox(width: AppTheme.spacingM),
+                            Expanded(
+                              child: AccessibleText(
+                                '编辑无障碍偏好',
+                                style: TextStyle(
+                                  color: AppTheme.stageTextPrimary,
+                                  fontSize: AppTheme.fontSizeLarge,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppTheme.spacingM),
+                        Wrap(
+                          spacing: AppTheme.spacingS,
+                          runSpacing: AppTheme.spacingS,
+                          children: [
+                            DemoPill(
+                              label: _stageMode == DemoStageMode.day
+                                  ? '荧光日间'
+                                  : '深夜模式',
+                              color: AppTheme.stageAccent,
+                            ),
+                            DemoPill(
+                              label: _autoReadResults ? '自动朗读开' : '自动朗读关',
+                              color: AppTheme.stageAccent,
+                            ),
+                            DemoPill(
+                              label: _hapticFeedback ? '触觉反馈开' : '触觉反馈关',
+                              color: AppTheme.stageAccent,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: AppTheme.spacingL),
+                ] else ...[
+                  DemoAuthBanner(
                     title: '个性化您的使用体验',
-                    subtitle: widget.isEditMode
-                        ? '这些设置会立即应用到当前会话。'
-                        : '这些设置可以随时在"我的"页面修改。',
+                    subtitle: '这些设置可以随时在"我的"页面修改。',
                     icon: Icons.settings_accessibility_rounded,
                     chips: [
                       DemoPill(
@@ -134,133 +196,251 @@ class _PreferenceScreenState extends ConsumerState<PreferenceScreen> {
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(height: AppTheme.spacingL),
-                DemoReveal(
-                  delay: const Duration(milliseconds: 80),
-                  child: DemoMetricStrip(
+                  const SizedBox(height: AppTheme.spacingL),
+                  DemoMetricStrip(
                     items: [
                       DemoMetricItem(
                         label: '界面',
                         value: _stageMode == DemoStageMode.day ? '日间' : '深夜',
-                        color: _stageMode == DemoStageMode.day
-                            ? AppTheme.stageInfo
-                            : AppTheme.stageAccent,
+                        color: AppTheme.stageAccent,
                       ),
                       DemoMetricItem(
                         label: '朗读',
                         value: _autoReadResults ? '自动开启' : '手动触发',
-                        color: AppTheme.stageInfo,
+                        color: AppTheme.stageAccent,
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(height: AppTheme.spacingL),
-                DemoReveal(
-                  delay: const Duration(milliseconds: 110),
-                  child: _StageModeCard(
-                    mode: _stageMode,
-                    onModeChanged: (mode) {
-                      setState(() {
-                        _stageMode = mode;
-                      });
-                    },
-                  ),
-                ),
-                const SizedBox(height: AppTheme.spacingM),
-                DemoReveal(
-                  delay: const Duration(milliseconds: 140),
-                  child: _PreferenceSwitchCard(
-                    title: '高对比度模式',
-                    subtitle: '使用更强的明暗对比，提升弱视和读屏用户的识别效率。',
-                    value: _highContrastMode,
-                    leadingIcon: LinkableIconName.highContrast,
-                    onChanged: (value) {
-                      setState(() {
-                        _highContrastMode = value;
-                      });
-                    },
-                  ),
+                  const SizedBox(height: AppTheme.spacingL),
+                ],
+                _PreferenceSwitchCard(
+                  title: '自动朗读结果',
+                  subtitle: 'AI 识别完成后自动语音播报，减少额外点击。',
+                  value: _autoReadResults,
+                  leadingIcon: LinkableIconName.tts,
+                  onChanged: (value) {
+                    setState(() {
+                      _autoReadResults = value;
+                    });
+                  },
                 ),
                 const SizedBox(height: AppTheme.spacingM),
-                DemoReveal(
-                  delay: const Duration(milliseconds: 170),
-                  child: _PreferenceSliderCard(
-                    title: '字体大小',
-                    subtitle: '调整应用内文字显示大小。',
-                    value: _fontScale,
-                    min: 0.8,
-                    max: 2.0,
-                    divisions: 12,
-                    leadingIcon: LinkableIconName.fontSize,
-                    onChanged: (value) {
-                      setState(() {
-                        _fontScale = value;
-                      });
-                    },
-                  ),
+                _PreferenceSwitchCard(
+                  title: '触觉反馈',
+                  subtitle: '操作时提供振动反馈，帮助确认关键动作已触发。',
+                  value: _hapticFeedback,
+                  leadingIcon: LinkableIconName.vibrationFlash,
+                  onChanged: (value) {
+                    setState(() {
+                      _hapticFeedback = value;
+                    });
+                  },
                 ),
                 const SizedBox(height: AppTheme.spacingM),
-                DemoReveal(
-                  delay: const Duration(milliseconds: 200),
-                  child: _PreferenceSliderCard(
-                    title: '语音播报速度',
-                    subtitle: '调整 AI 语音播报的速度。',
-                    value: _voiceSpeed,
-                    min: 0.5,
-                    max: 2.0,
-                    divisions: 6,
-                    leadingIcon: LinkableIconName.voiceInput,
-                    onChanged: (value) {
-                      setState(() {
-                        _voiceSpeed = value;
-                      });
-                    },
-                  ),
+                _StageModeCard(
+                  mode: _stageMode,
+                  onModeChanged: (mode) {
+                    setState(() {
+                      _stageMode = mode;
+                    });
+                  },
                 ),
                 const SizedBox(height: AppTheme.spacingM),
-                DemoReveal(
-                  delay: const Duration(milliseconds: 230),
-                  child: _PreferenceSwitchCard(
-                    title: '触觉反馈',
-                    subtitle: '操作时提供振动反馈，帮助确认关键动作已触发。',
-                    value: _hapticFeedback,
-                    leadingIcon: LinkableIconName.vibrationFlash,
-                    onChanged: (value) {
-                      setState(() {
-                        _hapticFeedback = value;
-                      });
-                    },
-                  ),
+                _PreferenceSwitchCard(
+                  title: '高对比度模式',
+                  subtitle: '使用更强的明暗对比，提升弱视和读屏用户的识别效率。',
+                  value: _highContrastMode,
+                  leadingIcon: LinkableIconName.highContrast,
+                  onChanged: (value) {
+                    setState(() {
+                      _highContrastMode = value;
+                    });
+                  },
                 ),
                 const SizedBox(height: AppTheme.spacingM),
-                DemoReveal(
-                  delay: const Duration(milliseconds: 260),
-                  child: _PreferenceSwitchCard(
-                    title: '自动朗读结果',
-                    subtitle: 'AI 识别完成后自动语音播报，减少额外点击。',
-                    value: _autoReadResults,
-                    leadingIcon: LinkableIconName.tts,
-                    onChanged: (value) {
-                      setState(() {
-                        _autoReadResults = value;
-                      });
-                    },
-                  ),
+                _PreferenceSliderCard(
+                  title: '字体大小',
+                  subtitle: '调整应用内文字显示大小。',
+                  value: _fontScale,
+                  min: 0.8,
+                  max: 2.0,
+                  divisions: 12,
+                  leadingIcon: LinkableIconName.fontSize,
+                  onChanged: (value) {
+                    setState(() {
+                      _fontScale = value;
+                    });
+                  },
                 ),
+                const SizedBox(height: AppTheme.spacingM),
+                _PreferenceSliderCard(
+                  title: '语音播报速度',
+                  subtitle: '调整 AI 语音播报的速度。',
+                  value: _voiceSpeed,
+                  min: 0.5,
+                  max: 2.0,
+                  divisions: 6,
+                  leadingIcon: LinkableIconName.voiceInput,
+                  onChanged: (value) {
+                    setState(() {
+                      _voiceSpeed = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: AppTheme.spacingM),
               ],
             ),
           ),
           bottomBar: AccessibleButton(
-            label: widget.isEditMode ? '保存设置' : '开始使用',
-            semanticLabel: widget.isEditMode ? '保存无障碍偏好' : '完成设置，进入应用',
-            hint: widget.isEditMode ? '双击保存偏好设置' : '双击开始使用共感LinkAble',
+            label: isEditMode ? '保存设置' : '开始使用',
+            semanticLabel: isEditMode ? '保存无障碍偏好' : '完成设置，进入应用',
+            hint: isEditMode ? '双击保存偏好设置' : '双击开始使用共感LinkAble',
             backgroundColor: AppTheme.stageAccent,
             foregroundColor: AppTheme.stageBackground,
             onPressed: _onComplete,
           ),
         );
       },
+    );
+  }
+}
+
+class _PreferencePageShell extends StatelessWidget {
+  const _PreferencePageShell({
+    required this.title,
+    required this.subtitle,
+    required this.body,
+    required this.bottomBar,
+  });
+
+  final String title;
+  final String subtitle;
+  final Widget body;
+  final Widget bottomBar;
+
+  @override
+  Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final compactPhone = mediaQuery.size.width < 360;
+    final horizontalPadding = compactPhone
+        ? AppTheme.spacingM
+        : AppTheme.spacingL;
+
+    return Scaffold(
+      backgroundColor: AppTheme.stageBackground,
+      resizeToAvoidBottomInset: true,
+      body: DecoratedBox(
+        decoration: BoxDecoration(gradient: AppTheme.stageHeroGradient),
+        child: SafeArea(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 520),
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(
+                  horizontalPadding,
+                  AppTheme.spacingS,
+                  horizontalPadding,
+                  AppTheme.spacingL,
+                ),
+                child: Column(
+                  children: [
+                    _PreferenceHeader(title: title, subtitle: subtitle),
+                    const SizedBox(height: AppTheme.spacingM),
+                    Expanded(child: ClipRect(child: body)),
+                    const SizedBox(height: AppTheme.spacingM),
+                    bottomBar,
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PreferenceHeader extends StatelessWidget {
+  const _PreferenceHeader({required this.title, required this.subtitle});
+
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    final canPop = Navigator.of(context).canPop();
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Semantics(
+          button: true,
+          label: canPop ? '返回' : '返回不可用',
+          hint: canPop ? '双击返回上一页' : '当前已经是第一页',
+          child: InkWell(
+            onTap: canPop ? () => Navigator.of(context).pop() : null,
+            borderRadius: BorderRadius.circular(999),
+            child: Ink(
+              width: AppTheme.minTouchTarget + 8,
+              height: AppTheme.minTouchTarget + 8,
+              decoration: BoxDecoration(
+                gradient: canPop ? AppTheme.stageAccentGradient : null,
+                color: canPop
+                    ? null
+                    : AppTheme.stageAccent.withValues(alpha: 0.24),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppTheme.stageBackground.withValues(alpha: 0.56),
+                ),
+              ),
+              child: const LinkableSvgIcon(
+                icon: LinkableIconName.back,
+                size: 44,
+                semanticLabel: '返回',
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: AppTheme.spacingM),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(top: AppTheme.spacingXS),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AccessibleText(
+                  title,
+                  isHeader: true,
+                  style: TextStyle(
+                    color: AppTheme.stageTextPrimary,
+                    fontSize: AppTheme.fontSizeLarge,
+                    fontWeight: FontWeight.w800,
+                    height: 1.18,
+                  ),
+                ),
+                const SizedBox(height: AppTheme.spacingS),
+                Container(
+                  width: 46,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppTheme.stageAccent,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+                const SizedBox(height: AppTheme.spacingS),
+                AccessibleText(
+                  subtitle,
+                  style: TextStyle(
+                    color: AppTheme.stageTextSecondary,
+                    fontSize: AppTheme.fontSizeSmall,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -360,11 +540,7 @@ class _StageModeOptionButton extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              LinkableSvgIcon(
-                icon: icon,
-                size: 24,
-                semanticLabel: '$label模式',
-              ),
+              LinkableSvgIcon(icon: icon, size: 24, semanticLabel: '$label模式'),
               const SizedBox(height: AppTheme.spacingS),
               AccessibleText(
                 label,
@@ -418,12 +594,14 @@ class _PreferenceSwitchCard extends StatelessWidget {
                 ),
                 const SizedBox(width: AppTheme.spacingS),
               ],
-              AccessibleText(
-                title,
-                style: TextStyle(
-                  color: AppTheme.stageTextPrimary,
-                  fontSize: AppTheme.fontSizeNormal,
-                  fontWeight: FontWeight.w700,
+              Expanded(
+                child: AccessibleText(
+                  title,
+                  style: TextStyle(
+                    color: AppTheme.stageTextPrimary,
+                    fontSize: AppTheme.fontSizeNormal,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ],
@@ -438,6 +616,10 @@ class _PreferenceSwitchCard extends StatelessWidget {
           ),
           value: value,
           onChanged: onChanged,
+          activeThumbColor: AppTheme.stageAccent,
+          activeTrackColor: AppTheme.stageAccent.withValues(alpha: 0.38),
+          inactiveThumbColor: AppTheme.stageTextHint,
+          inactiveTrackColor: AppTheme.stageBorder.withValues(alpha: 0.46),
         ),
       ),
     );
@@ -485,12 +667,14 @@ class _PreferenceSliderCard extends StatelessWidget {
                   ),
                   const SizedBox(width: AppTheme.spacingS),
                 ],
-                AccessibleText(
-                  title,
-                  style: TextStyle(
-                    color: AppTheme.stageTextPrimary,
-                    fontSize: AppTheme.fontSizeNormal,
-                    fontWeight: FontWeight.w700,
+                Expanded(
+                  child: AccessibleText(
+                    title,
+                    style: TextStyle(
+                      color: AppTheme.stageTextPrimary,
+                      fontSize: AppTheme.fontSizeNormal,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ],
@@ -520,6 +704,8 @@ class _PreferenceSliderCard extends StatelessWidget {
                     max: max,
                     divisions: divisions,
                     label: '${value.toStringAsFixed(1)}x',
+                    activeColor: AppTheme.stageAccent,
+                    inactiveColor: AppTheme.stageAccent.withValues(alpha: 0.18),
                     onChanged: onChanged,
                   ),
                 ),

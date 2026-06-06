@@ -5,6 +5,7 @@ import '../../models/help_request_model.dart';
 import '../../models/help_statistics_model.dart';
 import '../../models/favorite_volunteer_model.dart';
 import '../../models/user_model.dart';
+import '../../core/theme/app_theme.dart';
 // ignore: deprecated_member_use_from_same_package
 import '../../services/app_session_service.dart';
 import '../../services/user_center/async_task_service.dart';
@@ -14,6 +15,7 @@ import '../../services/user_center/help_archive_service.dart';
 // import '../../services/user_center/points_service.dart';
 import '../../services/user_center/favorite_volunteer_service.dart';
 import '../../core/utils/extensions.dart';
+import '../../widgets/demo/demo_overlays.dart';
 import '../call/async_help_request_screen.dart';
 import 'volunteer_detail_screen.dart';
 
@@ -1015,119 +1017,137 @@ class _AccessibilityPreferencesTabState
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        // 显示设置
-        _buildSectionTitle('显示设置'),
-        Card(
-          child: Column(
+    return ColoredBox(
+      color: AppTheme.stageBackground,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(
+          AppTheme.spacingL,
+          AppTheme.spacingL,
+          AppTheme.spacingL,
+          AppTheme.spacingXXL,
+        ),
+        children: [
+          _buildSectionTitle('显示设置'),
+          _buildSettingsCard(
             children: [
-              SwitchListTile(
-                title: const Text('高对比度模式'),
-                subtitle: const Text('增强界面元素对比度'),
+              _buildSwitchTile(
+                title: '高对比度模式',
+                subtitle: '增强界面元素对比度',
                 value: _highContrast,
                 onChanged: (value) => setState(() => _highContrast = value),
               ),
-              const Divider(height: 1),
-              ListTile(
-                title: const Text('字体大小'),
-                subtitle: Text('${_fontScale.toStringAsFixed(1)}x'),
-                trailing: SizedBox(
-                  width: 200,
-                  child: Slider(
-                    value: _fontScale,
-                    min: 0.8,
-                    max: 2.0,
-                    divisions: 12,
-                    onChanged: (value) => setState(() => _fontScale = value),
-                  ),
-                ),
+              _buildStageDivider(),
+              _buildSliderTile(
+                title: '字体大小',
+                value: _fontScale,
+                min: 0.8,
+                max: 2.0,
+                divisions: 12,
+                onChanged: (value) => setState(() => _fontScale = value),
               ),
             ],
           ),
-        ),
-
-        const SizedBox(height: 24),
-
-        // 语音设置
-        _buildSectionTitle('语音设置'),
-        Card(
-          child: Column(
+          const SizedBox(height: AppTheme.spacingL),
+          _buildSectionTitle('语音设置'),
+          _buildSettingsCard(
             children: [
-              SwitchListTile(
-                title: const Text('语音引导'),
-                subtitle: const Text('自动朗读界面内容'),
+              _buildSwitchTile(
+                title: '语音引导',
+                subtitle: '自动朗读界面内容',
                 value: _voiceGuidance,
                 onChanged: (value) => setState(() => _voiceGuidance = value),
               ),
-              const Divider(height: 1),
-              SwitchListTile(
-                title: const Text('自动朗读结果'),
-                subtitle: const Text('AI识别后自动朗读'),
+              _buildStageDivider(),
+              _buildSwitchTile(
+                title: '自动朗读结果',
+                subtitle: 'AI 识别后自动朗读',
                 value: _autoReadResults,
                 onChanged: (value) => setState(() => _autoReadResults = value),
               ),
-              const Divider(height: 1),
+              _buildStageDivider(),
+              _buildSliderTile(
+                title: '语音速度',
+                value: _voiceSpeed,
+                min: 0.5,
+                max: 2.0,
+                divisions: 15,
+                onChanged: (value) => setState(() => _voiceSpeed = value),
+              ),
+              _buildStageDivider(),
               ListTile(
-                title: const Text('语音速度'),
-                subtitle: Text('${_voiceSpeed.toStringAsFixed(1)}x'),
-                trailing: SizedBox(
-                  width: 200,
-                  child: Slider(
-                    value: _voiceSpeed,
-                    min: 0.5,
-                    max: 2.0,
-                    divisions: 15,
-                    onChanged: (value) => setState(() => _voiceSpeed = value),
+                contentPadding: EdgeInsets.zero,
+                title: Text(
+                  '语音性别',
+                  style: TextStyle(
+                    color: AppTheme.stageTextPrimary,
+                    fontSize: AppTheme.fontSizeNormal,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-              ),
-              const Divider(height: 1),
-              ListTile(
-                title: const Text('语音性别'),
-                trailing: DropdownButton<String>(
-                  value: _voiceGender,
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() => _voiceGender = value);
-                    }
-                  },
-                  items: const [
-                    DropdownMenuItem(value: 'female', child: Text('女声')),
-                    DropdownMenuItem(value: 'male', child: Text('男声')),
-                  ],
+                trailing: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: _voiceGender,
+                    dropdownColor: Color.alphaBlend(
+                      AppTheme.stageSurfaceStrong,
+                      AppTheme.stageBackground,
+                    ),
+                    style: TextStyle(
+                      color: AppTheme.stageTextPrimary,
+                      fontSize: AppTheme.fontSizeNormal,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    iconEnabledColor: AppTheme.stageAccent,
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => _voiceGender = value);
+                      }
+                    },
+                    items: const [
+                      DropdownMenuItem(value: 'female', child: Text('女声')),
+                      DropdownMenuItem(value: 'male', child: Text('男声')),
+                    ],
+                  ),
                 ),
               ),
             ],
           ),
-        ),
-
-        const SizedBox(height: 24),
-
-        // 触觉反馈
-        _buildSectionTitle('触觉反馈'),
-        Card(
-          child: SwitchListTile(
-            title: const Text('启用触觉反馈'),
-            subtitle: const Text('操作时使用振动反馈'),
-            value: _hapticFeedback,
-            onChanged: (value) => setState(() => _hapticFeedback = value),
+          const SizedBox(height: AppTheme.spacingL),
+          _buildSectionTitle('触觉反馈'),
+          _buildSettingsCard(
+            children: [
+              _buildSwitchTile(
+                title: '启用触觉反馈',
+                subtitle: '操作时使用振动反馈',
+                value: _hapticFeedback,
+                onChanged: (value) => setState(() => _hapticFeedback = value),
+              ),
+            ],
           ),
-        ),
-
-        const SizedBox(height: 32),
-
-        // 保存按钮
-        ElevatedButton.icon(
-          onPressed: _savePreferences,
-          icon: const Icon(Icons.save),
-          label: const Text('保存设置'),
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 16),
+          const SizedBox(height: AppTheme.spacingXL),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: _savePreferences,
+              icon: const Icon(Icons.save_outlined),
+              label: const Text('保存设置'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.stageAccent,
+                foregroundColor: AppTheme.stageBackground,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                    AppTheme.borderRadiusLarge,
+                  ),
+                ),
+                textStyle: const TextStyle(
+                  fontSize: AppTheme.fontSizeLarge,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -1136,12 +1156,131 @@ class _AccessibilityPreferencesTabState
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.bold,
-          color: Colors.grey,
+          color: AppTheme.stageTextPrimary,
         ),
       ),
+    );
+  }
+
+  Widget _buildSettingsCard({required List<Widget> children}) {
+    return Card(
+      margin: EdgeInsets.zero,
+      elevation: 0,
+      color: Color.alphaBlend(
+        AppTheme.stageSurfaceStrong,
+        AppTheme.stageBackground,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
+        side: BorderSide(color: AppTheme.stageAccent.withValues(alpha: 0.18)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppTheme.spacingL),
+        child: Column(children: children),
+      ),
+    );
+  }
+
+  Widget _buildSwitchTile({
+    required String title,
+    required String subtitle,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return SwitchListTile(
+      contentPadding: EdgeInsets.zero,
+      title: Text(
+        title,
+        style: TextStyle(
+          color: AppTheme.stageTextPrimary,
+          fontSize: AppTheme.fontSizeNormal,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: TextStyle(
+          color: AppTheme.stageTextSecondary,
+          fontSize: AppTheme.fontSizeSmall,
+          height: 1.4,
+        ),
+      ),
+      value: value,
+      onChanged: onChanged,
+      activeThumbColor: AppTheme.stageAccent,
+      activeTrackColor: AppTheme.stageAccent.withValues(alpha: 0.38),
+      inactiveThumbColor: AppTheme.stageTextHint,
+      inactiveTrackColor: AppTheme.stageBorder.withValues(alpha: 0.46),
+    );
+  }
+
+  Widget _buildSliderTile({
+    required String title,
+    required double value,
+    required double min,
+    required double max,
+    required int divisions,
+    required ValueChanged<double> onChanged,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppTheme.spacingS),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    color: AppTheme.stageTextPrimary,
+                    fontSize: AppTheme.fontSizeNormal,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppTheme.spacingS,
+                  vertical: AppTheme.spacingXS,
+                ),
+                decoration: BoxDecoration(
+                  color: AppTheme.stageAccent.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  '${value.toStringAsFixed(1)}x',
+                  style: TextStyle(
+                    color: AppTheme.stageAccent,
+                    fontSize: AppTheme.fontSizeSmall,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Slider(
+            value: value,
+            min: min,
+            max: max,
+            divisions: divisions,
+            label: '${value.toStringAsFixed(1)}x',
+            activeColor: AppTheme.stageAccent,
+            inactiveColor: AppTheme.stageAccent.withValues(alpha: 0.18),
+            onChanged: onChanged,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStageDivider() {
+    return Divider(
+      height: AppTheme.spacingXL,
+      color: AppTheme.stageBorder.withValues(alpha: 0.56),
     );
   }
 
@@ -1159,9 +1298,12 @@ class _AccessibilityPreferencesTabState
       ),
     );
     if (mounted) {
-      ScaffoldMessenger.of(
+      showDemoStageSnackBar(
         context,
-      ).showSnackBar(const SnackBar(content: Text('设置已保存')));
+        message: '设置已保存',
+        icon: Icons.check_circle_outline,
+        accentColor: AppTheme.stageAccent,
+      );
     }
   }
 }

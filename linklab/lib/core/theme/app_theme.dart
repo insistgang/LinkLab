@@ -76,20 +76,20 @@ class AppTheme {
   static DemoStageMode _stageMode = DemoStageMode.day;
 
   static const _StagePalette _nightStagePalette = _StagePalette(
-    background: Color(0xFF080510),      // 极深紫黑背景
-    backgroundSoft: Color(0xFF0E0A1C),  // 暗紫背景
-    surface: Color(0xFF2A1B54),         // 卡片背景 - 靠近按钮紫色调
-    surfaceStrong: Color(0xFF352268),   // 导航栏/强表面 - 中紫
-    border: Color(0xFF3D2A6E),          // 边框颜色（紫色边框）
-    textPrimary: Color(0xFFF0F6FC),     // 主要文字 - 白色
-    textSecondary: Color(0xFFB8A9D4),   // 次要文字 - 浅紫灰
-    textHint: Color(0xFF8B7AAF),        // 提示文字
-    accent: Color(0xFFB88CFF),          // 强调色 - 紫色
-    accentLight: Color(0xFFD4BBFF),     // 浅强调色
-    success: Color(0xFF56D364),         // 成功 - 绿色
-    danger: Color(0xFFF85149),          // 危险 - 红色
-    warning: Color(0xFFE3B341),         // 警告 - 黄色
-    info: Color(0xFF79C0FF),            // 信息 - 蓝色
+    background: Color(0xFF080510), // 极深紫黑背景
+    backgroundSoft: Color(0xFF0E0A1C), // 暗紫背景
+    surface: Color(0xFF2A1B54), // 卡片背景 - 靠近按钮紫色调
+    surfaceStrong: Color(0xFF352268), // 导航栏/强表面 - 中紫
+    border: Color(0xFF3D2A6E), // 边框颜色（紫色边框）
+    textPrimary: Color(0xFFF0F6FC), // 主要文字 - 白色
+    textSecondary: Color(0xFFB8A9D4), // 次要文字 - 浅紫灰
+    textHint: Color(0xFF8B7AAF), // 提示文字
+    accent: Color(0xFFB88CFF), // 强调色 - 紫色
+    accentLight: Color(0xFFD4BBFF), // 浅强调色
+    success: Color(0xFF56D364), // 成功 - 绿色
+    danger: Color(0xFFF85149), // 危险 - 红色
+    warning: Color(0xFFE3B341), // 警告 - 黄色
+    info: Color(0xFF79C0FF), // 信息 - 蓝色
     heroGradient: LinearGradient(
       colors: [Color(0xFF1F6FEB), Color(0xFF9448FF), Color(0xFF58A6FF)],
       stops: [0.0, 0.5, 1.0],
@@ -117,8 +117,8 @@ class AppTheme {
     textPrimary: Color(0xFF071006),
     textSecondary: Color(0xFF33422F),
     textHint: Color(0xFF5C6D55),
-    accent: Color(0xFF5F1ACF),
-    accentLight: Color(0xFF8D3DFF),
+    accent: Color(0xFF6D28D9),
+    accentLight: Color(0xFF8B42F6),
     success: Color(0xFF146F30),
     danger: Color(0xFFC82432),
     warning: Color(0xFF875900),
@@ -135,7 +135,7 @@ class AppTheme {
       end: Alignment.bottomRight,
     ),
     accentGradient: LinearGradient(
-      colors: [Color(0xFFB96BFF), Color(0xFF8D3DFF), Color(0xFF6D28D9)],
+      colors: [Color(0xFFA96CFF), Color(0xFF8B42F6), Color(0xFF6D28D9)],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     ),
@@ -600,10 +600,7 @@ class AppTheme {
           fontSize: fontSizeNormal,
           color: highContrastText,
         ),
-        bodySmall: TextStyle(
-          fontSize: fontSizeSmall,
-          color: Color(0xFF8B949E),
-        ),
+        bodySmall: TextStyle(fontSize: fontSizeSmall, color: Color(0xFF8B949E)),
         labelLarge: TextStyle(
           fontSize: fontSizeLarge,
           fontWeight: FontWeight.bold,

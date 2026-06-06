@@ -4,6 +4,9 @@ import '../../core/theme/app_theme.dart';
 import '../../services/security/emergency_contact_service.dart';
 import '../../services/security/safety_settings_service.dart';
 import '../../widgets/accessible/index.dart';
+import '../../widgets/demo/demo_overlays.dart';
+import '../../widgets/demo/demo_routes.dart';
+import '../../widgets/demo/demo_stage.dart';
 import '../../widgets/demo/linkable_icon.dart';
 import 'emergency_contacts_screen.dart';
 
@@ -57,9 +60,12 @@ class _LocationSharingScreenState extends State<LocationSharingScreen> {
       );
       if (!mounted) return;
       setState(() => _settings = saved);
-      ScaffoldMessenger.of(
+      showDemoStageSnackBar(
         context,
-      ).showSnackBar(const SnackBar(content: Text('位置共享设置已保存')));
+        message: '位置共享设置已保存',
+        icon: Icons.check_circle_outline,
+        accentColor: AppTheme.stageAccent,
+      );
     } finally {
       if (mounted) {
         setState(() => _isSaving = false);
@@ -68,226 +74,238 @@ class _LocationSharingScreenState extends State<LocationSharingScreen> {
   }
 
   Future<void> _openEmergencyContacts() async {
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => EmergencyContactsScreen(userId: widget.userId),
-      ),
+    await pushDemoStageRoute(
+      context,
+      page: EmergencyContactsScreen(userId: widget.userId),
     );
     await _loadData();
   }
 
   @override
   Widget build(BuildContext context) {
-    return AccessibleScaffold(
+    return DemoStageScaffold(
       title: '位置共享',
-      body: SafeArea(
-        child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : RefreshIndicator(
-                onRefresh: _loadData,
-                child: ListView(
-                  padding: const EdgeInsets.all(AppTheme.spacingL),
-                  children: [
-                    _ReadinessBanner(
-                      settings: _settings,
-                      contactCount: _contactCount,
-                    ),
-                    const SizedBox(height: AppTheme.spacingL),
-                    AccessibleCard(
-                      margin: EdgeInsets.zero,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const AccessibleText(
-                            'SOS 触发预览',
-                            style: TextStyle(
-                              fontSize: AppTheme.fontSizeLarge,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: AppTheme.spacingS),
-                          const AccessibleText(
-                            '当前主前端会按以下顺序演示安全流程。',
-                            style: TextStyle(
-                              fontSize: AppTheme.fontSizeNormal,
-                              color: AppTheme.textSecondary,
-                              height: 1.5,
-                            ),
-                          ),
-                          const SizedBox(height: AppTheme.spacingM),
-                          _PreviewStep(
-                            icon: _settings.autoShareLocation
-                                ? Icons.my_location
-                                : Icons.location_off_outlined,
-                            title: _settings.autoShareLocation
-                                ? '采集${_settings.usePreciseLocation ? '精确' : '大致'}位置'
-                                : '跳过自动位置共享',
-                            description: _settings.autoShareLocation
-                                ? '演示页会显示当前位置已同步到 SOS 流程。'
-                                : '仍可触发 SOS，但联系人通知不会附带实时位置。',
-                          ),
-                          _PreviewStep(
-                            icon: _settings.shareWithEmergencyContacts
-                                ? Icons.contacts
-                                : Icons.contacts_outlined,
-                            title: _settings.shareWithEmergencyContacts
-                                ? '同步通知紧急联系人'
-                                : '本次不通知紧急联系人',
-                            description: _settings.shareWithEmergencyContacts
-                                ? _contactCount == 0
-                                      ? '你已开启此选项，但还没有联系人可通知。'
-                                      : '当前将同步通知 $_contactCount 位联系人。'
-                                : 'SOS 只展示志愿者广播与响应流程。',
-                          ),
-                          const _PreviewStep(
-                            icon: Icons.campaign_outlined,
-                            title: '向附近志愿者广播',
-                            description: '演示版默认展示 5km 范围内广播与响应。',
-                          ),
-                          _PreviewStep(
-                            icon: _settings.enableVoiceTrigger
-                                ? Icons.mic_none
-                                : Icons.mic_off_outlined,
-                            title: _settings.enableVoiceTrigger
-                                ? '保留语音触发提示'
-                                : '仅保留长按与快捷操作提示',
-                            description: _settings.enableVoiceTrigger
-                                ? '界面会提示可通过语音关键词触发。'
-                                : '界面不会把语音作为首选触发方式展示。',
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: AppTheme.spacingL),
-                    AccessibleCard(
-                      margin: EdgeInsets.zero,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const AccessibleText(
-                            '共享设置',
-                            style: TextStyle(
-                              fontSize: AppTheme.fontSizeLarge,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: AppTheme.spacingM),
-                          _SwitchTile(
-                            title: 'SOS 时自动共享位置',
-                            subtitle: '用于让志愿者和联系人更快确认你的位置。',
-                            value: _settings.autoShareLocation,
-                            onChanged: (value) {
-                              setState(() {
-                                _settings = _settings.copyWith(
-                                  autoShareLocation: value,
-                                  usePreciseLocation: value
-                                      ? _settings.usePreciseLocation
-                                      : false,
-                                );
-                              });
-                            },
-                          ),
-                          const Divider(),
-                          _SwitchTile(
-                            title: '使用精确位置',
-                            subtitle: '关闭后，演示页将只展示大致区域。',
-                            value: _settings.usePreciseLocation,
-                            onChanged: _settings.autoShareLocation
-                                ? (value) {
-                                    setState(() {
-                                      _settings = _settings.copyWith(
-                                        usePreciseLocation: value,
-                                      );
-                                    });
-                                  }
-                                : null,
-                          ),
-                          const Divider(),
-                          _SwitchTile(
-                            title: '同步给紧急联系人',
-                            subtitle: '联系人会收到当前状态与位置摘要。',
-                            value: _settings.shareWithEmergencyContacts,
-                            onChanged: (value) {
-                              setState(() {
-                                _settings = _settings.copyWith(
-                                  shareWithEmergencyContacts: value,
-                                );
-                              });
-                            },
-                          ),
-                          const Divider(),
-                          _SwitchTile(
-                            title: '显示语音触发提示',
-                            subtitle: '在 SOS 页保留“紧急求助”等语音触发说明。',
-                            value: _settings.enableVoiceTrigger,
-                            onChanged: (value) {
-                              setState(() {
-                                _settings = _settings.copyWith(
-                                  enableVoiceTrigger: value,
-                                );
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: AppTheme.spacingL),
-                    AccessibleCard(
-                      margin: EdgeInsets.zero,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const AccessibleText(
-                            '当前提醒',
-                            style: TextStyle(
-                              fontSize: AppTheme.fontSizeLarge,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: AppTheme.spacingS),
-                          AccessibleText(
-                            _contactCount == 0
-                                ? '你还没有设置紧急联系人。即使开启了联系人同步，演示页也不会显示实际通知对象。'
-                                : '已配置 $_contactCount 位联系人，SOS 时会按优先级展示通知。 ',
-                            style: const TextStyle(
-                              fontSize: AppTheme.fontSizeNormal,
-                              color: AppTheme.textSecondary,
-                              height: 1.5,
-                            ),
-                          ),
-                          const SizedBox(height: AppTheme.spacingS),
-                          const AccessibleText(
-                            '系统级定位权限、短信发送和真实后台告警仍属于后续能力，当前页面聚焦主前端演示闭环。',
-                            style: TextStyle(
-                              fontSize: AppTheme.fontSizeSmall,
-                              color: AppTheme.textHint,
-                              height: 1.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: AppTheme.spacingL),
-                    OutlinedButton.icon(
-                      onPressed: _openEmergencyContacts,
-                      icon: const LinkableMaterialIcon(
-                        icon: Icons.contact_phone_outlined,
-                        semanticLabel: '管理紧急联系人',
-                      ),
-                      label: const Text('管理紧急联系人'),
-                    ),
-                    const SizedBox(height: AppTheme.spacingM),
-                    AccessibleButton(
-                      label: '保存设置',
-                      semanticLabel: '保存位置共享设置',
-                      icon: Icons.save_outlined,
-                      isLoading: _isSaving,
-                      onPressed: _saveSettings,
-                    ),
-                  ],
+      subtitle: '配置 SOS 时的位置同步、联系人通知与语音触发提示',
+      body: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(color: AppTheme.stageAccent),
+            )
+          : RefreshIndicator(
+              onRefresh: _loadData,
+              color: AppTheme.stageAccent,
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(
+                  AppTheme.spacingL,
+                  AppTheme.spacingL,
+                  AppTheme.spacingL,
+                  AppTheme.spacingXXL,
                 ),
+                children: [
+                  _ReadinessBanner(
+                    settings: _settings,
+                    contactCount: _contactCount,
+                  ),
+                  const SizedBox(height: AppTheme.spacingL),
+                  DemoSurfaceCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AccessibleText(
+                          'SOS 触发预览',
+                          style: TextStyle(
+                            color: AppTheme.stageTextPrimary,
+                            fontSize: AppTheme.fontSizeLarge,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: AppTheme.spacingS),
+                        AccessibleText(
+                          '当前主前端会按以下顺序演示安全流程。',
+                          style: TextStyle(
+                            fontSize: AppTheme.fontSizeNormal,
+                            color: AppTheme.stageTextSecondary,
+                            height: 1.5,
+                          ),
+                        ),
+                        const SizedBox(height: AppTheme.spacingM),
+                        _PreviewStep(
+                          icon: _settings.autoShareLocation
+                              ? Icons.my_location
+                              : Icons.location_off_outlined,
+                          title: _settings.autoShareLocation
+                              ? '采集${_settings.usePreciseLocation ? '精确' : '大致'}位置'
+                              : '跳过自动位置共享',
+                          description: _settings.autoShareLocation
+                              ? '演示页会显示当前位置已同步到 SOS 流程。'
+                              : '仍可触发 SOS，但联系人通知不会附带实时位置。',
+                        ),
+                        _PreviewStep(
+                          icon: _settings.shareWithEmergencyContacts
+                              ? Icons.contacts
+                              : Icons.contacts_outlined,
+                          title: _settings.shareWithEmergencyContacts
+                              ? '同步通知紧急联系人'
+                              : '本次不通知紧急联系人',
+                          description: _settings.shareWithEmergencyContacts
+                              ? _contactCount == 0
+                                    ? '你已开启此选项，但还没有联系人可通知。'
+                                    : '当前将同步通知 $_contactCount 位联系人。'
+                              : 'SOS 只展示志愿者广播与响应流程。',
+                        ),
+                        const _PreviewStep(
+                          icon: Icons.campaign_outlined,
+                          title: '向附近志愿者广播',
+                          description: '演示版默认展示 5km 范围内广播与响应。',
+                        ),
+                        _PreviewStep(
+                          icon: _settings.enableVoiceTrigger
+                              ? Icons.mic_none
+                              : Icons.mic_off_outlined,
+                          title: _settings.enableVoiceTrigger
+                              ? '保留语音触发提示'
+                              : '仅保留长按与快捷操作提示',
+                          description: _settings.enableVoiceTrigger
+                              ? '界面会提示可通过语音关键词触发。'
+                              : '界面不会把语音作为首选触发方式展示。',
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: AppTheme.spacingL),
+                  DemoSurfaceCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AccessibleText(
+                          '共享设置',
+                          style: TextStyle(
+                            color: AppTheme.stageTextPrimary,
+                            fontSize: AppTheme.fontSizeLarge,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: AppTheme.spacingM),
+                        _SwitchTile(
+                          title: 'SOS 时自动共享位置',
+                          subtitle: '用于让志愿者和联系人更快确认你的位置。',
+                          value: _settings.autoShareLocation,
+                          onChanged: (value) {
+                            setState(() {
+                              _settings = _settings.copyWith(
+                                autoShareLocation: value,
+                                usePreciseLocation: value
+                                    ? _settings.usePreciseLocation
+                                    : false,
+                              );
+                            });
+                          },
+                        ),
+                        _StageDivider(),
+                        _SwitchTile(
+                          title: '使用精确位置',
+                          subtitle: '关闭后，演示页将只展示大致区域。',
+                          value: _settings.usePreciseLocation,
+                          onChanged: _settings.autoShareLocation
+                              ? (value) {
+                                  setState(() {
+                                    _settings = _settings.copyWith(
+                                      usePreciseLocation: value,
+                                    );
+                                  });
+                                }
+                              : null,
+                        ),
+                        _StageDivider(),
+                        _SwitchTile(
+                          title: '同步给紧急联系人',
+                          subtitle: '联系人会收到当前状态与位置摘要。',
+                          value: _settings.shareWithEmergencyContacts,
+                          onChanged: (value) {
+                            setState(() {
+                              _settings = _settings.copyWith(
+                                shareWithEmergencyContacts: value,
+                              );
+                            });
+                          },
+                        ),
+                        _StageDivider(),
+                        _SwitchTile(
+                          title: '显示语音触发提示',
+                          subtitle: '在 SOS 页保留“紧急求助”等语音触发说明。',
+                          value: _settings.enableVoiceTrigger,
+                          onChanged: (value) {
+                            setState(() {
+                              _settings = _settings.copyWith(
+                                enableVoiceTrigger: value,
+                              );
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: AppTheme.spacingL),
+                  DemoSurfaceCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AccessibleText(
+                          '当前提醒',
+                          style: TextStyle(
+                            color: AppTheme.stageTextPrimary,
+                            fontSize: AppTheme.fontSizeLarge,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: AppTheme.spacingS),
+                        AccessibleText(
+                          _contactCount == 0
+                              ? '你还没有设置紧急联系人。即使开启了联系人同步，演示页也不会显示实际通知对象。'
+                              : '已配置 $_contactCount 位联系人，SOS 时会按优先级展示通知。',
+                          style: TextStyle(
+                            fontSize: AppTheme.fontSizeNormal,
+                            color: AppTheme.stageTextSecondary,
+                            height: 1.5,
+                          ),
+                        ),
+                        const SizedBox(height: AppTheme.spacingS),
+                        AccessibleText(
+                          '系统级定位权限、短信发送和真实后台告警仍属于后续能力，当前页面聚焦主前端演示闭环。',
+                          style: TextStyle(
+                            fontSize: AppTheme.fontSizeSmall,
+                            color: AppTheme.stageTextHint,
+                            height: 1.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: AppTheme.spacingL),
+                  OutlinedButton.icon(
+                    onPressed: _openEmergencyContacts,
+                    icon: LinkableMaterialIcon(
+                      icon: Icons.contact_phone_outlined,
+                      color: AppTheme.stageAccent,
+                      semanticLabel: '管理紧急联系人',
+                    ),
+                    label: const Text('管理紧急联系人'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppTheme.stageAccent,
+                      side: BorderSide(color: AppTheme.stageAccent, width: 2),
+                    ),
+                  ),
+                  const SizedBox(height: AppTheme.spacingM),
+                  AccessibleButton(
+                    label: '保存设置',
+                    semanticLabel: '保存位置共享设置',
+                    icon: Icons.save_outlined,
+                    backgroundColor: AppTheme.stageAccent,
+                    isLoading: _isSaving,
+                    onPressed: _saveSettings,
+                  ),
+                ],
               ),
-      ),
+            ),
     );
   }
 }
@@ -315,25 +333,49 @@ class _ReadinessBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppTheme.spacingL),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: settings.isReady
-              ? const [AppTheme.primaryColor, AppTheme.secondaryColor]
-              : const [AppTheme.warningColor, AppTheme.emergencyColor],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        gradient: AppTheme.stageAccentGradient,
+        border: Border.all(color: Colors.white.withValues(alpha: 0.22)),
         borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
+        boxShadow: AppTheme.elevatedShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AccessibleText(
-            title,
-            style: const TextStyle(
-              fontSize: AppTheme.fontSizeXLarge,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.textOnPrimary,
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(
+                    AppTheme.borderRadiusMedium,
+                  ),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.22),
+                  ),
+                ),
+                child: LinkableMaterialIcon(
+                  icon: settings.isReady
+                      ? Icons.verified_user_outlined
+                      : Icons.info_outline,
+                  color: AppTheme.textOnPrimary,
+                  semanticLabel: title,
+                ),
+              ),
+              const SizedBox(width: AppTheme.spacingM),
+              Expanded(
+                child: AccessibleText(
+                  title,
+                  style: const TextStyle(
+                    fontSize: AppTheme.fontSizeXLarge,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textOnPrimary,
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: AppTheme.spacingS),
           AccessibleText(
@@ -349,6 +391,7 @@ class _ReadinessBanner extends StatelessWidget {
             spacing: AppTheme.spacingS,
             runSpacing: AppTheme.spacingS,
             children: [
+              _StatusChip(label: settings.isReady ? '安全闭环完整' : '建议补充设置'),
               _StatusChip(label: settings.locationModeLabel),
               _StatusChip(
                 label: settings.shareWithEmergencyContacts
@@ -432,12 +475,15 @@ class _PreviewStep extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: AppTheme.primaryColor.withValues(alpha: 0.08),
+              color: AppTheme.stageAccent.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+              border: Border.all(
+                color: AppTheme.stageAccent.withValues(alpha: 0.18),
+              ),
             ),
             child: LinkableMaterialIcon(
               icon: icon,
-              color: AppTheme.primaryColor,
+              color: AppTheme.stageAccent,
               semanticLabel: title,
             ),
           ),
@@ -448,7 +494,8 @@ class _PreviewStep extends StatelessWidget {
               children: [
                 AccessibleText(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
+                    color: AppTheme.stageTextPrimary,
                     fontSize: AppTheme.fontSizeNormal,
                     fontWeight: FontWeight.w600,
                   ),
@@ -456,9 +503,9 @@ class _PreviewStep extends StatelessWidget {
                 const SizedBox(height: AppTheme.spacingXS),
                 AccessibleText(
                   description,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: AppTheme.fontSizeSmall,
-                    color: AppTheme.textSecondary,
+                    color: AppTheme.stageTextSecondary,
                     height: 1.5,
                   ),
                 ),
@@ -467,6 +514,18 @@ class _PreviewStep extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _StageDivider extends StatelessWidget {
+  const _StageDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Divider(
+      height: AppTheme.spacingXL,
+      color: AppTheme.stageBorder.withValues(alpha: 0.56),
     );
   }
 }
@@ -494,18 +553,27 @@ class _SwitchTile extends StatelessWidget {
         contentPadding: EdgeInsets.zero,
         value: value,
         onChanged: onChanged,
+        activeThumbColor: AppTheme.stageAccent,
+        activeTrackColor: AppTheme.stageAccent.withValues(alpha: 0.38),
+        inactiveThumbColor: AppTheme.stageTextHint,
+        inactiveTrackColor: AppTheme.stageBorder.withValues(alpha: 0.46),
         title: AccessibleText(
           title,
-          style: const TextStyle(
+          style: TextStyle(
+            color: onChanged == null
+                ? AppTheme.stageTextHint
+                : AppTheme.stageTextPrimary,
             fontSize: AppTheme.fontSizeNormal,
             fontWeight: FontWeight.w600,
           ),
         ),
         subtitle: AccessibleText(
           subtitle,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: AppTheme.fontSizeSmall,
-            color: AppTheme.textSecondary,
+            color: onChanged == null
+                ? AppTheme.stageTextHint
+                : AppTheme.stageTextSecondary,
           ),
         ),
       ),

@@ -117,36 +117,58 @@ Future<T?> showDemoStageBottomSheet<T>(
   BuildContext context, {
   required WidgetBuilder builder,
 }) {
+  final sheetColor = Color.alphaBlend(
+    AppTheme.stageSurfaceStrong,
+    AppTheme.stageBackground,
+  );
+
   return showModalBottomSheet<T>(
     context: context,
-    backgroundColor: AppTheme.stageSurfaceStrong,
+    backgroundColor: Colors.transparent,
     barrierColor: Colors.black.withValues(alpha: 0.68),
     isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-    ),
     builder: (sheetContext) {
       return SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-          child: Align(
-            alignment: Alignment.bottomCenter,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 520),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 44,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: AppTheme.stageBorder,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
+        top: false,
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 520),
+            child: Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: sheetColor,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(24),
+                ),
+                border: Border.all(
+                  color: AppTheme.stageAccent.withValues(alpha: 0.22),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.24),
+                    blurRadius: 28,
+                    offset: const Offset(0, -10),
                   ),
-                  const SizedBox(height: 16),
-                  builder(sheetContext),
                 ],
+              ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: AppTheme.stageAccent.withValues(alpha: 0.32),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    builder(sheetContext),
+                  ],
+                ),
               ),
             ),
           ),

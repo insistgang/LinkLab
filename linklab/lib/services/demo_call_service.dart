@@ -462,6 +462,8 @@ class DemoSOSService extends ChangeNotifier {
   int _elapsedSeconds = 0;
   int _responderCount = 0;
   Timer? _timer;
+  Completer<void>? _sosCompleter;
+  int _sosSequence = 0;
 
   // Getters
   bool get isActive => _isActive;
@@ -481,6 +483,9 @@ class DemoSOSService extends ChangeNotifier {
       throw StateError('DemoSOSService.triggerSOS 仅在 Demo fallback 开启时可用');
     }
 
+    _timer?.cancel();
+    final sequence = ++_sosSequence;
+    _sosCompleter = Completer<void>();
     _isActive = true;
     _elapsedSeconds = 0;
     _responderCount = 0;
@@ -488,6 +493,11 @@ class DemoSOSService extends ChangeNotifier {
 
     // 模拟SOS过程
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (sequence != _sosSequence) {
+        timer.cancel();
+        return;
+      }
+
       _elapsedSeconds++;
 
       // 第3秒显示响应
@@ -498,18 +508,23 @@ class DemoSOSService extends ChangeNotifier {
       // 第5秒匹配成功
       if (_elapsedSeconds >= 5) {
         timer.cancel();
+        _timer = null;
+        _completeSOSFuture();
       }
 
       notifyListeners();
     });
 
-    await Future.delayed(const Duration(seconds: 5));
+    await _sosCompleter?.future;
     return;
   }
 
   /// 取消SOS
   void cancelSOS() {
+    _sosSequence++;
     _timer?.cancel();
+    _timer = null;
+    _completeSOSFuture();
     _isActive = false;
     _elapsedSeconds = 0;
     _responderCount = 0;
@@ -518,14 +533,26 @@ class DemoSOSService extends ChangeNotifier {
 
   /// 解决SOS
   void resolveSOS() {
+    _sosSequence++;
     _timer?.cancel();
+    _timer = null;
+    _completeSOSFuture();
     _isActive = false;
     notifyListeners();
   }
 
+  void _completeSOSFuture() {
+    if (!(_sosCompleter?.isCompleted ?? true)) {
+      _sosCompleter?.complete();
+    }
+  }
+
   @override
   void dispose() {
+    _sosSequence++;
     _timer?.cancel();
+    _timer = null;
+    _completeSOSFuture();
     super.dispose();
   }
 }

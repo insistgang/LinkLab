@@ -245,7 +245,7 @@ class _StatusSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final icon = _phaseIcon(state.phase);
-    final color = _phaseColor(state.phase);
+    final color = AppTheme.stageAccent;
 
     return Semantics(
       liveRegion: true,
@@ -256,32 +256,32 @@ class _StatusSummaryCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-              Wrap(
-                spacing: AppTheme.spacingS,
-                runSpacing: AppTheme.spacingS,
-                children: [
-                  DemoPill(
-                    icon: Icons.volunteer_activism_outlined,
-                    label: '竞赛 Demo 匹配',
-                    color: AppTheme.stageAccent,
-                  ),
-                  DemoPill(
-                    icon: Icons.location_off_outlined,
-                    label: '本地模拟距离',
-                    color: AppTheme.stageInfo,
-                  ),
-                  DemoPill(
-                    icon: Icons.notifications_off_outlined,
-                    label: '无真实推送',
-                    color: AppTheme.stageWarning,
-                  ),
-                  DemoPill(
-                    svgIcon: LinkableIconName.emergencyDetect,
-                    label: '紧急识别',
-                    color: AppTheme.stageDanger,
-                  ),
-                ],
-              ),
+            Wrap(
+              spacing: AppTheme.spacingS,
+              runSpacing: AppTheme.spacingS,
+              children: [
+                DemoPill(
+                  icon: Icons.volunteer_activism_outlined,
+                  label: '竞赛 Demo 匹配',
+                  color: AppTheme.stageAccent,
+                ),
+                DemoPill(
+                  icon: Icons.location_off_outlined,
+                  label: '本地模拟距离',
+                  color: AppTheme.stageAccent,
+                ),
+                DemoPill(
+                  icon: Icons.notifications_off_outlined,
+                  label: '无真实推送',
+                  color: AppTheme.stageAccent,
+                ),
+                DemoPill(
+                  svgIcon: LinkableIconName.emergencyDetect,
+                  label: '紧急识别',
+                  color: AppTheme.stageAccent,
+                ),
+              ],
+            ),
             const SizedBox(height: AppTheme.spacingM),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -321,7 +321,7 @@ class _StatusSummaryCard extends StatelessWidget {
               _InlineNotice(
                 icon: Icons.error_outline,
                 text: state.errorMessage!,
-                color: AppTheme.stageDanger,
+                color: AppTheme.stageAccent,
               ),
             ],
             if (state.visibleSteps.isNotEmpty) ...[
@@ -348,18 +348,6 @@ class _StatusSummaryCard extends StatelessWidget {
       DemoMatchingUiPhase.expired => Icons.event_busy_outlined,
       DemoMatchingUiPhase.cancelled => Icons.cancel_outlined,
       DemoMatchingUiPhase.error => Icons.error_outline,
-    };
-  }
-
-  Color _phaseColor(DemoMatchingUiPhase phase) {
-    return switch (phase) {
-      DemoMatchingUiPhase.accepted => AppTheme.stageSuccess,
-      DemoMatchingUiPhase.expired ||
-      DemoMatchingUiPhase.cancelled ||
-      DemoMatchingUiPhase.error => AppTheme.stageDanger,
-      DemoMatchingUiPhase.candidateRejected ||
-      DemoMatchingUiPhase.candidateTimedOut => AppTheme.stageWarning,
-      _ => AppTheme.stageAccent,
     };
   }
 }
@@ -506,7 +494,7 @@ class _CandidateSection extends StatelessWidget {
             _InlineNotice(
               icon: Icons.group_off_outlined,
               text: '当前没有可用志愿者，请稍后再试或返回 AI 助手。',
-              color: AppTheme.stageWarning,
+              color: AppTheme.stageAccent,
             ),
             const SizedBox(height: AppTheme.spacingS),
             AccessibleText(
@@ -530,7 +518,7 @@ class _CandidateSection extends StatelessWidget {
           trailing: DemoPill(
             icon: Icons.filter_alt_outlined,
             label: '最多 5 位',
-            color: AppTheme.stageInfo,
+            color: AppTheme.stageAccent,
           ),
         ),
         const SizedBox(height: AppTheme.spacingM),
@@ -563,7 +551,7 @@ class _VolunteerCandidateCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final volunteer = result.volunteer;
     final borderColor = isAccepted
-        ? AppTheme.stageSuccess
+        ? AppTheme.stageAccent
         : isCurrent
         ? AppTheme.stageAccent
         : AppTheme.stageBorder;
@@ -605,7 +593,7 @@ class _VolunteerCandidateCard extends StatelessWidget {
                             DemoPill(
                               icon: Icons.check_circle_outline,
                               label: '已接单',
-                              color: AppTheme.stageSuccess,
+                              color: AppTheme.stageAccent,
                             )
                           else if (isCurrent)
                             DemoPill(
@@ -650,15 +638,8 @@ class _VolunteerCandidateCard extends StatelessWidget {
               runSpacing: AppTheme.spacingS,
               children: volunteer.skills
                   .map(
-                    (skill) => DemoPill(
-                      label: skill,
-                      color: result.matchedSkills.contains(skill)
-                          ? AppTheme.stageAccent
-                          : AppTheme.stageInfo,
-                      backgroundColor: result.matchedSkills.contains(skill)
-                          ? AppTheme.stageAccent.withValues(alpha: 0.16)
-                          : null,
-                    ),
+                    (skill) =>
+                        DemoPill(label: skill, color: AppTheme.stageAccent),
                   )
                   .toList(growable: false),
             ),
@@ -666,7 +647,7 @@ class _VolunteerCandidateCard extends StatelessWidget {
             _InlineNotice(
               icon: Icons.recommend_outlined,
               text: result.reason,
-              color: AppTheme.stageSuccess,
+              color: AppTheme.stageAccent,
             ),
           ],
         ),
@@ -724,7 +705,7 @@ class _MetricPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DemoPill(icon: icon, label: label, color: AppTheme.stageInfo);
+    return DemoPill(icon: icon, label: label, color: AppTheme.stageAccent);
   }
 }
 
@@ -787,7 +768,7 @@ class _MatchingActions extends StatelessWidget {
                 semanticLabel: '模拟接单',
                 hint: '双击模拟当前志愿者成功接单，并进入 connected 状态',
                 onTap: _canOperate ? onAccept : null,
-                color: AppTheme.stageSuccess,
+                color: AppTheme.stageAccent,
               ),
               _DemoActionButton(
                 icon: Icons.timer_off_outlined,
@@ -795,7 +776,7 @@ class _MatchingActions extends StatelessWidget {
                 semanticLabel: '模拟拒接或超时',
                 hint: '双击让当前候选人拒接或超时，并尝试下一位',
                 onTap: _canOperate ? onRejectOrTimeout : null,
-                color: AppTheme.stageWarning,
+                color: AppTheme.stageAccent,
               ),
               _DemoActionButton(
                 icon: Icons.group_off_outlined,
@@ -803,7 +784,7 @@ class _MatchingActions extends StatelessWidget {
                 semanticLabel: '模拟无人接单',
                 hint: '双击将本次匹配标记为无人接单并进入 expired 状态',
                 onTap: accepted ? null : onExpire,
-                color: AppTheme.stageDanger,
+                color: AppTheme.stageAccent,
               ),
               _DemoActionButton(
                 icon: Icons.refresh_rounded,
@@ -811,7 +792,7 @@ class _MatchingActions extends StatelessWidget {
                 semanticLabel: '重新匹配',
                 hint: '双击重置本地匹配并重新生成 Top 5',
                 onTap: onRestart,
-                color: AppTheme.stageInfo,
+                color: AppTheme.stageAccent,
               ),
               _DemoActionButton(
                 icon: Icons.cancel_outlined,
@@ -820,7 +801,7 @@ class _MatchingActions extends StatelessWidget {
                 semanticLabel: '取消求助',
                 hint: '双击取消当前求助并进入 cancelled 状态',
                 onTap: accepted ? null : onCancel,
-                color: AppTheme.stageDanger,
+                color: AppTheme.stageAccent,
               ),
             ],
           ),

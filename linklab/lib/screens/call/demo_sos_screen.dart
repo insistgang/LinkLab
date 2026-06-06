@@ -14,12 +14,21 @@ import '../../services/demo_call_service.dart';
 import '../../services/security/emergency_contact_service.dart';
 import '../../services/security/safety_settings_service.dart';
 import '../../widgets/accessible/index.dart';
-import '../../widgets/demo/demo_motion.dart';
 import '../../widgets/demo/demo_routes.dart';
 import '../../widgets/demo/demo_stage.dart';
 import '../../widgets/demo/linkable_icon.dart';
 import '../security/location_sharing_screen.dart';
 import 'demo_call_screen.dart';
+
+const _sosPurpleBackground = LinearGradient(
+  colors: [Color(0xFFF5E9FF), Color(0xFFE2C7FF), Color(0xFFC69AFF)],
+  stops: [0.0, 0.48, 1.0],
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+);
+const _sosPurplePanel = Color(0xF7F7EEFF);
+const _sosPurplePanelStrong = Color(0xFAF1E4FF);
+const _sosPurpleBorder = Color(0x668B42F6);
 
 /// 演示版SOS紧急求助页面
 /// 简化版：模拟SOS流程，固定5秒匹配成功
@@ -229,6 +238,8 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
       // Facade 异常，降级到旧流程
     }
 
+    if (!mounted) return;
+
     // Fallback：原有联系人通知逻辑
     if (_safetySettings.shareWithEmergencyContacts &&
         _emergencyContacts.isNotEmpty) {
@@ -243,10 +254,15 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
       );
     }
 
+    if (!mounted) return;
+
     // Fallback：原有 demo flow
     await ref
         .read(demoHelpRequestFlowProvider.notifier)
         .enterMatching(intent: 'SOS紧急求助', type: 'sos', urgency: 'emergency');
+
+    if (!mounted) return;
+
     await _sosService.triggerSOS();
   }
 
@@ -279,7 +295,7 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
         final isActive = _sosService.isActive;
         final isEmergencyFlowActive = isActive || _isUndoWindowActive;
 
-        return DemoStageScaffold(
+        return _SosPageShell(
           title: isEmergencyFlowActive ? 'SOS 紧急求助进行中' : 'SOS 紧急求助',
           subtitle: isEmergencyFlowActive
               ? '误触撤销窗口与 Mock 广播进度均可见'
@@ -293,44 +309,38 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
             ),
             children: [
               if (isEmergencyFlowActive)
-                DemoReveal(
-                  child: Container(
-                    padding: const EdgeInsets.all(AppTheme.spacingM),
-                    decoration: BoxDecoration(
-                      color: AppTheme.stageDanger.withValues(alpha: 0.16),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: AppTheme.stageDanger.withValues(alpha: 0.28),
-                      ),
+                Container(
+                  padding: const EdgeInsets.all(AppTheme.spacingM),
+                  decoration: BoxDecoration(
+                    color: AppTheme.stageAccent.withValues(alpha: 0.16),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: AppTheme.stageAccent.withValues(alpha: 0.28),
                     ),
-                    child: Row(
-                      children: [
-                        const LinkableSvgIcon(
-                          icon: LinkableIconName.emergency,
-                          size: 28,
-                          semanticLabel: 'SOS紧急求助',
-                        ),
-                        const SizedBox(width: AppTheme.spacingS),
-                        Expanded(
-                          child: AccessibleText(
-                            'SOS紧急求助进行中',
-                            style: TextStyle(
-                              color: AppTheme.stageTextPrimary,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                        AccessibleText(
-                          _isUndoWindowActive
-                              ? '撤销 ${_undoCountdownSeconds}s'
-                              : '${(_sosService.elapsedSeconds ~/ 60).toString().padLeft(2, '0')}:${(_sosService.elapsedSeconds % 60).toString().padLeft(2, '0')}',
+                  ),
+                  child: Row(
+                    children: [
+                      const _SolidSosBadge(size: 28),
+                      const SizedBox(width: AppTheme.spacingS),
+                      Expanded(
+                        child: AccessibleText(
+                          'SOS紧急求助进行中',
                           style: TextStyle(
                             color: AppTheme.stageTextPrimary,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                      AccessibleText(
+                        _isUndoWindowActive
+                            ? '撤销 ${_undoCountdownSeconds}s'
+                            : '${(_sosService.elapsedSeconds ~/ 60).toString().padLeft(2, '0')}:${(_sosService.elapsedSeconds % 60).toString().padLeft(2, '0')}',
+                        style: TextStyle(
+                          color: AppTheme.stageTextPrimary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               if (!isEmergencyFlowActive) ...[
@@ -343,12 +353,12 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
                       DemoPill(
                         icon: Icons.timer_outlined,
                         label: '10 秒撤销窗口',
-                        color: AppTheme.stageWarning,
+                        color: AppTheme.stageAccent,
                       ),
                       DemoPill(
                         icon: Icons.campaign_outlined,
                         label: 'Mock 广播演示',
-                        color: AppTheme.stageDanger,
+                        color: AppTheme.stageAccent,
                       ),
                     ],
                   ),
@@ -374,26 +384,15 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
                           height: 220,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
+                            color: isEmergencyFlowActive
+                                ? AppTheme.stageAccent
+                                : null,
                             gradient: isEmergencyFlowActive
-                                ? const LinearGradient(
-                                    colors: [
-                                      Color(0xFFFFE5E5),
-                                      Color(0xFFFFF3F0),
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  )
-                                : LinearGradient(
-                                    colors: [
-                                      AppTheme.stageDanger,
-                                      const Color(0xFFFF8A5B),
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
+                                ? null
+                                : AppTheme.stageAccentGradient,
                             boxShadow: [
                               BoxShadow(
-                                color: AppTheme.stageDanger.withValues(
+                                color: AppTheme.stageAccent.withValues(
                                   alpha: 0.28,
                                 ),
                                 blurRadius: 28,
@@ -411,7 +410,7 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
                                   child: CircularProgressIndicator(
                                     value: _longPressProgress,
                                     strokeWidth: 9,
-                                    backgroundColor: AppTheme.stageDanger
+                                    backgroundColor: AppTheme.stageAccent
                                         .withValues(alpha: 0.22),
                                     valueColor: AlwaysStoppedAnimation<Color>(
                                       AppTheme.stageTextPrimary,
@@ -421,19 +420,27 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
                               Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  LinkableSvgIcon(
-                                    icon: LinkableIconName.emergency,
-                                    size: 64,
-                                    semanticLabel: isEmergencyFlowActive
-                                        ? 'SOS进行中'
-                                        : 'SOS紧急求助',
-                                  ),
+                                  if (isEmergencyFlowActive)
+                                    const Text(
+                                      'SOS',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 34,
+                                        fontWeight: FontWeight.w900,
+                                        height: 1,
+                                      ),
+                                    )
+                                  else
+                                    const _SolidSosBadge(
+                                      size: 64,
+                                      semanticLabel: 'SOS紧急求助',
+                                    ),
                                   const SizedBox(height: AppTheme.spacingS),
                                   Text(
                                     isEmergencyFlowActive ? '求助中' : 'SOS',
                                     style: TextStyle(
                                       color: isEmergencyFlowActive
-                                          ? AppTheme.stageDanger
+                                          ? Colors.white
                                           : AppTheme.stageTextPrimary,
                                       fontSize: 28,
                                       fontWeight: FontWeight.w800,
@@ -481,25 +488,28 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
                   child: DemoPill(
                     label: '误触撤销剩余 $_undoCountdownSeconds 秒',
                     icon: Icons.timer_outlined,
-                    color: AppTheme.stageWarning,
+                    color: AppTheme.stageAccent,
                   ),
                 ),
               ] else if (isActive) ...[
                 const SizedBox(height: AppTheme.spacingL),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: AppTheme.spacingS,
+                  runSpacing: AppTheme.spacingS,
                   children: [
                     DemoPill(
                       icon: Icons.campaign_outlined,
                       label: '5km 范围内广播',
-                      color: AppTheme.stageDanger,
+                      color: AppTheme.stageAccent,
                     ),
-                    const SizedBox(width: AppTheme.spacingS),
                     DemoPill(
                       icon: Icons.schedule_outlined,
                       label: '已等待: ${_sosService.elapsedSeconds}秒',
-                      color: AppTheme.stageTextPrimary,
-                      backgroundColor: Colors.white.withValues(alpha: 0.08),
+                      color: AppTheme.stageAccent,
+                      backgroundColor: AppTheme.stageAccent.withValues(
+                        alpha: 0.14,
+                      ),
                     ),
                   ],
                 ),
@@ -509,66 +519,64 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
                     child: DemoPill(
                       label: '${_sosService.responderCount}位志愿者正在赶来',
                       icon: Icons.favorite_rounded,
-                      color: AppTheme.stageSuccess,
+                      color: AppTheme.stageAccent,
                     ),
                   ),
                 ],
               ],
               const SizedBox(height: AppTheme.spacingXL),
               if (!isEmergencyFlowActive)
-                DemoReveal(
-                  delay: const Duration(milliseconds: 90),
-                  child: DemoSurfaceCard(
-                    color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.96),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        AccessibleText(
-                          '触发前准备',
-                          style: TextStyle(
-                            color: AppTheme.stageTextPrimary,
-                            fontSize: AppTheme.fontSizeNormal,
-                            fontWeight: FontWeight.w700,
+                DemoSurfaceCard(
+                  color: _sosPurplePanelStrong,
+                  borderColor: _sosPurpleBorder,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AccessibleText(
+                        '触发前准备',
+                        style: TextStyle(
+                          color: AppTheme.stageTextPrimary,
+                          fontSize: AppTheme.fontSizeNormal,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: AppTheme.spacingM),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _ReadinessMetric(
+                              label: '位置',
+                              value: _safetySettings.autoShareLocation
+                                  ? (_safetySettings.usePreciseLocation
+                                        ? '精确'
+                                        : '大致')
+                                  : '关闭',
+                              color: _safetySettings.autoShareLocation
+                                  ? AppTheme.stageAccent
+                                  : AppTheme.stageAccent,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: AppTheme.spacingM),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _ReadinessMetric(
-                                label: '位置',
-                                value: _safetySettings.autoShareLocation
-                                    ? (_safetySettings.usePreciseLocation
-                                          ? '精确'
-                                          : '大致')
-                                    : '关闭',
-                                color: _safetySettings.autoShareLocation
-                                    ? AppTheme.stageSuccess
-                                    : AppTheme.stageWarning,
-                              ),
+                          const SizedBox(width: AppTheme.spacingM),
+                          Expanded(
+                            child: _ReadinessMetric(
+                              label: '联系人',
+                              value: '${_emergencyContacts.length} 位',
+                              color: _emergencyContacts.isEmpty
+                                  ? AppTheme.stageAccent
+                                  : AppTheme.stageAccent,
                             ),
-                            const SizedBox(width: AppTheme.spacingM),
-                            Expanded(
-                              child: _ReadinessMetric(
-                                label: '联系人',
-                                value: '${_emergencyContacts.length} 位',
-                                color: _emergencyContacts.isEmpty
-                                    ? AppTheme.stageWarning
-                                    : AppTheme.stageInfo,
-                              ),
+                          ),
+                          const SizedBox(width: AppTheme.spacingM),
+                          Expanded(
+                            child: _ReadinessMetric(
+                              label: '触发',
+                              value: '长按 3 秒',
+                              color: AppTheme.stageAccent,
                             ),
-                            const SizedBox(width: AppTheme.spacingM),
-                            Expanded(
-                              child: _ReadinessMetric(
-                                label: '触发',
-                                value: '长按 3 秒',
-                                color: AppTheme.stageDanger,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               if (!isEmergencyFlowActive)
@@ -604,6 +612,8 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
               if (!isEmergencyFlowActive) ...[
                 const SizedBox(height: AppTheme.spacingL),
                 DemoSurfaceCard(
+                  color: _sosPurplePanel,
+                  borderColor: _sosPurpleBorder,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -632,6 +642,12 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
   }
 
   Widget _buildBottomBar({required bool isActive}) {
+    const actionTextStyle = TextStyle(
+      fontSize: AppTheme.fontSizeNormal,
+      fontWeight: FontWeight.w800,
+      height: 1.1,
+    );
+
     if (_isUndoWindowActive) {
       return Row(
         children: [
@@ -650,6 +666,7 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
                   color: AppTheme.stageTextPrimary.withValues(alpha: 0.18),
                 ),
                 minimumSize: const Size(0, 58),
+                textStyle: actionTextStyle,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(24),
                 ),
@@ -667,9 +684,10 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
               ),
               label: const Text('立即发送'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.stageWarning,
+                backgroundColor: AppTheme.stageAccent,
                 foregroundColor: AppTheme.stageBackground,
                 minimumSize: const Size(0, 58),
+                textStyle: actionTextStyle,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(24),
                 ),
@@ -707,9 +725,10 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
               ),
               label: const Text('安全了'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.stageSuccess,
+                backgroundColor: AppTheme.stageAccent,
                 foregroundColor: AppTheme.stageBackground,
                 minimumSize: const Size(0, 58),
+                textStyle: actionTextStyle,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(24),
                 ),
@@ -746,6 +765,7 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
                   color: AppTheme.stageTextPrimary.withValues(alpha: 0.18),
                 ),
                 minimumSize: const Size(0, 58),
+                textStyle: actionTextStyle,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(24),
                 ),
@@ -770,11 +790,11 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
 
     return DemoSurfaceCard(
       color: isActive
-          ? AppTheme.stageDanger.withValues(alpha: 0.12)
-          : AppTheme.stageSurfaceStrong.withValues(alpha: 0.96),
+          ? AppTheme.stageAccent.withValues(alpha: 0.14)
+          : _sosPurplePanelStrong,
       borderColor: isActive
-          ? AppTheme.stageDanger.withValues(alpha: 0.22)
-          : AppTheme.stageBorder.withValues(alpha: 0.82),
+          ? AppTheme.stageAccent.withValues(alpha: 0.26)
+          : _sosPurpleBorder,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -819,6 +839,8 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
     final steps = _buildSafetySteps(isActive: isActive);
 
     return DemoSurfaceCard(
+      color: _sosPurplePanel,
+      borderColor: _sosPurpleBorder,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -846,7 +868,7 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
     final (icon, color) = switch (step.state) {
       _SafetyStepState.completed => (
         LinkableIconName.completed,
-        AppTheme.stageSuccess,
+        AppTheme.stageAccent,
       ),
       _SafetyStepState.active => (
         LinkableIconName.processing,
@@ -1013,7 +1035,190 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
   }
 }
 
+class _SosPageShell extends StatelessWidget {
+  const _SosPageShell({
+    required this.title,
+    required this.subtitle,
+    required this.body,
+    required this.bottomBar,
+  });
+
+  final String title;
+  final String subtitle;
+  final Widget body;
+  final Widget bottomBar;
+
+  @override
+  Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final compactPhone = mediaQuery.size.width < 360;
+    final horizontalPadding = compactPhone
+        ? AppTheme.spacingM
+        : AppTheme.spacingL;
+    final bottomPadding = compactPhone ? AppTheme.spacingM : AppTheme.spacingL;
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5E9FF),
+      resizeToAvoidBottomInset: true,
+      body: DecoratedBox(
+        decoration: const BoxDecoration(gradient: _sosPurpleBackground),
+        child: SafeArea(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 520),
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(
+                  horizontalPadding,
+                  AppTheme.spacingS,
+                  horizontalPadding,
+                  bottomPadding,
+                ),
+                child: Column(
+                  children: [
+                    _SosHeader(title: title, subtitle: subtitle),
+                    const SizedBox(height: AppTheme.spacingM),
+                    Expanded(child: ClipRect(child: body)),
+                    if (bottomBar is! SizedBox) ...[
+                      const SizedBox(height: AppTheme.spacingM),
+                      bottomBar,
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SosHeader extends StatelessWidget {
+  const _SosHeader({required this.title, required this.subtitle});
+
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    final canPop = Navigator.of(context).canPop();
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Semantics(
+          button: true,
+          label: canPop ? '返回' : '返回不可用',
+          hint: canPop ? '双击返回上一页' : '当前已经是第一页',
+          child: InkWell(
+            onTap: canPop ? () => Navigator.of(context).pop() : null,
+            borderRadius: BorderRadius.circular(999),
+            child: Ink(
+              width: AppTheme.minTouchTarget + 8,
+              height: AppTheme.minTouchTarget + 8,
+              decoration: BoxDecoration(
+                gradient: canPop ? AppTheme.stageAccentGradient : null,
+                color: canPop
+                    ? null
+                    : AppTheme.stageAccent.withValues(alpha: 0.24),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppTheme.stageBackground.withValues(alpha: 0.56),
+                ),
+              ),
+              child: const LinkableSvgIcon(
+                icon: LinkableIconName.back,
+                size: 44,
+                semanticLabel: '返回',
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: AppTheme.spacingM),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(top: AppTheme.spacingXS),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AccessibleText(
+                  title,
+                  isHeader: true,
+                  style: TextStyle(
+                    color: AppTheme.stageTextPrimary,
+                    fontSize: AppTheme.fontSizeLarge,
+                    fontWeight: FontWeight.w800,
+                    height: 1.18,
+                  ),
+                ),
+                const SizedBox(height: AppTheme.spacingS),
+                Container(
+                  width: 46,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppTheme.stageAccent,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+                const SizedBox(height: AppTheme.spacingS),
+                AccessibleText(
+                  subtitle,
+                  style: TextStyle(
+                    color: AppTheme.stageTextSecondary,
+                    fontSize: AppTheme.fontSizeSmall,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 enum _SafetyStepState { pending, active, completed, skipped }
+
+class _SolidSosBadge extends StatelessWidget {
+  const _SolidSosBadge({required this.size, this.semanticLabel});
+
+  final double size;
+  final String? semanticLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      image: true,
+      label: semanticLabel ?? 'SOS紧急求助',
+      child: ExcludeSemantics(
+        child: Container(
+          width: size,
+          height: size,
+          padding: EdgeInsets.all(size * 0.18),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: AppTheme.stageAccent,
+            shape: BoxShape.circle,
+          ),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              'SOS',
+              maxLines: 1,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: size * 0.36,
+                fontWeight: FontWeight.w900,
+                height: 1,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class _ReadinessMetric extends StatelessWidget {
   const _ReadinessMetric({
@@ -1031,7 +1236,7 @@ class _ReadinessMetric extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppTheme.spacingM),
       decoration: BoxDecoration(
-        color: AppTheme.stageSurface.withValues(alpha: 0.66),
+        color: _sosPurplePanel,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: color.withValues(alpha: 0.24)),
       ),

@@ -178,7 +178,7 @@ class _DemoCallScreenState extends ConsumerState<DemoCallScreen> {
     showDemoStageSnackBar(
       context,
       icon: Icons.privacy_tip_outlined,
-      accentColor: AppTheme.stageWarning,
+      accentColor: AppTheme.stageAccent,
       message: '竞赛 Demo 不录音、不上传通话内容；如遇不适可结束通话或回到匹配。',
     );
   }
@@ -202,7 +202,7 @@ class _CallStatusCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final statusColor = _statusColor(state.phase);
+    final statusColor = AppTheme.stageAccent;
     final icon = _statusIcon(state.phase);
 
     return DemoSurfaceCard(
@@ -259,28 +259,18 @@ class _CallStatusCard extends StatelessWidget {
               DemoPill(
                 label: '志愿者已接单',
                 icon: Icons.verified_user_outlined,
-                color: AppTheme.stageSuccess,
+                color: AppTheme.stageAccent,
               ),
               DemoPill(
                 label: '无真实 WebRTC',
                 icon: Icons.cloud_off_outlined,
-                color: AppTheme.stageInfo,
+                color: AppTheme.stageAccent,
               ),
             ],
           ),
         ],
       ),
     );
-  }
-
-  static Color _statusColor(DemoCallUiPhase phase) {
-    return switch (phase) {
-      DemoCallUiPhase.connected => AppTheme.stageSuccess,
-      DemoCallUiPhase.reconnecting => AppTheme.stageWarning,
-      DemoCallUiPhase.failed => AppTheme.stageDanger,
-      DemoCallUiPhase.ended => AppTheme.stageInfo,
-      _ => AppTheme.stageAccent,
-    };
   }
 
   static IconData _statusIcon(DemoCallUiPhase phase) {
@@ -375,7 +365,7 @@ class _VolunteerCard extends StatelessWidget {
                 DemoPill(
                   label: skill,
                   icon: Icons.label_important_outline,
-                  color: AppTheme.stageInfo,
+                  color: AppTheme.stageAccent,
                 ),
             ],
           ),
@@ -418,7 +408,7 @@ class _DemoVoiceCard extends StatelessWidget {
             active ? '语音协助进行中' : state.statusMessage,
             style: TextStyle(
               color: active
-                  ? AppTheme.stageSuccess
+                  ? AppTheme.stageAccent
                   : AppTheme.stageTextSecondary,
               fontSize: AppTheme.fontSizeNormal,
               fontWeight: FontWeight.w700,
@@ -544,10 +534,8 @@ class _CallCameraCard extends StatelessWidget {
             ),
             style: ElevatedButton.styleFrom(
               minimumSize: const Size(48, 52),
-              backgroundColor: cameraState.isLive
-                  ? AppTheme.stageDanger
-                  : AppTheme.stageAccent,
-              foregroundColor: Colors.black,
+              backgroundColor: AppTheme.stageAccent,
+              foregroundColor: AppTheme.stageBackground,
               disabledBackgroundColor: AppTheme.stageBorder,
               disabledForegroundColor: AppTheme.stageTextHint,
               textStyle: const TextStyle(
@@ -657,7 +645,7 @@ class _CallControls extends StatelessWidget {
           const SizedBox(height: AppTheme.spacingM),
           LayoutBuilder(
             builder: (context, constraints) {
-              final narrow = constraints.maxWidth < 420;
+              final narrow = constraints.maxWidth < 520;
               final buttons = [
                 _ActionButton(
                   label: state.isMuted ? '取消静音' : '静音',
@@ -682,7 +670,7 @@ class _CallControls extends StatelessWidget {
                   icon: Icons.call_end,
                   semanticLabel: '结束通话按钮',
                   semanticHint: '结束本地 Demo 通话并进入帮助完成评分页。',
-                  accentColor: AppTheme.stageDanger,
+                  accentColor: AppTheme.stageAccent,
                   onPressed: canControl ? onEndCall : null,
                 ),
               ];
@@ -806,14 +794,14 @@ class _ActionButton extends StatelessWidget {
         icon: LinkableMaterialIcon(
           icon: icon,
           size: 24,
-          color: Colors.black,
+          color: AppTheme.stageBackground,
           semanticLabel: label,
         ),
         label: Text(label),
         style: ElevatedButton.styleFrom(
           minimumSize: const Size(48, 56),
           backgroundColor: effectiveColor,
-          foregroundColor: Colors.black,
+          foregroundColor: AppTheme.stageBackground,
           disabledBackgroundColor: AppTheme.stageBorder,
           disabledForegroundColor: AppTheme.stageTextHint,
           textStyle: const TextStyle(

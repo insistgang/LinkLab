@@ -10,6 +10,7 @@ import 'package:linklab/models/help_request_status.dart';
 import 'package:linklab/providers/demo_help_request_flow_provider.dart';
 import 'package:linklab/services/demo/demo_ai_service.dart';
 import 'package:linklab/services/demo/demo_data_loader.dart';
+import 'package:linklab/services/facades/agent_service_facade.dart';
 
 import 'test_harness.dart';
 
@@ -161,6 +162,29 @@ void main() {
     expect(
       container.read(demoHelpRequestFlowProvider).status,
       HelpRequestStatus.matching,
+    );
+  });
+
+  test('Agent facade 在 DemoMode 保持本地确定响应，不被真实 API 配置污染', () async {
+    await prepareEmptyDemoEnvironment();
+    final facade = AgentServiceFacade();
+    final stopwatch = Stopwatch()..start();
+
+    final sos = await facade.processInput(text: '救命，我胸口痛，刚刚摔倒了');
+    expect(sos.urgency, 'emergency');
+    expect(sos.nextAction, 'trigger_sos');
+    expect(sos.answerText, contains('紧急模式'));
+
+    final human = await facade.processInput(text: '这个问题太复杂了，我需要真人志愿者帮助');
+    expect(human.nextAction, 'match_volunteer');
+    expect(human.canResolveByAi, isFalse);
+    expect(human.handoffReason, isNotNull);
+
+    stopwatch.stop();
+    expect(
+      stopwatch.elapsed,
+      lessThan(const Duration(seconds: 2)),
+      reason: 'DemoMode 首次响应不能被真实大模型请求拖慢',
     );
   });
 }

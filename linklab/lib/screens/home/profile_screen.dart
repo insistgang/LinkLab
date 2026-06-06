@@ -649,7 +649,7 @@ class _ProfileIdentityAvatar extends StatelessWidget {
                       roleLabel,
                       maxLines: 1,
                       softWrap: false,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: AppTheme.fontSizeXSmall,
                         fontWeight: FontWeight.w900,

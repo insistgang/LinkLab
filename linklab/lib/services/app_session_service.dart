@@ -95,7 +95,7 @@ class AppSessionService extends ChangeNotifier {
     required String password,
   }) async {
     if (!FeatureFlags.enableSupabaseAuth) {
-      throw const AuthException('真实认证服务不可用，已保留 DemoMode fallback。');
+      return _completeDemoEmailAuth(email: email, message: '已使用本地演示账号登录');
     }
 
     final outcome = await _authService.signInWithEmailPassword(
@@ -113,7 +113,7 @@ class AppSessionService extends ChangeNotifier {
     required String password,
   }) async {
     if (!FeatureFlags.enableSupabaseAuth) {
-      throw const AuthException('真实认证服务不可用，已保留 DemoMode fallback。');
+      return _completeDemoEmailAuth(email: email, message: '已创建本地演示账号并登录');
     }
 
     final outcome = await _authService.signUpWithEmailPassword(
@@ -128,7 +128,8 @@ class AppSessionService extends ChangeNotifier {
 
   Future<void> sendEmailLoginLink(String email) async {
     if (!FeatureFlags.enableSupabaseAuth) {
-      throw const AuthException('真实认证服务不可用，已保留 DemoMode fallback。');
+      AppLogger.info('DemoMode 已模拟发送邮箱登录邮件');
+      return;
     }
     await _authService.sendEmailLoginLink(email);
   }
@@ -380,6 +381,46 @@ class AppSessionService extends ChangeNotifier {
       return '志愿者$suffix';
     }
     return '用户$suffix';
+  }
+
+  Future<EmailAuthOutcome> _completeDemoEmailAuth({
+    required String email,
+    required String message,
+  }) async {
+    final normalizedEmail = email.trim().toLowerCase();
+    final localPart = normalizedEmail.split('@').first.trim();
+    final safeId = normalizedEmail
+        .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+        .replaceAll(RegExp(r'^-+|-+$'), '');
+
+    final user = UserModel(
+      id: 'demo-email-${safeId.isEmpty ? 'user' : safeId}',
+      phone: normalizedEmail,
+      name: localPart.isEmpty ? '邮箱用户' : localPart,
+      role: const ['seeker'],
+      disabilityType: const [],
+      preferences: _preferences,
+      createdAt: DateTime.now(),
+      lastLoginAt: DateTime.now(),
+    );
+
+    _userProfile = user;
+    _isLoggedIn = true;
+    _isFirstLaunch = false;
+
+    await _storage.saveUserProfile(user.toJson());
+    await _storage.setLoggedIn(true);
+    await _storage.setFirstLaunch(false);
+    await _storage.saveAuthToken('demo-email-session-${user.id}');
+
+    if (_storage.getHelpHistory().isEmpty) {
+      await _seedDemoHelpHistory(seekerId: user.id);
+    }
+
+    notifyListeners();
+    AppLogger.info('DemoMode 邮箱登录已完成');
+
+    return EmailAuthOutcome(signedIn: true, message: message);
   }
 
   Future<void> _restoreSupabaseSession() async {
