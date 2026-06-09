@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../demo/linkable_icon.dart';
 
-/// 无障碍Scaffold组件
-/// 提供统一的页面结构和焦点管理
+/// 無障礙Scaffold組件
+/// 提供統一的頁面結構和焦點管理
 class AccessibleScaffold extends StatelessWidget {
   const AccessibleScaffold({
     super.key,
@@ -60,7 +60,7 @@ class AccessibleScaffold extends StatelessWidget {
                       ? Semantics(
                           button: true,
                           label: '返回',
-                          hint: '双击返回上一页',
+                          hint: '雙擊返回上一頁',
                           child: IconButton(
                             icon: const LinkableMaterialIcon(
                               icon: Icons.arrow_back,
@@ -84,8 +84,8 @@ class AccessibleScaffold extends StatelessWidget {
   }
 }
 
-/// 无障碍页面包装器
-/// 自动处理页面焦点和语义化
+/// 無障礙頁面包裝器
+/// 自動處理頁面焦點和語義化
 class AccessiblePage extends StatelessWidget {
   const AccessiblePage({
     super.key,
@@ -107,8 +107,8 @@ class AccessiblePage extends StatelessWidget {
   }
 }
 
-/// 无障碍列表项
-/// 确保列表项具有正确的触摸目标和语义
+/// 無障礙列表項
+/// 確保列表項具有正確的觸摸目標和語義
 class AccessibleListTile extends StatelessWidget {
   const AccessibleListTile({
     super.key,
@@ -168,7 +168,7 @@ class AccessibleListTile extends StatelessWidget {
   }
 }
 
-/// 无障碍卡片
+/// 無障礙卡片
 class AccessibleCard extends StatelessWidget {
   const AccessibleCard({
     super.key,

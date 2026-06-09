@@ -12,7 +12,7 @@ import '../../widgets/demo/demo_stage.dart';
 import '../../widgets/demo/linkable_icon.dart';
 import '../home/main_screen.dart';
 
-/// 无障碍偏好设置页面
+/// 無障礙偏好設置頁面
 class PreferenceScreen extends ConsumerStatefulWidget {
   const PreferenceScreen({
     super.key,
@@ -69,7 +69,7 @@ class _PreferenceScreenState extends ConsumerState<PreferenceScreen> {
       if (!mounted) return;
       showDemoStageSnackBar(
         context,
-        message: '显示与无障碍偏好已更新',
+        message: '顯示與無障礙偏好已更新',
         icon: Icons.check_circle_outline,
         accentColor: AppTheme.stageAccent,
       );
@@ -99,8 +99,8 @@ class _PreferenceScreenState extends ConsumerState<PreferenceScreen> {
       builder: (context) {
         final isEditMode = widget.isEditMode;
         return _PreferencePageShell(
-          title: '无障碍偏好',
-          subtitle: isEditMode ? '当前修改会立即生效' : '最后一步，完成后进入主线演示',
+          title: '無障礙偏好',
+          subtitle: isEditMode ? '當前修改會立即生效' : '最後一步，完成後進入主線演示',
           body: DemoAuthFormTheme(
             child: ListView(
               padding: const EdgeInsets.fromLTRB(
@@ -133,13 +133,13 @@ class _PreferenceScreenState extends ConsumerState<PreferenceScreen> {
                               ),
                               child: const LinkableSvgIcon(
                                 icon: LinkableIconName.personalizedExperience,
-                                semanticLabel: '无障碍偏好',
+                                semanticLabel: '無障礙偏好',
                               ),
                             ),
                             const SizedBox(width: AppTheme.spacingM),
                             Expanded(
                               child: AccessibleText(
-                                '编辑无障碍偏好',
+                                '編輯無障礙偏好',
                                 style: TextStyle(
                                   color: AppTheme.stageTextPrimary,
                                   fontSize: AppTheme.fontSizeLarge,
@@ -156,16 +156,16 @@ class _PreferenceScreenState extends ConsumerState<PreferenceScreen> {
                           children: [
                             DemoPill(
                               label: _stageMode == DemoStageMode.day
-                                  ? '荧光日间'
+                                  ? '熒光日間'
                                   : '深夜模式',
                               color: AppTheme.stageAccent,
                             ),
                             DemoPill(
-                              label: _autoReadResults ? '自动朗读开' : '自动朗读关',
+                              label: _autoReadResults ? '自動朗讀開' : '自動朗讀關',
                               color: AppTheme.stageAccent,
                             ),
                             DemoPill(
-                              label: _hapticFeedback ? '触觉反馈开' : '触觉反馈关',
+                              label: _hapticFeedback ? '觸覺反饋開' : '觸覺反饋關',
                               color: AppTheme.stageAccent,
                             ),
                           ],
@@ -176,22 +176,22 @@ class _PreferenceScreenState extends ConsumerState<PreferenceScreen> {
                   const SizedBox(height: AppTheme.spacingL),
                 ] else ...[
                   DemoAuthBanner(
-                    title: '个性化您的使用体验',
-                    subtitle: '这些设置可以随时在"我的"页面修改。',
+                    title: '個性化您的使用體驗',
+                    subtitle: '這些設置可以隨時在"我的"頁面修改。',
                     icon: Icons.settings_accessibility_rounded,
                     chips: [
                       DemoPill(
                         label: _stageMode == DemoStageMode.day
-                            ? '荧光日间'
+                            ? '熒光日間'
                             : '深夜模式',
                         color: AppTheme.stageAccentLight,
                       ),
                       DemoPill(
-                        label: _highContrastMode ? '高对比度开启' : '标准显示',
+                        label: _highContrastMode ? '高對比度開啓' : '標準顯示',
                         color: AppTheme.stageAccentLight,
                       ),
                       DemoPill(
-                        label: '字体 ${_fontScale.toStringAsFixed(1)}x',
+                        label: '字體 ${_fontScale.toStringAsFixed(1)}x',
                         color: AppTheme.stageAccentLight,
                       ),
                     ],
@@ -201,12 +201,12 @@ class _PreferenceScreenState extends ConsumerState<PreferenceScreen> {
                     items: [
                       DemoMetricItem(
                         label: '界面',
-                        value: _stageMode == DemoStageMode.day ? '日间' : '深夜',
+                        value: _stageMode == DemoStageMode.day ? '日間' : '深夜',
                         color: AppTheme.stageAccent,
                       ),
                       DemoMetricItem(
-                        label: '朗读',
-                        value: _autoReadResults ? '自动开启' : '手动触发',
+                        label: '朗讀',
+                        value: _autoReadResults ? '自動開啓' : '手動觸發',
                         color: AppTheme.stageAccent,
                       ),
                     ],
@@ -214,8 +214,8 @@ class _PreferenceScreenState extends ConsumerState<PreferenceScreen> {
                   const SizedBox(height: AppTheme.spacingL),
                 ],
                 _PreferenceSwitchCard(
-                  title: '自动朗读结果',
-                  subtitle: 'AI 识别完成后自动语音播报，减少额外点击。',
+                  title: '自動朗讀結果',
+                  subtitle: 'AI 識別完成後自動語音播報，減少額外點擊。',
                   value: _autoReadResults,
                   leadingIcon: LinkableIconName.tts,
                   onChanged: (value) {
@@ -226,8 +226,8 @@ class _PreferenceScreenState extends ConsumerState<PreferenceScreen> {
                 ),
                 const SizedBox(height: AppTheme.spacingM),
                 _PreferenceSwitchCard(
-                  title: '触觉反馈',
-                  subtitle: '操作时提供振动反馈，帮助确认关键动作已触发。',
+                  title: '觸覺反饋',
+                  subtitle: '操作時提供振動反饋，幫助確認關鍵動作已觸發。',
                   value: _hapticFeedback,
                   leadingIcon: LinkableIconName.vibrationFlash,
                   onChanged: (value) {
@@ -247,8 +247,8 @@ class _PreferenceScreenState extends ConsumerState<PreferenceScreen> {
                 ),
                 const SizedBox(height: AppTheme.spacingM),
                 _PreferenceSwitchCard(
-                  title: '高对比度模式',
-                  subtitle: '使用更强的明暗对比，提升弱视和读屏用户的识别效率。',
+                  title: '高對比度模式',
+                  subtitle: '使用更強的明暗對比，提升弱視和讀屏用戶的識別效率。',
                   value: _highContrastMode,
                   leadingIcon: LinkableIconName.highContrast,
                   onChanged: (value) {
@@ -259,8 +259,8 @@ class _PreferenceScreenState extends ConsumerState<PreferenceScreen> {
                 ),
                 const SizedBox(height: AppTheme.spacingM),
                 _PreferenceSliderCard(
-                  title: '字体大小',
-                  subtitle: '调整应用内文字显示大小。',
+                  title: '字體大小',
+                  subtitle: '調整應用內文字顯示大小。',
                   value: _fontScale,
                   min: 0.8,
                   max: 2.0,
@@ -274,8 +274,8 @@ class _PreferenceScreenState extends ConsumerState<PreferenceScreen> {
                 ),
                 const SizedBox(height: AppTheme.spacingM),
                 _PreferenceSliderCard(
-                  title: '语音播报速度',
-                  subtitle: '调整 AI 语音播报的速度。',
+                  title: '語音播報速度',
+                  subtitle: '調整 AI 語音播報的速度。',
                   value: _voiceSpeed,
                   min: 0.5,
                   max: 2.0,
@@ -292,9 +292,9 @@ class _PreferenceScreenState extends ConsumerState<PreferenceScreen> {
             ),
           ),
           bottomBar: AccessibleButton(
-            label: isEditMode ? '保存设置' : '开始使用',
-            semanticLabel: isEditMode ? '保存无障碍偏好' : '完成设置，进入应用',
-            hint: isEditMode ? '双击保存偏好设置' : '双击开始使用共感LinkAble',
+            label: isEditMode ? '保存設置' : '開始使用',
+            semanticLabel: isEditMode ? '保存無障礙偏好' : '完成設置，進入應用',
+            hint: isEditMode ? '雙擊保存偏好設置' : '雙擊開始使用共感LinkAble',
             backgroundColor: AppTheme.stageAccent,
             foregroundColor: AppTheme.stageBackground,
             onPressed: _onComplete,
@@ -376,7 +376,7 @@ class _PreferenceHeader extends StatelessWidget {
         Semantics(
           button: true,
           label: canPop ? '返回' : '返回不可用',
-          hint: canPop ? '双击返回上一页' : '当前已经是第一页',
+          hint: canPop ? '雙擊返回上一頁' : '當前已經是第一頁',
           child: InkWell(
             onTap: canPop ? () => Navigator.of(context).pop() : null,
             borderRadius: BorderRadius.circular(999),
@@ -467,7 +467,7 @@ class _StageModeCard extends StatelessWidget {
           ),
           const SizedBox(height: AppTheme.spacingXS),
           AccessibleText(
-            '日间模式采用页面稿的荧光渐变与紫色主按钮；深夜模式适合低光环境。',
+            '日間模式採用頁面稿的熒光漸變與紫色主按鈕；深夜模式適合低光環境。',
             style: TextStyle(
               color: AppTheme.stageTextSecondary,
               fontSize: AppTheme.fontSizeSmall,
@@ -480,7 +480,7 @@ class _StageModeCard extends StatelessWidget {
               Expanded(
                 child: _StageModeOptionButton(
                   icon: LinkableIconName.lightMode,
-                  label: '日间',
+                  label: '日間',
                   isSelected: mode == DemoStageMode.day,
                   onTap: () => onModeChanged(DemoStageMode.day),
                 ),
@@ -521,7 +521,7 @@ class _StageModeOptionButton extends StatelessWidget {
       button: true,
       selected: isSelected,
       label: '$label模式',
-      hint: '双击切换到$label模式',
+      hint: '雙擊切換到$label模式',
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
@@ -720,7 +720,7 @@ class _PreferenceSliderCard extends StatelessWidget {
             ),
             Center(
               child: DemoPill(
-                label: '当前: ${value.toStringAsFixed(1)}x',
+                label: '當前: ${value.toStringAsFixed(1)}x',
                 color: AppTheme.stageAccent,
               ),
             ),

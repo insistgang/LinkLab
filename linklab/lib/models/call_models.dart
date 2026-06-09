@@ -1,24 +1,24 @@
-// 通话相关数据模型
+// 通話相關數據模型
 
-/// 通话状态
+/// 通話狀態
 enum CallState {
-  idle,           // 空闲
+  idle,           // 空閒
   matching,       // 匹配中
-  connecting,     // 连接中
-  ringing,        // 响铃中
-  connected,      // 已连接
-  reconnecting,   // 重连中
-  ended,          // 已结束
-  failed,         // 失败
+  connecting,     // 連接中
+  ringing,        // 響鈴中
+  connected,      // 已連接
+  reconnecting,   // 重連中
+  ended,          // 已結束
+  failed,         // 失敗
 }
 
-/// 通话角色
+/// 通話角色
 enum CallRole {
   seeker,     // 求助者
-  volunteer,  // 志愿者
+  volunteer,  // 志願者
 }
 
-/// 通话信息
+/// 通話信息
 class CallInfo {
   final String callId;
   final String roomId;
@@ -45,7 +45,7 @@ class CallInfo {
   });
 }
 
-/// 信令消息类型
+/// 信令消息類型
 enum SignalingType {
   offer,
   answer,
@@ -93,7 +93,7 @@ class SignalingMessage {
   );
 }
 
-/// 匹配结果
+/// 匹配結果
 class MatchingResult {
   final String helpRequestId;
   final List<MatchedVolunteer> volunteers;
@@ -114,7 +114,7 @@ class MatchingResult {
   );
 }
 
-/// 匹配的志愿者
+/// 匹配的志願者
 class MatchedVolunteer {
   final String id;
   final String userId;
@@ -139,17 +139,17 @@ class MatchedVolunteer {
   );
 }
 
-/// 通话结束原因
+/// 通話結束原因
 enum CallEndReason {
-  userHangup,       // 用户挂断
-  remoteHangup,     // 对方挂断
-  timeout,          // 超时
-  networkError,     // 网络错误
-  noResponse,       // 无响应
-  systemError,      // 系统错误
+  userHangup,       // 用戶掛斷
+  remoteHangup,     // 對方掛斷
+  timeout,          // 超時
+  networkError,     // 網絡錯誤
+  noResponse,       // 無響應
+  systemError,      // 系統錯誤
 }
 
-/// 通话统计
+/// 通話統計
 class CallStats {
   final Duration duration;
   final int bytesReceived;

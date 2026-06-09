@@ -3,7 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'emergency_contact_model.freezed.dart';
 part 'emergency_contact_model.g.dart';
 
-/// 紧急联系人模型
+/// 緊急聯繫人模型
 @freezed
 class EmergencyContactModel with _$EmergencyContactModel {
   const factory EmergencyContactModel({
@@ -12,7 +12,7 @@ class EmergencyContactModel with _$EmergencyContactModel {
     required String name,
     required String phone,
     String? relationship,
-    @Default(0) int priority, // 优先级，0为最高
+    @Default(0) int priority, // 優先級，0爲最高
     @Default(true) bool isActive,
     DateTime? createdAt,
   }) = _EmergencyContactModel;
@@ -22,7 +22,7 @@ class EmergencyContactModel with _$EmergencyContactModel {
 
   const EmergencyContactModel._();
 
-  /// 关系标签
+  /// 關係標籤
   String get relationshipLabel {
     switch (relationship) {
       case 'parent':
@@ -36,9 +36,9 @@ class EmergencyContactModel with _$EmergencyContactModel {
       case 'friend':
         return '朋友';
       case 'caregiver':
-        return '看护人';
+        return '看護人';
       case 'doctor':
-        return '医生';
+        return '醫生';
       default:
         return '其他';
     }

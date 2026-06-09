@@ -1,16 +1,16 @@
-// AGENTS.md §4.2：竞赛版已冻结 Demo 主线。
-// 该工厂保留为历史页面兼容层，默认且强制只返回 Demo 通话实现。
+// AGENTS.md §4.2：競賽版已凍結 Demo 主線。
+// 該工廠保留爲歷史頁面兼容層，默認且強制只返回 Demo 通話實現。
 
 import '../core/utils/logger.dart';
 import '../models/call_models.dart';
 
-/// 通话模式
+/// 通話模式
 enum CallMode {
   demo,
   real,
 }
 
-/// 通话服务接口
+/// 通話服務接口
 abstract class ICallService {
   CallMode get mode;
   bool get isInCall;
@@ -52,7 +52,7 @@ class CallServiceFactory {
   void setMode(CallMode mode) {
     if (mode == CallMode.real) {
       AppLogger.warning(
-        'AGENTS.md §4.2：竞赛版已冻结 Demo 主线，忽略切换到真实通话模式的请求',
+        'AGENTS.md §4.2：競賽版已凍結 Demo 主線，忽略切換到真實通話模式的請求',
       );
       _currentMode = CallMode.demo;
       return;
@@ -66,7 +66,7 @@ class CallServiceFactory {
 
   void useRealMode() {
     AppLogger.warning(
-      'AGENTS.md §4.2：竞赛版已冻结 Demo 主线，CallServiceFactory.useRealMode() 已被忽略',
+      'AGENTS.md §4.2：競賽版已凍結 Demo 主線，CallServiceFactory.useRealMode() 已被忽略',
     );
     _currentMode = CallMode.demo;
   }

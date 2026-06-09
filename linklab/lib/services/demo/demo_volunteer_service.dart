@@ -4,8 +4,8 @@ import '../../models/user_model.dart';
 import '../../models/call_models.dart';
 import 'demo_data_loader.dart';
 
-/// 演示版志愿者服务
-/// 用于替代真实的Supabase匹配服务
+/// 演示版志願者服務
+/// 用於替代真實的Supabase匹配服務
 class DemoVolunteerService {
   static final DemoVolunteerService _instance =
       DemoVolunteerService._internal();
@@ -21,7 +21,7 @@ class DemoVolunteerService {
     return raw.whereType<String>().toList();
   }
 
-  /// 获取所有演示志愿者
+  /// 獲取所有演示志願者
   List<VolunteerProfile> getAllVolunteers() {
     if (!AppConfig.shouldUseDemoFallback(
       feature: 'DemoVolunteerService.getAllVolunteers',
@@ -33,13 +33,13 @@ class DemoVolunteerService {
     return volunteersData.map((data) => _parseVolunteer(data)).toList();
   }
 
-  /// 获取在线志愿者
+  /// 獲取在線志願者
   List<VolunteerProfile> getOnlineVolunteers() {
     return getAllVolunteers().where((v) => v.isOnline).toList();
   }
 
-  /// 模拟匹配志愿者
-  /// [delayMs] 模拟匹配延迟（毫秒）
+  /// 模擬匹配志願者
+  /// [delayMs] 模擬匹配延遲（毫秒）
   Future<MatchingResult> matchVolunteer({
     required String seekerId,
     int delayMs = 3000,
@@ -48,22 +48,22 @@ class DemoVolunteerService {
       feature: 'DemoVolunteerService.matchVolunteer',
     )) {
       throw StateError(
-        'DemoVolunteerService.matchVolunteer 仅在 Demo fallback 开启时可用',
+        'DemoVolunteerService.matchVolunteer 僅在 Demo fallback 開啓時可用',
       );
     }
 
-    // 模拟匹配延迟
+    // 模擬匹配延遲
     await Future.delayed(Duration(milliseconds: delayMs));
 
-    // 获取默认匹配的志愿者（演示用）
+    // 獲取默認匹配的志願者（演示用）
     final defaultVolunteerData = DemoDataLoader.getDefaultMatchedVolunteer();
     if (defaultVolunteerData == null) {
-      throw Exception('演示数据未加载');
+      throw Exception('演示數據未加載');
     }
 
     final volunteer = _parseVolunteer(defaultVolunteerData);
 
-    // 构建匹配结果
+    // 構建匹配結果
     final matchedVolunteer = MatchedVolunteer(
       id: 'match_${_random.nextInt(10000)}',
       userId: volunteer.userId,
@@ -79,7 +79,7 @@ class DemoVolunteerService {
     );
   }
 
-  /// 模拟匹配多个志愿者（用于展示列表）
+  /// 模擬匹配多個志願者（用於展示列表）
   Future<List<MatchedVolunteer>> matchMultipleVolunteers({
     int count = 3,
     int delayMs = 2000,
@@ -111,7 +111,7 @@ class DemoVolunteerService {
     return matched;
   }
 
-  /// 获取志愿者详情
+  /// 獲取志願者詳情
   VolunteerProfile? getVolunteerById(String userId) {
     final volunteers = getAllVolunteers();
     try {
@@ -121,7 +121,7 @@ class DemoVolunteerService {
     }
   }
 
-  /// 解析志愿者数据
+  /// 解析志願者數據
   VolunteerProfile _parseVolunteer(Map<String, dynamic> data) {
     final creditScore = (data['creditScore'] as num?)?.toDouble() ?? 5.0;
     final latitude = (data['latitude'] as num?)?.toDouble();
@@ -141,7 +141,7 @@ class DemoVolunteerService {
     );
   }
 
-  /// 模拟获取志愿者用户信息
+  /// 模擬獲取志願者用戶信息
   UserModel? getVolunteerUser(String userId) {
     if (!AppConfig.shouldUseDemoFallback(
       feature: 'DemoVolunteerService.getVolunteerUser',

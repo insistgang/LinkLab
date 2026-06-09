@@ -24,10 +24,10 @@ class XfyunAsrService {
 
   bool get isListening => _isListening;
 
-  /// 识别已有的音频数据
+  /// 識別已有的音頻數據
   Future<String> recognize(Uint8List audioData) async {
     if (!APIConfig.isXfyunConfigured) {
-      throw Exception('讯飞 API 未配置');
+      throw Exception('訊飛 API 未配置');
     }
 
     final completer = Completer<String>();
@@ -43,7 +43,7 @@ class XfyunAsrService {
         },
         onError: (error) {
           if (!completer.isCompleted) {
-            completer.completeError(Exception('WebSocket 错误: $error'));
+            completer.completeError(Exception('WebSocket 錯誤: $error'));
           }
         },
         onDone: () {
@@ -66,7 +66,7 @@ class XfyunAsrService {
           if (_resultBuffer.isNotEmpty) {
             return _resultBuffer.toString();
           }
-          throw TimeoutException('语音识别超时');
+          throw TimeoutException('語音識別超時');
         },
       );
 
@@ -84,20 +84,20 @@ class XfyunAsrService {
     }
   }
 
-  /// 开始录音并识别
+  /// 開始錄音並識別
   Future<String> startListening() async {
     if (!APIConfig.isXfyunConfigured) {
-      throw Exception('讯飞 API 未配置');
+      throw Exception('訊飛 API 未配置');
     }
 
     if (_isListening) {
       await stopListening();
     }
 
-    throw UnsupportedError('实时讯飞 ASR 录音未启用，已回退到设备本地语音识别');
+    throw UnsupportedError('實時訊飛 ASR 錄音未啓用，已回退到設備本地語音識別');
   }
 
-  /// 停止录音并返回识别结果
+  /// 停止錄音並返回識別結果
   Future<void> stopListening() async {
     if (!_isListening) return;
 
@@ -109,7 +109,7 @@ class XfyunAsrService {
     await _cleanup();
   }
 
-  // ────────────── WebSocket 帧构建 ──────────────
+  // ────────────── WebSocket 幀構建 ──────────────
 
   Map<String, dynamic> _buildFirstFrame() {
     return {
@@ -184,7 +184,7 @@ class XfyunAsrService {
     }
   }
 
-  // ────────────── 消息处理 ──────────────
+  // ────────────── 消息處理 ──────────────
 
   void _handleMessage(dynamic message, Completer<String> completer) {
     try {
@@ -192,10 +192,10 @@ class XfyunAsrService {
       final code = data['code'] as int?;
 
       if (code != 0) {
-        final msg = data['message'] as String? ?? '未知错误';
-        AppLogger.warning('讯飞 ASR 错误: code=$code, msg=$msg');
+        final msg = data['message'] as String? ?? '未知錯誤';
+        AppLogger.warning('訊飛 ASR 錯誤: code=$code, msg=$msg');
         if (!completer.isCompleted) {
-          completer.completeError(Exception('ASR 错误 [$code]: $msg'));
+          completer.completeError(Exception('ASR 錯誤 [$code]: $msg'));
         }
         return;
       }
@@ -236,11 +236,11 @@ class XfyunAsrService {
         }
       }
     } catch (e) {
-      AppLogger.error('解析 ASR 消息失败', e);
+      AppLogger.error('解析 ASR 消息失敗', e);
     }
   }
 
-  // ────────────── 签名生成（HMAC-SHA256） ──────────────
+  // ────────────── 簽名生成（HMAC-SHA256） ──────────────
 
   String _buildAuthUrl() {
     final now = DateTime.now().toUtc();
@@ -296,7 +296,7 @@ class XfyunAsrService {
     return '$day, $d $month ${date.year} $h:$m:$s GMT';
   }
 
-  // ────────────── 辅助方法 ──────────────
+  // ────────────── 輔助方法 ──────────────
 
   Future<void> _cleanup() async {
     if (_channel != null) {

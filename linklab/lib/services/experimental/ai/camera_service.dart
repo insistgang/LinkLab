@@ -4,8 +4,8 @@ import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
-/// 相机服务
-/// 负责拍照、相册选择、图片压缩和预处理
+/// 相機服務
+/// 負責拍照、相冊選擇、圖片壓縮和預處理
 class CameraService {
   final ImagePicker _picker = ImagePicker();
 
@@ -30,11 +30,11 @@ class CameraService {
         source: ImageSource.camera,
       );
     } catch (e) {
-      throw CameraException('拍照失败: $e');
+      throw CameraException('拍照失敗: $e');
     }
   }
 
-  /// 从相册选择
+  /// 從相冊選擇
   Future<CameraResult?> pickFromGallery({
     int imageQuality = 85,
     int maxWidth = 1920,
@@ -55,11 +55,11 @@ class CameraService {
         source: ImageSource.gallery,
       );
     } catch (e) {
-      throw CameraException('选择图片失败: $e');
+      throw CameraException('選擇圖片失敗: $e');
     }
   }
 
-  /// 压缩图片
+  /// 壓縮圖片
   Future<String> compressImage(
     String imagePath, {
     int quality = 85,
@@ -72,10 +72,10 @@ class CameraService {
       var image = img.decodeImage(bytes);
 
       if (image == null) {
-        throw CameraException('无法解析图片');
+        throw CameraException('無法解析圖片');
       }
 
-      // 调整大小
+      // 調整大小
       if (image.width > maxWidth || image.height > maxHeight) {
         image = img.copyResize(
           image,
@@ -84,7 +84,7 @@ class CameraService {
         );
       }
 
-      // 压缩并保存
+      // 壓縮並保存
       final compressedBytes = img.encodeJpg(image, quality: quality);
       final tempDir = await getTemporaryDirectory();
       final fileName = 'compressed_${DateTime.now().millisecondsSinceEpoch}.jpg';
@@ -94,11 +94,11 @@ class CameraService {
 
       return compressedPath;
     } catch (e) {
-      throw CameraException('图片压缩失败: $e');
+      throw CameraException('圖片壓縮失敗: $e');
     }
   }
 
-  /// 压缩图片到指定大小以下（用于API上传）
+  /// 壓縮圖片到指定大小以下（用於API上傳）
   Future<String> compressToSize(
     String imagePath, {
     int maxSizeKB = 500,
@@ -127,7 +127,7 @@ class CameraService {
     return compressedPath;
   }
 
-  /// 裁剪图片中心区域
+  /// 裁剪圖片中心區域
   Future<String> cropCenter(String imagePath, {double ratio = 0.8}) async {
     try {
       final file = File(imagePath);
@@ -135,7 +135,7 @@ class CameraService {
       final image = img.decodeImage(bytes);
 
       if (image == null) {
-        throw CameraException('无法解析图片');
+        throw CameraException('無法解析圖片');
       }
 
       final cropWidth = (image.width * ratio).toInt();
@@ -160,18 +160,18 @@ class CameraService {
 
       return croppedPath;
     } catch (e) {
-      throw CameraException('图片裁剪失败: $e');
+      throw CameraException('圖片裁剪失敗: $e');
     }
   }
 
-  /// 获取图片信息
+  /// 獲取圖片信息
   Future<ImageInfo> getImageInfo(String imagePath) async {
     final file = File(imagePath);
     final bytes = await file.readAsBytes();
     final image = img.decodeImage(bytes);
 
     if (image == null) {
-      throw CameraException('无法解析图片');
+      throw CameraException('無法解析圖片');
     }
 
     final fileSize = await file.length();
@@ -185,7 +185,7 @@ class CameraService {
     );
   }
 
-  /// 删除临时图片
+  /// 刪除臨時圖片
   Future<void> deleteTempImage(String imagePath) async {
     try {
       final file = File(imagePath);
@@ -193,11 +193,11 @@ class CameraService {
         await file.delete();
       }
     } catch (e) {
-      // 忽略删除错误
+      // 忽略刪除錯誤
     }
   }
 
-  /// 清理所有临时图片
+  /// 清理所有臨時圖片
   Future<void> clearTempImages() async {
     try {
       final tempDir = await getTemporaryDirectory();
@@ -214,12 +214,12 @@ class CameraService {
         await file.delete();
       }
     } catch (e) {
-      // 忽略清理错误
+      // 忽略清理錯誤
     }
   }
 }
 
-/// 相机结果
+/// 相機結果
 class CameraResult {
   final String path;
   final ImageSource source;
@@ -230,7 +230,7 @@ class CameraResult {
   });
 }
 
-/// 图片信息
+/// 圖片信息
 class ImageInfo {
   final String path;
   final int width;
@@ -251,7 +251,7 @@ class ImageInfo {
   double get aspectRatio => width / height;
 }
 
-/// 相机异常
+/// 相機異常
 class CameraException implements Exception {
   final String message;
 

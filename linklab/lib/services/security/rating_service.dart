@@ -3,7 +3,7 @@ import '../../core/utils/logger.dart';
 import '../../models/security/credit_score_model.dart';
 import 'credit_score_service.dart';
 
-/// 评价服务
+/// 評價服務
 class RatingService {
   SupabaseClient? _supabaseClient;
   SupabaseClient get _supabase {
@@ -20,7 +20,7 @@ class RatingService {
     return _creditScoreServiceInstance!;
   }
 
-  /// 提交评价
+  /// 提交評價
   Future<RatingRecord?> submitRating({
     required String helpRequestId,
     required String callId,
@@ -32,10 +32,10 @@ class RatingService {
     bool isSeekerToVolunteer = true,
   }) async {
     try {
-      // 检查是否已经评价过
+      // 檢查是否已經評價過
       final existingRating = await _getExistingRating(callId, fromUserId);
       if (existingRating != null) {
-        AppLogger.warning('已经评价过此通话');
+        AppLogger.warning('已經評價過此通話');
         return existingRating;
       }
 
@@ -52,7 +52,7 @@ class RatingService {
         createdAt: DateTime.now(),
       );
 
-      // 保存评价
+      // 保存評價
       await _supabase.from('rating_records').insert({
         'id': ratingRecord.id,
         'call_id': callId,
@@ -69,15 +69,15 @@ class RatingService {
       // 更新信用分
       await _creditScoreService.processNewRating(ratingRecord);
 
-      AppLogger.info('评价提交成功: ${ratingRecord.id}');
+      AppLogger.info('評價提交成功: ${ratingRecord.id}');
       return ratingRecord;
     } catch (e) {
-      AppLogger.error('提交评价失败', e);
+      AppLogger.error('提交評價失敗', e);
       rethrow;
     }
   }
 
-  /// 获取评价详情
+  /// 獲取評價詳情
   Future<RatingRecord?> getRating(String ratingId) async {
     try {
       final response = await _supabase
@@ -88,12 +88,12 @@ class RatingService {
 
       return RatingRecord.fromJson(Map<String, dynamic>.from(response as Map));
     } catch (e) {
-      AppLogger.error('获取评价失败', e);
+      AppLogger.error('獲取評價失敗', e);
       return null;
     }
   }
 
-  /// 获取通话的评价
+  /// 獲取通話的評價
   Future<List<RatingRecord>> getCallRatings(String callId) async {
     try {
       final response = await _supabase
@@ -108,12 +108,12 @@ class RatingService {
           )
           .toList();
     } catch (e) {
-      AppLogger.error('获取通话评价失败', e);
+      AppLogger.error('獲取通話評價失敗', e);
       return [];
     }
   }
 
-  /// 获取用户收到的评价
+  /// 獲取用戶收到的評價
   Future<List<RatingRecord>> getUserRatings(
     String userId, {
     int limit = 20,
@@ -134,12 +134,12 @@ class RatingService {
           )
           .toList();
     } catch (e) {
-      AppLogger.error('获取用户评价失败', e);
+      AppLogger.error('獲取用戶評價失敗', e);
       return [];
     }
   }
 
-  /// 获取用户发出的评价
+  /// 獲取用戶發出的評價
   Future<List<RatingRecord>> getUserGivenRatings(
     String userId, {
     int limit = 20,
@@ -160,12 +160,12 @@ class RatingService {
           )
           .toList();
     } catch (e) {
-      AppLogger.error('获取用户发出的评价失败', e);
+      AppLogger.error('獲取用戶發出的評價失敗', e);
       return [];
     }
   }
 
-  /// 获取用户平均评分
+  /// 獲取用戶平均評分
   Future<double> getUserAverageRating(String userId) async {
     try {
       final response = await _supabase
@@ -179,12 +179,12 @@ class RatingService {
       final sum = ratings.reduce((a, b) => a + b);
       return sum / ratings.length;
     } catch (e) {
-      AppLogger.error('获取用户平均评分失败', e);
+      AppLogger.error('獲取用戶平均評分失敗', e);
       return 5.0;
     }
   }
 
-  /// 获取评价统计
+  /// 獲取評價統計
   Future<RatingStatistics> getRatingStatistics(String userId) async {
     try {
       final response = await _supabase
@@ -217,12 +217,12 @@ class RatingService {
         oneStarCount: distribution[1] ?? 0,
       );
     } catch (e) {
-      AppLogger.error('获取评价统计失败', e);
+      AppLogger.error('獲取評價統計失敗', e);
       return RatingStatistics.empty(userId);
     }
   }
 
-  /// 检查是否已经评价过
+  /// 檢查是否已經評價過
   Future<RatingRecord?> _getExistingRating(String callId, String fromUserId) async {
     try {
       final response = await _supabase
@@ -239,7 +239,7 @@ class RatingService {
     }
   }
 
-  /// 获取常用标签统计
+  /// 獲取常用標籤統計
   Future<Map<String, int>> getCommonTags(String userId) async {
     try {
       final response = await _supabase
@@ -257,13 +257,13 @@ class RatingService {
 
       return tagCounts;
     } catch (e) {
-      AppLogger.error('获取常用标签失败', e);
+      AppLogger.error('獲取常用標籤失敗', e);
       return {};
     }
   }
 }
 
-/// 评价统计
+/// 評價統計
 class RatingStatistics {
   final String userId;
   final int totalRatings;
@@ -296,13 +296,13 @@ class RatingStatistics {
         oneStarCount: 0,
       );
 
-  /// 好评率
+  /// 好評率
   double get positiveRate =>
       totalRatings > 0 ? (fiveStarCount + fourStarCount) / totalRatings : 1.0;
 
-  /// 好评数量
+  /// 好評數量
   int get positiveCount => fiveStarCount + fourStarCount;
 
-  /// 差评数量
+  /// 差評數量
   int get negativeCount => threeStarCount + twoStarCount + oneStarCount;
 }

@@ -4,7 +4,7 @@ import '../models/admin_models.dart';
 import '../services/admin_auth_service.dart';
 import '../services/admin_data_service.dart';
 
-/// 内容管理页面
+/// 內容管理頁面
 class ContentManagementPage extends StatefulWidget {
   const ContentManagementPage({super.key});
 
@@ -56,12 +56,12 @@ class _ContentManagementPageState extends State<ContentManagementPage> {
   }
 
   Future<void> _toggleContentStatus(ContentItem content) async {
-    final action = content.status == 'published' ? '下架' : '发布';
+    final action = content.status == 'published' ? '下架' : '發佈';
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('确认$action'),
-        content: Text('确定要$action "${content.title}" 吗？'),
+        title: Text('確認$action'),
+        content: Text('確定要$action "${content.title}" 嗎？'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -82,7 +82,7 @@ class _ContentManagementPageState extends State<ContentManagementPage> {
       );
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('已$action内容')),
+          SnackBar(content: Text('已$action內容')),
         );
         _loadContents();
       }
@@ -93,8 +93,8 @@ class _ContentManagementPageState extends State<ContentManagementPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('确认删除'),
-        content: Text('确定要删除 "${content.title}" 吗？此操作不可恢复。'),
+        title: const Text('確認刪除'),
+        content: Text('確定要刪除 "${content.title}" 嗎？此操作不可恢復。'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -106,7 +106,7 @@ class _ContentManagementPageState extends State<ContentManagementPage> {
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            child: const Text('删除'),
+            child: const Text('刪除'),
           ),
         ],
       ),
@@ -116,7 +116,7 @@ class _ContentManagementPageState extends State<ContentManagementPage> {
       final success = await _dataService.deleteContent(content.id);
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('已删除内容')),
+          const SnackBar(content: Text('已刪除內容')),
         );
         _loadContents();
       }
@@ -157,11 +157,11 @@ class _ContentManagementPageState extends State<ContentManagementPage> {
                   const SizedBox(width: 24),
                   Icon(Icons.visibility, size: 16, color: Colors.grey[600]),
                   const SizedBox(width: 4),
-                  Text('${content.viewCount} 阅读'),
+                  Text('${content.viewCount} 閱讀'),
                   const SizedBox(width: 24),
                   Icon(Icons.favorite, size: 16, color: Colors.grey[600]),
                   const SizedBox(width: 4),
-                  Text('${content.likeCount} 点赞'),
+                  Text('${content.likeCount} 點贊'),
                 ],
               ),
               const SizedBox(height: 16),
@@ -181,7 +181,7 @@ class _ContentManagementPageState extends State<ContentManagementPage> {
                 children: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('关闭'),
+                    child: const Text('關閉'),
                   ),
                   if (_authService.hasPermission('content.edit')) ...[
                     const SizedBox(width: 8),
@@ -190,7 +190,7 @@ class _ContentManagementPageState extends State<ContentManagementPage> {
                         Navigator.of(context).pop();
                         _toggleContentStatus(content);
                       },
-                      child: Text(content.status == 'published' ? '下架' : '发布'),
+                      child: Text(content.status == 'published' ? '下架' : '發佈'),
                     ),
                   ],
                   if (_authService.hasPermission('content.delete')) ...[
@@ -204,7 +204,7 @@ class _ContentManagementPageState extends State<ContentManagementPage> {
                         backgroundColor: Colors.red,
                         foregroundColor: Colors.white,
                       ),
-                      child: const Text('删除'),
+                      child: const Text('刪除'),
                     ),
                   ],
                 ],
@@ -223,7 +223,7 @@ class _ContentManagementPageState extends State<ContentManagementPage> {
     switch (status) {
       case 'published':
         color = Colors.green;
-        label = '已发布';
+        label = '已發佈';
         break;
       case 'draft':
         color = Colors.grey;
@@ -231,15 +231,15 @@ class _ContentManagementPageState extends State<ContentManagementPage> {
         break;
       case 'pending':
         color = Colors.orange;
-        label = '待审核';
+        label = '待審覈';
         break;
       case 'rejected':
         color = Colors.red;
-        label = '已拒绝';
+        label = '已拒絕';
         break;
       case 'archived':
         color = Colors.blue;
-        label = '已归档';
+        label = '已歸檔';
         break;
       default:
         color = Colors.grey;
@@ -266,23 +266,23 @@ class _ContentManagementPageState extends State<ContentManagementPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 标题和筛选栏
+          // 標題和篩選欄
           Row(
             children: [
               const Text(
-                '内容管理',
+                '內容管理',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const Spacer(),
-              // 类型筛选
+              // 類型篩選
               DropdownButton<String>(
                 value: _selectedType,
-                hint: const Text('类型'),
+                hint: const Text('類型'),
                 items: const [
-                  DropdownMenuItem(value: null, child: Text('全部类型')),
+                  DropdownMenuItem(value: null, child: Text('全部類型')),
                   DropdownMenuItem(value: 'story', child: Text('故事')),
                   DropdownMenuItem(value: 'announcement', child: Text('公告')),
                   DropdownMenuItem(value: 'guide', child: Text('指南')),
@@ -293,15 +293,15 @@ class _ContentManagementPageState extends State<ContentManagementPage> {
                 },
               ),
               const SizedBox(width: 12),
-              // 状态筛选
+              // 狀態篩選
               DropdownButton<String>(
                 value: _selectedStatus,
-                hint: const Text('状态'),
+                hint: const Text('狀態'),
                 items: const [
-                  DropdownMenuItem(value: null, child: Text('全部状态')),
-                  DropdownMenuItem(value: 'published', child: Text('已发布')),
+                  DropdownMenuItem(value: null, child: Text('全部狀態')),
+                  DropdownMenuItem(value: 'published', child: Text('已發佈')),
                   DropdownMenuItem(value: 'draft', child: Text('草稿')),
-                  DropdownMenuItem(value: 'pending', child: Text('待审核')),
+                  DropdownMenuItem(value: 'pending', child: Text('待審覈')),
                 ],
                 onChanged: (value) {
                   setState(() => _selectedStatus = value);
@@ -309,39 +309,39 @@ class _ContentManagementPageState extends State<ContentManagementPage> {
                 },
               ),
               const SizedBox(width: 12),
-              // 重置按钮
+              // 重置按鈕
               TextButton.icon(
                 onPressed: _resetFilters,
                 icon: const Icon(Icons.refresh),
                 label: const Text('重置'),
               ),
               const SizedBox(width: 12),
-              // 新建按钮
+              // 新建按鈕
               if (_authService.hasPermission('content.edit'))
                 ElevatedButton.icon(
                   onPressed: () {
-                    // TODO: 实现新建内容
+                    // TODO: 實現新建內容
                   },
                   icon: const Icon(Icons.add),
-                  label: const Text('新建内容'),
+                  label: const Text('新建內容'),
                 ),
             ],
           ),
           const SizedBox(height: 16),
 
-          // 数据表格
+          // 數據表格
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : Card(
                     child: DataTable2(
                       columns: const [
-                        DataColumn2(label: Text('标题'), size: ColumnSize.L),
-                        DataColumn2(label: Text('类型'), size: ColumnSize.S),
+                        DataColumn2(label: Text('標題'), size: ColumnSize.L),
+                        DataColumn2(label: Text('類型'), size: ColumnSize.S),
                         DataColumn2(label: Text('作者'), size: ColumnSize.M),
-                        DataColumn2(label: Text('状态'), size: ColumnSize.S),
-                        DataColumn2(label: Text('数据'), size: ColumnSize.M),
-                        DataColumn2(label: Text('发布时间'), size: ColumnSize.M),
+                        DataColumn2(label: Text('狀態'), size: ColumnSize.S),
+                        DataColumn2(label: Text('數據'), size: ColumnSize.M),
+                        DataColumn2(label: Text('發佈時間'), size: ColumnSize.M),
                         DataColumn2(label: Text('操作'), size: ColumnSize.S),
                       ],
                       rows: _contents.map((content) {
@@ -377,7 +377,7 @@ class _ContentManagementPageState extends State<ContentManagementPage> {
                                 children: [
                                   IconButton(
                                     icon: const Icon(Icons.visibility, size: 20),
-                                    tooltip: '查看详情',
+                                    tooltip: '查看詳情',
                                     onPressed: () => _showContentDetail(content),
                                   ),
                                   if (_authService.hasPermission('content.edit'))
@@ -388,13 +388,13 @@ class _ContentManagementPageState extends State<ContentManagementPage> {
                                             : Icons.publish,
                                         size: 20,
                                       ),
-                                      tooltip: content.status == 'published' ? '下架' : '发布',
+                                      tooltip: content.status == 'published' ? '下架' : '發佈',
                                       onPressed: () => _toggleContentStatus(content),
                                     ),
                                   if (_authService.hasPermission('content.delete'))
                                     IconButton(
                                       icon: const Icon(Icons.delete, size: 20, color: Colors.red),
-                                      tooltip: '删除',
+                                      tooltip: '刪除',
                                       onPressed: () => _deleteContent(content),
                                     ),
                                 ],
@@ -407,7 +407,7 @@ class _ContentManagementPageState extends State<ContentManagementPage> {
                   ),
           ),
 
-          // 分页
+          // 分頁
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -421,7 +421,7 @@ class _ContentManagementPageState extends State<ContentManagementPage> {
                       }
                     : null,
               ),
-              Text('第 $_currentPage / $_totalPages 页'),
+              Text('第 $_currentPage / $_totalPages 頁'),
               IconButton(
                 icon: const Icon(Icons.chevron_right),
                 onPressed: _currentPage < _totalPages

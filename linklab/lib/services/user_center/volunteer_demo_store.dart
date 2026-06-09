@@ -40,7 +40,7 @@ class VolunteerDemoStore {
       try {
         return VolunteerProfile.fromJson(stored);
       } catch (e) {
-        AppLogger.warning('解析本地志愿者资料失败，改为重建: $volunteerId');
+        AppLogger.warning('解析本地志願者資料失敗，改爲重建: $volunteerId');
       }
     }
 
@@ -69,7 +69,7 @@ class VolunteerDemoStore {
             return bTime.compareTo(aTime);
           });
       } catch (e) {
-        AppLogger.warning('解析本地志愿者积分流水失败，改为重建: $volunteerId');
+        AppLogger.warning('解析本地志願者積分流水失敗，改爲重建: $volunteerId');
       }
     }
 
@@ -105,7 +105,7 @@ class VolunteerDemoStore {
       try {
         return stored.map(SkillModel.fromJson).toList();
       } catch (e) {
-        AppLogger.warning('解析本地志愿者技能失败，改为重建: $volunteerId');
+        AppLogger.warning('解析本地志願者技能失敗，改爲重建: $volunteerId');
       }
     }
 
@@ -137,7 +137,7 @@ class VolunteerDemoStore {
             return bTime.compareTo(aTime);
           });
       } catch (e) {
-        AppLogger.warning('解析本地技能申请失败，改为重建: $volunteerId');
+        AppLogger.warning('解析本地技能申請失敗，改爲重建: $volunteerId');
       }
     }
 
@@ -173,7 +173,7 @@ class VolunteerDemoStore {
           return bTime.compareTo(aTime);
         });
     } catch (e) {
-      AppLogger.warning('解析本地徽章失败，改为空列表: $volunteerId');
+      AppLogger.warning('解析本地徽章失敗，改爲空列表: $volunteerId');
       return [];
     }
   }
@@ -207,7 +207,7 @@ class VolunteerDemoStore {
       try {
         return ScheduleModel.fromJson(stored);
       } catch (e) {
-        AppLogger.warning('解析本地排班失败，改为重建: $volunteerId');
+        AppLogger.warning('解析本地排班失敗，改爲重建: $volunteerId');
       }
     }
 
@@ -230,7 +230,7 @@ class VolunteerDemoStore {
         return stored.map(VolunteerActivityRecord.fromJson).toList()
           ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
       } catch (e) {
-        AppLogger.warning('解析本地志愿活动失败，改为重建: $volunteerId');
+        AppLogger.warning('解析本地誌願活動失敗，改爲重建: $volunteerId');
       }
     }
 
@@ -315,7 +315,7 @@ class VolunteerDemoStore {
         userId: volunteerId,
         points: 10,
         type: PointTransactionType.realtimeHelp,
-        description: '完成夜间语音陪伴',
+        description: '完成夜間語音陪伴',
         isPositive: true,
         createdAt: now.subtract(const Duration(hours: 10)),
       ),
@@ -324,7 +324,7 @@ class VolunteerDemoStore {
         userId: volunteerId,
         points: 3,
         type: PointTransactionType.fiveStarRating,
-        description: '获得五星好评',
+        description: '獲得五星好評',
         isPositive: true,
         createdAt: now.subtract(const Duration(hours: 9, minutes: 48)),
       ),
@@ -333,7 +333,7 @@ class VolunteerDemoStore {
         userId: volunteerId,
         points: 5,
         type: PointTransactionType.asyncHelp,
-        description: '完成图片识别异步任务',
+        description: '完成圖片識別異步任務',
         isPositive: true,
         createdAt: now.subtract(const Duration(days: 1, hours: 3)),
       ),
@@ -342,7 +342,7 @@ class VolunteerDemoStore {
         userId: volunteerId,
         points: 20,
         type: PointTransactionType.continuousHelpBonus,
-        description: '连续7天帮助奖励',
+        description: '連續7天幫助獎勵',
         isPositive: true,
         createdAt: now.subtract(const Duration(days: 2)),
       ),
@@ -351,7 +351,7 @@ class VolunteerDemoStore {
         userId: volunteerId,
         points: 120,
         type: PointTransactionType.other,
-        description: '完成志愿者训练营',
+        description: '完成志願者訓練營',
         isPositive: true,
         createdAt: now.subtract(const Duration(days: 12)),
       ),
@@ -360,7 +360,7 @@ class VolunteerDemoStore {
         userId: volunteerId,
         points: 228,
         type: PointTransactionType.other,
-        description: '春季服务专项成长值',
+        description: '春季服務專項成長值',
         isPositive: true,
         createdAt: now.subtract(const Duration(days: 24)),
       ),
@@ -381,8 +381,8 @@ class VolunteerDemoStore {
         id: 'skill_request_$volunteerId',
         volunteerId: volunteerId,
         skillId: 'medical_basic',
-        skillName: '医疗辅助',
-        description: '已上传护理培训结业证明，等待平台审核',
+        skillName: '醫療輔助',
+        description: '已上傳護理培訓結業證明，等待平臺審覈',
         status: 'pending',
         submittedAt: DateTime.now().subtract(const Duration(days: 2)),
       ),
@@ -435,7 +435,7 @@ class VolunteerDemoStore {
         id: 'activity_${volunteerId}_3',
         volunteerId: volunteerId,
         seekerId: 'seeker_demo_3',
-        seekerName: '陈女士',
+        seekerName: '陳女士',
         type: 'realtime_video',
         durationMinutes: 23,
         rating: 5,
@@ -445,7 +445,7 @@ class VolunteerDemoStore {
         id: 'activity_${volunteerId}_4',
         volunteerId: volunteerId,
         seekerId: 'seeker_demo_4',
-        seekerName: '赵先生',
+        seekerName: '趙先生',
         type: 'realtime_voice',
         durationMinutes: 15,
         rating: 5,
@@ -455,7 +455,7 @@ class VolunteerDemoStore {
         id: 'activity_${volunteerId}_5',
         volunteerId: volunteerId,
         seekerId: 'seeker_demo_5',
-        seekerName: '吴阿姨',
+        seekerName: '吳阿姨',
         type: 'async',
         durationMinutes: 9,
         rating: 4,
@@ -485,7 +485,7 @@ class VolunteerDemoStore {
         id: 'activity_${volunteerId}_8',
         volunteerId: volunteerId,
         seekerId: 'seeker_demo_8',
-        seekerName: '孙阿姨',
+        seekerName: '孫阿姨',
         type: 'realtime_voice',
         durationMinutes: 17,
         rating: 4,

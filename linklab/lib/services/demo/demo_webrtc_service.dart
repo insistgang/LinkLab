@@ -3,32 +3,32 @@ import 'dart:async';
 import '../../config/app_config.dart';
 import '../../models/call_models.dart';
 
-/// 演示版WebRTC服务
-/// 用于替代真实的WebRTC P2P通话
+/// 演示版WebRTC服務
+/// 用於替代真實的WebRTC P2P通話
 class DemoWebRTCService {
   static final DemoWebRTCService _instance = DemoWebRTCService._internal();
   factory DemoWebRTCService() => _instance;
   DemoWebRTCService._internal();
 
-  // 状态监听
+  // 狀態監聽
   final _callStateController = StreamController<CallState>.broadcast();
   Stream<CallState> get callStateStream => _callStateController.stream;
 
-  // 当前通话信息
+  // 當前通話信息
   CallInfo? _currentCall;
   CallInfo? get currentCall => _currentCall;
 
-  // 计时器
+  // 計時器
   Timer? _callTimer;
   int _elapsedSeconds = 0;
 
   void _ensureDemoFallbackEnabled(String action) {
     if (!AppConfig.shouldUseDemoFallback(feature: action)) {
-      throw StateError('$action 仅在 Demo fallback 开启时可用');
+      throw StateError('$action 僅在 Demo fallback 開啓時可用');
     }
   }
 
-  /// 初始化通话
+  /// 初始化通話
   Future<CallInfo> initializeCall({
     required String seekerId,
     required String volunteerId,
@@ -36,7 +36,7 @@ class DemoWebRTCService {
   }) async {
     _ensureDemoFallbackEnabled('DemoWebRTCService.initializeCall');
 
-    // 模拟初始化延迟
+    // 模擬初始化延遲
     await Future.delayed(const Duration(milliseconds: 500));
 
     _currentCall = CallInfo(
@@ -53,12 +53,12 @@ class DemoWebRTCService {
     return _currentCall!;
   }
 
-  /// 开始通话（模拟连接过程）
+  /// 開始通話（模擬連接過程）
   Future<void> startCall() async {
     _ensureDemoFallbackEnabled('DemoWebRTCService.startCall');
     if (_currentCall == null) return;
 
-    // 模拟连接过程
+    // 模擬連接過程
     _callStateController.add(CallState.connecting);
     await Future.delayed(const Duration(seconds: 1));
 
@@ -69,18 +69,18 @@ class DemoWebRTCService {
     _currentCall!.state = CallState.connected;
     _currentCall!.startTime = DateTime.now();
 
-    // 开始计时
+    // 開始計時
     _startTimer();
   }
 
-  /// 模拟自动接听（用于演示）
+  /// 模擬自動接聽（用於演示）
   Future<void> autoAnswer({int delaySeconds = 3}) async {
     _ensureDemoFallbackEnabled('DemoWebRTCService.autoAnswer');
     await Future.delayed(Duration(seconds: delaySeconds));
     await startCall();
   }
 
-  /// 挂断通话
+  /// 掛斷通話
   Future<void> hangUp() async {
     _stopTimer();
 
@@ -94,21 +94,21 @@ class DemoWebRTCService {
     _currentCall = null;
   }
 
-  /// 切换静音状态
+  /// 切換靜音狀態
   void toggleMute() {
     if (_currentCall != null) {
       _currentCall!.isMuted = !_currentCall!.isMuted;
     }
   }
 
-  /// 切换扬声器状态
+  /// 切換揚聲器狀態
   void toggleSpeaker() {
     if (_currentCall != null) {
       _currentCall!.isSpeakerOn = !_currentCall!.isSpeakerOn;
     }
   }
 
-  /// 获取通话时长
+  /// 獲取通話時長
   Duration getCallDuration() {
     if (_currentCall?.startTime == null) {
       return Duration.zero;
@@ -118,7 +118,7 @@ class DemoWebRTCService {
     return endTime.difference(_currentCall!.startTime!);
   }
 
-  /// 获取格式化的通话时长
+  /// 獲取格式化的通話時長
   String getFormattedDuration() {
     final duration = getCallDuration();
     final minutes = duration.inMinutes.toString().padLeft(2, '0');
@@ -126,7 +126,7 @@ class DemoWebRTCService {
     return '$minutes:$seconds';
   }
 
-  /// 开始计时器
+  /// 開始計時器
   void _startTimer() {
     _elapsedSeconds = 0;
     _callTimer?.cancel();
@@ -135,13 +135,13 @@ class DemoWebRTCService {
     });
   }
 
-  /// 停止计时器
+  /// 停止計時器
   void _stopTimer() {
     _callTimer?.cancel();
     _callTimer = null;
   }
 
-  /// 模拟通话统计
+  /// 模擬通話統計
   CallStats getCallStats() {
     final duration = getCallDuration();
 
@@ -154,7 +154,7 @@ class DemoWebRTCService {
     );
   }
 
-  /// 释放资源
+  /// 釋放資源
   void dispose() {
     _stopTimer();
     _callStateController.close();

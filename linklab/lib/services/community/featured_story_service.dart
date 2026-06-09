@@ -6,7 +6,7 @@ import '../../config/app_config.dart';
 import '../../core/utils/logger.dart';
 import '../../models/community_models.dart';
 
-/// 每日精选故事服务
+/// 每日精選故事服務
 class FeaturedStoryService {
   FeaturedStoryService({SupabaseClient? supabase}) : _supabaseClient = supabase;
 
@@ -55,7 +55,7 @@ class FeaturedStoryService {
         summary: summary ?? _generateSummary(content),
         coverImage: coverImage,
         authorType: authorType,
-        authorName: authorType == 'anonymous' ? null : (authorName ?? '社区用户'),
+        authorName: authorType == 'anonymous' ? null : (authorName ?? '社區用戶'),
         status: StoryStatus.pending,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
@@ -67,7 +67,7 @@ class FeaturedStoryService {
 
     try {
       final userId = _supabase.auth.currentUser?.id;
-      if (userId == null) throw Exception('用户未登录');
+      if (userId == null) throw Exception('用戶未登錄');
 
       await _supabase.from('featured_stories').insert({
         'title': title,
@@ -77,7 +77,7 @@ class FeaturedStoryService {
         'author_type': authorType,
         'author_name': authorType == 'anonymous'
             ? null
-            : (authorName ?? '匿名用户'),
+            : (authorName ?? '匿名用戶'),
         'submitted_by': userId,
         'status': 'pending',
         'like_count': 0,
@@ -86,12 +86,12 @@ class FeaturedStoryService {
 
       AppLogger.info('提交故事成功: $title');
     } catch (e) {
-      AppLogger.error('提交故事失败', e);
+      AppLogger.error('提交故事失敗', e);
       rethrow;
     }
   }
 
-  /// 审核故事（管理员）
+  /// 審覈故事（管理員）
   Future<void> approveStory(
     String storyId, {
     bool approved = true,
@@ -110,7 +110,7 @@ class FeaturedStoryService {
 
     try {
       final userId = _supabase.auth.currentUser?.id;
-      if (userId == null) throw Exception('用户未登录');
+      if (userId == null) throw Exception('用戶未登錄');
 
       final user = await _supabase
           .from('users')
@@ -119,7 +119,7 @@ class FeaturedStoryService {
           .single();
 
       if (user['role'] != 'admin') {
-        throw Exception('只有管理员可以审核故事');
+        throw Exception('只有管理員可以審覈故事');
       }
 
       final status = approved ? 'approved' : 'rejected';
@@ -134,14 +134,14 @@ class FeaturedStoryService {
           })
           .eq('id', storyId);
 
-      AppLogger.info('审核故事成功: $storyId, 状态: $status');
+      AppLogger.info('審覈故事成功: $storyId, 狀態: $status');
     } catch (e) {
-      AppLogger.error('审核故事失败', e);
+      AppLogger.error('審覈故事失敗', e);
       rethrow;
     }
   }
 
-  /// 设置为每日精选（管理员）
+  /// 設置爲每日精選（管理員）
   Future<void> setAsFeatured(String storyId, DateTime featuredDate) async {
     if (_useLocalStories) {
       final index = _findStoryIndex(storyId);
@@ -157,7 +157,7 @@ class FeaturedStoryService {
 
     try {
       final userId = _supabase.auth.currentUser?.id;
-      if (userId == null) throw Exception('用户未登录');
+      if (userId == null) throw Exception('用戶未登錄');
 
       final user = await _supabase
           .from('users')
@@ -166,7 +166,7 @@ class FeaturedStoryService {
           .single();
 
       if (user['role'] != 'admin') {
-        throw Exception('只有管理员可以设置精选');
+        throw Exception('只有管理員可以設置精選');
       }
 
       await _supabase
@@ -177,14 +177,14 @@ class FeaturedStoryService {
           })
           .eq('id', storyId);
 
-      AppLogger.info('设置精选故事成功: $storyId');
+      AppLogger.info('設置精選故事成功: $storyId');
     } catch (e) {
-      AppLogger.error('设置精选故事失败', e);
+      AppLogger.error('設置精選故事失敗', e);
       rethrow;
     }
   }
 
-  /// 获取每日精选
+  /// 獲取每日精選
   Future<List<FeaturedStory>> getDailyFeatured({int limit = 5}) async {
     if (_useLocalStories) {
       final stories =
@@ -218,12 +218,12 @@ class FeaturedStoryService {
           )
           .toList();
     } catch (e) {
-      AppLogger.error('获取每日精选失败', e);
+      AppLogger.error('獲取每日精選失敗', e);
       return [];
     }
   }
 
-  /// 获取所有已审核通过的故事
+  /// 獲取所有已審覈通過的故事
   Future<List<FeaturedStory>> getApprovedStories({
     int limit = 20,
     int offset = 0,
@@ -256,12 +256,12 @@ class FeaturedStoryService {
           )
           .toList();
     } catch (e) {
-      AppLogger.error('获取已审核故事失败', e);
+      AppLogger.error('獲取已審覈故事失敗', e);
       return [];
     }
   }
 
-  /// 获取待审核的故事（管理员）
+  /// 獲取待審覈的故事（管理員）
   Future<List<FeaturedStory>> getPendingStories({
     int limit = 20,
     int offset = 0,
@@ -277,7 +277,7 @@ class FeaturedStoryService {
 
     try {
       final userId = _supabase.auth.currentUser?.id;
-      if (userId == null) throw Exception('用户未登录');
+      if (userId == null) throw Exception('用戶未登錄');
 
       final user = await _supabase
           .from('users')
@@ -286,7 +286,7 @@ class FeaturedStoryService {
           .single();
 
       if (user['role'] != 'admin') {
-        throw Exception('只有管理员可以查看待审核故事');
+        throw Exception('只有管理員可以查看待審覈故事');
       }
 
       final response = await _supabase
@@ -303,12 +303,12 @@ class FeaturedStoryService {
           )
           .toList();
     } catch (e) {
-      AppLogger.error('获取待审核故事失败', e);
+      AppLogger.error('獲取待審覈故事失敗', e);
       return [];
     }
   }
 
-  /// 获取故事详情
+  /// 獲取故事詳情
   Future<FeaturedStory?> getStoryDetail(String storyId) async {
     if (_useLocalStories) {
       final index = _findStoryIndex(storyId);
@@ -339,12 +339,12 @@ class FeaturedStoryService {
 
       return FeaturedStory.fromJson(Map<String, dynamic>.from(response as Map));
     } catch (e) {
-      AppLogger.error('获取故事详情失败', e);
+      AppLogger.error('獲取故事詳情失敗', e);
       return null;
     }
   }
 
-  /// 点赞故事
+  /// 點贊故事
   Future<void> likeStory(String storyId, String userId) async {
     if (_useLocalStories) {
       final key = _buildLikeKey(storyId, userId);
@@ -373,7 +373,7 @@ class FeaturedStoryService {
           .maybeSingle();
 
       if (existing != null) {
-        AppLogger.info('用户已点赞该故事');
+        AppLogger.info('用戶已點贊該故事');
         return;
       }
 
@@ -387,14 +387,14 @@ class FeaturedStoryService {
         params: {'story_id': storyId},
       );
 
-      AppLogger.info('点赞故事成功: $storyId');
+      AppLogger.info('點贊故事成功: $storyId');
     } catch (e) {
-      AppLogger.error('点赞故事失败', e);
+      AppLogger.error('點贊故事失敗', e);
       rethrow;
     }
   }
 
-  /// 取消点赞
+  /// 取消點贊
   Future<void> unlikeStory(String storyId, String userId) async {
     if (_useLocalStories) {
       final key = _buildLikeKey(storyId, userId);
@@ -425,14 +425,14 @@ class FeaturedStoryService {
         params: {'story_id': storyId},
       );
 
-      AppLogger.info('取消点赞成功: $storyId');
+      AppLogger.info('取消點贊成功: $storyId');
     } catch (e) {
-      AppLogger.error('取消点赞失败', e);
+      AppLogger.error('取消點贊失敗', e);
       rethrow;
     }
   }
 
-  /// 检查用户是否点赞
+  /// 檢查用戶是否點贊
   Future<bool> hasLiked(String storyId, String userId) async {
     if (_useLocalStories) {
       return _likedStoryKeys.contains(_buildLikeKey(storyId, userId));
@@ -448,12 +448,12 @@ class FeaturedStoryService {
 
       return response != null;
     } catch (e) {
-      AppLogger.error('检查点赞状态失败', e);
+      AppLogger.error('檢查點贊狀態失敗', e);
       return false;
     }
   }
 
-  /// 获取用户提交的故事
+  /// 獲取用戶提交的故事
   Future<List<FeaturedStory>> getMyStories(String userId) async {
     if (_useLocalStories) {
       return _demoStories
@@ -476,12 +476,12 @@ class FeaturedStoryService {
           )
           .toList();
     } catch (e) {
-      AppLogger.error('获取我的故事失败', e);
+      AppLogger.error('獲取我的故事失敗', e);
       return [];
     }
   }
 
-  /// 获取热门故事
+  /// 獲取熱門故事
   Future<List<FeaturedStory>> getPopularStories({int limit = 10}) async {
     if (!_hasSupabase) {
       final stories = List<FeaturedStory>.from(_demoStories)
@@ -504,7 +504,7 @@ class FeaturedStoryService {
           )
           .toList();
     } catch (e) {
-      AppLogger.error('获取热门故事失败', e);
+      AppLogger.error('獲取熱門故事失敗', e);
       return [];
     }
   }
@@ -515,7 +515,7 @@ class FeaturedStoryService {
     return '${content.substring(0, maxLength)}...';
   }
 
-  /// 脱敏处理内容
+  /// 脫敏處理內容
   String desensitizeContent(String content) {
     var result = content;
 
@@ -526,7 +526,7 @@ class FeaturedStoryService {
     result = result.replaceAll(RegExp(r'[\w.-]+@[\w.-]+\.\w+'), '***@***.com');
 
     result = result.replaceAll(
-      RegExp(r'[\u4e00-\u9fa5]{2,}(省|市|区|县|路|街|号|栋|单元|室)'),
+      RegExp(r'[\u4e00-\u9fa5]{2,}(省|市|區|縣|路|街|號|棟|單元|室)'),
       '***',
     );
 
@@ -568,10 +568,10 @@ class FeaturedStoryService {
     return [
       FeaturedStory(
         id: 'story-demo-1',
-        title: '从药盒读不清，到能独立确认用量',
-        summary: '一位视障用户用 OCR 和志愿者二次确认，把原本最担心的服药问题变成了可重复的日常流程。',
+        title: '從藥盒讀不清，到能獨立確認用量',
+        summary: '一位視障用戶用 OCR 和志願者二次確認，把原本最擔心的服藥問題變成了可重複的日常流程。',
         content:
-            '我以前最怕晚上吃药，因为小字说明书和不同颜色的药盒很容易弄混。现在我会先用首页的大按钮进入识别，再把关键剂量转给志愿者做二次确认。平台没有替我做决定，但把最危险的那一步变得可验证了。后来我还把常用药都录成了自己的帮助档案，遇到新药也没有以前那么慌。',
+            '我以前最怕晚上喫藥，因爲小字說明書和不同顏色的藥盒很容易弄混。現在我會先用首頁的大按鈕進入識別，再把關鍵劑量轉給志願者做二次確認。平臺沒有替我做決定，但把最危險的那一步變得可驗證了。後來我還把常用藥都錄成了自己的幫助檔案，遇到新藥也沒有以前那麼慌。',
         authorType: 'named',
         authorName: '林阿姨',
         likeCount: 86,
@@ -583,12 +583,12 @@ class FeaturedStoryService {
       ),
       FeaturedStory(
         id: 'story-demo-2',
-        title: '第一次做夜间远程协助，我学会了慢一点说',
-        summary: '志愿者复盘真实协助过程：比起给答案，更重要的是把环境信息拆成对方能立即执行的小步骤。',
+        title: '第一次做夜間遠程協助，我學會了慢一點說',
+        summary: '志願者覆盤真實協助過程：比起給答案，更重要的是把環境信息拆成對方能立即執行的小步驟。',
         content:
-            '那次对方在地铁口附近迷路，我本来想一次性把全部路线说完，结果她越听越乱。后来我改成每次只说一个动作，比如向右半步、摸到栏杆后停一下。通话结束后我意识到，好的协助不是快，而是让对方每一步都能自己确认。这也让我重新理解了“陪伴式帮助”的价值。',
+            '那次對方在地鐵口附近迷路，我本來想一次性把全部路線說完，結果她越聽越亂。後來我改成每次只說一個動作，比如向右半步、摸到欄杆後停一下。通話結束後我意識到，好的協助不是快，而是讓對方每一步都能自己確認。這也讓我重新理解了“陪伴式幫助”的價值。',
         authorType: 'named',
-        authorName: '志愿者小周',
+        authorName: '志願者小周',
         likeCount: 54,
         readCount: 215,
         status: StoryStatus.approved,
@@ -598,10 +598,10 @@ class FeaturedStoryService {
       ),
       FeaturedStory(
         id: 'story-demo-3',
-        title: '把求助记录留存下来，家人终于知道我平时怎么解决问题',
-        summary: '帮助档案不只是历史列表，也让家人看见了用户已经建立起来的独立解决能力。',
+        title: '把求助記錄留存下來，家人終於知道我平時怎麼解決問題',
+        summary: '幫助檔案不只是歷史列表，也讓家人看見了用戶已經建立起來的獨立解決能力。',
         content:
-            '我以前不太愿意和家里人说自己出门时遇到的麻烦，因为每说一次，他们就更担心一次。后来我把几次求助记录给家人看，他们才发现很多事情其实已经有稳定流程：能先问 AI，必要时再找人。档案不是为了证明我有多困难，而是让身边人看到我已经有一套可执行的方法。',
+            '我以前不太願意和家裏人說自己出門時遇到的麻煩，因爲每說一次，他們就更擔心一次。後來我把幾次求助記錄給家人看，他們才發現很多事情其實已經有穩定流程：能先問 AI，必要時再找人。檔案不是爲了證明我有多困難，而是讓身邊人看到我已經有一套可執行的方法。',
         authorType: 'anonymous',
         likeCount: 39,
         readCount: 164,

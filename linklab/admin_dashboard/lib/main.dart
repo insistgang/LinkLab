@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
           final router = AppRouter.getRouter(authBloc);
 
           return MaterialApp.router(
-            title: 'LinkLab 运营后台',
+            title: 'LinkLab 運營後臺',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
             builder: (context, child) => ResponsiveBreakpoints.builder(

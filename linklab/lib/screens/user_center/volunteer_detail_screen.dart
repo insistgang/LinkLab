@@ -91,7 +91,7 @@ class _VolunteerDetailScreenState extends State<VolunteerDetailScreen> {
     final profile = _profile;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('志愿者详情')),
+      appBar: AppBar(title: const Text('志願者詳情')),
       body:
           _isLoading || levelInfo == null || profile == null
           ? const Center(child: CircularProgressIndicator())
@@ -103,7 +103,7 @@ class _VolunteerDetailScreenState extends State<VolunteerDetailScreen> {
                   _buildHeaderCard(levelInfo, profile),
                   const SizedBox(height: 16),
                   _buildInfoSection(
-                    title: '服务标签',
+                    title: '服務標籤',
                     child: Wrap(
                       spacing: 8,
                       runSpacing: 8,
@@ -119,14 +119,14 @@ class _VolunteerDetailScreenState extends State<VolunteerDetailScreen> {
                   ),
                   const SizedBox(height: 16),
                   _buildInfoSection(
-                    title: '擅长方向',
+                    title: '擅長方向',
                     child: Wrap(
                       spacing: 8,
                       runSpacing: 8,
                       children: _skills.isEmpty
                           ? const [
                               Text(
-                                '暂无技能标签',
+                                '暫無技能標籤',
                                 style: TextStyle(color: Colors.grey),
                               ),
                             ]
@@ -143,23 +143,23 @@ class _VolunteerDetailScreenState extends State<VolunteerDetailScreen> {
                   // MVP: 徽章功能已砍 (F21)
                   // const SizedBox(height: 16),
                   // _buildInfoSection(
-                  //   title: '荣誉徽章',
+                  //   title: '榮譽徽章',
                   //   child: Wrap(
                   //     spacing: 8,
                   //     runSpacing: 8,
                   //     children: const [
-                  //       Text('暂无徽章', style: TextStyle(color: Colors.grey)),
+                  //       Text('暫無徽章', style: TextStyle(color: Colors.grey)),
                   //     ],
                   //   ),
                   // ),
                   // MVP: 排班功能已砍 (F23)
                   // const SizedBox(height: 16),
                   // _buildInfoSection(
-                  //   title: '可服务时间',
+                  //   title: '可服務時間',
                   //   child: Column(
                   //     crossAxisAlignment: CrossAxisAlignment.start,
                   //     children: const [
-                  //       Text('暂未设置可服务时间', style: TextStyle(color: Colors.grey)),
+                  //       Text('暫未設置可服務時間', style: TextStyle(color: Colors.grey)),
                   //     ],
                   //   ),
                   // ),
@@ -173,7 +173,7 @@ class _VolunteerDetailScreenState extends State<VolunteerDetailScreen> {
           icon: const Icon(Icons.volunteer_activism),
           label: const Padding(
             padding: EdgeInsets.symmetric(vertical: 14),
-            child: Text('发起求助'),
+            child: Text('發起求助'),
           ),
         ),
       ),
@@ -224,7 +224,7 @@ class _VolunteerDetailScreenState extends State<VolunteerDetailScreen> {
             const SizedBox(height: 4),
             Text(
               _demoVolunteer?.levelBadge != null
-                  ? '${_demoVolunteer!.levelBadge} ${_demoVolunteer!.level}志愿者'
+                  ? '${_demoVolunteer!.levelBadge} ${_demoVolunteer!.level}志願者'
                   : '信用分 ${profile.creditScore.toStringAsFixed(1)}',
               style: TextStyle(color: Colors.grey[600]),
             ),
@@ -233,21 +233,21 @@ class _VolunteerDetailScreenState extends State<VolunteerDetailScreen> {
               children: [
                 Expanded(
                   child: _SummaryStat(
-                    label: '志愿时长',
-                    value: '$_serviceHours 小时',
+                    label: '志願時長',
+                    value: '$_serviceHours 小時',
                     icon: Icons.timer_outlined,
                   ),
                 ),
                 Expanded(
                   child: _SummaryStat(
-                    label: '积分',
+                    label: '積分',
                     value: '${levelInfo.currentPoints}',
                     icon: Icons.stars_outlined,
                   ),
                 ),
                 Expanded(
                   child: _SummaryStat(
-                    label: '等级',
+                    label: '等級',
                     value: 'Lv${levelInfo.currentLevel}',
                     icon: Icons.workspace_premium_outlined,
                   ),
@@ -295,7 +295,7 @@ class _VolunteerDetailScreenState extends State<VolunteerDetailScreen> {
     if (_demoVolunteer != null) {
       return _demoVolunteer!.name;
     }
-    return '志愿者';
+    return '志願者';
   }
 
   String? get _displayAvatar {

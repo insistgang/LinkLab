@@ -10,7 +10,7 @@ import 'package:linklab/services/app_session_service.dart';
 import 'test_harness.dart';
 
 void main() {
-  testWidgets('主题切换无需刷新即可立即更新当前页面色板', (tester) async {
+  testWidgets('主題切換無需刷新即可立即更新當前頁面色板', (tester) async {
     await prepareSignedInDemoEnvironment(clearHelpHistory: true);
     await pumpDemoShell(tester, home: const ProfileScreen());
 
@@ -22,18 +22,18 @@ void main() {
 
     expect(AppSessionService.instance.isDayStageMode, isTrue);
     expect(readTitleColor(), const Color(0xFF071006));
-    expect(find.bySemanticsLabel('切换到深夜模式'), findsNothing);
+    expect(find.bySemanticsLabel('切換到深夜模式'), findsNothing);
 
-    await tester.ensureVisible(find.text('切换界面模式'));
-    await tester.tap(find.text('切换界面模式'));
+    await tester.ensureVisible(find.text('切換界面模式'));
+    await tester.tap(find.text('切換界面模式'));
     await tester.pumpAndSettle();
 
     expect(AppSessionService.instance.isDayStageMode, isFalse);
     expect(readTitleColor(), const Color(0xFFF0F6FC));
-    expect(find.bySemanticsLabel('切换到日间模式'), findsNothing);
+    expect(find.bySemanticsLabel('切換到日間模式'), findsNothing);
 
-    await tester.ensureVisible(find.text('切换界面模式'));
-    await tester.tap(find.text('切换界面模式'));
+    await tester.ensureVisible(find.text('切換界面模式'));
+    await tester.tap(find.text('切換界面模式'));
     await tester.pumpAndSettle();
 
     expect(AppSessionService.instance.isDayStageMode, isTrue);

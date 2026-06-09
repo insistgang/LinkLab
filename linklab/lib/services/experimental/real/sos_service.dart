@@ -11,8 +11,8 @@ import '../../../core/utils/logger.dart';
 import '../../push_notification_service.dart';
 import 'webrtc_service.dart';
 
-/// SOS 紧急服务
-/// 负责处理SOS触发、广播和升级策略
+/// SOS 緊急服務
+/// 負責處理SOS觸發、廣播和升級策略
 class SOSService {
   static final SOSService _instance = SOSService._internal();
   factory SOSService() => _instance;
@@ -39,39 +39,39 @@ class SOSService {
     return _webRTCServiceInstance!;
   }
 
-  // 状态
+  // 狀態
   bool _isSOSActive = false;
   String? _currentSOSId;
   Timer? _escalationTimer;
   int _escalationLevel = 0;
 
-  // SOS状态流
+  // SOS狀態流
   final _sosStateController = StreamController<SOSState>.broadcast();
   Stream<SOSState> get sosStateStream => _sosStateController.stream;
 
   bool get isSOSActive => _isSOSActive;
   String? get currentSOSId => _currentSOSId;
 
-  // 电源键监听
+  // 電源鍵監聽
   DateTime? _lastPowerKeyTime;
   int _powerKeyCount = 0;
   static const int _powerKeyTriggerCount = 3;
   static const int _powerKeyTimeWindowMs = 3000;
 
-  /// 初始化SOS服务
+  /// 初始化SOS服務
   void initialize() {
-    // 监听电源键（仅Android，需原生代码配合）
-    // 这里提供方法供原生代码调用
+    // 監聽電源鍵（僅Android，需原生代碼配合）
+    // 這裏提供方法供原生代碼調用
   }
 
-  /// 处理电源键事件
-  /// 由原生代码调用
+  /// 處理電源鍵事件
+  /// 由原生代碼調用
   Future<void> handlePowerKeyEvent() async {
     final now = DateTime.now();
 
     if (_lastPowerKeyTime == null ||
         now.difference(_lastPowerKeyTime!).inMilliseconds > _powerKeyTimeWindowMs) {
-      // 重置计数
+      // 重置計數
       _powerKeyCount = 1;
     } else {
       _powerKeyCount++;
@@ -85,12 +85,12 @@ class SOSService {
     }
   }
 
-  /// 触发SOS
+  /// 觸發SOS
   ///
-  /// [method] 触发方式: voice, powerButton, longPress, manual
+  /// [method] 觸發方式: voice, powerButton, longPress, manual
   Future<void> triggerSOS(SOSTriggerMethod method) async {
     if (_isSOSActive) {
-      AppLogger.warning('SOS 已在进行中，忽略重复触发');
+      AppLogger.warning('SOS 已在進行中，忽略重複觸發');
       return;
     }
 
@@ -99,66 +99,66 @@ class SOSService {
     _updateSOSState(SOSState.triggering);
 
     try {
-      // 1. 获取位置
+      // 1. 獲取位置
       _updateSOSState(SOSState.gettingLocation);
       final position = await _getCurrentLocation();
 
-      // 2. 震动反馈
+      // 2. 震動反饋
       if (await Vibration.hasVibrator() == true) {
         Vibration.vibrate(pattern: [0, 500, 200, 500, 200, 500]);
       }
 
-      // 3. 创建SOS记录
+      // 3. 創建SOS記錄
       final sosId = await _createSOSRecord(method, position);
       _currentSOSId = sosId;
 
-      // 4. 广播推送
+      // 4. 廣播推送
       _updateSOSState(SOSState.broadcasting);
       await _broadcastSOS(sosId, position);
 
-      // 5. 通知紧急联系人
+      // 5. 通知緊急聯繫人
       await _notifyEmergencyContacts(position);
 
-      // 6. 启动升级定时器
+      // 6. 啓動升級定時器
       _startEscalationTimer(sosId, position);
 
       _updateSOSState(SOSState.waitingResponse);
 
-      // 7. 订阅响应
+      // 7. 訂閱響應
       _subscribeToSOSResponse(sosId);
     } catch (e) {
-      AppLogger.error('SOS 触发失败', e);
+      AppLogger.error('SOS 觸發失敗', e);
       _updateSOSState(SOSState.error);
       _isSOSActive = false;
     }
   }
 
-  /// 获取当前位置
+  /// 獲取當前位置
   Future<Position> _getCurrentLocation() async {
-    // 检查权限
+    // 檢查權限
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        throw Exception('位置权限被拒绝');
+        throw Exception('位置權限被拒絕');
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      throw Exception('位置权限被永久拒绝');
+      throw Exception('位置權限被永久拒絕');
     }
 
-    // 获取高精度位置
+    // 獲取高精度位置
     return await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.best,
       timeLimit: const Duration(seconds: 10),
     );
   }
 
-  /// 创建SOS记录
+  /// 創建SOS記錄
   Future<String> _createSOSRecord(SOSTriggerMethod method, Position position) async {
     final userId = _supabase.auth.currentUser?.id;
-    if (userId == null) throw Exception('用户未登录');
+    if (userId == null) throw Exception('用戶未登錄');
 
     final response = await _supabase.from('help_requests').insert({
       'seeker_id': userId,
@@ -180,7 +180,7 @@ class SOSService {
     return record['id'].toString();
   }
 
-  /// 广播SOS
+  /// 廣播SOS
   Future<void> _broadcastSOS(String sosId, Position position) async {
     try {
       final seekerId = _supabase.auth.currentUser?.id;
@@ -204,24 +204,24 @@ class SOSService {
         }),
       );
 
-      // 显示本地SOS通知
+      // 顯示本地SOS通知
       await _pushService.showSOSNotification(
-        title: 'SOS紧急求助已发送',
-        body: '正在向周围志愿者发送求助信号...',
+        title: 'SOS緊急求助已發送',
+        body: '正在向周圍志願者發送求助信號...',
         data: {'sos_id': sosId, 'type': 'sos'},
       );
     } catch (e) {
-      AppLogger.error('SOS 广播失败', e);
+      AppLogger.error('SOS 廣播失敗', e);
     }
   }
 
-  /// 通知紧急联系人
+  /// 通知緊急聯繫人
   Future<void> _notifyEmergencyContacts(Position position) async {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) return;
 
     try {
-      // 获取紧急联系人
+      // 獲取緊急聯繫人
       final contacts = await _supabase
           .from('emergency_contacts')
           .select('*')
@@ -233,7 +233,7 @@ class SOSService {
           .map((c) => Map<String, dynamic>.from(c as Map))
           .toList();
 
-      // 发送短信通知（通过Edge Function）
+      // 發送短信通知（通過Edge Function）
       final locationUrl =
           'https://maps.google.com/?q=${position.latitude},${position.longitude}';
 
@@ -246,28 +246,28 @@ class SOSService {
         body: jsonEncode({
           'type': 'emergency_sms',
           'contacts': contactRecords.map((c) => c['phone']?.toString()).toList(),
-          'message': '【共感LinkAble紧急求助】您的亲友触发了SOS求助，'
-              '位置: $locationUrl，请尽快联系确认安全。',
+          'message': '【共感LinkAble緊急求助】您的親友觸發了SOS求助，'
+              '位置: $locationUrl，請儘快聯繫確認安全。',
         }),
       );
     } catch (e) {
-      AppLogger.error('通知紧急联系人失败', e);
+      AppLogger.error('通知緊急聯繫人失敗', e);
     }
   }
 
-  /// 启动升级定时器
+  /// 啓動升級定時器
   void _startEscalationTimer(String sosId, Position position) {
     _escalationTimer = Timer.periodic(const Duration(minutes: 5), (timer) async {
       _escalationLevel++;
 
       switch (_escalationLevel) {
-        case 1: // 5分钟
+        case 1: // 5分鐘
           await _escalateToCityWide(sosId, position);
           break;
-        case 2: // 10分钟
+        case 2: // 10分鐘
           await _forceNotifyContacts(sosId, position);
           break;
-        case 3: // 15分钟
+        case 3: // 15分鐘
           await _escalateToManual(sosId);
           timer.cancel();
           break;
@@ -280,7 +280,7 @@ class SOSService {
     });
   }
 
-  /// 升级至全城广播
+  /// 升級至全城廣播
   Future<void> _escalateToCityWide(String sosId, Position position) async {
     _updateSOSState(SOSState.escalating);
 
@@ -295,15 +295,15 @@ class SOSService {
           'type': 'sos_escalation',
           'sosId': sosId,
           'level': 1,
-          'message': 'SOS求助5分钟无响应，扩大至全城志愿者',
+          'message': 'SOS求助5分鐘無響應，擴大至全城志願者',
         }),
       );
     } catch (e) {
-      AppLogger.error('SOS 升级广播失败', e);
+      AppLogger.error('SOS 升級廣播失敗', e);
     }
   }
 
-  /// 强制通知紧急联系人
+  /// 強制通知緊急聯繫人
   Future<void> _forceNotifyContacts(String sosId, Position position) async {
     final locationUrl =
         'https://maps.google.com/?q=${position.latitude},${position.longitude}';
@@ -316,13 +316,13 @@ class SOSService {
       },
       body: jsonEncode({
         'type': 'emergency_call',
-        'message': '【紧急】SOS求助10分钟无响应，位置: $locationUrl，'
-            '请立即联系或报警！',
+        'message': '【緊急】SOS求助10分鐘無響應，位置: $locationUrl，'
+            '請立即聯繫或報警！',
       }),
     );
   }
 
-  /// 升级至人工介入
+  /// 升級至人工介入
   Future<void> _escalateToManual(String sosId) async {
     await _supabase.from('help_requests').update({
       'status': 'expired',
@@ -337,7 +337,7 @@ class SOSService {
     _updateSOSState(SOSState.manualIntervention);
   }
 
-  /// 订阅SOS响应
+  /// 訂閱SOS響應
   void _subscribeToSOSResponse(String sosId) {
     _supabase
         .channel('sos:$sosId')
@@ -358,7 +358,7 @@ class SOSService {
             final status = newRecord['status']?.toString();
 
             if (status == 'connected') {
-              // 有志愿者响应
+              // 有志願者響應
               _escalationTimer?.cancel();
               _updateSOSState(SOSState.responded);
 
@@ -376,7 +376,7 @@ class SOSService {
         .subscribe();
   }
 
-  /// 连接到志愿者
+  /// 連接到志願者
   Future<void> _connectToVolunteer(String sosId, String volunteerId) async {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) return;
@@ -405,7 +405,7 @@ class SOSService {
     await _clearLocalSOSState(SOSState.cancelled);
   }
 
-  /// 解决SOS
+  /// 解決SOS
   Future<void> resolveSOS() async {
     _escalationTimer?.cancel();
 
@@ -443,7 +443,7 @@ class SOSService {
           .update({'ai_response': current})
           .eq('id', helpRequestId);
     } catch (e) {
-      AppLogger.error('更新 SOS 元数据失败', e);
+      AppLogger.error('更新 SOS 元數據失敗', e);
     }
   }
 
@@ -456,38 +456,38 @@ class SOSService {
     _updateSOSState(terminalState);
   }
 
-  /// 更新SOS状态
+  /// 更新SOS狀態
   void _updateSOSState(SOSState state) {
     _sosStateController.add(state);
   }
 
-  /// 释放资源
+  /// 釋放資源
   void dispose() {
     _escalationTimer?.cancel();
     _sosStateController.close();
   }
 }
 
-/// SOS触发方式
+/// SOS觸發方式
 enum SOSTriggerMethod {
-  voice,        // 语音触发
-  powerButton,  // 电源键3次
-  longPress,    // 长按3秒
-  manual,       // 手动触发
+  voice,        // 語音觸發
+  powerButton,  // 電源鍵3次
+  longPress,    // 長按3秒
+  manual,       // 手動觸發
 }
 
-/// SOS状态
+/// SOS狀態
 enum SOSState {
-  idle,                // 空闲
-  triggering,          // 触发中
-  gettingLocation,     // 获取位置中
-  broadcasting,        // 广播中
-  waitingResponse,     // 等待响应
-  escalating,          // 升级中
-  responded,           // 已响应
-  connected,           // 已连接
+  idle,                // 空閒
+  triggering,          // 觸發中
+  gettingLocation,     // 獲取位置中
+  broadcasting,        // 廣播中
+  waitingResponse,     // 等待響應
+  escalating,          // 升級中
+  responded,           // 已響應
+  connected,           // 已連接
   manualIntervention,  // 人工介入
   cancelled,           // 已取消
-  resolved,            // 已解决
-  error,               // 错误
+  resolved,            // 已解決
+  error,               // 錯誤
 }

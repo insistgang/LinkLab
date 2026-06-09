@@ -1,6 +1,6 @@
-/// VolunteerMatchingFacade 统一输出模型
+/// VolunteerMatchingFacade 統一輸出模型
 ///
-/// AGENTS.md §7.1：志愿者匹配标准化结果。
+/// AGENTS.md §7.1：志願者匹配標準化結果。
 class MatchingResultModel {
   final bool success;
   final String? error;
@@ -43,7 +43,7 @@ class MatchingResultModel {
     return const MatchingResultModel(
       success: false,
       status: 'expired',
-      error: '60秒内无人接单，匹配已过期。',
+      error: '60秒內無人接單，匹配已過期。',
     );
   }
 
@@ -67,7 +67,7 @@ class MatchingResultModel {
   bool get isSearching => status == 'searching';
 }
 
-/// 志愿者候选
+/// 志願者候選
 class VolunteerCandidate {
   final String id;
   final String name;

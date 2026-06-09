@@ -88,7 +88,7 @@
   <tspan>共感</tspan><tspan dx="8" font-family="Inter, Arial, sans-serif" font-weight="700" fill="#60a5fa" letter-spacing="1">Link</tspan><tspan font-family="Inter, Arial, sans-serif" font-weight="700" fill="#38bdf8" letter-spacing="1">Able</tspan>
 </text>
 <rect x="207" y="688" width="380" height="1" fill="url(#a-divider)"/>
-<text x="397" y="735" font-size="17" fill="#bfdbfe" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="400" text-anchor="middle" letter-spacing="2">基於 AI Agent 的無障礙社區互助平台</text>
+<text x="397" y="735" font-size="17" fill="#bfdbfe" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="400" text-anchor="middle" letter-spacing="2">基於 AI Agent 的無障礙社區互助平臺</text>
 <text x="397" y="779" font-size="12.5" fill="#93c5fd" font-family="Inter, Arial, sans-serif" font-weight="300" text-anchor="middle" letter-spacing="3" opacity="0.8">Empathy · Connection · Accessibility for All</text>
 <line x1="205" y1="825" x2="589" y2="825" stroke="#3b82f6" stroke-opacity="0.25" stroke-width="1"/>
 <line x1="205" y1="868" x2="589" y2="868" stroke="#3b82f6" stroke-opacity="0.25" stroke-width="1"/>

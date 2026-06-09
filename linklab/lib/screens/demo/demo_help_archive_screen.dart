@@ -9,10 +9,10 @@ import '../../widgets/accessible/index.dart';
 import '../../widgets/demo/demo_stage.dart';
 import '../../widgets/demo/linkable_icon.dart';
 
-/// 竞赛 Demo 默认档案页。
+/// 競賽 Demo 默認檔案頁。
 ///
-/// 只读取本地 demo session 的帮助历史，避免从默认首页/我的页进入
-/// SeekerCenterScreen 中仍保留的积分、异步任务、收藏志愿者等非 MVP 代码。
+/// 只讀取本地 demo session 的幫助歷史，避免從默認首頁/我的頁進入
+/// SeekerCenterScreen 中仍保留的積分、異步任務、收藏志願者等非 MVP 代碼。
 class DemoHelpArchiveScreen extends ConsumerWidget {
   const DemoHelpArchiveScreen({super.key});
 
@@ -31,8 +31,8 @@ class DemoHelpArchiveScreen extends ConsumerWidget {
         .length;
 
     return DemoStageScaffold(
-      title: '帮助档案',
-      subtitle: '仅展示 MVP 主线结果回看，不进入积分、社群或异步任务',
+      title: '幫助檔案',
+      subtitle: '僅展示 MVP 主線結果回看，不進入積分、社羣或異步任務',
       body: ListView(
         padding: const EdgeInsets.fromLTRB(
           AppTheme.spacingL,
@@ -42,15 +42,15 @@ class DemoHelpArchiveScreen extends ConsumerWidget {
         ),
         children: [
           const DemoSectionTitle(
-            title: '求助状态',
-            subtitle: 'AI 处理、真人通话和 SOS 的终态会沉淀在这里。',
+            title: '求助狀態',
+            subtitle: 'AI 處理、真人通話和 SOS 的終態會沉澱在這裏。',
           ),
           const SizedBox(height: AppTheme.spacingM),
           Row(
             children: [
               Expanded(
                 child: _ArchiveMetricCard(
-                  label: 'AI 已解决',
+                  label: 'AI 已解決',
                   value: '$aiResolvedCount',
                   icon: Icons.smart_toy_outlined,
                   color: AppTheme.stageInfo,
@@ -78,8 +78,8 @@ class DemoHelpArchiveScreen extends ConsumerWidget {
           ),
           const SizedBox(height: AppTheme.spacingXL),
           const DemoSectionTitle(
-            title: '帮助档案',
-            subtitle: '只保留主链路回看，不展示安心积分、徽章或排班。',
+            title: '幫助檔案',
+            subtitle: '只保留主鏈路回看，不展示安心積分、徽章或排班。',
           ),
           const SizedBox(height: AppTheme.spacingM),
           if (history.isEmpty)
@@ -154,7 +154,7 @@ class _ArchiveRequestCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DemoSurfaceCard(
-      semanticLabel: '帮助档案 ${request.intent ?? '未命名求助'}',
+      semanticLabel: '幫助檔案 ${request.intent ?? '未命名求助'}',
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -186,7 +186,7 @@ class _ArchiveRequestCard extends StatelessWidget {
                 ),
                 const SizedBox(height: AppTheme.spacingXS),
                 AccessibleText(
-                  request.intent ?? '已完成一次主线求助',
+                  request.intent ?? '已完成一次主線求助',
                   style: TextStyle(
                     color: AppTheme.stageTextSecondary,
                     fontSize: AppTheme.fontSizeSmall,
@@ -195,7 +195,7 @@ class _ArchiveRequestCard extends StatelessWidget {
                 ),
                 const SizedBox(height: AppTheme.spacingXS),
                 AccessibleText(
-                  '${request.statusLabel} · ${request.createdAt?.formatRelative() ?? '刚刚'}',
+                  '${request.statusLabel} · ${request.createdAt?.formatRelative() ?? '剛剛'}',
                   style: TextStyle(
                     color: AppTheme.stageTextHint,
                     fontSize: AppTheme.fontSizeSmall,
@@ -214,11 +214,11 @@ class _ArchiveRequestCard extends StatelessWidget {
       case 'ai_auto':
         return 'AI 自助';
       case 'realtime_voice':
-        return '真人语音';
+        return '真人語音';
       case 'sos':
         return 'SOS 求助';
       default:
-        return '帮助记录';
+        return '幫助記錄';
     }
   }
 
@@ -259,11 +259,11 @@ class _EmptyArchiveCard extends StatelessWidget {
             icon: Icons.history_toggle_off,
             color: AppTheme.stageTextHint,
             size: 44,
-            semanticLabel: '还没有帮助记录',
+            semanticLabel: '還沒有幫助記錄',
           ),
           const SizedBox(height: AppTheme.spacingM),
           AccessibleText(
-            '还没有帮助记录',
+            '還沒有幫助記錄',
             style: TextStyle(
               color: AppTheme.stageTextPrimary,
               fontSize: AppTheme.fontSizeNormal,
@@ -272,7 +272,7 @@ class _EmptyArchiveCard extends StatelessWidget {
           ),
           const SizedBox(height: AppTheme.spacingXS),
           AccessibleText(
-            '完成 AI、真人通话或 SOS 演示后，这里会显示主线回看。',
+            '完成 AI、真人通話或 SOS 演示後，這裏會顯示主線回看。',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: AppTheme.stageTextSecondary,

@@ -33,12 +33,12 @@ class DemoCallVolunteerSnapshot {
   factory DemoCallVolunteerSnapshot.fallback() {
     return const DemoCallVolunteerSnapshot(
       id: 'demo_call_fallback_volunteer',
-      nickname: '林同学',
+      nickname: '林同學',
       avatarLabel: '林',
-      skills: ['医院导诊', '视障协助'],
+      skills: ['醫院導診', '視障協助'],
       distanceLabel: '本地 Demo',
-      reason: '已接通演示志愿者',
-      helpType: '医院导诊 / 视障协助',
+      reason: '已接通演示志願者',
+      helpType: '醫院導診 / 視障協助',
       isFallback: true,
     );
   }
@@ -68,7 +68,7 @@ class DemoCallFlowState {
   factory DemoCallFlowState.initial() {
     return DemoCallFlowState(
       phase: DemoCallUiPhase.idle,
-      statusMessage: '等待进入 Demo 通话',
+      statusMessage: '等待進入 Demo 通話',
       volunteer: DemoCallVolunteerSnapshot.fallback(),
     );
   }
@@ -142,7 +142,7 @@ class DemoCallFlowController extends Notifier<DemoCallFlowState> {
 
     state = DemoCallFlowState(
       phase: DemoCallUiPhase.connecting,
-      statusMessage: '正在建立安全语音连接',
+      statusMessage: '正在建立安全語音連接',
       volunteer: volunteer,
       isSpeakerOn: true,
     );
@@ -157,8 +157,8 @@ class DemoCallFlowController extends Notifier<DemoCallFlowState> {
       );
       state = state.copyWith(
         phase: DemoCallUiPhase.failed,
-        statusMessage: '演示通话连接异常',
-        errorMessage: '演示通话连接异常，你可以返回匹配重新分配志愿者。',
+        statusMessage: '演示通話連接異常',
+        errorMessage: '演示通話連接異常，你可以返回匹配重新分配志願者。',
       );
       return;
     }
@@ -180,7 +180,7 @@ class DemoCallFlowController extends Notifier<DemoCallFlowState> {
     _connectTimer = null;
     state = state.copyWith(
       phase: DemoCallUiPhase.connected,
-      statusMessage: '通话中',
+      statusMessage: '通話中',
       errorMessage: null,
     );
     if (_trackDuration) {
@@ -212,7 +212,7 @@ class DemoCallFlowController extends Notifier<DemoCallFlowState> {
     _reconnectFailureTimer?.cancel();
     state = state.copyWith(
       phase: DemoCallUiPhase.reconnecting,
-      statusMessage: '正在尝试恢复连接',
+      statusMessage: '正在嘗試恢復連接',
       errorMessage: null,
     );
 
@@ -234,7 +234,7 @@ class DemoCallFlowController extends Notifier<DemoCallFlowState> {
     _reconnectFailureTimer = null;
     state = state.copyWith(
       phase: DemoCallUiPhase.connected,
-      statusMessage: '通话中',
+      statusMessage: '通話中',
       errorMessage: null,
     );
     if (_trackDuration) {
@@ -266,8 +266,8 @@ class DemoCallFlowController extends Notifier<DemoCallFlowState> {
 
     state = state.copyWith(
       phase: DemoCallUiPhase.failed,
-      statusMessage: '连接失败，正在回到匹配',
-      errorMessage: '掉线 10 秒未恢复会重新匹配；演示中已加速。',
+      statusMessage: '連接失敗，正在回到匹配',
+      errorMessage: '掉線 10 秒未恢復會重新匹配；演示中已加速。',
     );
   }
 
@@ -309,7 +309,7 @@ class DemoCallFlowController extends Notifier<DemoCallFlowState> {
 
     state = state.copyWith(
       phase: DemoCallUiPhase.ended,
-      statusMessage: '通话已结束',
+      statusMessage: '通話已結束',
       duration: completedDuration,
       errorMessage: null,
     );
@@ -332,7 +332,7 @@ class DemoCallFlowController extends Notifier<DemoCallFlowState> {
             skills: volunteer.skills,
             distanceLabel: _formatDistance(volunteer.distanceMeters),
             reason: result.reason,
-            helpType: helpType.isEmpty ? '语音协助' : helpType,
+            helpType: helpType.isEmpty ? '語音協助' : helpType,
           );
         }
       }
@@ -344,10 +344,10 @@ class DemoCallFlowController extends Notifier<DemoCallFlowState> {
         id: activeVolunteerId ?? 'demo_matching_active_volunteer',
         nickname: matchingVolunteerName,
         avatarLabel: _firstLabel(matchingVolunteerName),
-        skills: const ['医院导诊', '视障协助'],
+        skills: const ['醫院導診', '視障協助'],
         distanceLabel: '本地 Demo',
-        reason: '已接通演示志愿者',
-        helpType: '医院导诊 / 视障协助',
+        reason: '已接通演示志願者',
+        helpType: '醫院導診 / 視障協助',
       );
     }
 
@@ -359,10 +359,10 @@ class DemoCallFlowController extends Notifier<DemoCallFlowState> {
         id: helpState.volunteerId ?? 'demo_help_flow_volunteer',
         nickname: volunteerName,
         avatarLabel: _firstLabel(volunteerName),
-        skills: const ['医院导诊', '视障协助'],
+        skills: const ['醫院導診', '視障協助'],
         distanceLabel: '本地 Demo',
-        reason: '已接通演示志愿者',
-        helpType: '医院导诊 / 视障协助',
+        reason: '已接通演示志願者',
+        helpType: '醫院導診 / 視障協助',
       );
     }
 
@@ -391,7 +391,7 @@ class DemoCallFlowController extends Notifier<DemoCallFlowState> {
     if (helpState.status == HelpRequestStatus.created ||
         helpState.status == HelpRequestStatus.aiProcessing) {
       await helpController.enterMatching(
-        intent: '进入 F11 Demo Call 前自动补齐匹配态',
+        intent: '進入 F11 Demo Call 前自動補齊匹配態',
         type: 'demo_call',
         urgency: 'normal',
       );

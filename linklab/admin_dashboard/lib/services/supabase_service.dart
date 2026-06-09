@@ -52,7 +52,7 @@ class SupabaseService {
     return AdminSession(
       id: user.id,
       email: user.email ?? AppConstants.demoAdminEmail,
-      displayName: metadata['display_name'] as String? ?? '管理员',
+      displayName: metadata['display_name'] as String? ?? '管理員',
     );
   }
 
@@ -70,14 +70,14 @@ class SupabaseService {
 
     final user = response.user;
     if (user == null) {
-      throw StateError('登录失败');
+      throw StateError('登錄失敗');
     }
 
     final metadata = user.userMetadata ?? const <String, dynamic>{};
     return AdminSession(
       id: user.id,
       email: user.email ?? email,
-      displayName: metadata['display_name'] as String? ?? '管理员',
+      displayName: metadata['display_name'] as String? ?? '管理員',
     );
   }
 
@@ -275,25 +275,25 @@ class SupabaseService {
 
     return UserDistribution(
       userType: [
-        DistributionData(name: '残障用户', value: 65),
-        DistributionData(name: '志愿者', value: 35),
+        DistributionData(name: '殘障用戶', value: 65),
+        DistributionData(name: '志願者', value: 35),
       ],
       disabilityType: [
-        DistributionData(name: '视力障碍', value: 40),
-        DistributionData(name: '听力障碍', value: 25),
-        DistributionData(name: '肢体障碍', value: 20),
+        DistributionData(name: '視力障礙', value: 40),
+        DistributionData(name: '聽力障礙', value: 25),
+        DistributionData(name: '肢體障礙', value: 20),
         DistributionData(name: '其他', value: 15),
       ],
       skillDistribution: [
-        DistributionData(name: '导盲', value: 30),
-        DistributionData(name: '手语', value: 25),
-        DistributionData(name: '生活协助', value: 35),
+        DistributionData(name: '導盲', value: 30),
+        DistributionData(name: '手語', value: 25),
+        DistributionData(name: '生活協助', value: 35),
         DistributionData(name: '其他', value: 10),
       ],
       regionDistribution: [
         DistributionData(name: '北京', value: 25),
         DistributionData(name: '上海', value: 20),
-        DistributionData(name: '广州', value: 15),
+        DistributionData(name: '廣州', value: 15),
         DistributionData(name: '深圳', value: 15),
         DistributionData(name: '其他', value: 25),
       ],

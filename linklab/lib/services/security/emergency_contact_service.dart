@@ -7,7 +7,7 @@ import '../../core/utils/logger.dart';
 import '../../models/emergency_contact_model.dart';
 import '../local_storage.dart' as app_storage;
 
-/// 紧急联系人服务
+/// 緊急聯繫人服務
 class EmergencyContactService {
   EmergencyContactService({
     SupabaseClient? supabase,
@@ -43,7 +43,7 @@ class EmergencyContactService {
     _localInitialized = true;
   }
 
-  /// 获取用户的紧急联系人
+  /// 獲取用戶的緊急聯繫人
   Future<List<EmergencyContactModel>> getContacts(String userId) async {
     if (_useLocalContacts) {
       return _getLocalContacts(userId);
@@ -65,12 +65,12 @@ class EmergencyContactService {
           )
           .toList();
     } catch (e) {
-      AppLogger.error('获取紧急联系人失败', e);
+      AppLogger.error('獲取緊急聯繫人失敗', e);
       return [];
     }
   }
 
-  /// 添加紧急联系人
+  /// 添加緊急聯繫人
   Future<EmergencyContactModel?> addContact({
     required String userId,
     required String name,
@@ -82,10 +82,10 @@ class EmergencyContactService {
     final existingContacts = await getContacts(userId);
 
     if (existingContacts.length >= 3) {
-      throw Exception('最多只能添加3个紧急联系人');
+      throw Exception('最多隻能添加3個緊急聯繫人');
     }
     if (existingContacts.any((contact) => contact.phone == normalizedPhone)) {
-      throw Exception('该联系人已存在');
+      throw Exception('該聯繫人已存在');
     }
 
     final contact = EmergencyContactModel(
@@ -116,15 +116,15 @@ class EmergencyContactService {
         'created_at': contact.createdAt?.toIso8601String(),
       });
 
-      AppLogger.info('紧急联系人添加成功: ${contact.id}');
+      AppLogger.info('緊急聯繫人添加成功: ${contact.id}');
       return contact;
     } catch (e) {
-      AppLogger.error('添加紧急联系人失败', e);
+      AppLogger.error('添加緊急聯繫人失敗', e);
       rethrow;
     }
   }
 
-  /// 更新紧急联系人
+  /// 更新緊急聯繫人
   Future<void> updateContact({
     required String contactId,
     String? name,
@@ -137,7 +137,7 @@ class EmergencyContactService {
         final contacts = await _getAllLocalContacts();
         final index = contacts.indexWhere((contact) => contact.id == contactId);
         if (index == -1) {
-          throw Exception('联系人不存在');
+          throw Exception('聯繫人不存在');
         }
 
         contacts[index] = contacts[index].copyWith(
@@ -165,14 +165,14 @@ class EmergencyContactService {
           .from('emergency_contacts')
           .update(updates)
           .eq('id', contactId);
-      AppLogger.info('紧急联系人更新成功: $contactId');
+      AppLogger.info('緊急聯繫人更新成功: $contactId');
     } catch (e) {
-      AppLogger.error('更新紧急联系人失败', e);
+      AppLogger.error('更新緊急聯繫人失敗', e);
       rethrow;
     }
   }
 
-  /// 删除紧急联系人
+  /// 刪除緊急聯繫人
   Future<void> deleteContact(String contactId) async {
     try {
       if (_useLocalContacts) {
@@ -183,14 +183,14 @@ class EmergencyContactService {
       }
 
       await _supabase.from('emergency_contacts').delete().eq('id', contactId);
-      AppLogger.info('紧急联系人删除成功: $contactId');
+      AppLogger.info('緊急聯繫人刪除成功: $contactId');
     } catch (e) {
-      AppLogger.error('删除紧急联系人失败', e);
+      AppLogger.error('刪除緊急聯繫人失敗', e);
       rethrow;
     }
   }
 
-  /// 通知紧急联系人
+  /// 通知緊急聯繫人
   Future<void> notifyEmergencyContacts({
     required String userId,
     required double latitude,
@@ -201,17 +201,17 @@ class EmergencyContactService {
     try {
       final contacts = await getContacts(userId);
       if (contacts.isEmpty) {
-        AppLogger.warning('用户没有设置紧急联系人: $userId');
+        AppLogger.warning('用戶沒有設置緊急聯繫人: $userId');
         return;
       }
 
       final content =
           message ??
-          '【共感LinkAble紧急求助】位置：${address ?? '未知地址'} '
+          '【共感LinkAble緊急求助】位置：${address ?? '未知地址'} '
               '($latitude,$longitude)';
 
       if (_useLocalContacts) {
-        AppLogger.info('演示模式通知紧急联系人: ${contacts.map((c) => c.name).join('、')}');
+        AppLogger.info('演示模式通知緊急聯繫人: ${contacts.map((c) => c.name).join('、')}');
         return;
       }
 
@@ -225,9 +225,9 @@ class EmergencyContactService {
           ),
         ),
       );
-      AppLogger.info('紧急联系人通知已记录: ${contacts.length}人');
+      AppLogger.info('緊急聯繫人通知已記錄: ${contacts.length}人');
     } catch (e) {
-      AppLogger.error('通知紧急联系人失败', e);
+      AppLogger.error('通知緊急聯繫人失敗', e);
     }
   }
 
@@ -253,8 +253,8 @@ class EmergencyContactService {
       {'value': 'child', 'label': '子女'},
       {'value': 'sibling', 'label': '兄弟姐妹'},
       {'value': 'friend', 'label': '朋友'},
-      {'value': 'caregiver', 'label': '看护人'},
-      {'value': 'doctor', 'label': '医生'},
+      {'value': 'caregiver', 'label': '看護人'},
+      {'value': 'doctor', 'label': '醫生'},
       {'value': 'other', 'label': '其他'},
     ];
   }
@@ -315,7 +315,7 @@ class EmergencyContactService {
         'sent_at': DateTime.now().toIso8601String(),
       });
     } catch (e) {
-      AppLogger.error('记录通知日志失败', e);
+      AppLogger.error('記錄通知日誌失敗', e);
     }
   }
 }

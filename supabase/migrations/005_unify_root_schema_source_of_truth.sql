@@ -1,10 +1,10 @@
 -- =====================================================
--- 共感 LinkAble Schema 对齐脚本
--- AGENTS.md §4.4：根目录 supabase/ 是唯一 schema source of truth
+-- 共感 LinkAble Schema 對齊腳本
+-- AGENTS.md §4.4：根目錄 supabase/ 是唯一 schema source of truth
 -- =====================================================
 
 -- -----------------------------------------------------
--- 1. help_requests 状态机与匹配字段对齐
+-- 1. help_requests 狀態機與匹配字段對齊
 -- -----------------------------------------------------
 
 UPDATE help_requests
@@ -42,14 +42,14 @@ ALTER TABLE help_requests
     ADD COLUMN IF NOT EXISTS longitude DOUBLE PRECISION;
 
 COMMENT ON COLUMN help_requests.status IS
-    '状态机对齐 AGENTS.md §5.2：created, ai_processing, ai_resolved, matching, connected, completed, cancelled, expired';
+    '狀態機對齊 AGENTS.md §5.2：created, ai_processing, ai_resolved, matching, connected, completed, cancelled, expired';
 COMMENT ON COLUMN help_requests.help_type IS
-    '兼容 legacy real client / matching-engine 的求助分类字段，主事实来源仍为根 schema';
+    '兼容 legacy real client / matching-engine 的求助分類字段，主事實來源仍爲根 schema';
 COMMENT ON COLUMN help_requests.required_skills IS
-    '匹配所需技能标签，供 F9 Top 5 匹配使用';
+    '匹配所需技能標籤，供 F9 Top 5 匹配使用';
 
 -- -----------------------------------------------------
--- 2. volunteer_profiles 对齐真实匹配所需字段
+-- 2. volunteer_profiles 對齊真實匹配所需字段
 -- -----------------------------------------------------
 
 ALTER TABLE volunteer_profiles
@@ -58,7 +58,7 @@ ALTER TABLE volunteer_profiles
     ADD COLUMN IF NOT EXISTS longitude DOUBLE PRECISION;
 
 COMMENT ON COLUMN volunteer_profiles.is_available IS
-    '竞赛版真实链路兼容字段；默认导航仍由 Demo fallback 承担';
+    '競賽版真實鏈路兼容字段；默認導航仍由 Demo fallback 承擔';
 
 -- -----------------------------------------------------
 -- 3. PRD §6.3 MVP 核心表：virtual_identities
@@ -78,10 +78,10 @@ CREATE TABLE IF NOT EXISTS virtual_identities (
 );
 
 COMMENT ON TABLE virtual_identities IS
-    'PRD §6.3 MVP 核心表：虚拟身份映射，用于匿名求助与临时身份隔离';
+    'PRD §6.3 MVP 核心表：虛擬身份映射，用於匿名求助與臨時身份隔離';
 
 -- -----------------------------------------------------
--- 4. 基础设施表：保留在根 schema，供实验性真实链路兼容
+-- 4. 基礎設施表：保留在根 schema，供實驗性真實鏈路兼容
 -- -----------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS user_devices (
@@ -142,7 +142,7 @@ CREATE TABLE IF NOT EXISTS notifications (
 );
 
 -- -----------------------------------------------------
--- 5. 经纬度与 PostGIS geography 同步
+-- 5. 經緯度與 PostGIS geography 同步
 -- -----------------------------------------------------
 
 CREATE OR REPLACE FUNCTION sync_help_request_location_fields()
@@ -196,7 +196,7 @@ SET latitude = COALESCE(latitude, ST_Y(location::geometry)),
 WHERE location IS NOT NULL;
 
 -- -----------------------------------------------------
--- 6. 匹配函数、索引与 RLS 对齐
+-- 6. 匹配函數、索引與 RLS 對齊
 -- -----------------------------------------------------
 
 CREATE OR REPLACE FUNCTION find_matching_volunteers(

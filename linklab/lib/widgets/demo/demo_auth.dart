@@ -301,7 +301,7 @@ class DemoSelectionCard extends StatelessWidget {
                     color: isSelected
                         ? AppTheme.stageAccent
                         : AppTheme.stageTextHint,
-                    semanticLabel: isSelected ? '已选择' : '未选择',
+                    semanticLabel: isSelected ? '已選擇' : '未選擇',
                   ),
             ],
           ),
@@ -319,7 +319,7 @@ class _SelectionStatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DemoPill(
-      label: isSelected ? '已选择' : '双击选择',
+      label: isSelected ? '已選擇' : '雙擊選擇',
       color: isSelected ? AppTheme.stageAccent : AppTheme.stageTextHint,
       backgroundColor: isSelected
           ? AppTheme.stageAccent.withValues(alpha: 0.14)

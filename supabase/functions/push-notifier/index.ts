@@ -1,7 +1,7 @@
 // =====================================================
-// 共感 LinkAble - 推送通知触发 Edge Function
-// AGENTS.md §4.2 / §4.4：竞赛版默认走 Demo fallback；
-// 真实函数仅使用根 supabase/ schema 中保留的基础设施表。
+// 共感 LinkAble - 推送通知觸發 Edge Function
+// AGENTS.md §4.2 / §4.4：競賽版默認走 Demo fallback；
+// 真實函數僅使用根 supabase/ schema 中保留的基礎設施表。
 // =====================================================
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0';
@@ -52,7 +52,7 @@ async function getPushTokens(
     .not('fcm_token', 'is', null);
 
   if (error || !data) {
-    console.error(`获取推送令牌失败 [${userId}]`, error);
+    console.error(`獲取推送令牌失敗 [${userId}]`, error);
     return [];
   }
 
@@ -158,7 +158,7 @@ async function sendSinglePush(
   const failedResult: PushResult = {
     userId,
     success: false,
-    error: '所有推送令牌都失败了',
+    error: '所有推送令牌都失敗了',
   };
   await logPush(supabase, failedResult, title);
   return failedResult;
@@ -169,7 +169,7 @@ async function sendBatchPush(
   messages: PushMessage[],
 ): Promise<Response> {
   if (!messages.length) {
-    return jsonResponse({ error: '消息列表不能为空' }, 400);
+    return jsonResponse({ error: '消息列表不能爲空' }, 400);
   }
 
   const results = await Promise.all(
@@ -215,8 +215,8 @@ async function handleSOSBroadcast(
 
   const messages: PushMessage[] = (volunteers ?? []).map((volunteer) => ({
     userId: volunteer.user_id as string,
-    title: urgency == 'emergency' ? '紧急求助' : '新的求助请求',
-    body: '有新的求助广播，请尽快查看',
+    title: urgency == 'emergency' ? '緊急求助' : '新的求助請求',
+    body: '有新的求助廣播，請儘快查看',
     data: {
       type: 'sos',
       requestId: seekerId,
@@ -241,17 +241,17 @@ async function handleLegacyRequest(req: Request): Promise<Response> {
     return jsonResponse({
       success: true,
       mock: true,
-      message: '竞赛分支保留为可见状态回执，不依赖真实短信/外呼服务。',
+      message: '競賽分支保留爲可見狀態回執，不依賴真實短信/外呼服務。',
     });
   }
 
-  return jsonResponse({ error: '不支持的 push-notifier 请求类型' }, 400);
+  return jsonResponse({ error: '不支持的 push-notifier 請求類型' }, 400);
 }
 
 async function handleSinglePush(req: Request): Promise<Response> {
   const body = await req.json() as PushMessage;
   if (!body.userId || !body.title || !body.body) {
-    return jsonResponse({ error: '缺少必要参数: userId, title, body' }, 400);
+    return jsonResponse({ error: '缺少必要參數: userId, title, body' }, 400);
   }
 
   const supabase = createSupabaseClient();

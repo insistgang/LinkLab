@@ -1,4 +1,4 @@
-// AGENTS.md §4.2：竞赛版已冻结 Demo 主线，真实路径仅供实验，已隔离到 services/experimental/real/。
+// AGENTS.md §4.2：競賽版已凍結 Demo 主線，真實路徑僅供實驗，已隔離到 services/experimental/real/。
 
 import 'dart:async';
 
@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 
 import 'demo_call_service.dart';
 
-/// SOS状态
+/// SOS狀態
 enum SOSStatus {
   idle,
   triggering,
@@ -18,8 +18,8 @@ enum SOSStatus {
   resolved,
 }
 
-/// 统一SOS服务
-/// 竞赛版默认只调度本地 Demo SOS 流程。
+/// 統一SOS服務
+/// 競賽版默認只調度本地 Demo SOS 流程。
 class UnifiedSOSService extends ChangeNotifier {
   static final UnifiedSOSService _instance = UnifiedSOSService._internal();
   factory UnifiedSOSService() => _instance;
@@ -45,19 +45,19 @@ class UnifiedSOSService extends ChangeNotifier {
   String get statusText {
     switch (_status) {
       case SOSStatus.triggering:
-        return '正在触发SOS...';
+        return '正在觸發SOS...';
       case SOSStatus.broadcasting:
-        return '正在广播求助信号...';
+        return '正在廣播求助信號...';
       case SOSStatus.waiting:
-        return '等待志愿者响应...';
+        return '等待志願者響應...';
       case SOSStatus.responded:
-        return '已有 $_responderCount 位志愿者响应';
+        return '已有 $_responderCount 位志願者響應';
       case SOSStatus.cancelled:
         return 'SOS已取消';
       case SOSStatus.resolved:
-        return 'SOS已解决';
+        return 'SOS已解決';
       default:
-        return '长按3秒发送紧急求助';
+        return '長按3秒發送緊急求助';
     }
   }
 
@@ -70,8 +70,8 @@ class UnifiedSOSService extends ChangeNotifier {
 
     HapticFeedback.heavyImpact();
 
-    // AGENTS.md §4.2：真实 SOS 已隔离到 services/experimental/real/sos_service.dart，
-    // 竞赛版统一服务不再自动切换到真实路径。
+    // AGENTS.md §4.2：真實 SOS 已隔離到 services/experimental/real/sos_service.dart，
+    // 競賽版統一服務不再自動切換到真實路徑。
     await _triggerDemoSOS();
   }
 

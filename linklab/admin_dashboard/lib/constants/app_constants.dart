@@ -1,4 +1,4 @@
-// 应用常量
+// 應用常量
 class AppConstants {
   // Supabase 配置
   static const String supabaseUrl =
@@ -11,8 +11,8 @@ class AppConstants {
   static const String demoAdminEmail = 'admin@linklab.com';
   static const String demoAdminPassword = 'admin123';
 
-  // 应用信息
-  static const String appName = 'LinkLab 运营后台';
+  // 應用信息
+  static const String appName = 'LinkLab 運營後臺';
   static const String appVersion = '1.0.0';
 
   static bool get hasSupabaseConfig =>
@@ -20,7 +20,7 @@ class AppConstants {
 
   static bool get isDemoMode => demoModeOverride || !hasSupabaseConfig;
 
-  // 分页配置
+  // 分頁配置
   static const int defaultPageSize = 20;
   static const List<int> pageSizeOptions = [10, 20, 50, 100];
 
@@ -28,39 +28,39 @@ class AppConstants {
   static const String dateFormat = 'yyyy-MM-dd';
   static const String dateTimeFormat = 'yyyy-MM-dd HH:mm:ss';
 
-  // 菜单项
+  // 菜單項
   static const List<Map<String, dynamic>> menuItems = [
-    {'icon': 'dashboard', 'title': '数据看板', 'route': '/dashboard'},
-    {'icon': 'people', 'title': '用户管理', 'route': '/users'},
-    {'icon': 'content', 'title': '内容管理', 'route': '/content'},
-    {'icon': 'report', 'title': '举报处理', 'route': '/reports'},
-    {'icon': 'analytics', 'title': '数据统计', 'route': '/statistics'},
-    {'icon': 'settings', 'title': '系统设置', 'route': '/settings'},
+    {'icon': 'dashboard', 'title': '數據看板', 'route': '/dashboard'},
+    {'icon': 'people', 'title': '用戶管理', 'route': '/users'},
+    {'icon': 'content', 'title': '內容管理', 'route': '/content'},
+    {'icon': 'report', 'title': '舉報處理', 'route': '/reports'},
+    {'icon': 'analytics', 'title': '數據統計', 'route': '/statistics'},
+    {'icon': 'settings', 'title': '系統設置', 'route': '/settings'},
   ];
 }
 
-// 用户角色
+// 用戶角色
 enum UserRole {
   superAdmin,
   admin,
   operator,
 }
 
-// 用户状态
+// 用戶狀態
 enum UserStatus {
   active,
   banned,
   pending,
 }
 
-// 认证状态
+// 認證狀態
 enum VerificationStatus {
   pending,
   approved,
   rejected,
 }
 
-// 举报状态
+// 舉報狀態
 enum ReportStatus {
   pending,
   processing,
@@ -68,7 +68,7 @@ enum ReportStatus {
   dismissed,
 }
 
-// 举报类型
+// 舉報類型
 enum ReportType {
   spam,
   harassment,
@@ -77,7 +77,7 @@ enum ReportType {
   other,
 }
 
-// 内容状态
+// 內容狀態
 enum ContentStatus {
   draft,
   published,

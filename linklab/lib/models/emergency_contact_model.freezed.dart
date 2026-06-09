@@ -28,7 +28,7 @@ mixin _$EmergencyContactModel {
   String get name => throw _privateConstructorUsedError;
   String get phone => throw _privateConstructorUsedError;
   String? get relationship => throw _privateConstructorUsedError;
-  int get priority => throw _privateConstructorUsedError; // 优先级，0为最高
+  int get priority => throw _privateConstructorUsedError; // 優先級，0爲最高
   bool get isActive => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
 
@@ -242,7 +242,7 @@ class _$EmergencyContactModelImpl extends _EmergencyContactModel {
   @override
   @JsonKey()
   final int priority;
-  // 优先级，0为最高
+  // 優先級，0爲最高
   @override
   @JsonKey()
   final bool isActive;
@@ -332,7 +332,7 @@ abstract class _EmergencyContactModel extends EmergencyContactModel {
   @override
   String? get relationship;
   @override
-  int get priority; // 优先级，0为最高
+  int get priority; // 優先級，0爲最高
   @override
   bool get isActive;
   @override

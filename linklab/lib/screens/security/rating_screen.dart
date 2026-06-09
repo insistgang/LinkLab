@@ -4,7 +4,7 @@ import '../../services/security/rating_service.dart';
 import '../../widgets/accessible/accessible_scaffold.dart';
 import '../../widgets/accessible/accessible_button.dart';
 
-/// 评价页面
+/// 評價頁面
 class RatingScreen extends StatefulWidget {
   final String helpRequestId;
   final String callId;
@@ -36,19 +36,19 @@ class _RatingScreenState extends State<RatingScreen> {
   bool _isSubmitting = false;
 
   final List<Map<String, dynamic>> _positiveTags = [
-    {'label': '耐心细致', 'icon': Icons.favorite},
-    {'label': '专业高效', 'icon': Icons.star},
-    {'label': '态度友好', 'icon': Icons.emoji_emotions},
-    {'label': '沟通清晰', 'icon': Icons.record_voice_over},
-    {'label': '帮助很大', 'icon': Icons.thumb_up},
+    {'label': '耐心細緻', 'icon': Icons.favorite},
+    {'label': '專業高效', 'icon': Icons.star},
+    {'label': '態度友好', 'icon': Icons.emoji_emotions},
+    {'label': '溝通清晰', 'icon': Icons.record_voice_over},
+    {'label': '幫助很大', 'icon': Icons.thumb_up},
   ];
 
   final List<Map<String, dynamic>> _negativeTags = [
-    {'label': '态度冷淡', 'icon': Icons.sentiment_dissatisfied},
-    {'label': '沟通困难', 'icon': Icons.hearing_disabled},
-    {'label': '不够耐心', 'icon': Icons.timer_off},
-    {'label': '未解决问题', 'icon': Icons.help_outline},
-    {'label': '提前挂断', 'icon': Icons.call_end},
+    {'label': '態度冷淡', 'icon': Icons.sentiment_dissatisfied},
+    {'label': '溝通困難', 'icon': Icons.hearing_disabled},
+    {'label': '不夠耐心', 'icon': Icons.timer_off},
+    {'label': '未解決問題', 'icon': Icons.help_outline},
+    {'label': '提前掛斷', 'icon': Icons.call_end},
   ];
 
   @override
@@ -60,7 +60,7 @@ class _RatingScreenState extends State<RatingScreen> {
   Future<void> _submitRating() async {
     if (_rating == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('请选择评分')),
+        const SnackBar(content: Text('請選擇評分')),
       );
       return;
     }
@@ -87,7 +87,7 @@ class _RatingScreenState extends State<RatingScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('评价失败: $e')),
+          SnackBar(content: Text('評價失敗: $e')),
         );
       }
     } finally {
@@ -102,7 +102,7 @@ class _RatingScreenState extends State<RatingScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text('评价成功'),
+        title: const Text('評價成功'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -113,7 +113,7 @@ class _RatingScreenState extends State<RatingScreen> {
             ),
             const SizedBox(height: 16),
             const Text(
-              '感谢您的评价！',
+              '感謝您的評價！',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -122,8 +122,8 @@ class _RatingScreenState extends State<RatingScreen> {
             const SizedBox(height: 8),
             Text(
               _rating >= 4
-                  ? '您的好评将帮助对方获得更多匹配机会'
-                  : '您的反馈将帮助我们改进服务质量',
+                  ? '您的好評將幫助對方獲得更多匹配機會'
+                  : '您的反饋將幫助我們改進服務質量',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
@@ -138,7 +138,7 @@ class _RatingScreenState extends State<RatingScreen> {
               Navigator.pop(context);
               Navigator.pop(context, true);
             },
-            child: const Text('确定'),
+            child: const Text('確定'),
           ),
         ],
       ),
@@ -148,7 +148,7 @@ class _RatingScreenState extends State<RatingScreen> {
   @override
   Widget build(BuildContext context) {
     return AccessibleScaffold(
-      title: '评价',
+      title: '評價',
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -184,7 +184,7 @@ class _RatingScreenState extends State<RatingScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            widget.toUserName ?? '对方用户',
+            widget.toUserName ?? '對方用戶',
             style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -193,8 +193,8 @@ class _RatingScreenState extends State<RatingScreen> {
           const SizedBox(height: 8),
           Text(
             widget.isSeekerToVolunteer
-                ? '本次通话体验如何？'
-                : '请对本次求助进行评价',
+                ? '本次通話體驗如何？'
+                : '請對本次求助進行評價',
             style: TextStyle(
               fontSize: 14,
               color: Colors.grey[600],
@@ -249,17 +249,17 @@ class _RatingScreenState extends State<RatingScreen> {
   String _getRatingText() {
     switch (_rating) {
       case 1:
-        return '非常不满意';
+        return '非常不滿意';
       case 2:
-        return '不满意';
+        return '不滿意';
       case 3:
         return '一般';
       case 4:
-        return '满意';
+        return '滿意';
       case 5:
-        return '非常满意';
+        return '非常滿意';
       default:
-        return '点击星星评分';
+        return '點擊星星評分';
     }
   }
 
@@ -276,7 +276,7 @@ class _RatingScreenState extends State<RatingScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          _rating >= 4 ? '优点标签（可多选）' : '问题标签（可多选）',
+          _rating >= 4 ? '優點標籤（可多選）' : '問題標籤（可多選）',
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -328,7 +328,7 @@ class _RatingScreenState extends State<RatingScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          '详细评价（可选）',
+          '詳細評價（可選）',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -340,7 +340,7 @@ class _RatingScreenState extends State<RatingScreen> {
           maxLines: 4,
           maxLength: 200,
           decoration: InputDecoration(
-            hintText: '请输入您的评价内容...',
+            hintText: '請輸入您的評價內容...',
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -356,14 +356,14 @@ class _RatingScreenState extends State<RatingScreen> {
       width: double.infinity,
       child: AccessibleButton(
         onPressed: _isSubmitting ? null : _submitRating,
-        label: _isSubmitting ? '提交中...' : '提交评价',
+        label: _isSubmitting ? '提交中...' : '提交評價',
         icon: Icons.send,
       ),
     );
   }
 }
 
-/// 评价详情页面
+/// 評價詳情頁面
 class RatingDetailScreen extends StatefulWidget {
   final String userId;
 
@@ -406,7 +406,7 @@ class _RatingDetailScreenState extends State<RatingDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return AccessibleScaffold(
-      title: '评价详情',
+      title: '評價詳情',
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
@@ -492,7 +492,7 @@ class _RatingDetailScreenState extends State<RatingDetailScreen> {
                     ),
                     const SizedBox(height: 4),
                     const Text(
-                      '总评价数',
+                      '總評價數',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.white70,
@@ -565,7 +565,7 @@ class _RatingDetailScreenState extends State<RatingDetailScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              '暂无评价',
+              '暫無評價',
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.grey[600],
@@ -580,7 +580,7 @@ class _RatingDetailScreenState extends State<RatingDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          '最新评价',
+          '最新評價',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,

@@ -30,8 +30,8 @@ const _sosPurplePanel = Color(0xF7F7EEFF);
 const _sosPurplePanelStrong = Color(0xFAF1E4FF);
 const _sosPurpleBorder = Color(0x668B42F6);
 
-/// 演示版SOS紧急求助页面
-/// 简化版：模拟SOS流程，固定5秒匹配成功
+/// 演示版SOS緊急求助頁面
+/// 簡化版：模擬SOS流程，固定5秒匹配成功
 class DemoSOSScreen extends ConsumerStatefulWidget {
   const DemoSOSScreen({
     super.key,
@@ -180,15 +180,15 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
       _undoCountdownSeconds = _undoWindowSeconds;
     });
 
-    // Facade 优先：调用 SosFacade.startUndoWindow
+    // Facade 優先：調用 SosFacade.startUndoWindow
     try {
       final facade = ref.read(sosFacadeProvider);
       final result = await facade.startUndoWindow();
       if (result.success) {
-        // Facade 成功，继续走 demo 流程驱动 UI
+        // Facade 成功，繼續走 demo 流程驅動 UI
       }
     } catch (_) {
-      // Facade 异常，降级到旧流程
+      // Facade 異常，降級到舊流程
     }
 
     // Fallback：原有 demo flow
@@ -226,21 +226,21 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
       _undoCountdownSeconds = _undoWindowSeconds;
     });
 
-    // Facade 优先：调用 SosFacade.broadcastToNearby 和 notifyEmergencyContacts
+    // Facade 優先：調用 SosFacade.broadcastToNearby 和 notifyEmergencyContacts
     try {
       final facade = ref.read(sosFacadeProvider);
       final broadcastResult = await facade.broadcastToNearby();
       if (broadcastResult.success) {
-        // Facade 广播成功
+        // Facade 廣播成功
       }
       await facade.notifyEmergencyContacts();
     } catch (_) {
-      // Facade 异常，降级到旧流程
+      // Facade 異常，降級到舊流程
     }
 
     if (!mounted) return;
 
-    // Fallback：原有联系人通知逻辑
+    // Fallback：原有聯繫人通知邏輯
     if (_safetySettings.shareWithEmergencyContacts &&
         _emergencyContacts.isNotEmpty) {
       unawaited(
@@ -259,7 +259,7 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
     // Fallback：原有 demo flow
     await ref
         .read(demoHelpRequestFlowProvider.notifier)
-        .enterMatching(intent: 'SOS紧急求助', type: 'sos', urgency: 'emergency');
+        .enterMatching(intent: 'SOS緊急求助', type: 'sos', urgency: 'emergency');
 
     if (!mounted) return;
 
@@ -273,18 +273,18 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
       _undoCountdownSeconds = _undoWindowSeconds;
     });
 
-    // Facade 优先：调用 SosFacade.cancelSOS
+    // Facade 優先：調用 SosFacade.cancelSOS
     try {
       final facade = ref.read(sosFacadeProvider);
       await facade.cancelSOS();
     } catch (_) {
-      // Facade 异常，降级到旧流程
+      // Facade 異常，降級到舊流程
     }
 
     // Fallback：原有 demo flow
     await ref
         .read(demoHelpRequestFlowProvider.notifier)
-        .markCancelled(reason: 'SOS 误触撤销');
+        .markCancelled(reason: 'SOS 誤觸撤銷');
   }
 
   @override
@@ -296,10 +296,10 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
         final isEmergencyFlowActive = isActive || _isUndoWindowActive;
 
         return _SosPageShell(
-          title: isEmergencyFlowActive ? 'SOS 紧急求助进行中' : 'SOS 紧急求助',
+          title: isEmergencyFlowActive ? 'SOS 緊急求助進行中' : 'SOS 緊急求助',
           subtitle: isEmergencyFlowActive
-              ? '误触撤销窗口与 Mock 广播进度均可见'
-              : '保留 10 秒误触撤销窗口，支持本地可复现演示',
+              ? '誤觸撤銷窗口與 Mock 廣播進度均可見'
+              : '保留 10 秒誤觸撤銷窗口，支持本地可復現演示',
           body: ListView(
             padding: const EdgeInsets.fromLTRB(
               AppTheme.spacingL,
@@ -324,7 +324,7 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
                       const SizedBox(width: AppTheme.spacingS),
                       Expanded(
                         child: AccessibleText(
-                          'SOS紧急求助进行中',
+                          'SOS緊急求助進行中',
                           style: TextStyle(
                             color: AppTheme.stageTextPrimary,
                             fontWeight: FontWeight.w700,
@@ -333,7 +333,7 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
                       ),
                       AccessibleText(
                         _isUndoWindowActive
-                            ? '撤销 ${_undoCountdownSeconds}s'
+                            ? '撤銷 ${_undoCountdownSeconds}s'
                             : '${(_sosService.elapsedSeconds ~/ 60).toString().padLeft(2, '0')}:${(_sosService.elapsedSeconds % 60).toString().padLeft(2, '0')}',
                         style: TextStyle(
                           color: AppTheme.stageTextPrimary,
@@ -352,12 +352,12 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
                     children: [
                       DemoPill(
                         icon: Icons.timer_outlined,
-                        label: '10 秒撤销窗口',
+                        label: '10 秒撤銷窗口',
                         color: AppTheme.stageAccent,
                       ),
                       DemoPill(
                         icon: Icons.campaign_outlined,
-                        label: 'Mock 广播演示',
+                        label: 'Mock 廣播演示',
                         color: AppTheme.stageAccent,
                       ),
                     ],
@@ -433,7 +433,7 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
                                   else
                                     const _SolidSosBadge(
                                       size: 64,
-                                      semanticLabel: 'SOS紧急求助',
+                                      semanticLabel: 'SOS緊急求助',
                                     ),
                                   const SizedBox(height: AppTheme.spacingS),
                                   Text(
@@ -459,7 +459,7 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
               const SizedBox(height: AppTheme.spacingXL),
               AccessibleText(
                 _isUndoWindowActive
-                    ? '已进入 10 秒误触撤销窗口，倒计时结束后才会广播给志愿者和联系人。'
+                    ? '已進入 10 秒誤觸撤銷窗口，倒計時結束後纔會廣播給志願者和聯繫人。'
                     : _sosService.statusText,
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -474,8 +474,8 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
               const SizedBox(height: AppTheme.spacingS),
               AccessibleText(
                 isEmergencyFlowActive
-                    ? '评审可以直接看到广播中、联系人通知和撤销窗口的状态切换。'
-                    : '长按按钮 3 秒即可进入紧急求助流程。',
+                    ? '評審可以直接看到廣播中、聯繫人通知和撤銷窗口的狀態切換。'
+                    : '長按按鈕 3 秒即可進入緊急求助流程。',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: AppTheme.stageTextSecondary,
@@ -486,7 +486,7 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
                 const SizedBox(height: AppTheme.spacingL),
                 Center(
                   child: DemoPill(
-                    label: '误触撤销剩余 $_undoCountdownSeconds 秒',
+                    label: '誤觸撤銷剩餘 $_undoCountdownSeconds 秒',
                     icon: Icons.timer_outlined,
                     color: AppTheme.stageAccent,
                   ),
@@ -500,7 +500,7 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
                   children: [
                     DemoPill(
                       icon: Icons.campaign_outlined,
-                      label: '5km 范围内广播',
+                      label: '5km 範圍內廣播',
                       color: AppTheme.stageAccent,
                     ),
                     DemoPill(
@@ -517,7 +517,7 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
                   const SizedBox(height: AppTheme.spacingL),
                   Center(
                     child: DemoPill(
-                      label: '${_sosService.responderCount}位志愿者正在赶来',
+                      label: '${_sosService.responderCount}位志願者正在趕來',
                       icon: Icons.favorite_rounded,
                       color: AppTheme.stageAccent,
                     ),
@@ -533,7 +533,7 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       AccessibleText(
-                        '触发前准备',
+                        '觸發前準備',
                         style: TextStyle(
                           color: AppTheme.stageTextPrimary,
                           fontSize: AppTheme.fontSizeNormal,
@@ -548,9 +548,9 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
                               label: '位置',
                               value: _safetySettings.autoShareLocation
                                   ? (_safetySettings.usePreciseLocation
-                                        ? '精确'
+                                        ? '精確'
                                         : '大致')
-                                  : '关闭',
+                                  : '關閉',
                               color: _safetySettings.autoShareLocation
                                   ? AppTheme.stageAccent
                                   : AppTheme.stageAccent,
@@ -559,7 +559,7 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
                           const SizedBox(width: AppTheme.spacingM),
                           Expanded(
                             child: _ReadinessMetric(
-                              label: '联系人',
+                              label: '聯繫人',
                               value: '${_emergencyContacts.length} 位',
                               color: _emergencyContacts.isEmpty
                                   ? AppTheme.stageAccent
@@ -569,8 +569,8 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
                           const SizedBox(width: AppTheme.spacingM),
                           Expanded(
                             child: _ReadinessMetric(
-                              label: '触发',
-                              value: '长按 3 秒',
+                              label: '觸發',
+                              value: '長按 3 秒',
                               color: AppTheme.stageAccent,
                             ),
                           ),
@@ -601,10 +601,10 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
                   icon: const LinkableSvgIcon(
                     icon: LinkableIconName.screenReader,
                     size: 24,
-                    semanticLabel: '完善位置共享设置',
+                    semanticLabel: '完善位置共享設置',
                   ),
                   label: Text(
-                    '完善位置共享设置',
+                    '完善位置共享設置',
                     style: TextStyle(color: AppTheme.stageAccent),
                   ),
                 ),
@@ -618,7 +618,7 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       AccessibleText(
-                        '其他触发方式',
+                        '其他觸發方式',
                         style: TextStyle(
                           color: AppTheme.stageTextPrimary,
                           fontSize: AppTheme.fontSizeNormal,
@@ -626,9 +626,9 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
                         ),
                       ),
                       const SizedBox(height: AppTheme.spacingM),
-                      _buildTriggerHint('连按电源键3次', '3秒内快速按3次'),
+                      _buildTriggerHint('連按電源鍵3次', '3秒內快速按3次'),
                       if (_safetySettings.enableVoiceTrigger)
-                        _buildTriggerHint('语音触发', '说出“紧急求助”等关键词'),
+                        _buildTriggerHint('語音觸發', '說出“緊急求助”等關鍵詞'),
                     ],
                   ),
                 ),
@@ -657,9 +657,9 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
               icon: const LinkableSvgIcon(
                 icon: LinkableIconName.cancel,
                 size: 24,
-                semanticLabel: '撤销误触',
+                semanticLabel: '撤銷誤觸',
               ),
-              label: const Text('撤销误触'),
+              label: const Text('撤銷誤觸'),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppTheme.stageTextPrimary,
                 side: BorderSide(
@@ -680,9 +680,9 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
               icon: const LinkableSvgIcon(
                 icon: LinkableIconName.broadcast,
                 size: 24,
-                semanticLabel: '立即发送',
+                semanticLabel: '立即發送',
               ),
-              label: const Text('立即发送'),
+              label: const Text('立即發送'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.stageAccent,
                 foregroundColor: AppTheme.stageBackground,
@@ -704,12 +704,12 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
           Expanded(
             child: ElevatedButton.icon(
               onPressed: () async {
-                // Facade 优先：调用 SosFacade.cancelSOS（安全了 = 结束 SOS）
+                // Facade 優先：調用 SosFacade.cancelSOS（安全了 = 結束 SOS）
                 try {
                   final facade = ref.read(sosFacadeProvider);
                   await facade.cancelSOS();
                 } catch (_) {
-                  // Facade 异常，降级到旧流程
+                  // Facade 異常，降級到舊流程
                 }
                 _sosService.resolveSOS();
                 await ref
@@ -739,17 +739,17 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
           Expanded(
             child: OutlinedButton.icon(
               onPressed: () async {
-                // Facade 优先：调用 SosFacade.cancelSOS
+                // Facade 優先：調用 SosFacade.cancelSOS
                 try {
                   final facade = ref.read(sosFacadeProvider);
                   await facade.cancelSOS();
                 } catch (_) {
-                  // Facade 异常，降级到旧流程
+                  // Facade 異常，降級到舊流程
                 }
                 _sosService.cancelSOS();
                 await ref
                     .read(demoHelpRequestFlowProvider.notifier)
-                    .markCancelled(reason: '用户取消SOS');
+                    .markCancelled(reason: '用戶取消SOS');
                 if (!mounted) return;
                 Navigator.pop(context);
               },
@@ -785,8 +785,8 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
     final shouldNotifyContacts =
         _safetySettings.shareWithEmergencyContacts && hasContacts;
     final locationLabel = !_safetySettings.autoShareLocation
-        ? '未自动共享位置'
-        : (_safetySettings.usePreciseLocation ? '精确位置' : '大致位置');
+        ? '未自動共享位置'
+        : (_safetySettings.usePreciseLocation ? '精確位置' : '大致位置');
 
     return DemoSurfaceCard(
       color: isActive
@@ -800,8 +800,8 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
         children: [
           AccessibleText(
             shouldNotifyContacts
-                ? '安全通知已就绪'
-                : (hasContacts ? '联系人通知已关闭' : '尚未设置紧急联系人'),
+                ? '安全通知已就緒'
+                : (hasContacts ? '聯繫人通知已關閉' : '尚未設置緊急聯繫人'),
             style: TextStyle(
               color: AppTheme.stageTextPrimary,
               fontWeight: FontWeight.w700,
@@ -811,10 +811,10 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
           const SizedBox(height: 6),
           AccessibleText(
             shouldNotifyContacts
-                ? '本次 SOS 会以$locationLabel同步通知 ${_emergencyContacts.length} 位联系人：$names'
+                ? '本次 SOS 會以$locationLabel同步通知 ${_emergencyContacts.length} 位聯繫人：$names'
                 : _safetySettings.shareWithEmergencyContacts
-                ? '当前仍会演示志愿者广播流程，但联系人通知需要先在“我的 > 紧急联系人”中完成设置。位置状态：$locationLabel。'
-                : '本次 SOS 仅展示志愿者广播流程。位置状态：$locationLabel。',
+                ? '當前仍會演示志願者廣播流程，但聯繫人通知需要先在“我的 > 緊急聯繫人”中完成設置。位置狀態：$locationLabel。'
+                : '本次 SOS 僅展示志願者廣播流程。位置狀態：$locationLabel。',
             style: TextStyle(
               color: AppTheme.stageTextSecondary,
               fontSize: AppTheme.fontSizeSmall,
@@ -825,8 +825,8 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
             const SizedBox(height: 8),
             AccessibleText(
               _safetySettings.shareWithEmergencyContacts
-                  ? '可在“我的 > 紧急联系人”中添加，最多 3 位。'
-                  : '可在“位置共享”中重新开启联系人同步。',
+                  ? '可在“我的 > 緊急聯繫人”中添加，最多 3 位。'
+                  : '可在“位置共享”中重新開啓聯繫人同步。',
               style: TextStyle(color: AppTheme.stageTextHint, fontSize: 12),
             ),
           ],
@@ -845,7 +845,7 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AccessibleText(
-            isActive ? 'SOS 当前进度' : 'SOS 将执行的步骤',
+            isActive ? 'SOS 當前進度' : 'SOS 將執行的步驟',
             style: TextStyle(
               color: AppTheme.stageTextPrimary,
               fontWeight: FontWeight.w700,
@@ -926,31 +926,31 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
     return [
       _SafetyStep(
         title: _safetySettings.autoShareLocation
-            ? '同步${_safetySettings.usePreciseLocation ? '精确' : '大致'}位置'
-            : '跳过自动位置共享',
+            ? '同步${_safetySettings.usePreciseLocation ? '精確' : '大致'}位置'
+            : '跳過自動位置共享',
         description: _safetySettings.autoShareLocation
-            ? '演示位置摘要会进入 SOS 链路。'
-            : '本次流程只展示基础求助，不附带位置。',
+            ? '演示位置摘要會進入 SOS 鏈路。'
+            : '本次流程只展示基礎求助，不附帶位置。',
         state: _safetySettings.autoShareLocation
             ? (isActive ? _SafetyStepState.completed : _SafetyStepState.pending)
             : _SafetyStepState.skipped,
       ),
       _SafetyStep(
-        title: shouldNotifyContacts ? '通知紧急联系人' : '跳过联系人通知',
+        title: shouldNotifyContacts ? '通知緊急聯繫人' : '跳過聯繫人通知',
         description: shouldNotifyContacts
-            ? '将同步通知 ${_emergencyContacts.length} 位联系人。'
+            ? '將同步通知 ${_emergencyContacts.length} 位聯繫人。'
             : _safetySettings.shareWithEmergencyContacts
-            ? '当前没有可通知的联系人。'
-            : '你已在设置中关闭联系人同步。',
+            ? '當前沒有可通知的聯繫人。'
+            : '你已在設置中關閉聯繫人同步。',
         state: shouldNotifyContacts
             ? (isActive ? _SafetyStepState.completed : _SafetyStepState.pending)
             : _SafetyStepState.skipped,
       ),
       _SafetyStep(
-        title: '向附近志愿者广播',
+        title: '向附近志願者廣播',
         description: hasResponse
-            ? '已有 ${_sosService.responderCount} 位志愿者响应。'
-            : '演示版默认在 5km 范围内广播。',
+            ? '已有 ${_sosService.responderCount} 位志願者響應。'
+            : '演示版默認在 5km 範圍內廣播。',
         state: !isActive
             ? _SafetyStepState.pending
             : (hasResponse
@@ -958,8 +958,8 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
                   : _SafetyStepState.active),
       ),
       _SafetyStep(
-        title: '建立演示响应',
-        description: hasResponse ? '即将进入通话演示。' : '正在等待志愿者接入。',
+        title: '建立演示響應',
+        description: hasResponse ? '即將進入通話演示。' : '正在等待志願者接入。',
         state: !isActive
             ? _SafetyStepState.pending
             : (hasResponse
@@ -977,15 +977,15 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
 
   String _buildLocationSummary() {
     if (!_safetySettings.autoShareLocation) {
-      return '用户未开启自动位置共享';
+      return '用戶未開啓自動位置共享';
     }
 
-    return _safetySettings.usePreciseLocation ? '演示位置：上海市静安区' : '演示位置：上海市静安区附近';
+    return _safetySettings.usePreciseLocation ? '演示位置：上海市靜安區' : '演示位置：上海市靜安區附近';
   }
 
   String _buildEmergencyNotificationMessage() {
     final location = _buildLocationSummary();
-    return '【LinkLab紧急求助】用户已触发 SOS，$location，请尽快联系确认安全。';
+    return '【LinkLab緊急求助】用戶已觸發 SOS，$location，請儘快聯繫確認安全。';
   }
 
   Widget _buildTriggerHint(String title, String description) {
@@ -996,7 +996,7 @@ class _DemoSOSScreenState extends ConsumerState<DemoSOSScreen>
           const LinkableSvgIcon(
             icon: LinkableIconName.emergencyDetect,
             size: 18,
-            semanticLabel: '紧急检测提示',
+            semanticLabel: '緊急檢測提示',
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -1109,7 +1109,7 @@ class _SosHeader extends StatelessWidget {
         Semantics(
           button: true,
           label: canPop ? '返回' : '返回不可用',
-          hint: canPop ? '双击返回上一页' : '当前已经是第一页',
+          hint: canPop ? '雙擊返回上一頁' : '當前已經是第一頁',
           child: InkWell(
             onTap: canPop ? () => Navigator.of(context).pop() : null,
             borderRadius: BorderRadius.circular(999),
@@ -1190,7 +1190,7 @@ class _SolidSosBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       image: true,
-      label: semanticLabel ?? 'SOS紧急求助',
+      label: semanticLabel ?? 'SOS緊急求助',
       child: ExcludeSemantics(
         child: Container(
           width: size,

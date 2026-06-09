@@ -46,7 +46,7 @@ class DemoMatchingFlowState {
 
   const DemoMatchingFlowState.initial()
     : phase = DemoMatchingUiPhase.idle,
-      statusMessage = '准备匹配',
+      statusMessage = '準備匹配',
       request = null,
       candidates = const [],
       currentCandidateIndex = 0,
@@ -143,8 +143,8 @@ class DemoMatchingFlowController extends Notifier<DemoMatchingFlowState> {
 
     state = state.copyWith(
       phase: DemoMatchingUiPhase.loadingCandidates,
-      statusMessage: '正在匹配附近志愿者',
-      visibleSteps: _appendStep('正在匹配附近志愿者'),
+      statusMessage: '正在匹配附近志願者',
+      visibleSteps: _appendStep('正在匹配附近志願者'),
       clearError: true,
       clearActiveVolunteer: true,
     );
@@ -157,13 +157,13 @@ class DemoMatchingFlowController extends Notifier<DemoMatchingFlowState> {
           statusMessage: response.message,
           errorMessage: response.message,
           candidates: const [],
-          visibleSteps: _appendStep('SOS 已交由 F13 广播流程'),
+          visibleSteps: _appendStep('SOS 已交由 F13 廣播流程'),
         );
         return;
       }
 
       if (response.results.isEmpty) {
-        const message = '当前没有可用志愿者，请稍后再试或返回 AI 助手。';
+        const message = '當前沒有可用志願者，請稍後再試或返回 AI 助手。';
         state = state.copyWith(
           phase: DemoMatchingUiPhase.error,
           statusMessage: message,
@@ -178,16 +178,16 @@ class DemoMatchingFlowController extends Notifier<DemoMatchingFlowState> {
         phase: DemoMatchingUiPhase.candidatesReady,
         candidates: response.results,
         currentCandidateIndex: 0,
-        statusMessage: '已找到 Top 5 志愿者',
-        visibleSteps: _appendStep('已找到 Top 5 志愿者'),
+        statusMessage: '已找到 Top 5 志願者',
+        visibleSteps: _appendStep('已找到 Top 5 志願者'),
         clearError: true,
         clearActiveVolunteer: true,
       );
 
       state = state.copyWith(
         phase: DemoMatchingUiPhase.waitingForAccept,
-        statusMessage: '等待接单',
-        visibleSteps: _appendStep('等待接单'),
+        statusMessage: '等待接單',
+        visibleSteps: _appendStep('等待接單'),
       );
 
       _startMatchExpireTimer();
@@ -195,10 +195,10 @@ class DemoMatchingFlowController extends Notifier<DemoMatchingFlowState> {
       AppLogger.error('F9 demo matching flow failed', error, stackTrace);
       state = state.copyWith(
         phase: DemoMatchingUiPhase.error,
-        statusMessage: '演示数据暂时不可用，已切换为本地兜底说明。',
-        errorMessage: '你可以取消求助，或回到 AI 助手继续描述问题。',
+        statusMessage: '演示數據暫時不可用，已切換爲本地兜底說明。',
+        errorMessage: '你可以取消求助，或回到 AI 助手繼續描述問題。',
         candidates: const [],
-        visibleSteps: _appendStep('匹配服务异常，已显示降级路径'),
+        visibleSteps: _appendStep('匹配服務異常，已顯示降級路徑'),
       );
     }
   }
@@ -210,8 +210,8 @@ class DemoMatchingFlowController extends Notifier<DemoMatchingFlowState> {
     state = state.copyWith(
       phase: DemoMatchingUiPhase.tryingCandidate,
       statusMessage:
-          '正在尝试联系第 ${state.currentCandidateNumber} 位志愿者：${candidate.volunteer.nickname}',
-      visibleSteps: _appendStep('正在尝试联系第 ${state.currentCandidateNumber} 位志愿者'),
+          '正在嘗試聯繫第 ${state.currentCandidateNumber} 位志願者：${candidate.volunteer.nickname}',
+      visibleSteps: _appendStep('正在嘗試聯繫第 ${state.currentCandidateNumber} 位志願者'),
     );
   }
 
@@ -227,7 +227,7 @@ class DemoMatchingFlowController extends Notifier<DemoMatchingFlowState> {
         phase: DemoMatchingUiPhase.error,
         statusMessage: action.message,
         errorMessage: action.message,
-        visibleSteps: _appendStep('候选人状态更新失败'),
+        visibleSteps: _appendStep('候選人狀態更新失敗'),
       );
       return;
     }
@@ -242,12 +242,12 @@ class DemoMatchingFlowController extends Notifier<DemoMatchingFlowState> {
     final phase = timedOut
         ? DemoMatchingUiPhase.candidateTimedOut
         : DemoMatchingUiPhase.candidateRejected;
-    final reasonText = timedOut ? '超时' : '拒接';
+    final reasonText = timedOut ? '超時' : '拒接';
     state = state.copyWith(
       phase: phase,
       currentCandidateIndex: nextIndex,
-      statusMessage: '第 $skippedNumber 位志愿者$reasonText，正在尝试下一位',
-      visibleSteps: _appendStep('上一位暂时无法接听，正在尝试下一位'),
+      statusMessage: '第 $skippedNumber 位志願者$reasonText，正在嘗試下一位',
+      visibleSteps: _appendStep('上一位暫時無法接聽，正在嘗試下一位'),
     );
   }
 
@@ -270,7 +270,7 @@ class DemoMatchingFlowController extends Notifier<DemoMatchingFlowState> {
         phase: DemoMatchingUiPhase.error,
         statusMessage: action.message,
         errorMessage: action.message,
-        visibleSteps: _appendStep('接单竞争失败'),
+        visibleSteps: _appendStep('接單競爭失敗'),
       );
       return;
     }
@@ -287,8 +287,8 @@ class DemoMatchingFlowController extends Notifier<DemoMatchingFlowState> {
       phase: DemoMatchingUiPhase.accepted,
       activeVolunteerId: candidate.volunteer.id,
       activeVolunteerName: candidate.volunteer.nickname,
-      statusMessage: '志愿者已接单',
-      visibleSteps: _appendStep('志愿者已接单'),
+      statusMessage: '志願者已接單',
+      visibleSteps: _appendStep('志願者已接單'),
     );
   }
 
@@ -297,11 +297,11 @@ class DemoMatchingFlowController extends Notifier<DemoMatchingFlowState> {
     ref.read(demoMatchingEngineProvider).cancel();
     await ref
         .read(demoHelpRequestFlowProvider.notifier)
-        .markCancelled(reason: '用户已取消求助');
+        .markCancelled(reason: '用戶已取消求助');
     state = state.copyWith(
       phase: DemoMatchingUiPhase.cancelled,
-      statusMessage: '用户已取消',
-      visibleSteps: _appendStep('用户已取消'),
+      statusMessage: '用戶已取消',
+      visibleSteps: _appendStep('用戶已取消'),
       clearActiveVolunteer: true,
     );
   }
@@ -312,8 +312,8 @@ class DemoMatchingFlowController extends Notifier<DemoMatchingFlowState> {
     await ref.read(demoHelpRequestFlowProvider.notifier).markExpired();
     state = state.copyWith(
       phase: DemoMatchingUiPhase.expired,
-      statusMessage: '无人接单，稍后再试',
-      visibleSteps: _appendStep('无人接单，稍后再试'),
+      statusMessage: '無人接單，稍後再試',
+      visibleSteps: _appendStep('無人接單，稍後再試'),
       clearActiveVolunteer: true,
     );
   }
@@ -337,7 +337,7 @@ class DemoMatchingFlowController extends Notifier<DemoMatchingFlowState> {
 
     return DemoMatchRequest(
       requestId: flow.requestId ?? 'demo_match_request',
-      queryText: hasCompleteRequest ? queryText : '我在医院找不到科室，需要真人帮忙',
+      queryText: hasCompleteRequest ? queryText : '我在醫院找不到科室，需要真人幫忙',
       requestType: hasCompleteRequest ? flow.type : 'hospital_navigation',
       urgencyLevel: hasCompleteRequest ? flow.urgency : '0.6',
       isSos: false,
@@ -367,7 +367,7 @@ class DemoMatchingFlowController extends Notifier<DemoMatchingFlowState> {
   String _cleanIntent(String? intent) {
     final text = intent?.trim() ?? '';
     if (text.isEmpty) return '';
-    return text.replaceFirst(RegExp('^连接真人志愿者[:：]\\s*'), '').trim();
+    return text.replaceFirst(RegExp('^連接真人志願者[:：]\\s*'), '').trim();
   }
 
   List<String> _appendStep(String step) {

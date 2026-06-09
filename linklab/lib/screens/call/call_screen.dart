@@ -7,8 +7,8 @@ import '../../models/call_models.dart';
 import '../../services/webrtc_service.dart';
 import 'call_rating_screen.dart';
 
-/// 语音通话页面
-/// 显示通话状态、大按钮挂断/静音
+/// 語音通話頁面
+/// 顯示通話狀態、大按鈕掛斷/靜音
 class CallScreen extends StatefulWidget {
   final CallInfo callInfo;
 
@@ -38,7 +38,7 @@ class _CallScreenState extends State<CallScreen> {
   }
 
   void _initCall() {
-    // 监听通话状态
+    // 監聽通話狀態
     _webRTCService.callStateStream.listen((state) {
       setState(() => _callState = state);
 
@@ -59,15 +59,15 @@ class _CallScreenState extends State<CallScreen> {
   String get _statusText {
     switch (_callState) {
       case CallState.connecting:
-        return '正在连接...';
+        return '正在連接...';
       case CallState.ringing:
-        return '等待接听...';
+        return '等待接聽...';
       case CallState.connected:
-        return '通话中 ${_formatDuration(_callDuration)}';
+        return '通話中 ${_formatDuration(_callDuration)}';
       case CallState.reconnecting:
-        return '重新连接...';
+        return '重新連接...';
       case CallState.failed:
-        return '连接失败';
+        return '連接失敗';
       default:
         return '';
     }
@@ -125,7 +125,7 @@ class _CallScreenState extends State<CallScreen> {
         child: Column(
           children: [
             const SizedBox(height: 60),
-            // 头像区域
+            // 頭像區域
             Container(
               width: 120,
               height: 120,
@@ -146,9 +146,9 @@ class _CallScreenState extends State<CallScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            // 角色标签
+            // 角色標籤
             Text(
-              widget.callInfo.myRole == CallRole.seeker ? '志愿者' : '求助者',
+              widget.callInfo.myRole == CallRole.seeker ? '志願者' : '求助者',
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 24,
@@ -156,7 +156,7 @@ class _CallScreenState extends State<CallScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            // 状态文字
+            // 狀態文字
             Text(
               _statusText,
               style: TextStyle(
@@ -165,25 +165,25 @@ class _CallScreenState extends State<CallScreen> {
               ),
             ),
             const Spacer(),
-            // 控制按钮
+            // 控制按鈕
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  // 静音按钮
+                  // 靜音按鈕
                   _buildControlButton(
                     icon: _isMuted ? Icons.mic_off : Icons.mic,
-                    label: _isMuted ? '静音中' : '静音',
+                    label: _isMuted ? '靜音中' : '靜音',
                     color: _isMuted ? Colors.orange : Colors.grey[700]!,
                     onPressed: _toggleMute,
                   ),
-                  // 挂断按钮（大）
+                  // 掛斷按鈕（大）
                   _buildHangUpButton(),
-                  // 扬声器按钮
+                  // 揚聲器按鈕
                   _buildControlButton(
                     icon: _isSpeakerOn ? Icons.volume_up : Icons.volume_down,
-                    label: _isSpeakerOn ? '扬声器' : '听筒',
+                    label: _isSpeakerOn ? '揚聲器' : '聽筒',
                     color: _isSpeakerOn ? Colors.green : Colors.grey[700]!,
                     onPressed: _toggleSpeaker,
                   ),
@@ -248,7 +248,7 @@ class _CallScreenState extends State<CallScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          '挂断',
+          '掛斷',
           style: TextStyle(
             color: Colors.grey[400],
             fontSize: 12,

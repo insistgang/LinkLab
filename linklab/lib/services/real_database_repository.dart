@@ -41,7 +41,7 @@ class RealProfile {
 
   String get effectiveDisplayName {
     final trimmed = displayName.trim();
-    return trimmed.isEmpty ? 'LinkAble用户' : trimmed;
+    return trimmed.isEmpty ? 'LinkAble用戶' : trimmed;
   }
 }
 
@@ -197,7 +197,7 @@ class RealDatabaseRepository {
   }) async {
     final client = _requireClient();
     final userId = _requireCurrentUserId(client);
-    await ensureCurrentProfile(fallbackDisplayName: 'LinkAble用户');
+    await ensureCurrentProfile(fallbackDisplayName: 'LinkAble用戶');
 
     final payload = <String, dynamic>{
       'seeker_id': userId,
@@ -252,7 +252,7 @@ class RealDatabaseRepository {
     final profile = await fetchCurrentProfile();
     if (profile == null || profile.role != 'volunteer') {
       await upsertCurrentProfile(
-        displayName: profile?.effectiveDisplayName ?? 'LinkAble志愿者',
+        displayName: profile?.effectiveDisplayName ?? 'LinkAble志願者',
         role: 'volunteer',
         phone: profile?.phone,
       );
@@ -290,7 +290,7 @@ class RealDatabaseRepository {
   SupabaseClient _requireClient() {
     final client = _resolveClient();
     if (client == null) {
-      throw const RealDatabaseException('真实数据库服务不可用，已保留 DemoMode fallback。');
+      throw const RealDatabaseException('真實數據庫服務不可用，已保留 DemoMode fallback。');
     }
     return client;
   }
@@ -308,7 +308,7 @@ class RealDatabaseRepository {
   String _requireCurrentUserId(SupabaseClient client) {
     final userId = client.auth.currentUser?.id;
     if (userId == null || userId.isEmpty) {
-      throw const RealDatabaseException('请先登录后再使用真实数据库功能。');
+      throw const RealDatabaseException('請先登錄後再使用真實數據庫功能。');
     }
     return userId;
   }

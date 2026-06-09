@@ -1,5 +1,5 @@
-// 真实WebRTC通话页面
-// 使用 RealWebRTCService 进行 P2P 语音通话
+// 真實WebRTC通話頁面
+// 使用 RealWebRTCService 進行 P2P 語音通話
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,7 +8,7 @@ import '../../models/call_models.dart';
 import '../../providers/webrtc_call_provider.dart';
 import '../../widgets/call/call_controls.dart';
 
-/// 真实通话页面参数
+/// 真實通話頁面參數
 class RealCallPageArgs {
   final String helpRequestId;
   final String roomId;
@@ -27,7 +27,7 @@ class RealCallPageArgs {
   });
 }
 
-/// 真实WebRTC通话页面
+/// 真實WebRTC通話頁面
 class RealCallPage extends ConsumerStatefulWidget {
   final RealCallPageArgs args;
 
@@ -50,11 +50,11 @@ class _RealCallPageState extends ConsumerState<RealCallPage> {
     _initializeCall();
   }
 
-  /// 初始化通话
+  /// 初始化通話
   Future<void> _initializeCall() async {
     try {
       if (widget.args.myRole == CallRole.seeker) {
-        // 作为求助者发起通话
+        // 作爲求助者發起通話
         await ref.read(webRTCCallProvider.notifier).startCallAsSeeker(
               seekerId: widget.args.seekerId!,
               helpRequestId: widget.args.helpRequestId,
@@ -62,7 +62,7 @@ class _RealCallPageState extends ConsumerState<RealCallPage> {
               enableRecording: widget.args.enableRecording,
             );
       } else {
-        // 作为志愿者接听通话
+        // 作爲志願者接聽通話
         await ref.read(webRTCCallProvider.notifier).acceptCallAsVolunteer(
               volunteerId: widget.args.volunteerId!,
               seekerId: widget.args.seekerId!,
@@ -86,11 +86,11 @@ class _RealCallPageState extends ConsumerState<RealCallPage> {
   Widget build(BuildContext context) {
     final callState = ref.watch(webRTCCallProvider);
 
-    // 监听通话结束
+    // 監聽通話結束
     ref.listen(webRTCCallProvider, (previous, current) {
       if (current.state == CallState.ended ||
           current.state == CallState.failed) {
-        // 延迟返回，让用户看到结束状态
+        // 延遲返回，讓用戶看到結束狀態
         Future.delayed(const Duration(seconds: 2), () {
           if (mounted) {
             Navigator.of(context).pop(current.state == CallState.ended);
@@ -104,15 +104,15 @@ class _RealCallPageState extends ConsumerState<RealCallPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // 顶部信息栏
+            // 頂部信息欄
             _buildHeader(callState),
 
-            // 主要内容区域
+            // 主要內容區域
             Expanded(
               child: _buildContent(callState),
             ),
 
-            // 底部控制栏
+            // 底部控制欄
             CallControls(
               onEndCall: () => Navigator.of(context).pop(true),
             ),
@@ -122,13 +122,13 @@ class _RealCallPageState extends ConsumerState<RealCallPage> {
     );
   }
 
-  /// 构建顶部信息栏
+  /// 構建頂部信息欄
   Widget _buildHeader(CallStateData callState) {
     return Container(
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          // 返回按钮
+          // 返回按鈕
           IconButton(
             onPressed: () => _showEndCallDialog(),
             icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
@@ -136,7 +136,7 @@ class _RealCallPageState extends ConsumerState<RealCallPage> {
 
           const Spacer(),
 
-          // 网络质量指示
+          // 網絡質量指示
           if (callState.isConnected)
             Row(
               mainAxisSize: MainAxisSize.min,
@@ -159,14 +159,14 @@ class _RealCallPageState extends ConsumerState<RealCallPage> {
 
           const Spacer(),
 
-          // 占位，保持对称
+          // 佔位，保持對稱
           const SizedBox(width: 48),
         ],
       ),
     );
   }
 
-  /// 构建主要内容区域
+  /// 構建主要內容區域
   Widget _buildContent(CallStateData callState) {
     if (_errorMessage != null) {
       return _buildErrorView();
@@ -179,14 +179,14 @@ class _RealCallPageState extends ConsumerState<RealCallPage> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // 对方头像
+        // 對方頭像
         _buildAvatar(),
 
         const SizedBox(height: 32),
 
-        // 对方名称/角色
+        // 對方名稱/角色
         Text(
-          widget.args.myRole == CallRole.seeker ? '志愿者' : '求助者',
+          widget.args.myRole == CallRole.seeker ? '志願者' : '求助者',
           style: const TextStyle(
             color: Colors.white,
             fontSize: 24,
@@ -196,15 +196,15 @@ class _RealCallPageState extends ConsumerState<RealCallPage> {
 
         const SizedBox(height: 16),
 
-        // 通话状态
+        // 通話狀態
         CallStatusDisplay(showDuration: callState.isConnected),
 
         const SizedBox(height: 32),
 
-        // 连接状态指示器
+        // 連接狀態指示器
         if (callState.isConnecting) _buildConnectingIndicator(),
 
-        // 错误提示
+        // 錯誤提示
         if (callState.error != null)
           Padding(
             padding: const EdgeInsets.all(16),
@@ -221,7 +221,7 @@ class _RealCallPageState extends ConsumerState<RealCallPage> {
     );
   }
 
-  /// 构建头像
+  /// 構建頭像
   Widget _buildAvatar() {
     return Container(
       width: 120,
@@ -242,7 +242,7 @@ class _RealCallPageState extends ConsumerState<RealCallPage> {
     );
   }
 
-  /// 构建加载视图
+  /// 構建加載視圖
   Widget _buildLoadingView() {
     return const Center(
       child: Column(
@@ -253,7 +253,7 @@ class _RealCallPageState extends ConsumerState<RealCallPage> {
           ),
           SizedBox(height: 16),
           Text(
-            '正在初始化通话...',
+            '正在初始化通話...',
             style: TextStyle(
               color: Colors.white,
               fontSize: 16,
@@ -264,7 +264,7 @@ class _RealCallPageState extends ConsumerState<RealCallPage> {
     );
   }
 
-  /// 构建错误视图
+  /// 構建錯誤視圖
   Widget _buildErrorView() {
     return Center(
       child: Column(
@@ -277,7 +277,7 @@ class _RealCallPageState extends ConsumerState<RealCallPage> {
           ),
           const SizedBox(height: 16),
           Text(
-            '通话初始化失败',
+            '通話初始化失敗',
             style: TextStyle(
               color: Colors.red[300],
               fontSize: 18,
@@ -301,14 +301,14 @@ class _RealCallPageState extends ConsumerState<RealCallPage> {
               });
               _initializeCall();
             },
-            child: const Text('重试'),
+            child: const Text('重試'),
           ),
         ],
       ),
     );
   }
 
-  /// 构建连接指示器
+  /// 構建連接指示器
   Widget _buildConnectingIndicator() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -329,7 +329,7 @@ class _RealCallPageState extends ConsumerState<RealCallPage> {
           ),
           SizedBox(width: 12),
           Text(
-            '正在建立连接...',
+            '正在建立連接...',
             style: TextStyle(
               color: Colors.white,
               fontSize: 14,
@@ -340,13 +340,13 @@ class _RealCallPageState extends ConsumerState<RealCallPage> {
     );
   }
 
-  /// 显示结束通话对话框
+  /// 顯示結束通話對話框
   void _showEndCallDialog() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('结束通话'),
-        content: const Text('确定要结束当前通话吗？'),
+        title: const Text('結束通話'),
+        content: const Text('確定要結束當前通話嗎？'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -363,7 +363,7 @@ class _RealCallPageState extends ConsumerState<RealCallPage> {
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            child: const Text('结束通话'),
+            child: const Text('結束通話'),
           ),
         ],
       ),
@@ -371,9 +371,9 @@ class _RealCallPageState extends ConsumerState<RealCallPage> {
   }
 }
 
-/// 通话页面路由辅助方法
+/// 通話頁面路由輔助方法
 class RealCallPageRoute {
-  /// 导航到通话页面（作为求助者）
+  /// 導航到通話頁面（作爲求助者）
   static Future<bool?> startAsSeeker(
     BuildContext context, {
     required String seekerId,
@@ -386,7 +386,7 @@ class RealCallPageRoute {
         builder: (context) => RealCallPage(
           args: RealCallPageArgs(
             helpRequestId: helpRequestId,
-            roomId: '', // 将由WebRTC服务生成
+            roomId: '', // 將由WebRTC服務生成
             myRole: CallRole.seeker,
             seekerId: seekerId,
             volunteerId: volunteerId,
@@ -397,7 +397,7 @@ class RealCallPageRoute {
     );
   }
 
-  /// 导航到通话页面（作为志愿者）
+  /// 導航到通話頁面（作爲志願者）
   static Future<bool?> acceptAsVolunteer(
     BuildContext context, {
     required String volunteerId,

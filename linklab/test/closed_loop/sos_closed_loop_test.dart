@@ -12,7 +12,7 @@ import 'package:linklab/services/demo_call_service.dart';
 import 'test_harness.dart';
 
 void main() {
-  testWidgets('SOS 紧急态首屏显示正文，并支持撤销取消和 Mock 广播', (tester) async {
+  testWidgets('SOS 緊急態首屏顯示正文，並支持撤銷取消和 Mock 廣播', (tester) async {
     await prepareSignedInDemoEnvironment(clearHelpHistory: true);
     tester.view.physicalSize = const Size(500, 934);
     tester.view.devicePixelRatio = 1.0;
@@ -33,8 +33,8 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
 
-    expect(find.text('SOS 紧急求助进行中'), findsOneWidget);
-    expect(find.text('SOS紧急求助进行中'), findsOneWidget);
+    expect(find.text('SOS 緊急求助進行中'), findsOneWidget);
+    expect(find.text('SOS緊急求助進行中'), findsOneWidget);
     expect(find.text('求助中'), findsOneWidget);
     expect(find.text('安全了'), findsOneWidget);
     expect(find.text('取消求助'), findsOneWidget);
@@ -45,7 +45,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
 
-    expect(DemoSOSService().statusText, '长按3秒发送紧急求助');
+    expect(DemoSOSService().statusText, '長按3秒發送緊急求助');
 
     await DemoHelpRequestTracker.startSOSUndoWindow();
     await tester.pump();
@@ -54,7 +54,7 @@ void main() {
     expect(createdHistory.first.type, 'sos');
     expect(createdHistory.first.status, 'created');
 
-    await DemoHelpRequestTracker.markCancelled(reason: 'SOS 误触撤销');
+    await DemoHelpRequestTracker.markCancelled(reason: 'SOS 誤觸撤銷');
     await tester.pump();
 
     final cancelledHistory = readLocalHelpHistoryModels();
@@ -62,7 +62,7 @@ void main() {
 
     await DemoHelpRequestTracker.startSOSUndoWindow();
     await DemoHelpRequestTracker.ensureMatchingRequest(
-      intent: 'SOS紧急求助',
+      intent: 'SOS緊急求助',
       type: 'sos',
       urgency: 'emergency',
     );
@@ -72,7 +72,7 @@ void main() {
     await tester.pump(const Duration(seconds: 3));
     expect(sosService.isActive, isTrue);
     expect(sosService.responderCount, 5);
-    expect(sosService.statusText, contains('志愿者响应'));
+    expect(sosService.statusText, contains('志願者響應'));
 
     await tester.pump(const Duration(seconds: 2));
     await secondTriggerFuture;

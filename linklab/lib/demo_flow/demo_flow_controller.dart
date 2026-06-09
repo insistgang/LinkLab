@@ -1,6 +1,6 @@
 // 演示版核心流程控制器
 // [DEPRECATED] 使用 providers/demo_flow_provider.dart 和 providers/demo_flow_navigator.dart 替代
-// 保留此文件仅作向后兼容，新代码请使用 Riverpod provider
+// 保留此文件僅作向後兼容，新代碼請使用 Riverpod provider
 
 import 'package:flutter/material.dart';
 
@@ -9,7 +9,7 @@ import '../screens/call/demo_exports.dart';
 import '../widgets/demo/demo_routes.dart';
 import 'demo_matching_flow.dart';
 
-/// 演示流程步骤
+/// 演示流程步驟
 @Deprecated('使用 providers/demo_flow_provider.dart 中的 DemoFlowStep 替代')
 enum DemoFlowStep {
   home,
@@ -81,7 +81,7 @@ class DemoFlowController extends ChangeNotifier {
   }
 }
 
-/// 演示流程导航器
+/// 演示流程導航器
 @Deprecated('使用 providers/demo_flow_navigator.dart 中的 DemoFlowNavigator 替代')
 class DemoFlowNavigatorLegacy {
   static void onHomeBigButtonPressed(BuildContext context) {
@@ -114,18 +114,18 @@ class DemoFlowNavigatorLegacy {
 
 /// 演示流程配置
 class DemoFlowConfig {
-  /// AI思考延迟（秒）
+  /// AI思考延遲（秒）
   static const int aiThinkingDelay = 2;
 
-  /// 匹配等待时间（秒）
+  /// 匹配等待時間（秒）
   static const int matchingDelay = 4;
 
-  /// 通话自动结束时间（秒）
+  /// 通話自動結束時間（秒）
   static const int callAutoEndDuration = 30;
 
-  /// SOS响应时间（秒）
+  /// SOS響應時間（秒）
   static const int sosResponseDelay = 5;
 
-  /// 是否启用自动流程（演示模式）
+  /// 是否啓用自動流程（演示模式）
   static const bool autoFlowEnabled = true;
 }

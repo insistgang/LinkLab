@@ -22,7 +22,7 @@ import 'package:linklab/services/local_storage.dart';
 void main() {
   const hospitalRequest = DemoMatchRequest(
     requestId: 'call_screen_hospital',
-    queryText: '我在医院找不到科室，需要真人帮忙',
+    queryText: '我在醫院找不到科室，需要真人幫忙',
     requestType: 'hospital_navigation',
     urgencyLevel: 'medium',
   );
@@ -59,7 +59,7 @@ void main() {
         .acceptCurrentCandidate();
   }
 
-  testWidgets('匹配接单后进入 call screen，不崩溃并显示已接单志愿者', (tester) async {
+  testWidgets('匹配接單後進入 call screen，不崩潰並顯示已接單志願者', (tester) async {
     await _prepareSignedInCallEnvironment();
     final container = ProviderContainer();
     await acceptDemoVolunteer(container);
@@ -70,108 +70,108 @@ void main() {
     await _pumpCallScreen(tester, container: container);
     await tester.pump(const Duration(milliseconds: 150));
 
-    expect(find.text('实时语音协助'), findsOneWidget);
+    expect(find.text('實時語音協助'), findsOneWidget);
     expect(find.text(activeName!), findsWidgets);
-    expect(find.text('志愿者已接单'), findsWidgets);
-    expect(find.text('通话中'), findsWidgets);
+    expect(find.text('志願者已接單'), findsWidgets);
+    expect(find.text('通話中'), findsWidgets);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('active volunteer 缺失时显示 fallback 志愿者', (tester) async {
+  testWidgets('active volunteer 缺失時顯示 fallback 志願者', (tester) async {
     await _prepareSignedInCallEnvironment();
     final container = ProviderContainer();
 
     await _pumpCallScreen(tester, container: container);
     await tester.pump(const Duration(milliseconds: 150));
 
-    expect(find.text('林同学'), findsWidgets);
-    expect(find.text('当前使用演示志愿者继续通话流程。'), findsOneWidget);
-    expect(find.text('通话中'), findsWidgets);
+    expect(find.text('林同學'), findsWidgets);
+    expect(find.text('當前使用演示志願者繼續通話流程。'), findsOneWidget);
+    expect(find.text('通話中'), findsWidgets);
   });
 
-  testWidgets('静音和免提按钮状态切换', (tester) async {
+  testWidgets('靜音和免提按鈕狀態切換', (tester) async {
     await _prepareSignedInCallEnvironment();
     final container = ProviderContainer();
     await acceptDemoVolunteer(container);
     await _pumpCallScreen(tester, container: container);
     await tester.pump(const Duration(milliseconds: 150));
 
-    await _tapVisible(tester, '静音');
-    expect(find.text('取消静音'), findsOneWidget);
+    await _tapVisible(tester, '靜音');
+    expect(find.text('取消靜音'), findsOneWidget);
 
-    await _tapVisible(tester, '关闭免提');
+    await _tapVisible(tester, '關閉免提');
     expect(find.text('免提'), findsOneWidget);
   });
 
-  testWidgets('结束通话后 help_request 进入 completed 并进入评分页', (tester) async {
+  testWidgets('結束通話後 help_request 進入 completed 並進入評分頁', (tester) async {
     await _prepareSignedInCallEnvironment();
     final container = ProviderContainer();
     await acceptDemoVolunteer(container);
     await _pumpCallScreen(tester, container: container);
     await tester.pump(const Duration(milliseconds: 150));
 
-    await _tapVisible(tester, '结束通话');
+    await _tapVisible(tester, '結束通話');
     await tester.pump(const Duration(milliseconds: 450));
 
     expect(
       container.read(demoHelpRequestFlowProvider).status,
       HelpRequestStatus.completed,
     );
-    expect(find.text('帮助已完成'), findsOneWidget);
-    expect(find.text('为这次帮助评分'), findsOneWidget);
+    expect(find.text('幫助已完成'), findsOneWidget);
+    expect(find.text('爲這次幫助評分'), findsOneWidget);
   });
 
-  testWidgets('模拟掉线后进入 reconnecting，模拟恢复后回到 connected', (tester) async {
+  testWidgets('模擬掉線後進入 reconnecting，模擬恢復後回到 connected', (tester) async {
     await _prepareSignedInCallEnvironment();
     final container = ProviderContainer();
     await acceptDemoVolunteer(container);
     await _pumpCallScreen(tester, container: container);
     await tester.pump(const Duration(milliseconds: 150));
 
-    await _tapVisible(tester, '模拟掉线');
-    expect(find.text('正在尝试恢复连接'), findsWidgets);
+    await _tapVisible(tester, '模擬掉線');
+    expect(find.text('正在嘗試恢復連接'), findsWidgets);
 
-    await _tapVisible(tester, '模拟恢复');
-    expect(find.text('通话中'), findsWidgets);
+    await _tapVisible(tester, '模擬恢復');
+    expect(find.text('通話中'), findsWidgets);
     expect(
       container.read(demoHelpRequestFlowProvider).status,
       HelpRequestStatus.connected,
     );
   });
 
-  testWidgets('模拟重连失败后 help_request 回到 matching', (tester) async {
+  testWidgets('模擬重連失敗後 help_request 回到 matching', (tester) async {
     await _prepareSignedInCallEnvironment();
     final container = ProviderContainer();
     await acceptDemoVolunteer(container);
     await _pumpCallScreen(tester, container: container);
     await tester.pump(const Duration(milliseconds: 150));
 
-    await _tapVisible(tester, '模拟掉线');
-    await _tapVisible(tester, '模拟重连失败');
+    await _tapVisible(tester, '模擬掉線');
+    await _tapVisible(tester, '模擬重連失敗');
 
-    expect(find.text('连接失败，正在回到匹配'), findsWidgets);
+    expect(find.text('連接失敗，正在回到匹配'), findsWidgets);
     expect(
       container.read(demoHelpRequestFlowProvider).status,
       HelpRequestStatus.matching,
     );
   });
 
-  testWidgets('reconnecting 时点击结束通话不会崩溃', (tester) async {
+  testWidgets('reconnecting 時點擊結束通話不會崩潰', (tester) async {
     await _prepareSignedInCallEnvironment();
     final container = ProviderContainer();
     await acceptDemoVolunteer(container);
     await _pumpCallScreen(tester, container: container);
     await tester.pump(const Duration(milliseconds: 150));
 
-    await _tapVisible(tester, '模拟掉线');
-    await _tapVisible(tester, '结束通话');
+    await _tapVisible(tester, '模擬掉線');
+    await _tapVisible(tester, '結束通話');
     await tester.pump(const Duration(milliseconds: 450));
 
-    expect(find.text('帮助已完成'), findsOneWidget);
+    expect(find.text('幫助已完成'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('默认不初始化真实 WebRTC，也不请求真实麦克风权限', (tester) async {
+  testWidgets('默認不初始化真實 WebRTC，也不請求真實麥克風權限', (tester) async {
     await _prepareSignedInCallEnvironment();
     final container = ProviderContainer();
 
@@ -180,11 +180,11 @@ void main() {
 
     expect(AppConfig.demoMode, isTrue);
     expect(FeatureFlags.enableWebRTC, isFalse);
-    expect(find.textContaining('不建立真实 WebRTC'), findsWidgets);
-    expect(find.textContaining('不请求真实麦克风权限'), findsWidgets);
+    expect(find.textContaining('不建立真實 WebRTC'), findsWidgets);
+    expect(find.textContaining('不請求真實麥克風權限'), findsWidgets);
   });
 
-  testWidgets('通话页关键按钮具备 Semantics', (tester) async {
+  testWidgets('通話頁關鍵按鈕具備 Semantics', (tester) async {
     await _prepareSignedInCallEnvironment();
     final container = ProviderContainer();
     await acceptDemoVolunteer(container);
@@ -193,19 +193,19 @@ void main() {
       await _pumpCallScreen(tester, container: container);
       await tester.pump(const Duration(milliseconds: 150));
 
-      expect(find.bySemanticsLabel(RegExp('静音按钮')), findsOneWidget);
-      expect(find.bySemanticsLabel(RegExp('关闭免提按钮')), findsOneWidget);
-      expect(find.bySemanticsLabel(RegExp('结束通话按钮')), findsOneWidget);
-      expect(find.bySemanticsLabel(RegExp('模拟掉线按钮')), findsOneWidget);
-      expect(find.bySemanticsLabel(RegExp('模拟恢复按钮')), findsOneWidget);
-      expect(find.bySemanticsLabel(RegExp('模拟重连失败按钮')), findsOneWidget);
-      expect(find.bySemanticsLabel(RegExp('举报和安全提示按钮')), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('靜音按鈕')), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('關閉免提按鈕')), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('結束通話按鈕')), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('模擬掉線按鈕')), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('模擬恢復按鈕')), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('模擬重連失敗按鈕')), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('舉報和安全提示按鈕')), findsOneWidget);
     } finally {
       semantics.dispose();
     }
   });
 
-  testWidgets('200% textScaleFactor 下通话页 smoke test 不出现主要 overflow', (
+  testWidgets('200% textScaleFactor 下通話頁 smoke test 不出現主要 overflow', (
     tester,
   ) async {
     await _prepareSignedInCallEnvironment();
@@ -215,7 +215,7 @@ void main() {
     await _pumpCallScreen(tester, container: container, textScale: 2.0);
     await tester.pump(const Duration(milliseconds: 150));
 
-    expect(find.text('实时语音协助'), findsOneWidget);
+    expect(find.text('實時語音協助'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

@@ -10,7 +10,7 @@ import '../../widgets/demo/linkable_icon.dart';
 import '../ai_chat/demo_ai_chat_screen.dart';
 
 /// AI助手主入口
-/// 对齐 PRD 的 F1/F2/F3/F4 主要能力，并作为手机端演示的统一入口。
+/// 對齊 PRD 的 F1/F2/F3/F4 主要能力，並作爲手機端演示的統一入口。
 class AIChatScreen extends StatelessWidget {
   const AIChatScreen({super.key});
 
@@ -18,44 +18,44 @@ class AIChatScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final presets = [
       const _AssistantPreset(
-        label: '文字识别',
-        subtitle: '读说明书、菜单、站牌',
+        label: '文字識別',
+        subtitle: '讀說明書、菜單、站牌',
         icon: Icons.document_scanner_outlined,
         color: AppTheme.primaryColor,
-        title: 'AI文字识别',
-        introMessage: '请告诉我需要读什么，或者直接上传一张图片。我会先尝试识别文字，再用更容易理解的方式读给您听。',
-        initialPrompt: '帮我读一下这个说明书',
-        quickPrompts: ['帮我读一下这个说明书', '帮我看一下菜单写了什么', '读一下公交站牌内容'],
+        title: 'AI文字識別',
+        introMessage: '請告訴我需要讀什麼，或者直接上傳一張圖片。我會先嚐試識別文字，再用更容易理解的方式讀給您聽。',
+        initialPrompt: '幫我讀一下這個說明書',
+        quickPrompts: ['幫我讀一下這個說明書', '幫我看一下菜單寫了什麼', '讀一下公交站牌內容'],
       ),
       const _AssistantPreset(
-        label: '场景描述',
-        subtitle: '理解周围环境与障碍物',
+        label: '場景描述',
+        subtitle: '理解周圍環境與障礙物',
         icon: Icons.camera_alt_outlined,
         color: AppTheme.secondaryColor,
-        title: 'AI场景描述',
-        introMessage: '您可以发一张现场照片，或者直接描述现在的困惑。我会按方位、距离和风险点来说明当前环境。',
-        initialPrompt: '描述一下我周围的环境',
-        quickPrompts: ['描述一下我周围的环境', '告诉我前面有没有障碍物', '我面前现在是什么样子'],
+        title: 'AI場景描述',
+        introMessage: '您可以發一張現場照片，或者直接描述現在的困惑。我會按方位、距離和風險點來說明當前環境。',
+        initialPrompt: '描述一下我周圍的環境',
+        quickPrompts: ['描述一下我周圍的環境', '告訴我前面有沒有障礙物', '我面前現在是什麼樣子'],
       ),
       const _AssistantPreset(
-        label: '颜色识别',
-        subtitle: '识别衣物和物品主色',
+        label: '顏色識別',
+        subtitle: '識別衣物和物品主色',
         icon: Icons.color_lens_outlined,
         color: AppTheme.accentColor,
-        title: 'AI颜色识别',
-        introMessage: '如果您想确认衣服、包装或物品颜色，可以直接拍照。我会给出主要颜色和更容易理解的描述。',
-        initialPrompt: '这件衣服是什么颜色',
-        quickPrompts: ['这件衣服是什么颜色', '帮我分辨这两个颜色', '这个物体的主色调是什么'],
+        title: 'AI顏色識別',
+        introMessage: '如果您想確認衣服、包裝或物品顏色，可以直接拍照。我會給出主要顏色和更容易理解的描述。',
+        initialPrompt: '這件衣服是什麼顏色',
+        quickPrompts: ['這件衣服是什麼顏色', '幫我分辨這兩個顏色', '這個物體的主色調是什麼'],
       ),
       const _AssistantPreset(
-        label: '紧急识别',
-        subtitle: '检测危险并快速进入 SOS',
+        label: '緊急識別',
+        subtitle: '檢測危險並快速進入 SOS',
         icon: Icons.warning_amber_rounded,
         color: AppTheme.emergencyColor,
-        title: '紧急求助识别',
-        introMessage: '如果您处在危险、摔倒、迷路或身体不适等情况，可以直接描述。我会先判断风险，再建议发起 SOS。',
-        initialPrompt: '我摔倒了，现在有点头晕',
-        quickPrompts: ['我摔倒了，现在有点头晕', '我找不到路了', '救命，我现在很危险'],
+        title: '緊急求助識別',
+        introMessage: '如果您處在危險、摔倒、迷路或身體不適等情況，可以直接描述。我會先判斷風險，再建議發起 SOS。',
+        initialPrompt: '我摔倒了，現在有點頭暈',
+        quickPrompts: ['我摔倒了，現在有點頭暈', '我找不到路了', '救命，我現在很危險'],
       ),
     ];
 
@@ -63,7 +63,7 @@ class AIChatScreen extends StatelessWidget {
       builder: (context) {
         return DemoStageScaffold(
           title: 'AI助手',
-          subtitle: '把高频能力收口成一个统一入口，再按场景进入对话',
+          subtitle: '把高頻能力收口成一個統一入口，再按場景進入對話',
           showBackButton: false,
           body: SafeArea(
             child: ListView(
@@ -80,8 +80,8 @@ class AIChatScreen extends StatelessWidget {
                 const DemoReveal(
                   delay: Duration(milliseconds: 90),
                   child: DemoSectionTitle(
-                    title: '高频能力',
-                    subtitle: '优先覆盖 PRD 里的智能对话、OCR、场景描述、颜色识别与紧急检测。',
+                    title: '高頻能力',
+                    subtitle: '優先覆蓋 PRD 裏的智能對話、OCR、場景描述、顏色識別與緊急檢測。',
                   ),
                 ),
                 const SizedBox(height: AppTheme.spacingM),
@@ -104,7 +104,7 @@ class AIChatScreen extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: AppTheme.spacingXL),
-                const DemoSectionTitle(title: '推荐场景'),
+                const DemoSectionTitle(title: '推薦場景'),
                 const SizedBox(height: AppTheme.spacingM),
                 Wrap(
                   spacing: AppTheme.spacingS,
@@ -132,13 +132,13 @@ class AIChatScreen extends StatelessWidget {
                 DemoReveal(
                   delay: const Duration(milliseconds: 160),
                   child: DemoSurfaceCard(
-                    semanticLabel: 'AI处理说明',
-                    hint: '双击查看 AI 与真人协作方式',
+                    semanticLabel: 'AI處理說明',
+                    hint: '雙擊查看 AI 與真人協作方式',
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         AccessibleText(
-                          'AI 先处理，复杂问题再转真人',
+                          'AI 先處理，複雜問題再轉真人',
                           style: TextStyle(
                             color: AppTheme.stageTextPrimary,
                             fontSize: AppTheme.fontSizeNormal,
@@ -148,20 +148,20 @@ class AIChatScreen extends StatelessWidget {
                         const SizedBox(height: AppTheme.spacingS),
                         const _FlowRow(
                           icon: Icons.smart_toy_outlined,
-                          title: '标准化问题',
-                          subtitle: 'AI 直接回复，适合读文字、颜色识别、环境描述等场景。',
+                          title: '標準化問題',
+                          subtitle: 'AI 直接回復，適合讀文字、顏色識別、環境描述等場景。',
                         ),
                         const SizedBox(height: AppTheme.spacingM),
                         const _FlowRow(
                           icon: Icons.volunteer_activism_outlined,
-                          title: '复杂或情绪化问题',
-                          subtitle: '当回答不确定时，可一键转真人志愿者继续处理。',
+                          title: '複雜或情緒化問題',
+                          subtitle: '當回答不確定時，可一鍵轉真人志願者繼續處理。',
                         ),
                         const SizedBox(height: AppTheme.spacingM),
                         const _FlowRow(
                           icon: Icons.emergency_outlined,
-                          title: '紧急情况',
-                          subtitle: '识别到摔倒、迷路、危险等关键词时，会提示发起 SOS 广播。',
+                          title: '緊急情況',
+                          subtitle: '識別到摔倒、迷路、危險等關鍵詞時，會提示發起 SOS 廣播。',
                         ),
                       ],
                     ),
@@ -179,9 +179,9 @@ class AIChatScreen extends StatelessWidget {
     pushDemoStageRoute(
       context,
       page: const DemoAIChatScreen(
-        title: 'AI智能对话',
-        introMessage: '您好，我是 AI 助手智动。您可以直接说需求，也可以通过下方按钮发语音或图片，我会优先尝试自己解决。',
-        quickPrompts: ['帮我读一下这个说明书', '描述一下我周围的环境', '这件衣服是什么颜色', '我需要真人志愿者帮助'],
+        title: 'AI智能對話',
+        introMessage: '您好，我是 AI 助手智動。您可以直接說需求，也可以通過下方按鈕發語音或圖片，我會優先嚐試自己解決。',
+        quickPrompts: ['幫我讀一下這個說明書', '描述一下我周圍的環境', '這件衣服是什麼顏色', '我需要真人志願者幫助'],
       ),
     );
   }
@@ -228,7 +228,7 @@ class _HeroCard extends StatelessWidget {
           ),
           const SizedBox(height: AppTheme.spacingL),
           AccessibleText(
-            '先由 AI 快速响应\n必要时再无缝转接志愿者',
+            '先由 AI 快速響應\n必要時再無縫轉接志願者',
             style: TextStyle(
               fontSize: AppTheme.fontSizeLarge,
               height: 1.35,
@@ -238,7 +238,7 @@ class _HeroCard extends StatelessWidget {
           ),
           const SizedBox(height: AppTheme.spacingS),
           AccessibleText(
-            '支持语音、文字、图片三种输入，适合手机端快速求助演示。',
+            '支持語音、文字、圖片三種輸入，適合手機端快速求助演示。',
             style: TextStyle(
               fontSize: AppTheme.fontSizeSmall,
               height: 1.6,
@@ -250,16 +250,16 @@ class _HeroCard extends StatelessWidget {
             spacing: AppTheme.spacingS,
             runSpacing: AppTheme.spacingS,
             children: [
-              _HeroStat(label: '响应目标', value: '3 秒内'),
+              _HeroStat(label: '響應目標', value: '3 秒內'),
               _HeroStat(label: '演示模式', value: '本地可用'),
-              _HeroStat(label: '输入方式', value: '语音/文字/图片'),
+              _HeroStat(label: '輸入方式', value: '語音/文字/圖片'),
             ],
           ),
           const SizedBox(height: AppTheme.spacingL),
           AccessibleButton(
-            label: '开始智能对话',
-            semanticLabel: '开始智能对话按钮',
-            hint: '双击进入 AI 对话页',
+            label: '開始智能對話',
+            semanticLabel: '開始智能對話按鈕',
+            hint: '雙擊進入 AI 對話頁',
             icon: Icons.chat_bubble_outline,
             backgroundColor: AppTheme.stageAccent,
             foregroundColor: AppTheme.stageBackground,
@@ -274,9 +274,9 @@ class _HeroCard extends StatelessWidget {
               icon: const LinkableSvgIcon(
                 icon: LinkableIconName.volunteerMatch,
                 size: 24,
-                semanticLabel: '志愿者匹配',
+                semanticLabel: '志願者匹配',
               ),
-              label: const Text('复杂问题直接连接志愿者'),
+              label: const Text('複雜問題直接連接志願者'),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppTheme.stageTextPrimary,
                 side: BorderSide(
@@ -347,7 +347,7 @@ class _CapabilityCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return DemoSurfaceCard(
       semanticLabel: '${preset.label}能力卡片',
-      hint: '双击打开${preset.label}演示',
+      hint: '雙擊打開${preset.label}演示',
       onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -375,7 +375,7 @@ class _CapabilityCard extends StatelessWidget {
           Row(
             children: [
               AccessibleText(
-                '进入演示',
+                '進入演示',
                 style: TextStyle(
                   fontSize: AppTheme.fontSizeSmall,
                   color: preset.color,
@@ -387,7 +387,7 @@ class _CapabilityCard extends StatelessWidget {
                 icon: Icons.arrow_forward,
                 size: 18,
                 color: preset.color,
-                semanticLabel: '进入演示',
+                semanticLabel: '進入演示',
               ),
             ],
           ),

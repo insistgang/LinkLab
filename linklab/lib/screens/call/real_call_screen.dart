@@ -9,9 +9,9 @@ import '../../services/unified_call_service.dart';
 import '../../services/webrtc/webrtc_config.dart';
 import 'call_rating_screen.dart';
 
-/// 真实WebRTC通话页面
-/// 支持通话状态显示、静音/扬声器切换、通话时长计时、网络状态指示、录音功能
-/// AGENTS.md §4.2：该页面属于实验性真实链路，不进入竞赛版默认导航和演示脚本。
+/// 真實WebRTC通話頁面
+/// 支持通話狀態顯示、靜音/揚聲器切換、通話時長計時、網絡狀態指示、錄音功能
+/// AGENTS.md §4.2：該頁面屬於實驗性真實鏈路，不進入競賽版默認導航和演示腳本。
 class RealCallScreen extends ConsumerStatefulWidget {
   final CallInfo callInfo;
   final VolunteerInfo? volunteer;
@@ -29,7 +29,7 @@ class RealCallScreen extends ConsumerStatefulWidget {
 class _RealCallScreenState extends ConsumerState<RealCallScreen> {
   final UnifiedCallService _callService = UnifiedCallService();
 
-  // 状态
+  // 狀態
   CallState _callState = CallState.connecting;
   Duration _callDuration = Duration.zero;
   NetworkQuality _networkQuality = NetworkQuality.unknown;
@@ -38,7 +38,7 @@ class _RealCallScreenState extends ConsumerState<RealCallScreen> {
   bool _isRecording = false;
   String? _errorMessage;
 
-  // 订阅
+  // 訂閱
   StreamSubscription<CallState>? _callStateSubscription;
   StreamSubscription<NetworkQuality>? _networkQualitySubscription;
 
@@ -49,7 +49,7 @@ class _RealCallScreenState extends ConsumerState<RealCallScreen> {
   }
 
   void _initCall() {
-    // 监听通话状态
+    // 監聽通話狀態
     _callStateSubscription = _callService.realCallService.callStateStream.listen((state) {
       setState(() => _callState = state);
 
@@ -60,12 +60,12 @@ class _RealCallScreenState extends ConsumerState<RealCallScreen> {
       }
     });
 
-    // 监听网络质量
+    // 監聽網絡質量
     _networkQualitySubscription = _callService.realCallService.networkQualityStream.listen((quality) {
       setState(() => _networkQuality = quality);
     });
 
-    // 监听错误
+    // 監聽錯誤
     _callService.realCallService.addListener(() {
       if (mounted) {
         setState(() {
@@ -78,7 +78,7 @@ class _RealCallScreenState extends ConsumerState<RealCallScreen> {
     });
   }
 
-  // 计时器
+  // 計時器
   Timer? _durationTimer;
 
   void _startDurationTimer() {
@@ -90,15 +90,15 @@ class _RealCallScreenState extends ConsumerState<RealCallScreen> {
   String get _statusText {
     switch (_callState) {
       case CallState.connecting:
-        return '正在连接...';
+        return '正在連接...';
       case CallState.ringing:
-        return '等待接听...';
+        return '等待接聽...';
       case CallState.connected:
-        return '通话中 ${_formatDuration(_callDuration)}';
+        return '通話中 ${_formatDuration(_callDuration)}';
       case CallState.reconnecting:
-        return '重新连接...';
+        return '重新連接...';
       case CallState.failed:
-        return '连接失败${_errorMessage != null ? ': $_errorMessage' : ''}';
+        return '連接失敗${_errorMessage != null ? ': $_errorMessage' : ''}';
       default:
         return '';
     }
@@ -136,7 +136,7 @@ class _RealCallScreenState extends ConsumerState<RealCallScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('录音已保存'),
+          content: Text('錄音已保存'),
           duration: Duration(seconds: 2),
         ),
       );
@@ -181,15 +181,15 @@ class _RealCallScreenState extends ConsumerState<RealCallScreen> {
         child: Column(
           children: [
             const SizedBox(height: 40),
-            // 网络状态指示器
+            // 網絡狀態指示器
             _buildNetworkIndicator(),
             const SizedBox(height: 20),
-            // 头像区域
+            // 頭像區域
             _buildAvatarArea(),
             const SizedBox(height: 24),
-            // 角色标签
+            // 角色標籤
             Text(
-              widget.callInfo.myRole == CallRole.seeker ? '志愿者' : '求助者',
+              widget.callInfo.myRole == CallRole.seeker ? '志願者' : '求助者',
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 24,
@@ -197,7 +197,7 @@ class _RealCallScreenState extends ConsumerState<RealCallScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            // 志愿者信息
+            // 志願者信息
             if (widget.volunteer != null)
               Text(
                 widget.volunteer!.name,
@@ -207,7 +207,7 @@ class _RealCallScreenState extends ConsumerState<RealCallScreen> {
                 ),
               ),
             const SizedBox(height: 12),
-            // 状态文字
+            // 狀態文字
             Text(
               _statusText,
               style: TextStyle(
@@ -215,14 +215,14 @@ class _RealCallScreenState extends ConsumerState<RealCallScreen> {
                 fontSize: 16,
               ),
             ),
-            // 录音指示器
+            // 錄音指示器
             if (_isRecording)
               Padding(
                 padding: const EdgeInsets.only(top: 16),
                 child: _buildRecordingIndicator(),
               ),
             const Spacer(),
-            // 控制按钮
+            // 控制按鈕
             _buildControlButtons(),
             const SizedBox(height: 60),
           ],
@@ -231,7 +231,7 @@ class _RealCallScreenState extends ConsumerState<RealCallScreen> {
     );
   }
 
-  /// 网络状态指示器
+  /// 網絡狀態指示器
   Widget _buildNetworkIndicator() {
     if (_callState != CallState.connected) {
       return const SizedBox.shrink();
@@ -295,7 +295,7 @@ class _RealCallScreenState extends ConsumerState<RealCallScreen> {
     );
   }
 
-  /// 头像区域
+  /// 頭像區域
   Widget _buildAvatarArea() {
     Color borderColor;
     switch (_callState) {
@@ -344,7 +344,7 @@ class _RealCallScreenState extends ConsumerState<RealCallScreen> {
     );
   }
 
-  /// 录音指示器
+  /// 錄音指示器
   Widget _buildRecordingIndicator() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -365,7 +365,7 @@ class _RealCallScreenState extends ConsumerState<RealCallScreen> {
           ),
           const SizedBox(width: 6),
           const Text(
-            '正在录音',
+            '正在錄音',
             style: TextStyle(
               color: Colors.red,
               fontSize: 12,
@@ -377,41 +377,41 @@ class _RealCallScreenState extends ConsumerState<RealCallScreen> {
     );
   }
 
-  /// 控制按钮区域
+  /// 控制按鈕區域
   Widget _buildControlButtons() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 32),
       child: Column(
         children: [
-          // 第一行：静音、扬声器、录音
+          // 第一行：靜音、揚聲器、錄音
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              // 静音按钮
+              // 靜音按鈕
               _buildControlButton(
                 icon: _isMuted ? Icons.mic_off : Icons.mic,
-                label: _isMuted ? '静音中' : '静音',
+                label: _isMuted ? '靜音中' : '靜音',
                 color: _isMuted ? Colors.orange : Colors.grey[700]!,
                 onPressed: _toggleMute,
               ),
-              // 扬声器按钮
+              // 揚聲器按鈕
               _buildControlButton(
                 icon: _isSpeakerOn ? Icons.volume_up : Icons.hearing,
-                label: _isSpeakerOn ? '扬声器' : '听筒',
+                label: _isSpeakerOn ? '揚聲器' : '聽筒',
                 color: _isSpeakerOn ? Colors.green : Colors.grey[700]!,
                 onPressed: _toggleSpeaker,
               ),
-              // 录音按钮
+              // 錄音按鈕
               _buildControlButton(
                 icon: _isRecording ? Icons.stop_circle : Icons.fiber_manual_record,
-                label: _isRecording ? '停止录音' : '录音',
+                label: _isRecording ? '停止錄音' : '錄音',
                 color: _isRecording ? Colors.red : Colors.grey[700]!,
                 onPressed: _toggleRecording,
               ),
             ],
           ),
           const SizedBox(height: 32),
-          // 挂断按钮
+          // 掛斷按鈕
           _buildHangUpButton(),
         ],
       ),
@@ -469,7 +469,7 @@ class _RealCallScreenState extends ConsumerState<RealCallScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          '挂断',
+          '掛斷',
           style: TextStyle(
             color: Colors.grey[400],
             fontSize: 14,

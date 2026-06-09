@@ -14,7 +14,7 @@ class CallCameraSession {
   const CallCameraSession({
     required this.isRealCamera,
     this.controller,
-    this.cameraName = '本机摄像头',
+    this.cameraName = '本機攝像頭',
   });
 
   final bool isRealCamera;
@@ -33,7 +33,7 @@ class CallCameraState {
   factory CallCameraState.off() {
     return const CallCameraState(
       status: CallCameraStatus.off,
-      message: '摄像头未开启',
+      message: '攝像頭未開啓',
     );
   }
 
@@ -85,7 +85,7 @@ class RealCallCameraAdapter implements CallCameraAdapter {
     return CallCameraSession(
       isRealCamera: true,
       controller: controller,
-      cameraName: camera.name.isEmpty ? '本机摄像头' : camera.name,
+      cameraName: camera.name.isEmpty ? '本機攝像頭' : camera.name,
     );
   }
 
@@ -141,25 +141,25 @@ class CallCameraController extends AutoDisposeNotifier<CallCameraState> {
 
     state = const CallCameraState(
       status: CallCameraStatus.initializing,
-      message: '正在打开本机摄像头',
+      message: '正在打開本機攝像頭',
     );
 
     try {
       final session = await ref.read(callCameraAdapterProvider).start();
       state = CallCameraState(
         status: CallCameraStatus.live,
-        message: '真实摄像头已开启，仅在本机预览，不上传画面。',
+        message: '真實攝像頭已開啓，僅在本機預覽，不上傳畫面。',
         session: session,
       );
     } on CallCameraPermissionDeniedException {
       state = const CallCameraState(
         status: CallCameraStatus.denied,
-        message: '摄像头权限未开启，请在系统设置中允许 LinkAble 使用摄像头。',
+        message: '攝像頭權限未開啓，請在系統設置中允許 LinkAble 使用攝像頭。',
       );
     } on CallCameraUnavailableException {
       state = const CallCameraState(
         status: CallCameraStatus.unavailable,
-        message: '没有检测到可用摄像头，已保留语音通话和 Demo 说明。',
+        message: '沒有檢測到可用攝像頭，已保留語音通話和 Demo 說明。',
       );
     } on CameraException catch (error, stackTrace) {
       AppLogger.warning(
@@ -168,7 +168,7 @@ class CallCameraController extends AutoDisposeNotifier<CallCameraState> {
       if (_isPermissionError(error)) {
         state = const CallCameraState(
           status: CallCameraStatus.denied,
-          message: '摄像头权限未开启，请在系统设置中允许 LinkAble 使用摄像头。',
+          message: '攝像頭權限未開啓，請在系統設置中允許 LinkAble 使用攝像頭。',
         );
       } else {
         AppLogger.error(
@@ -178,14 +178,14 @@ class CallCameraController extends AutoDisposeNotifier<CallCameraState> {
         );
         state = CallCameraState(
           status: CallCameraStatus.error,
-          message: '摄像头打开失败：${error.description ?? error.code}',
+          message: '攝像頭打開失敗：${error.description ?? error.code}',
         );
       }
     } catch (error, stackTrace) {
       AppLogger.error('Call camera initialization failed.', error, stackTrace);
       state = const CallCameraState(
         status: CallCameraStatus.error,
-        message: '摄像头打开失败，已保留语音通话和 Demo 说明。',
+        message: '攝像頭打開失敗，已保留語音通話和 Demo 說明。',
       );
     }
 

@@ -1,5 +1,5 @@
-// AGENTS.md §4.2：竞赛版已冻结 Demo 主线。
-// 默认 AI 管理器只走本地 mock / fallback；真实 AI 管理器已隔离到 services/experimental/real/ai/。
+// AGENTS.md §4.2：競賽版已凍結 Demo 主線。
+// 默認 AI 管理器只走本地 mock / fallback；真實 AI 管理器已隔離到 services/experimental/real/ai/。
 
 import 'dart:async';
 
@@ -17,8 +17,8 @@ import 'camera_service.dart';
 import 'voice_service.dart';
 import 'mock_ai_service.dart';
 
-/// AI服务管理器
-/// 统一管理和调度所有AI服务
+/// AI服務管理器
+/// 統一管理和調度所有AI服務
 class AIServiceManager {
   static AIServiceManager? _instance;
   static AIServiceManager get instance => _instance ??= AIServiceManager._();
@@ -28,7 +28,7 @@ class AIServiceManager {
   // 配置
   AIServiceConfig _config = const AIServiceConfig();
 
-  // 服务实例
+  // 服務實例
   late final SmartDialogService _smartDialogService;
   late final OcrService _ocrService;
   late final SceneDescriptionService _sceneDescriptionService;
@@ -38,13 +38,13 @@ class AIServiceManager {
   late final CameraService _cameraService;
   late final VoiceService _voiceService;
 
-  // 演示模式：使用模拟服务
+  // 演示模式：使用模擬服務
   late final MockAIService _mockService;
 
-  /// 竞赛版默认只允许本地 mock fallback。
+  /// 競賽版默認只允許本地 mock fallback。
   bool get _useMockMode => true;
 
-  // 状态
+  // 狀態
   bool _isInitialized = false;
   bool _isOnline = true;
 
@@ -58,7 +58,7 @@ class AIServiceManager {
 
     _config = config;
 
-    // 初始化各服务
+    // 初始化各服務
     _smartDialogService = SmartDialogService(config: config);
     _ocrService = OcrService(config: config);
     _sceneDescriptionService = SceneDescriptionService(config: config);
@@ -68,13 +68,13 @@ class AIServiceManager {
     _cameraService = CameraService();
     _voiceService = VoiceService();
 
-    // 初始化模拟服务（演示模式）
+    // 初始化模擬服務（演示模式）
     _mockService = MockAIService(simulateDelay: true);
 
-    // 初始化语音服务
+    // 初始化語音服務
     await _voiceService.initialize();
 
-    // 监听网络状态
+    // 監聽網絡狀態
     Connectivity().onConnectivityChanged.listen((results) {
       _isOnline = !results.contains(ConnectivityResult.none);
     });
@@ -82,39 +82,39 @@ class AIServiceManager {
     _isInitialized = true;
   }
 
-  /// 处理用户请求（统一入口）
-  /// 演示模式：使用模拟数据，不调用真实API
+  /// 處理用戶請求（統一入口）
+  /// 演示模式：使用模擬數據，不調用真實API
   Future<AIResponse> processRequest({
     required String input,
     String? imageUrl,
     String? sessionId,
   }) async {
     if (!_isInitialized) {
-      return AIResponse.error('AI服务未初始化');
+      return AIResponse.error('AI服務未初始化');
     }
 
     try {
-      // AGENTS.md §4.2：竞赛版默认 AI 主线只走本地 mock fallback。
-      // 如需验证真实 AI，请显式使用 services/experimental/real/ai/real_ai_service_manager.dart。
+      // AGENTS.md §4.2：競賽版默認 AI 主線只走本地 mock fallback。
+      // 如需驗證真實 AI，請顯式使用 services/experimental/real/ai/real_ai_service_manager.dart。
       return await _processMockRequest(
         input: input,
         imageUrl: imageUrl,
         sessionId: sessionId,
       );
     } catch (e) {
-      final errorResponse = AIResponse.error('处理请求失败: $e');
+      final errorResponse = AIResponse.error('處理請求失敗: $e');
       _responseController.add(errorResponse);
       return errorResponse;
     }
   }
 
-  /// 模拟模式处理
+  /// 模擬模式處理
   Future<AIResponse> _processMockRequest({
     required String input,
     String? imageUrl,
     String? sessionId,
   }) async {
-    // 1. 首先检测紧急关键词（本地检测，不走网络）
+    // 1. 首先檢測緊急關鍵詞（本地檢測，不走網絡）
     final emergencyResult = _emergencyService.detector.detect(input);
     if (emergencyResult.isEmergency &&
         emergencyResult.level == UrgencyLevel.emergency) {
@@ -124,7 +124,7 @@ class AIServiceManager {
       return response;
     }
 
-    // 2. 使用模拟服务返回预置回复
+    // 2. 使用模擬服務返回預置回覆
     final response = await _mockService.process(
       input,
       imageUrl: imageUrl,
@@ -133,40 +133,40 @@ class AIServiceManager {
           : null,
     );
 
-    // 3. 语音播报结果
+    // 3. 語音播報結果
     if (response.isSuccess) {
       await _voiceService.speak(response.text);
     }
 
-    // 4. 发送响应到流
+    // 4. 發送響應到流
     _responseController.add(response);
 
     return response;
   }
 
-  /// 真实模式处理（保留原有完整逻辑）
+  /// 真實模式處理（保留原有完整邏輯）
   Future<AIResponse> _processRealRequest({
     required String input,
     String? imageUrl,
     String? sessionId,
   }) async {
-    // 1. 首先检测紧急关键词
+    // 1. 首先檢測緊急關鍵詞
     final emergencyResult = _emergencyService.detector.detect(input);
     if (emergencyResult.isEmergency &&
         emergencyResult.level == UrgencyLevel.emergency) {
       return await _emergencyService.process(input);
     }
 
-    // 2. 获取或创建会话上下文
+    // 2. 獲取或創建會話上下文
     final context = sessionId != null
         ? _dialogManager.getOrCreateSession(sessionId)
         : _dialogManager.createSession();
 
-    // 3. 意图识别
+    // 3. 意圖識別
     final classifier = IntentClassifier();
     final intentResult = classifier.classify(input, imageUrl: imageUrl);
 
-    // 4. 根据意图路由到对应服务
+    // 4. 根據意圖路由到對應服務
     AIResponse response;
     switch (intentResult.intent) {
       case IntentType.textRecognition:
@@ -185,14 +185,14 @@ class AIServiceManager {
       case IntentType.medicineConfirmation:
       case IntentType.medicalConsultation:
       case IntentType.emotionalSupport:
-        // 医疗/情感场景强制转人工
+        // 醫療/情感場景強制轉人工
         response = AIResponse.handoff(
           _getHandoffMessage(intentResult.intent),
           intent: intentResult.intent,
         );
         break;
       default:
-        // 通用对话
+        // 通用對話
         response = await _smartDialogService.process(
           input,
           imageUrl: imageUrl,
@@ -200,35 +200,35 @@ class AIServiceManager {
         );
     }
 
-    // 5. 语音播报结果
+    // 5. 語音播報結果
     if (response.isSuccess) {
       await _voiceService.speak(response.text);
     }
 
-    // 6. 发送响应到流
+    // 6. 發送響應到流
     _responseController.add(response);
 
     return response;
   }
 
-  /// 处理OCR请求
+  /// 處理OCR請求
   Future<AIResponse> _handleOCR(String? imageUrl, DialogContext context) async {
     if (imageUrl == null) {
       return AIResponse(
-        text: '请拍照或选择图片，我来帮您识别文字。',
+        text: '請拍照或選擇圖片，我來幫您識別文字。',
         intent: IntentType.textRecognition,
         confidence: 1.0,
       );
     }
 
     if (!_isOnline) {
-      return AIResponse.error('文字识别需要网络连接，请检查网络后重试。');
+      return AIResponse.error('文字識別需要網絡連接，請檢查網絡後重試。');
     }
 
     return await _ocrService.process('', imageUrl: imageUrl, context: context);
   }
 
-  /// 处理场景描述请求
+  /// 處理場景描述請求
   Future<AIResponse> _handleSceneDescription(
     String input,
     String? imageUrl,
@@ -236,14 +236,14 @@ class AIServiceManager {
   ) async {
     if (imageUrl == null) {
       return AIResponse(
-        text: '请拍照，我来帮您描述周围环境。',
+        text: '請拍照，我來幫您描述周圍環境。',
         intent: IntentType.sceneDescription,
         confidence: 1.0,
       );
     }
 
     if (!_isOnline) {
-      return AIResponse.error('场景描述需要网络连接，请检查网络后重试。');
+      return AIResponse.error('場景描述需要網絡連接，請檢查網絡後重試。');
     }
 
     return await _sceneDescriptionService.process(
@@ -253,14 +253,14 @@ class AIServiceManager {
     );
   }
 
-  /// 处理颜色识别请求
+  /// 處理顏色識別請求
   Future<AIResponse> _handleColorRecognition(
     String? imageUrl,
     DialogContext context,
   ) async {
     if (imageUrl == null) {
       return AIResponse(
-        text: '请拍照，我来帮您识别颜色。',
+        text: '請拍照，我來幫您識別顏色。',
         intent: IntentType.colorRecognition,
         confidence: 1.0,
       );
@@ -273,21 +273,21 @@ class AIServiceManager {
     );
   }
 
-  /// 获取转人工消息
+  /// 獲取轉人工消息
   String _getHandoffMessage(IntentType intent) {
     switch (intent) {
       case IntentType.medicalConsultation:
-        return '您咨询的是医疗相关问题，为了您的健康安全，我将为您转接专业医疗志愿者。';
+        return '您諮詢的是醫療相關問題，爲了您的健康安全，我將爲您轉接專業醫療志願者。';
       case IntentType.medicineConfirmation:
-        return '药品使用需要谨慎确认，我将为您转接志愿者协助核对药品信息。';
+        return '藥品使用需要謹慎確認，我將爲您轉接志願者協助覈對藥品信息。';
       case IntentType.emotionalSupport:
-        return '我理解您可能需要情感支持，让我为您转接心理支持志愿者。';
+        return '我理解您可能需要情感支持，讓我爲您轉接心理支持志願者。';
       default:
-        return '这个问题可能需要人工协助，正在为您转接志愿者。';
+        return '這個問題可能需要人工協助，正在爲您轉接志願者。';
     }
   }
 
-  /// 拍照并处理
+  /// 拍照並處理
   Future<AIResponse> takePhotoAndProcess({
     required String input,
     String? sessionId,
@@ -299,13 +299,13 @@ class AIServiceManager {
         return AIResponse.error('拍照已取消');
       }
 
-      // 2. 压缩图片
+      // 2. 壓縮圖片
       final compressedPath = await _cameraService.compressToSize(
         result.path,
         maxSizeKB: 500,
       );
 
-      // 3. 处理请求
+      // 3. 處理請求
       final response = await processRequest(
         input: input,
         imageUrl: compressedPath,
@@ -314,29 +314,29 @@ class AIServiceManager {
 
       return response;
     } catch (e) {
-      return AIResponse.error('拍照处理失败: $e');
+      return AIResponse.error('拍照處理失敗: $e');
     }
   }
 
-  /// 选择图片并处理
+  /// 選擇圖片並處理
   Future<AIResponse> pickImageAndProcess({
     required String input,
     String? sessionId,
   }) async {
     try {
-      // 1. 选择图片
+      // 1. 選擇圖片
       final result = await _cameraService.pickFromGallery();
       if (result == null) {
-        return AIResponse.error('选择图片已取消');
+        return AIResponse.error('選擇圖片已取消');
       }
 
-      // 2. 压缩图片
+      // 2. 壓縮圖片
       final compressedPath = await _cameraService.compressToSize(
         result.path,
         maxSizeKB: 500,
       );
 
-      // 3. 处理请求
+      // 3. 處理請求
       final response = await processRequest(
         input: input,
         imageUrl: compressedPath,
@@ -345,11 +345,11 @@ class AIServiceManager {
 
       return response;
     } catch (e) {
-      return AIResponse.error('图片处理失败: $e');
+      return AIResponse.error('圖片處理失敗: $e');
     }
   }
 
-  /// 开始语音输入
+  /// 開始語音輸入
   Future<bool> startVoiceInput({
     required Function(String) onResult,
     Function()? onStart,
@@ -369,22 +369,22 @@ class AIServiceManager {
     );
   }
 
-  /// 停止语音输入
+  /// 停止語音輸入
   Future<void> stopVoiceInput() async {
     await _voiceService.stopListening();
   }
 
-  /// 语音播报
+  /// 語音播報
   Future<void> speak(String text) async {
     await _voiceService.speak(text);
   }
 
-  /// 停止播报
+  /// 停止播報
   Future<void> stopSpeaking() async {
     await _voiceService.stopSpeaking();
   }
 
-  /// 设置紧急检测回调
+  /// 設置緊急檢測回調
   void setEmergencyCallbacks({
     EmergencyCallback? onEmergency,
     EmergencyCallback? onUrgent,
@@ -397,7 +397,7 @@ class AIServiceManager {
     );
   }
 
-  /// 获取服务状态
+  /// 獲取服務狀態
   Map<String, bool> getServiceStatus() {
     return {
       'smartDialog': _isOnline,
@@ -408,20 +408,20 @@ class AIServiceManager {
     };
   }
 
-  /// 是否在线
+  /// 是否在線
   bool get isOnline => _isOnline;
 
-  /// 是否使用模拟模式
+  /// 是否使用模擬模式
   bool get useMockMode => _useMockMode;
 
-  /// 设置模拟模式
+  /// 設置模擬模式
   void setMockMode(bool enabled) {
     AppLogger.warning(
-      'AGENTS.md §4.2：竞赛版已冻结 Demo 主线，AIServiceManager 始终保持本地 mock fallback',
+      'AGENTS.md §4.2：競賽版已凍結 Demo 主線，AIServiceManager 始終保持本地 mock fallback',
     );
   }
 
-  /// 清理资源
+  /// 清理資源
   void dispose() {
     _responseController.close();
   }

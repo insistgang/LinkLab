@@ -3,7 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 import '../models/admin_models.dart';
 import '../services/admin_data_service.dart';
 
-/// 数据看板页面
+/// 數據看板頁面
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
 
@@ -54,21 +54,21 @@ class _DashboardPageState extends State<DashboardPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 关键指标卡片
+          // 關鍵指標卡片
           _buildStatsCards(),
           const SizedBox(height: 24),
 
-          // 图表区域
+          // 圖表區域
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 趋势图
+              // 趨勢圖
               Expanded(
                 flex: 2,
                 child: _buildTrendChart(),
               ),
               const SizedBox(width: 24),
-              // 分布图
+              // 分佈圖
               Expanded(
                 child: _buildDistributionCharts(),
               ),
@@ -76,7 +76,7 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
           const SizedBox(height: 24),
 
-          // 待处理事项
+          // 待處理事項
           _buildPendingTasks(),
         ],
       ),
@@ -86,7 +86,7 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget _buildStatsCards() {
     final cards = [
       _StatCardData(
-        title: '总用户数',
+        title: '總用戶數',
         value: _stats?.totalUsers.toString() ?? '0',
         subtitle: '今日新增: ${_stats?.newUsersToday ?? 0}',
         icon: Icons.people,
@@ -94,38 +94,38 @@ class _DashboardPageState extends State<DashboardPage> {
         trend: '+${_stats?.mauGrowthRate != null ? (_stats!.mauGrowthRate * 100).toStringAsFixed(1) : 0}%',
       ),
       _StatCardData(
-        title: '日活跃用户 (DAU)',
+        title: '日活躍用戶 (DAU)',
         value: _stats?.dau.toString() ?? '0',
-        subtitle: '月活跃用户: ${_stats?.mau ?? 0}',
+        subtitle: '月活躍用戶: ${_stats?.mau ?? 0}',
         icon: Icons.trending_up,
         color: Colors.green,
         trend: '+${_stats?.dauGrowthRate != null ? (_stats!.dauGrowthRate * 100).toStringAsFixed(1) : 0}%',
       ),
       _StatCardData(
-        title: '求助响应率',
+        title: '求助響應率',
         value: '${((_stats?.responseRate ?? 0) * 100).toStringAsFixed(1)}%',
         subtitle: '今日求助: ${_stats?.helpRequestsToday ?? 0}',
         icon: Icons.support_agent,
         color: Colors.orange,
       ),
       _StatCardData(
-        title: 'AI解决率',
+        title: 'AI解決率',
         value: '${((_stats?.aiResolutionRate ?? 0) * 100).toStringAsFixed(1)}%',
-        subtitle: '平均通话: ${_stats?.avgCallDuration ?? 0}分钟',
+        subtitle: '平均通話: ${_stats?.avgCallDuration ?? 0}分鐘',
         icon: Icons.psychology,
         color: Colors.purple,
       ),
       _StatCardData(
-        title: '用户满意度',
+        title: '用戶滿意度',
         value: '${_stats?.satisfactionRate ?? 0}',
-        subtitle: '满分5分',
+        subtitle: '滿分5分',
         icon: Icons.star,
         color: Colors.amber,
       ),
       _StatCardData(
-        title: '志愿者留存率',
+        title: '志願者留存率',
         value: '${((_stats?.volunteerRetentionRate ?? 0) * 100).toStringAsFixed(1)}%',
-        subtitle: '上月数据',
+        subtitle: '上月數據',
         icon: Icons.favorite,
         color: Colors.red,
       ),
@@ -227,7 +227,7 @@ class _DashboardPageState extends State<DashboardPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                '活跃用户趋势 (14天)',
+                '活躍用戶趨勢 (14天)',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -301,7 +301,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
                 borderData: FlBorderData(show: false),
                 lineBarsData: [
-                  // DAU 线
+                  // DAU 線
                   LineChartBarData(
                     spots: _trendData.asMap().entries.map((e) {
                       return FlSpot(e.key.toDouble(), e.value.value.toDouble());
@@ -315,7 +315,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       color: Colors.blue.withOpacity(0.1),
                     ),
                   ),
-                  // MAU 线
+                  // MAU 線
                   LineChartBarData(
                     spots: _trendData.asMap().entries.map((e) {
                       return FlSpot(e.key.toDouble(), (e.value.secondaryValue ?? 0).toDouble());
@@ -358,9 +358,9 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget _buildDistributionCharts() {
     return Column(
       children: [
-        _buildPieChart('求助类型分布', _helpTypeDistribution),
+        _buildPieChart('求助類型分佈', _helpTypeDistribution),
         const SizedBox(height: 24),
-        _buildPieChart('用户类型分布', _userTypeDistribution),
+        _buildPieChart('用戶類型分佈', _userTypeDistribution),
       ],
     );
   }
@@ -461,7 +461,7 @@ class _DashboardPageState extends State<DashboardPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            '待处理事项',
+            '待處理事項',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -471,21 +471,21 @@ class _DashboardPageState extends State<DashboardPage> {
           Row(
             children: [
               _buildTaskCard(
-                '待审核认证',
+                '待審覈認證',
                 _stats?.pendingVerifications ?? 0,
                 Icons.verified_user,
                 Colors.orange,
               ),
               const SizedBox(width: 16),
               _buildTaskCard(
-                '待处理举报',
+                '待處理舉報',
                 _stats?.pendingReports ?? 0,
                 Icons.report_problem,
                 Colors.red,
               ),
               const SizedBox(width: 16),
               _buildTaskCard(
-                '待审核内容',
+                '待審覈內容',
                 5,
                 Icons.article,
                 Colors.blue,

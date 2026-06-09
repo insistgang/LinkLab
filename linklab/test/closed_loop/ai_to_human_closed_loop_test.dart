@@ -10,7 +10,7 @@ import 'package:linklab/screens/ai_chat/demo_ai_chat_screen.dart';
 import 'test_harness.dart';
 
 void main() {
-  testWidgets('AI 对话识别 need_human 后进入匹配页，并写入 matching 状态', (tester) async {
+  testWidgets('AI 對話識別 need_human 後進入匹配頁，並寫入 matching 狀態', (tester) async {
     await prepareSignedInDemoEnvironment(clearHelpHistory: true);
 
     tester.view.physicalSize = const Size(1280, 2400);
@@ -23,7 +23,7 @@ void main() {
       const ProviderScope(
         child: MaterialApp(
           home: DemoAIChatScreen(
-            initialPrompt: '这个问题太复杂了，我需要更可靠的人工协助',
+            initialPrompt: '這個問題太複雜了，我需要更可靠的人工協助',
             autoSendInitialPrompt: true,
           ),
         ),
@@ -36,12 +36,12 @@ void main() {
     await tester.pump(const Duration(seconds: 3));
     await tester.pump(const Duration(milliseconds: 500));
 
-    expect(find.text('需要人工帮助？'), findsOneWidget);
+    expect(find.text('需要人工幫助？'), findsOneWidget);
 
     final processingHistory = readLocalHelpHistoryModels();
     expect(processingHistory.first.status, 'ai_processing');
 
-    await tester.tap(find.text('连接志愿者'));
+    await tester.tap(find.text('連接志願者'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 200));
 
@@ -49,7 +49,7 @@ void main() {
 
     final matchingHistory = readLocalHelpHistoryModels();
     expect(matchingHistory.first.status, 'matching');
-    expect(matchingHistory.first.intent, contains('志愿者'));
+    expect(matchingHistory.first.intent, contains('志願者'));
 
     await tester.scrollUntilVisible(
       find.text('取消匹配'),

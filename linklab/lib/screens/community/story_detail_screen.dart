@@ -8,7 +8,7 @@ import '../../widgets/accessible/index.dart';
 import '../../widgets/demo/demo_stage.dart';
 import '../../widgets/demo/linkable_icon.dart';
 
-/// 故事详情页面 —— 纯静态展示，不开放互动功能（AGENTS.md §4 F24-F27 降级）
+/// 故事詳情頁面 —— 純靜態展示，不開放互動功能（AGENTS.md §4 F24-F27 降級）
 class StoryDetailScreen extends ConsumerStatefulWidget {
   const StoryDetailScreen({super.key, required this.story});
 
@@ -39,8 +39,8 @@ class _StoryDetailScreenState extends ConsumerState<StoryDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return DemoStageScaffold(
-      title: '故事详情',
-      subtitle: '精选故事只做静态展示，不开放互动社区',
+      title: '故事詳情',
+      subtitle: '精選故事只做靜態展示，不開放互動社區',
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(
           AppTheme.spacingL,
@@ -69,7 +69,7 @@ class _StoryDetailScreenState extends ConsumerState<StoryDetailScreen> {
                   child: _story.authorAvatar == null
                       ? const LinkableMaterialIcon(
                           icon: Icons.person,
-                          semanticLabel: '作者头像',
+                          semanticLabel: '作者頭像',
                         )
                       : null,
                 ),
@@ -80,8 +80,8 @@ class _StoryDetailScreenState extends ConsumerState<StoryDetailScreen> {
                     children: [
                       AccessibleText(
                         _story.authorType == 'anonymous'
-                            ? '匿名用户'
-                            : (_story.authorName ?? '用户'),
+                            ? '匿名用戶'
+                            : (_story.authorName ?? '用戶'),
                         style: const TextStyle(
                           fontSize: AppTheme.fontSizeNormal,
                           fontWeight: FontWeight.w500,
@@ -120,9 +120,9 @@ class _StoryDetailScreenState extends ConsumerState<StoryDetailScreen> {
               ),
             ),
             const SizedBox(height: AppTheme.spacingXL),
-            // 静态统计栏：仅展示阅读数，不含点赞/分享等互动功能
+            // 靜態統計欄：僅展示閱讀數，不含點贊/分享等互動功能
             Semantics(
-              label: '阅读 ${_story.readCount} 次',
+              label: '閱讀 ${_story.readCount} 次',
               child: Container(
                 padding: const EdgeInsets.all(AppTheme.spacingM),
                 decoration: BoxDecoration(
@@ -138,11 +138,11 @@ class _StoryDetailScreenState extends ConsumerState<StoryDetailScreen> {
                       icon: Icons.remove_red_eye,
                       size: 24,
                       color: AppTheme.textHint,
-                      semanticLabel: '阅读次数',
+                      semanticLabel: '閱讀次數',
                     ),
                     const SizedBox(width: AppTheme.spacingXS),
                     AccessibleText(
-                      '${_story.readCount} 次阅读',
+                      '${_story.readCount} 次閱讀',
                       style: TextStyle(
                         fontSize: AppTheme.fontSizeNormal,
                         color: AppTheme.textHint,

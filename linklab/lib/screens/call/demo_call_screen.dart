@@ -16,10 +16,10 @@ import '../../widgets/demo/linkable_icon.dart';
 import 'demo_call_rating_screen.dart';
 import 'demo_matching_screen.dart';
 
-/// F11 竞赛 Demo 通话页。
+/// F11 競賽 Demo 通話頁。
 ///
-/// 该页只展示本地可复现的语音协助闭环，不建立真实 WebRTC、不录音、
-/// 不请求真实麦克风权限。
+/// 該頁只展示本地可復現的語音協助閉環，不建立真實 WebRTC、不錄音、
+/// 不請求真實麥克風權限。
 class DemoCallScreen extends ConsumerStatefulWidget {
   const DemoCallScreen({
     super.key,
@@ -47,9 +47,9 @@ class _DemoCallScreenState extends ConsumerState<DemoCallScreen> {
         if (!mounted) {
           return;
         }
-        // Facade 优先：调用 CallSessionFacade.startCall
+        // Facade 優先：調用 CallSessionFacade.startCall
         _startCallWithFacade();
-        // Fallback：原有 demo flow（始终执行以驱动 UI 状态）
+        // Fallback：原有 demo flow（始終執行以驅動 UI 狀態）
         ref
             .read(demoCallFlowProvider.notifier)
             .start(
@@ -65,7 +65,7 @@ class _DemoCallScreenState extends ConsumerState<DemoCallScreen> {
       final facade = ref.read(callSessionFacadeProvider);
       await facade.startCall('demo-volunteer-001');
     } catch (_) {
-      // Facade 异常，demo flow 已在 fallback 中启动
+      // Facade 異常，demo flow 已在 fallback 中啓動
     }
   }
 
@@ -75,8 +75,8 @@ class _DemoCallScreenState extends ConsumerState<DemoCallScreen> {
     final cameraState = ref.watch(callCameraProvider);
 
     return DemoStageScaffold(
-      title: '实时语音协助',
-      subtitle: 'F11 本地 Demo Call，可开启本机摄像头预览',
+      title: '實時語音協助',
+      subtitle: 'F11 本地 Demo Call，可開啓本機攝像頭預覽',
       body: ListView(
         padding: const EdgeInsets.fromLTRB(
           AppTheme.spacingM,
@@ -133,15 +133,15 @@ class _DemoCallScreenState extends ConsumerState<DemoCallScreen> {
     _navigatingToRating = true;
     await ref.read(callCameraProvider.notifier).stopPreview();
 
-    // Facade 优先：调用 CallSessionFacade.endCall
+    // Facade 優先：調用 CallSessionFacade.endCall
     try {
       final facade = ref.read(callSessionFacadeProvider);
       final result = await facade.endCall();
       if (!result.success) {
-        // Facade 失败，继续走 fallback
+        // Facade 失敗，繼續走 fallback
       }
     } catch (_) {
-      // Facade 异常，降级到旧流程
+      // Facade 異常，降級到舊流程
     }
 
     // Fallback：原有 demo flow
@@ -179,7 +179,7 @@ class _DemoCallScreenState extends ConsumerState<DemoCallScreen> {
       context,
       icon: Icons.privacy_tip_outlined,
       accentColor: AppTheme.stageAccent,
-      message: '竞赛 Demo 不录音、不上传通话内容；如遇不适可结束通话或回到匹配。',
+      message: '競賽 Demo 不錄音、不上傳通話內容；如遇不適可結束通話或回到匹配。',
     );
   }
 
@@ -190,7 +190,7 @@ class _DemoCallScreenState extends ConsumerState<DemoCallScreen> {
       avatar: snapshot.avatarLabel,
       rating: 4.9,
       helpCount: 128,
-      skills: snapshot.skills.isEmpty ? const ['语音协助'] : snapshot.skills,
+      skills: snapshot.skills.isEmpty ? const ['語音協助'] : snapshot.skills,
     );
   }
 }
@@ -206,7 +206,7 @@ class _CallStatusCard extends StatelessWidget {
     final icon = _statusIcon(state.phase);
 
     return DemoSurfaceCard(
-      semanticLabel: '实时语音协助状态，${state.statusMessage}',
+      semanticLabel: '實時語音協助狀態，${state.statusMessage}',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -217,7 +217,7 @@ class _CallStatusCard extends StatelessWidget {
                 icon: icon,
                 size: 56,
                 iconColor: statusColor,
-                semanticLabel: '连接状态图标',
+                semanticLabel: '連接狀態圖標',
               ),
               const SizedBox(width: AppTheme.spacingM),
               Expanded(
@@ -257,12 +257,12 @@ class _CallStatusCard extends StatelessWidget {
                 color: AppTheme.stageAccent,
               ),
               DemoPill(
-                label: '志愿者已接单',
+                label: '志願者已接單',
                 icon: Icons.verified_user_outlined,
                 color: AppTheme.stageAccent,
               ),
               DemoPill(
-                label: '无真实 WebRTC',
+                label: '無真實 WebRTC',
                 icon: Icons.cloud_off_outlined,
                 color: AppTheme.stageAccent,
               ),
@@ -286,13 +286,13 @@ class _CallStatusCard extends StatelessWidget {
 
   static String _statusDescription(DemoCallFlowState state) {
     return switch (state.phase) {
-      DemoCallUiPhase.idle => '等待从匹配页进入通话流程。',
-      DemoCallUiPhase.connecting => '正在建立安全语音连接，演示中不会访问真实麦克风。',
+      DemoCallUiPhase.idle => '等待從匹配頁進入通話流程。',
+      DemoCallUiPhase.connecting => '正在建立安全語音連接，演示中不會訪問真實麥克風。',
       DemoCallUiPhase.connected =>
-        '已接通，通话时长 ${_formatDuration(state.duration)}。',
-      DemoCallUiPhase.reconnecting => '模拟掉线中；真实规则是 10 秒未恢复会重新匹配。',
-      DemoCallUiPhase.ended => '帮助已完成，可以进入感谢与评分页。',
-      DemoCallUiPhase.failed => state.errorMessage ?? '连接失败，你可以重新连接或回到匹配页。',
+        '已接通，通話時長 ${_formatDuration(state.duration)}。',
+      DemoCallUiPhase.reconnecting => '模擬掉線中；真實規則是 10 秒未恢復會重新匹配。',
+      DemoCallUiPhase.ended => '幫助已完成，可以進入感謝與評分頁。',
+      DemoCallUiPhase.failed => state.errorMessage ?? '連接失敗，你可以重新連接或回到匹配頁。',
     };
   }
 }
@@ -306,13 +306,13 @@ class _VolunteerCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return DemoSurfaceCard(
       semanticLabel:
-          '已接单志愿者，${volunteer.nickname}，技能 ${volunteer.skills.join('，')}，${volunteer.distanceLabel}',
+          '已接單志願者，${volunteer.nickname}，技能 ${volunteer.skills.join('，')}，${volunteer.distanceLabel}',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const DemoSectionTitle(
-            title: '已接单志愿者',
-            subtitle: '优先读取 F9 Top 5 已接单结果，缺失时使用本地稳定兜底。',
+            title: '已接單志願者',
+            subtitle: '優先讀取 F9 Top 5 已接單結果，缺失時使用本地穩定兜底。',
           ),
           const SizedBox(height: AppTheme.spacingM),
           Row(
@@ -373,7 +373,7 @@ class _VolunteerCard extends StatelessWidget {
           _InfoLine(icon: Icons.recommend_outlined, text: volunteer.reason),
           if (volunteer.isFallback) ...[
             const SizedBox(height: AppTheme.spacingS),
-            const _InfoLine(icon: Icons.info_outline, text: '当前使用演示志愿者继续通话流程。'),
+            const _InfoLine(icon: Icons.info_outline, text: '當前使用演示志願者繼續通話流程。'),
           ],
         ],
       ),
@@ -391,7 +391,7 @@ class _DemoVoiceCard extends StatelessWidget {
     final active = state.phase == DemoCallUiPhase.connected;
 
     return DemoSurfaceCard(
-      semanticLabel: '通话波形与时长，当前${state.statusMessage}',
+      semanticLabel: '通話波形與時長，當前${state.statusMessage}',
       color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.92),
       child: Column(
         children: [
@@ -405,7 +405,7 @@ class _DemoVoiceCard extends StatelessWidget {
           ),
           const SizedBox(height: AppTheme.spacingS),
           AccessibleText(
-            active ? '语音协助进行中' : state.statusMessage,
+            active ? '語音協助進行中' : state.statusMessage,
             style: TextStyle(
               color: active
                   ? AppTheme.stageAccent
@@ -462,14 +462,14 @@ class _CallCameraCard extends StatelessWidget {
     final controller = cameraState.session?.controller;
 
     return DemoSurfaceCard(
-      semanticLabel: '通话摄像头，本机预览，${cameraState.message}',
+      semanticLabel: '通話攝像頭，本機預覽，${cameraState.message}',
       color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.92),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const DemoSectionTitle(
-            title: '摄像头协助',
-            subtitle: '需要看清物品或环境时，可开启真实本机摄像头预览。',
+            title: '攝像頭協助',
+            subtitle: '需要看清物品或環境時，可開啓真實本機攝像頭預覽。',
           ),
           const SizedBox(height: AppTheme.spacingM),
           ClipRRect(
@@ -505,8 +505,8 @@ class _CallCameraCard extends StatelessWidget {
           const SizedBox(height: AppTheme.spacingM),
           AccessibleText(
             cameraState.isLive
-                ? '摄像头只在本机显示，不上传画面，也不建立真实视频通话。'
-                : '点击后会请求系统摄像头权限，用于现场演示时看清物品/环境。',
+                ? '攝像頭只在本機顯示，不上傳畫面，也不建立真實視頻通話。'
+                : '點擊後會請求系統攝像頭權限，用於現場演示時看清物品/環境。',
             style: TextStyle(
               color: AppTheme.stageTextSecondary,
               fontSize: AppTheme.fontSizeSmall,
@@ -527,10 +527,10 @@ class _CallCameraCard extends StatelessWidget {
             ),
             label: Text(
               cameraState.isStarting
-                  ? '正在开启'
+                  ? '正在開啓'
                   : cameraState.isLive
-                  ? '关闭摄像头'
-                  : '开启摄像头',
+                  ? '關閉攝像頭'
+                  : '開啓攝像頭',
             ),
             style: ElevatedButton.styleFrom(
               minimumSize: const Size(48, 52),
@@ -563,36 +563,36 @@ class _DemoNoticeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DemoSurfaceCard(
-      semanticLabel: 'F11 Demo Call 安全说明',
+      semanticLabel: 'F11 Demo Call 安全說明',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const DemoSectionTitle(
-            title: '竞赛 Demo 说明',
-            subtitle: '只演示可见状态变化，不接入真实外部服务。',
+            title: '競賽 Demo 說明',
+            subtitle: '只演示可見狀態變化，不接入真實外部服務。',
           ),
           const SizedBox(height: AppTheme.spacingM),
           const _InfoLine(
             icon: Icons.mic_off_outlined,
-            text: '不请求真实麦克风权限，不录音，不真实共享位置。',
+            text: '不請求真實麥克風權限，不錄音，不真實共享位置。',
           ),
           const SizedBox(height: AppTheme.spacingS),
           const _InfoLine(
             icon: Icons.cloud_off_outlined,
-            text: '不建立真实 WebRTC，不依赖真实 Supabase、信令或推送。',
+            text: '不建立真實 WebRTC，不依賴真實 Supabase、信令或推送。',
           ),
           const SizedBox(height: AppTheme.spacingS),
           _InfoLine(
             icon: Icons.restart_alt_outlined,
             text: state.phase == DemoCallUiPhase.failed
-                ? '连接失败后可以返回匹配，help_request 已回到 matching。'
-                : '掉线 10 秒未恢复会回到 matching，演示中用按钮加速。',
+                ? '連接失敗後可以返回匹配，help_request 已回到 matching。'
+                : '掉線 10 秒未恢復會回到 matching，演示中用按鈕加速。',
           ),
           if (FeatureFlags.enableWebRTC) ...[
             const SizedBox(height: AppTheme.spacingS),
             const _InfoLine(
               icon: Icons.warning_amber_outlined,
-              text: '当前检测到 WebRTC 开关开启，请确认竞赛版配置。',
+              text: '當前檢測到 WebRTC 開關開啓，請確認競賽版配置。',
             ),
           ],
         ],
@@ -634,13 +634,13 @@ class _CallControls extends StatelessWidget {
         state.phase == DemoCallUiPhase.connecting;
 
     return DemoSurfaceCard(
-      semanticLabel: 'Demo 通话操作区',
+      semanticLabel: 'Demo 通話操作區',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const DemoSectionTitle(
-            title: '通话操作',
-            subtitle: '所有按钮只驱动本地 Demo 状态，不接入真实通话能力。',
+            title: '通話操作',
+            subtitle: '所有按鈕只驅動本地 Demo 狀態，不接入真實通話能力。',
           ),
           const SizedBox(height: AppTheme.spacingM),
           LayoutBuilder(
@@ -648,28 +648,28 @@ class _CallControls extends StatelessWidget {
               final narrow = constraints.maxWidth < 520;
               final buttons = [
                 _ActionButton(
-                  label: state.isMuted ? '取消静音' : '静音',
+                  label: state.isMuted ? '取消靜音' : '靜音',
                   icon: state.isMuted
                       ? Icons.mic_outlined
                       : Icons.mic_off_outlined,
-                  semanticLabel: state.isMuted ? '取消静音按钮' : '静音按钮',
-                  semanticHint: '切换本地 Demo 静音状态，不请求真实麦克风权限。',
+                  semanticLabel: state.isMuted ? '取消靜音按鈕' : '靜音按鈕',
+                  semanticHint: '切換本地 Demo 靜音狀態，不請求真實麥克風權限。',
                   onPressed: canControl ? onToggleMute : null,
                 ),
                 _ActionButton(
-                  label: state.isSpeakerOn ? '关闭免提' : '免提',
+                  label: state.isSpeakerOn ? '關閉免提' : '免提',
                   icon: state.isSpeakerOn
                       ? Icons.volume_up_outlined
                       : Icons.volume_off_outlined,
-                  semanticLabel: state.isSpeakerOn ? '关闭免提按钮' : '免提按钮',
-                  semanticHint: '切换本地 Demo 免提状态。',
+                  semanticLabel: state.isSpeakerOn ? '關閉免提按鈕' : '免提按鈕',
+                  semanticHint: '切換本地 Demo 免提狀態。',
                   onPressed: canControl ? onToggleSpeaker : null,
                 ),
                 _ActionButton(
-                  label: '结束通话',
+                  label: '結束通話',
                   icon: Icons.call_end,
-                  semanticLabel: '结束通话按钮',
-                  semanticHint: '结束本地 Demo 通话并进入帮助完成评分页。',
+                  semanticLabel: '結束通話按鈕',
+                  semanticHint: '結束本地 Demo 通話並進入幫助完成評分頁。',
                   accentColor: AppTheme.stageAccent,
                   onPressed: canControl ? onEndCall : null,
                 ),
@@ -704,37 +704,37 @@ class _CallControls extends StatelessWidget {
             runSpacing: AppTheme.spacingS,
             children: [
               _SecondaryActionButton(
-                label: '模拟掉线',
+                label: '模擬掉線',
                 icon: Icons.wifi_off_outlined,
-                semanticLabel: '模拟掉线按钮',
-                semanticHint: '让 Demo 通话进入正在重连状态。',
+                semanticLabel: '模擬掉線按鈕',
+                semanticHint: '讓 Demo 通話進入正在重連狀態。',
                 onPressed: state.phase == DemoCallUiPhase.connected
                     ? onSimulateDisconnect
                     : null,
               ),
               _SecondaryActionButton(
-                label: '模拟恢复',
+                label: '模擬恢復',
                 icon: Icons.wifi_tethering_outlined,
-                semanticLabel: '模拟恢复按钮',
-                semanticHint: '让 Demo 通话从重连回到已接通。',
+                semanticLabel: '模擬恢復按鈕',
+                semanticHint: '讓 Demo 通話從重連回到已接通。',
                 onPressed: state.phase == DemoCallUiPhase.reconnecting
                     ? onRestoreConnection
                     : null,
               ),
               _SecondaryActionButton(
-                label: '模拟重连失败',
+                label: '模擬重連失敗',
                 icon: Icons.error_outline,
-                semanticLabel: '模拟重连失败按钮',
-                semanticHint: '让 help_request 回到 matching，演示重新匹配规则。',
+                semanticLabel: '模擬重連失敗按鈕',
+                semanticHint: '讓 help_request 回到 matching，演示重新匹配規則。',
                 onPressed: state.phase == DemoCallUiPhase.reconnecting
                     ? onFailReconnect
                     : null,
               ),
               _SecondaryActionButton(
-                label: '重新连接',
+                label: '重新連接',
                 icon: Icons.refresh_outlined,
-                semanticLabel: '重新连接按钮',
-                semanticHint: '重新进入本地 Demo 通话连接流程。',
+                semanticLabel: '重新連接按鈕',
+                semanticHint: '重新進入本地 Demo 通話連接流程。',
                 onPressed: state.phase == DemoCallUiPhase.failed
                     ? onRetryConnection
                     : null,
@@ -742,8 +742,8 @@ class _CallControls extends StatelessWidget {
               _SecondaryActionButton(
                 label: '返回匹配',
                 icon: Icons.people_alt_outlined,
-                semanticLabel: '返回匹配按钮',
-                semanticHint: '回到匹配页重新分配志愿者。',
+                semanticLabel: '返回匹配按鈕',
+                semanticHint: '回到匹配頁重新分配志願者。',
                 onPressed:
                     state.phase == DemoCallUiPhase.failed ||
                         state.phase == DemoCallUiPhase.reconnecting
@@ -751,10 +751,10 @@ class _CallControls extends StatelessWidget {
                     : null,
               ),
               _SecondaryActionButton(
-                label: '举报 / 安全提示',
+                label: '舉報 / 安全提示',
                 icon: Icons.privacy_tip_outlined,
-                semanticLabel: '举报和安全提示按钮',
-                semanticHint: '查看本地 Demo 的通话安全说明。',
+                semanticLabel: '舉報和安全提示按鈕',
+                semanticHint: '查看本地 Demo 的通話安全說明。',
                 onPressed: onShowSafety,
               ),
             ],

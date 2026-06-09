@@ -17,28 +17,28 @@ import 'test_harness.dart';
 void main() {
   const hospitalRequest = DemoMatchRequest(
     requestId: 'match_hospital',
-    queryText: '我在医院找不到科室，挂号后不知道取药窗口怎么走',
+    queryText: '我在醫院找不到科室，掛號後不知道取藥窗口怎麼走',
     requestType: 'hospital',
     urgencyLevel: 'medium',
   );
 
   const medicationRequest = DemoMatchRequest(
     requestId: 'match_medication',
-    queryText: '帮我确认药品说明书，这个药怎么吃，一次几片',
+    queryText: '幫我確認藥品說明書，這個藥怎麼喫，一次幾片',
     requestType: 'medication',
     urgencyLevel: 'normal',
   );
 
   const hearingRequest = DemoMatchRequest(
     requestId: 'match_hearing',
-    queryText: '外卖电话我听不清，需要帮我转译取件码',
+    queryText: '外賣電話我聽不清，需要幫我轉譯取件碼',
     requestType: 'hearing',
     urgencyLevel: 'normal',
   );
 
   const visualRequest = DemoMatchRequest(
     requestId: 'match_visual',
-    queryText: '我看不见前面路况，有没有障碍物',
+    queryText: '我看不見前面路況，有沒有障礙物',
     requestType: 'visual',
     urgencyLevel: 'medium',
   );
@@ -50,7 +50,7 @@ void main() {
     urgencyLevel: 'normal',
   );
 
-  test('demo_volunteers.json 可以加载，并满足本地 demo 数据基线', () async {
+  test('demo_volunteers.json 可以加載，並滿足本地 demo 數據基線', () async {
     await prepareEmptyDemoEnvironment();
 
     expect(
@@ -88,7 +88,7 @@ void main() {
     );
   });
 
-  test('Top 5 只返回在线志愿者，且数量最多为 5', () async {
+  test('Top 5 只返回在線志願者，且數量最多爲 5', () async {
     await prepareEmptyDemoEnvironment();
     final service = DemoMatchingEngineService();
 
@@ -110,7 +110,7 @@ void main() {
     );
   });
 
-  test('医院导诊需求优先匹配医院导诊技能', () async {
+  test('醫院導診需求優先匹配醫院導診技能', () async {
     await prepareEmptyDemoEnvironment();
     final service = DemoMatchingEngineService();
 
@@ -127,7 +127,7 @@ void main() {
     expect(response.results.first.reason, contains(demoSkillHospitalGuide));
   });
 
-  test('药品确认需求优先匹配药品说明协助技能', () async {
+  test('藥品確認需求優先匹配藥品說明協助技能', () async {
     await prepareEmptyDemoEnvironment();
     final service = DemoMatchingEngineService();
 
@@ -143,7 +143,7 @@ void main() {
     );
   });
 
-  test('听障和电话需求优先匹配手语或听障沟通技能', () async {
+  test('聽障和電話需求優先匹配手語或聽障溝通技能', () async {
     await prepareEmptyDemoEnvironment();
     final service = DemoMatchingEngineService();
 
@@ -159,7 +159,7 @@ void main() {
     );
   });
 
-  test('视障和路况需求优先匹配视障协助技能', () async {
+  test('視障和路況需求優先匹配視障協助技能', () async {
     await prepareEmptyDemoEnvironment();
     final service = DemoMatchingEngineService();
 
@@ -175,7 +175,7 @@ void main() {
     );
   });
 
-  test('老人陪同需求优先匹配老人陪同技能', () async {
+  test('老人陪同需求優先匹配老人陪同技能', () async {
     await prepareEmptyDemoEnvironment();
     final service = DemoMatchingEngineService();
 
@@ -191,7 +191,7 @@ void main() {
     );
   });
 
-  test('SOS 请求不走普通 F9 Top 5 匹配公式', () async {
+  test('SOS 請求不走普通 F9 Top 5 匹配公式', () async {
     await prepareEmptyDemoEnvironment();
     final service = DemoMatchingEngineService();
 
@@ -211,14 +211,14 @@ void main() {
     expect(response.message, contains('不使用普通 Top 5 匹配'));
   });
 
-  test('同分时距离更近者优先', () async {
+  test('同分時距離更近者優先', () async {
     await prepareEmptyDemoEnvironment();
     final service = DemoMatchingEngineService();
 
     final response = await service.matchTopVolunteers(
       const DemoMatchRequest(
         requestId: 'match_tie',
-        queryText: '普通问路',
+        queryText: '普通問路',
         requestType: 'directions',
         urgencyLevel: 'normal',
         preferredSkills: [demoSkillGeneralDirections],
@@ -226,8 +226,8 @@ void main() {
       volunteerPool: const [
         DemoVolunteer(
           id: 'tie_far',
-          nickname: '远一点',
-          avatarLabel: '远',
+          nickname: '遠一點',
+          avatarLabel: '遠',
           distanceMeters: 101,
           skills: [demoSkillGeneralDirections],
           reputationScore: 0.9005,
@@ -237,7 +237,7 @@ void main() {
         ),
         DemoVolunteer(
           id: 'tie_near',
-          nickname: '近一点',
+          nickname: '近一點',
           avatarLabel: '近',
           distanceMeters: 100,
           skills: [demoSkillGeneralDirections],
@@ -254,7 +254,7 @@ void main() {
     expect(response.results.first.volunteer.id, 'tie_near');
   });
 
-  test('多人抢单最终只能一个 active volunteer，拒接后可尝试下一位', () async {
+  test('多人搶單最終只能一個 active volunteer，拒接後可嘗試下一位', () async {
     await prepareEmptyDemoEnvironment();
     final service = DemoMatchingEngineService();
     final response = await service.matchTopVolunteers(hospitalRequest);
@@ -279,7 +279,7 @@ void main() {
     expect(nextAccept.activeVolunteerId, secondVolunteerId);
   });
 
-  test('cancel 和 expire 逻辑可用', () async {
+  test('cancel 和 expire 邏輯可用', () async {
     await prepareEmptyDemoEnvironment();
 
     final cancelledService = DemoMatchingEngineService();
@@ -296,10 +296,10 @@ void main() {
     expect(expire.success, isTrue);
     expect(expiredService.isExpired, isTrue);
     expect(acceptAfterExpire.success, isFalse);
-    expect(acceptAfterExpire.message, contains('过期'));
+    expect(acceptAfterExpire.message, contains('過期'));
   });
 
-  test('无真实 API key、无真实 Supabase 时 matching service 仍可运行', () async {
+  test('無真實 API key、無真實 Supabase 時 matching service 仍可運行', () async {
     await prepareEmptyDemoEnvironment();
     expect(AppConfig.demoMode, isTrue);
 
@@ -313,14 +313,14 @@ void main() {
     expect(response.message, contains('Top 5'));
   });
 
-  test('50 人本地池匹配计算保持轻量', () async {
+  test('50 人本地池匹配計算保持輕量', () async {
     await prepareEmptyDemoEnvironment();
     final service = DemoMatchingEngineService();
     final pool = List<DemoVolunteer>.generate(50, (index) {
       return DemoVolunteer(
         id: 'perf_$index',
-        nickname: '性能志愿者$index',
-        avatarLabel: '测',
+        nickname: '性能志願者$index',
+        avatarLabel: '測',
         distanceMeters: 100 + index * 20,
         skills: index.isEven
             ? const [demoSkillHospitalGuide, demoSkillMedicationHelp]

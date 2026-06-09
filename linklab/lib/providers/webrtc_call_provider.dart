@@ -1,5 +1,5 @@
-// WebRTC 通话状态管理 Provider
-// 使用 Riverpod 管理通话状态
+// WebRTC 通話狀態管理 Provider
+// 使用 Riverpod 管理通話狀態
 
 import 'dart:async';
 
@@ -11,7 +11,7 @@ import '../models/call_models.dart';
 import '../services/webrtc/webrtc_call_manager.dart';
 import '../services/webrtc/webrtc_config.dart';
 
-/// 通话状态
+/// 通話狀態
 class CallStateData {
   final CallInfo? callInfo;
   final CallState state;
@@ -67,14 +67,14 @@ class CallStateData {
     );
   }
 
-  /// 是否正在通话中
+  /// 是否正在通話中
   bool get isInCall => state != CallState.idle && state != CallState.ended;
 
-  /// 是否正在连接中
+  /// 是否正在連接中
   bool get isConnecting =>
       state == CallState.connecting || state == CallState.ringing;
 
-  /// 获取格式化的时长
+  /// 獲取格式化的時長
   String get formattedDuration {
     final hours = duration.inHours.toString().padLeft(2, '0');
     final minutes = (duration.inMinutes % 60).toString().padLeft(2, '0');
@@ -86,30 +86,30 @@ class CallStateData {
     return '$minutes:$seconds';
   }
 
-  /// 获取状态描述
+  /// 獲取狀態描述
   String get stateDescription {
     switch (state) {
       case CallState.idle:
-        return '空闲';
+        return '空閒';
       case CallState.matching:
         return '匹配中';
       case CallState.connecting:
-        return '连接中';
+        return '連接中';
       case CallState.ringing:
-        return '响铃中';
+        return '響鈴中';
       case CallState.connected:
-        return '通话中';
+        return '通話中';
       case CallState.reconnecting:
-        return '重连中';
+        return '重連中';
       case CallState.ended:
-        return '已结束';
+        return '已結束';
       case CallState.failed:
-        return '连接失败';
+        return '連接失敗';
     }
   }
 }
 
-/// 通话状态 Notifier
+/// 通話狀態 Notifier
 class WebRTCCallNotifier extends StateNotifier<CallStateData> {
   WebRTCCallNotifier() : super(const CallStateData()) {
     _initialize();
@@ -117,7 +117,7 @@ class WebRTCCallNotifier extends StateNotifier<CallStateData> {
 
   final WebRTCCallManager _callManager = WebRTCCallManager();
 
-  // 订阅
+  // 訂閱
   StreamSubscription<CallState>? _callStateSubscription;
   StreamSubscription<MediaStream?>? _remoteStreamSubscription;
   StreamSubscription<NetworkQuality>? _networkQualitySubscription;
@@ -128,11 +128,11 @@ class WebRTCCallNotifier extends StateNotifier<CallStateData> {
   Future<void> _initialize() async {
     await _callManager.initialize();
 
-    // 订阅通话状态
+    // 訂閱通話狀態
     _callStateSubscription = _callManager.callStateStream.listen((callState) {
       state = state.copyWith(state: callState);
 
-      // 根据状态启动或停止计时器
+      // 根據狀態啓動或停止計時器
       if (callState == CallState.connected) {
         _startDurationTimer();
       } else if (callState == CallState.ended ||
@@ -141,7 +141,7 @@ class WebRTCCallNotifier extends StateNotifier<CallStateData> {
       }
     });
 
-    // 订阅远程媒体流
+    // 訂閱遠程媒體流
     _remoteStreamSubscription =
         _callManager.remoteStreamStream.listen((stream) {
       state = state.copyWith(
@@ -150,19 +150,19 @@ class WebRTCCallNotifier extends StateNotifier<CallStateData> {
       );
     });
 
-    // 订阅网络质量
+    // 訂閱網絡質量
     _networkQualitySubscription =
         _callManager.networkQualityStream.listen((quality) {
       state = state.copyWith(networkQuality: quality);
     });
 
-    // 订阅通话管理器事件
+    // 訂閱通話管理器事件
     _eventSubscription = _callManager.eventStream.listen((event) {
       _handleEvent(event);
     });
   }
 
-  /// 处理事件
+  /// 處理事件
   void _handleEvent(CallManagerEvent event) {
     switch (event.type) {
       case CallManagerEventType.callInitialized:
@@ -188,7 +188,7 @@ class WebRTCCallNotifier extends StateNotifier<CallStateData> {
         break;
 
       case CallManagerEventType.callFailed:
-        state = state.copyWith(error: event.error ?? '通话连接失败');
+        state = state.copyWith(error: event.error ?? '通話連接失敗');
         break;
 
       case CallManagerEventType.error:
@@ -196,7 +196,7 @@ class WebRTCCallNotifier extends StateNotifier<CallStateData> {
         break;
 
       case CallManagerEventType.permissionDenied:
-        state = state.copyWith(error: '需要麦克风权限才能进行通话');
+        state = state.copyWith(error: '需要麥克風權限才能進行通話');
         break;
 
       case CallManagerEventType.recordingStarted:
@@ -212,7 +212,7 @@ class WebRTCCallNotifier extends StateNotifier<CallStateData> {
     }
   }
 
-  /// 启动时长计时器
+  /// 啓動時長計時器
   void _startDurationTimer() {
     _durationTimer?.cancel();
     _durationTimer = Timer.periodic(const Duration(seconds: 1), (_) {
@@ -220,13 +220,13 @@ class WebRTCCallNotifier extends StateNotifier<CallStateData> {
     });
   }
 
-  /// 停止时长计时器
+  /// 停止時長計時器
   void _stopDurationTimer() {
     _durationTimer?.cancel();
     _durationTimer = null;
   }
 
-  /// 作为求助者发起通话
+  /// 作爲求助者發起通話
   Future<void> startCallAsSeeker({
     required String seekerId,
     required String helpRequestId,
@@ -247,7 +247,7 @@ class WebRTCCallNotifier extends StateNotifier<CallStateData> {
     }
   }
 
-  /// 作为志愿者接听通话
+  /// 作爲志願者接聽通話
   Future<void> acceptCallAsVolunteer({
     required String volunteerId,
     required String seekerId,
@@ -270,52 +270,52 @@ class WebRTCCallNotifier extends StateNotifier<CallStateData> {
     }
   }
 
-  /// 结束通话
+  /// 結束通話
   Future<void> endCall(CallEndReason reason) async {
     await _callManager.endCall(reason);
   }
 
-  /// 静音/取消静音
+  /// 靜音/取消靜音
   Future<void> toggleMute() async {
     final isMuted = await _callManager.toggleMute();
     state = state.copyWith(isMuted: isMuted);
   }
 
-  /// 设置静音状态
+  /// 設置靜音狀態
   Future<void> setMute(bool muted) async {
     await _callManager.setMute(muted);
     state = state.copyWith(isMuted: muted);
   }
 
-  /// 切换扬声器
+  /// 切換揚聲器
   Future<void> toggleSpeaker() async {
     final isSpeakerOn = await _callManager.toggleSpeaker();
     state = state.copyWith(isSpeakerOn: isSpeakerOn);
   }
 
-  /// 设置扬声器状态
+  /// 設置揚聲器狀態
   Future<void> setSpeaker(bool enabled) async {
     await _callManager.setSpeaker(enabled);
     state = state.copyWith(isSpeakerOn: enabled);
   }
 
-  /// 开始录音
+  /// 開始錄音
   Future<void> startRecording() async {
     await _callManager.startRecording();
   }
 
-  /// 停止录音
+  /// 停止錄音
   Future<void> stopRecording() async {
     await _callManager.stopRecording();
   }
 
-  /// 重置状态
+  /// 重置狀態
   void _resetState() {
     _stopDurationTimer();
     state = const CallStateData();
   }
 
-  /// 清除错误
+  /// 清除錯誤
   void clearError() {
     state = state.copyWith(error: null);
   }
@@ -334,45 +334,45 @@ class WebRTCCallNotifier extends StateNotifier<CallStateData> {
 
 // ==================== Providers ====================
 
-/// 通话状态 Provider
+/// 通話狀態 Provider
 final webRTCCallProvider =
     StateNotifierProvider<WebRTCCallNotifier, CallStateData>((ref) {
   return WebRTCCallNotifier();
 });
 
-/// 是否正在通话中 Provider
+/// 是否正在通話中 Provider
 final isInCallProvider = Provider<bool>((ref) {
   return ref.watch(webRTCCallProvider).isInCall;
 });
 
-/// 通话状态 Provider
+/// 通話狀態 Provider
 final callStateProvider = Provider<CallState>((ref) {
   return ref.watch(webRTCCallProvider).state;
 });
 
-/// 通话时长 Provider
+/// 通話時長 Provider
 final callDurationProvider = Provider<Duration>((ref) {
   return ref.watch(webRTCCallProvider).duration;
 });
 
-/// 格式化的通话时长 Provider
+/// 格式化的通話時長 Provider
 final formattedCallDurationProvider = Provider<String>((ref) {
   return ref.watch(webRTCCallProvider).formattedDuration;
 });
 
-/// 网络质量 Provider
+/// 網絡質量 Provider
 final networkQualityProvider = Provider<NetworkQuality>((ref) {
   return ref.watch(webRTCCallProvider).networkQuality;
 });
 
-/// 通话错误 Provider
+/// 通話錯誤 Provider
 final callErrorProvider = Provider<String?>((ref) {
   return ref.watch(webRTCCallProvider).error;
 });
 
-// ==================== 辅助方法 ====================
+// ==================== 輔助方法 ====================
 
-/// 获取网络质量颜色
+/// 獲取網絡質量顏色
 Color getNetworkQualityColor(NetworkQuality quality) {
   switch (quality) {
     case NetworkQuality.excellent:
@@ -390,7 +390,7 @@ Color getNetworkQualityColor(NetworkQuality quality) {
   }
 }
 
-/// 获取网络质量图标
+/// 獲取網絡質量圖標
 IconData getNetworkQualityIcon(NetworkQuality quality) {
   switch (quality) {
     case NetworkQuality.excellent:
@@ -406,20 +406,20 @@ IconData getNetworkQualityIcon(NetworkQuality quality) {
   }
 }
 
-/// 获取网络质量描述
+/// 獲取網絡質量描述
 String getNetworkQualityDescription(NetworkQuality quality) {
   switch (quality) {
     case NetworkQuality.excellent:
-      return '网络优秀';
+      return '網絡優秀';
     case NetworkQuality.good:
-      return '网络良好';
+      return '網絡良好';
     case NetworkQuality.fair:
-      return '网络一般';
+      return '網絡一般';
     case NetworkQuality.poor:
-      return '网络较差';
+      return '網絡較差';
     case NetworkQuality.bad:
-      return '网络很差';
+      return '網絡很差';
     case NetworkQuality.unknown:
-      return '网络状态未知';
+      return '網絡狀態未知';
   }
 }

@@ -13,7 +13,7 @@ import '../../widgets/demo/demo_stage.dart';
 import '../../widgets/demo/linkable_icon.dart';
 import '../home/main_screen.dart';
 
-/// 演示版通话评价页面
+/// 演示版通話評價頁面
 class DemoCallRatingScreen extends ConsumerStatefulWidget {
   const DemoCallRatingScreen({
     super.key,
@@ -37,8 +37,8 @@ class _DemoCallRatingScreenState extends ConsumerState<DemoCallRatingScreen> {
   final List<String> _selectedTags = [];
   bool _isSubmitting = false;
 
-  final List<String> _positiveTags = ['耐心细致', '专业高效', '态度友好', '解决问题', '沟通顺畅'];
-  final List<String> _negativeTags = ['沟通困难', '未能解决', '态度冷淡', '网络卡顿', '声音不清'];
+  final List<String> _positiveTags = ['耐心細緻', '專業高效', '態度友好', '解決問題', '溝通順暢'];
+  final List<String> _negativeTags = ['溝通困難', '未能解決', '態度冷淡', '網絡卡頓', '聲音不清'];
 
   @override
   void initState() {
@@ -50,7 +50,7 @@ class _DemoCallRatingScreenState extends ConsumerState<DemoCallRatingScreen> {
     if (_rating == 0) {
       showDemoStageSnackBar(
         context,
-        message: '请给出评分',
+        message: '請給出評分',
         icon: Icons.star_outline,
         accentColor: AppTheme.stageWarning,
       );
@@ -71,7 +71,7 @@ class _DemoCallRatingScreenState extends ConsumerState<DemoCallRatingScreen> {
     if (mounted) {
       showDemoStageSnackBar(
         context,
-        message: '感谢您的评价，已写入本地 Demo 帮助回看。',
+        message: '感謝您的評價，已寫入本地 Demo 幫助回看。',
         icon: Icons.favorite_border,
         accentColor: AppTheme.stageSuccess,
       );
@@ -97,14 +97,14 @@ class _DemoCallRatingScreenState extends ConsumerState<DemoCallRatingScreen> {
     return DemoStageLiveBuilder(
       builder: (context) {
         return DemoStageScaffold(
-          title: '帮助已完成',
-          subtitle: '当前为 Demo 记录，不代表真实积分或真实志愿者档案',
+          title: '幫助已完成',
+          subtitle: '當前爲 Demo 記錄，不代表真實積分或真實志願者檔案',
           onBackPressed: _skipRating,
           actions: [
             TextButton(
               onPressed: _skipRating,
               child: Text(
-                '跳过',
+                '跳過',
                 style: TextStyle(color: AppTheme.stageTextSecondary),
               ),
             ),
@@ -151,7 +151,7 @@ class _DemoCallRatingScreenState extends ConsumerState<DemoCallRatingScreen> {
               ),
               const SizedBox(height: AppTheme.spacingXS),
               AccessibleText(
-                '本次帮助类型: ${widget.volunteer.skills.take(2).join(' / ')}',
+                '本次幫助類型: ${widget.volunteer.skills.take(2).join(' / ')}',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: AppTheme.stageTextSecondary,
@@ -160,7 +160,7 @@ class _DemoCallRatingScreenState extends ConsumerState<DemoCallRatingScreen> {
               ),
               const SizedBox(height: AppTheme.spacingXS),
               AccessibleText(
-                '通话时长: ${_formatDuration(widget.duration)}',
+                '通話時長: ${_formatDuration(widget.duration)}',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: AppTheme.stageTextSecondary,
@@ -169,7 +169,7 @@ class _DemoCallRatingScreenState extends ConsumerState<DemoCallRatingScreen> {
               ),
               const SizedBox(height: AppTheme.spacingM),
               AccessibleText(
-                '感谢你完成本次互助。你可以快速评分后返回首页，或查看本地结果回看。',
+                '感謝你完成本次互助。你可以快速評分後返回首頁，或查看本地結果回看。',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: AppTheme.stageTextSecondary,
@@ -180,7 +180,7 @@ class _DemoCallRatingScreenState extends ConsumerState<DemoCallRatingScreen> {
               const SizedBox(height: AppTheme.spacingM),
               Center(
                 child: DemoPill(
-                  label: 'Demo 记录，不产生真实积分',
+                  label: 'Demo 記錄，不產生真實積分',
                   icon: Icons.info_outline,
                   color: AppTheme.stageAccent,
                 ),
@@ -192,7 +192,7 @@ class _DemoCallRatingScreenState extends ConsumerState<DemoCallRatingScreen> {
                   child: Column(
                     children: [
                       AccessibleText(
-                        '为这次帮助评分',
+                        '爲這次幫助評分',
                         style: TextStyle(
                           color: AppTheme.stageTextPrimary,
                           fontSize: AppTheme.fontSizeXLarge,
@@ -206,7 +206,7 @@ class _DemoCallRatingScreenState extends ConsumerState<DemoCallRatingScreen> {
                           return IconButton(
                             onPressed: () =>
                                 setState(() => _rating = index + 1),
-                            tooltip: '评分${index + 1}星',
+                            tooltip: '評分${index + 1}星',
                             icon: LinkableMaterialIcon(
                               icon: index < _rating
                                   ? Icons.star
@@ -215,14 +215,14 @@ class _DemoCallRatingScreenState extends ConsumerState<DemoCallRatingScreen> {
                                   ? AppTheme.stageAccent
                                   : AppTheme.stageTextHint,
                               size: 42,
-                              semanticLabel: '评分${index + 1}星',
+                              semanticLabel: '評分${index + 1}星',
                             ),
                           );
                         }),
                       ),
                       const SizedBox(height: AppTheme.spacingS),
                       AccessibleText(
-                        _rating > 0 ? _getRatingText(_rating) : '点击星星评分',
+                        _rating > 0 ? _getRatingText(_rating) : '點擊星星評分',
                         style: TextStyle(
                           color: _rating > 0
                               ? AppTheme.stageAccent
@@ -242,7 +242,7 @@ class _DemoCallRatingScreenState extends ConsumerState<DemoCallRatingScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       AccessibleText(
-                        '选择标签（可多选）',
+                        '選擇標籤（可多選）',
                         style: TextStyle(
                           color: AppTheme.stageTextPrimary,
                           fontSize: AppTheme.fontSizeNormal,
@@ -268,7 +268,7 @@ class _DemoCallRatingScreenState extends ConsumerState<DemoCallRatingScreen> {
                   maxLines: 4,
                   style: TextStyle(color: AppTheme.stageTextPrimary),
                   decoration: InputDecoration(
-                    hintText: '写下您的具体反馈（可选）',
+                    hintText: '寫下您的具體反饋（可選）',
                     hintStyle: TextStyle(color: AppTheme.stageTextHint),
                     filled: true,
                     fillColor: AppTheme.stageSurface,
@@ -314,7 +314,7 @@ class _DemoCallRatingScreenState extends ConsumerState<DemoCallRatingScreen> {
                           ),
                         )
                       : const Text(
-                          '提交评价',
+                          '提交評價',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
@@ -330,16 +330,16 @@ class _DemoCallRatingScreenState extends ConsumerState<DemoCallRatingScreen> {
                   onPressed: () {
                     showDemoStageSnackBar(
                       context,
-                      message: '本地 Demo 已保留帮助完成记录，可在首页最近求助中回看。',
+                      message: '本地 Demo 已保留幫助完成記錄，可在首頁最近求助中回看。',
                       icon: Icons.history_outlined,
                       accentColor: AppTheme.stageInfo,
                     );
                   },
                   icon: const LinkableMaterialIcon(
                     icon: Icons.history_outlined,
-                    semanticLabel: '查看帮助档案',
+                    semanticLabel: '查看幫助檔案',
                   ),
-                  label: const Text('查看帮助档案 / 结果回看'),
+                  label: const Text('查看幫助檔案 / 結果回看'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppTheme.stageTextPrimary,
                     side: BorderSide(color: AppTheme.stageBorder),
@@ -355,7 +355,7 @@ class _DemoCallRatingScreenState extends ConsumerState<DemoCallRatingScreen> {
                 height: 54,
                 child: TextButton(
                   onPressed: _skipRating,
-                  child: const Text('返回首页'),
+                  child: const Text('返回首頁'),
                 ),
               ),
             ],
@@ -400,15 +400,15 @@ class _DemoCallRatingScreenState extends ConsumerState<DemoCallRatingScreen> {
   String _getRatingText(int rating) {
     switch (rating) {
       case 1:
-        return '非常不满意';
+        return '非常不滿意';
       case 2:
-        return '不满意';
+        return '不滿意';
       case 3:
         return '一般';
       case 4:
-        return '满意';
+        return '滿意';
       case 5:
-        return '非常满意';
+        return '非常滿意';
       default:
         return '';
     }

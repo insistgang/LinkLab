@@ -1,4 +1,4 @@
-/// 运营后台管理数据模型
+/// 運營後臺管理數據模型
 library admin_models;
 
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -6,7 +6,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'admin_models.freezed.dart';
 part 'admin_models.g.dart';
 
-/// 管理员用户模型
+/// 管理員用戶模型
 @freezed
 class AdminUser with _$AdminUser {
   const factory AdminUser({
@@ -24,7 +24,7 @@ class AdminUser with _$AdminUser {
       _$AdminUserFromJson(json);
 }
 
-/// 用户列表项模型（简化版）
+/// 用戶列表項模型（簡化版）
 @freezed
 class UserListItem with _$UserListItem {
   const factory UserListItem({
@@ -47,7 +47,7 @@ class UserListItem with _$UserListItem {
       _$UserListItemFromJson(json);
 }
 
-/// 认证审核项
+/// 認證審覈項
 @freezed
 class VerificationRequest with _$VerificationRequest {
   const factory VerificationRequest({
@@ -68,7 +68,7 @@ class VerificationRequest with _$VerificationRequest {
       _$VerificationRequestFromJson(json);
 }
 
-/// 举报记录
+/// 舉報記錄
 @freezed
 class ReportRecord with _$ReportRecord {
   const factory ReportRecord({
@@ -93,7 +93,7 @@ class ReportRecord with _$ReportRecord {
       _$ReportRecordFromJson(json);
 }
 
-/// 内容管理项
+/// 內容管理項
 @freezed
 class ContentItem with _$ContentItem {
   const factory ContentItem({
@@ -117,7 +117,7 @@ class ContentItem with _$ContentItem {
       _$ContentItemFromJson(json);
 }
 
-/// 仪表盘统计数据
+/// 儀表盤統計數據
 @freezed
 class DashboardStats with _$DashboardStats {
   const factory DashboardStats({
@@ -142,7 +142,7 @@ class DashboardStats with _$DashboardStats {
       _$DashboardStatsFromJson(json);
 }
 
-/// 趋势数据点
+/// 趨勢數據點
 @freezed
 class TrendDataPoint with _$TrendDataPoint {
   const factory TrendDataPoint({
@@ -155,7 +155,7 @@ class TrendDataPoint with _$TrendDataPoint {
       _$TrendDataPointFromJson(json);
 }
 
-/// 分布数据项
+/// 分佈數據項
 @freezed
 class DistributionItem with _$DistributionItem {
   const factory DistributionItem({
@@ -168,7 +168,7 @@ class DistributionItem with _$DistributionItem {
       _$DistributionItemFromJson(json);
 }
 
-/// 统计报表
+/// 統計報表
 @freezed
 class StatisticsReport with _$StatisticsReport {
   const factory StatisticsReport({
@@ -186,7 +186,7 @@ class StatisticsReport with _$StatisticsReport {
       _$StatisticsReportFromJson(json);
 }
 
-/// 用户筛选条件
+/// 用戶篩選條件
 class UserFilter {
   String? searchQuery;
   List<String>? roles;
@@ -219,7 +219,7 @@ class UserFilter {
   }
 }
 
-/// 分页结果
+/// 分頁結果
 class PaginatedResult<T> {
   final List<T> items;
   final int totalCount;
@@ -236,7 +236,7 @@ class PaginatedResult<T> {
   });
 }
 
-/// 操作日志
+/// 操作日誌
 @freezed
 class OperationLog with _$OperationLog {
   const factory OperationLog({

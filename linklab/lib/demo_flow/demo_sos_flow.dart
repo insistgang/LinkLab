@@ -1,5 +1,5 @@
-// 演示版SOS紧急流程
-// 处理SOS触发、通知和响应
+// 演示版SOS緊急流程
+// 處理SOS觸發、通知和響應
 
 import 'dart:async';
 
@@ -10,12 +10,12 @@ import '../core/utils/logger.dart';
 import '../screens/call/demo_exports.dart';
 import 'demo_matching_flow.dart';
 
-/// SOS触发方式
+/// SOS觸發方式
 enum SOSTriggerType {
-  longPress,    // 长按3秒
-  powerButton,  // 电源键3次
-  voice,        // 语音触发
-  manual,       // 手动点击
+  longPress,    // 長按3秒
+  powerButton,  // 電源鍵3次
+  voice,        // 語音觸發
+  manual,       // 手動點擊
 }
 
 /// 演示版SOS流程控制器
@@ -25,7 +25,7 @@ class DemoSOSFlow {
 
   static bool get isActive => _isActive;
 
-  /// 触发SOS流程
+  /// 觸發SOS流程
   static Future<void> triggerSOS(
     BuildContext context, {
     SOSTriggerType type = SOSTriggerType.manual,
@@ -34,10 +34,10 @@ class DemoSOSFlow {
 
     _isActive = true;
 
-    // 震动反馈
+    // 震動反饋
     HapticFeedback.heavyImpact();
 
-    // 进入SOS页面
+    // 進入SOS頁面
     if (context.mounted) {
       Navigator.of(context).push(
         MaterialPageRoute(
@@ -46,10 +46,10 @@ class DemoSOSFlow {
       );
     }
 
-    // 模拟发送短信给紧急联系人
+    // 模擬發送短信給緊急聯繫人
     await _sendEmergencySMS();
 
-    // 5秒后自动匹配
+    // 5秒後自動匹配
     _responseTimer?.cancel();
     _responseTimer = Timer(const Duration(seconds: 5), () {
       if (context.mounted) {
@@ -64,32 +64,32 @@ class DemoSOSFlow {
     _responseTimer?.cancel();
   }
 
-  /// SOS解决
+  /// SOS解決
   static void resolveSOS() {
     _isActive = false;
     _responseTimer?.cancel();
   }
 
-  /// 模拟发送紧急短信
+  /// 模擬發送緊急短信
   static Future<void> _sendEmergencySMS() async {
-    // 演示模式：仅打印日志
-    // 真实版本会调用SMS API
-    AppLogger.info('[DEMO] 发送紧急短信给联系人');
-    AppLogger.verbose('[DEMO] - 联系人1: 138****0001');
-    AppLogger.verbose('[DEMO] - 联系人2: 139****0002');
-    AppLogger.verbose('[DEMO] - 短信内容: 【共感LinkAble紧急求助】您的亲友触发了SOS...');
+    // 演示模式：僅打印日誌
+    // 真實版本會調用SMS API
+    AppLogger.info('[DEMO] 發送緊急短信給聯繫人');
+    AppLogger.verbose('[DEMO] - 聯繫人1: 138****0001');
+    AppLogger.verbose('[DEMO] - 聯繫人2: 139****0002');
+    AppLogger.verbose('[DEMO] - 短信內容: 【共感LinkAble緊急求助】您的親友觸發了SOS...');
 
-    // 模拟延迟
+    // 模擬延遲
     await Future.delayed(const Duration(milliseconds: 500));
   }
 
-  /// 自动匹配志愿者
+  /// 自動匹配志願者
   static void _autoMatchVolunteer(BuildContext context) {
     if (!_isActive) return;
 
-    AppLogger.info('[DEMO] SOS响应：匹配到志愿者');
+    AppLogger.info('[DEMO] SOS響應：匹配到志願者');
 
-    // 导航到通话页面
+    // 導航到通話頁面
     if (context.mounted) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
@@ -100,15 +100,15 @@ class DemoSOSFlow {
   }
 }
 
-/// SOS快捷触发器
+/// SOS快捷觸發器
 class DemoSOSTrigger {
-  // 电源键计数
+  // 電源鍵計數
   static DateTime? _lastPowerKeyTime;
   static int _powerKeyCount = 0;
   static const int _triggerCount = 3;
   static const int _timeWindowMs = 3000;
 
-  /// 处理电源键事件（由原生代码调用）
+  /// 處理電源鍵事件（由原生代碼調用）
   static void onPowerKeyPressed() {
     final now = DateTime.now();
 
@@ -123,16 +123,16 @@ class DemoSOSTrigger {
 
     if (_powerKeyCount >= _triggerCount) {
       _powerKeyCount = 0;
-      // 触发SOS
-      // 需要BuildContext，这里仅记录状态
-      AppLogger.warning('[DEMO] 电源键SOS触发（3次）');
+      // 觸發SOS
+      // 需要BuildContext，這裏僅記錄狀態
+      AppLogger.warning('[DEMO] 電源鍵SOS觸發（3次）');
     }
   }
 
-  /// 检查语音触发
+  /// 檢查語音觸發
   static bool checkVoiceTrigger(String text) {
     final sosKeywords = [
-      '紧急求助',
+      '緊急求助',
       '救命',
       'SOS',
       'help',
@@ -146,21 +146,21 @@ class DemoSOSTrigger {
 
 /// SOS演示配置
 class DemoSOSConfig {
-  /// 长按触发时间（毫秒）
+  /// 長按觸發時間（毫秒）
   static const int longPressDurationMs = 3000;
 
-  /// 自动响应时间（秒）
+  /// 自動響應時間（秒）
   static const int autoResponseDelaySeconds = 5;
 
-  /// 模拟紧急联系人
+  /// 模擬緊急聯繫人
   static const List<Map<String, String>> emergencyContacts = [
-    {'name': '儿子', 'phone': '138****0001'},
-    {'name': '女儿', 'phone': '139****0002'},
+    {'name': '兒子', 'phone': '138****0001'},
+    {'name': '女兒', 'phone': '139****0002'},
   ];
 
-  /// 模拟短信内容模板
+  /// 模擬短信內容模板
   static String getSMSTemplate(String location) {
-    return '【共感LinkAble紧急求助】您的亲友触发了SOS求助，'
-        '位置: $location，请尽快联系确认安全。';
+    return '【共感LinkAble緊急求助】您的親友觸發了SOS求助，'
+        '位置: $location，請儘快聯繫確認安全。';
   }
 }

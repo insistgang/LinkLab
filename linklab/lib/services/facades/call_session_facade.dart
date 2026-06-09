@@ -6,25 +6,25 @@ import '../demo_call_service.dart';
 
 /// CallSessionFacade
 ///
-/// AGENTS.md §12.2 统一入口：通话能力的唯一 facade。
-/// 包装 DemoCallService，对外屏蔽 demo/real 实现差异。
-/// UI 层只允许通过本 facade 调用通话能力。
+/// AGENTS.md §12.2 統一入口：通話能力的唯一 facade。
+/// 包裝 DemoCallService，對外屏蔽 demo/real 實現差異。
+/// UI 層只允許通過本 facade 調用通話能力。
 class CallSessionFacade {
   final DemoCallService _demoCall;
 
   CallSessionFacade({DemoCallService? demoCall})
     : _demoCall = demoCall ?? DemoCallService();
 
-  // ────────────────────────── 通话流程 ──────────────────────────
+  // ────────────────────────── 通話流程 ──────────────────────────
 
-  /// 开始通话
+  /// 開始通話
   ///
-  /// [volunteerId] 志愿者 ID
+  /// [volunteerId] 志願者 ID
   Future<CallStatusModel> startCall(String volunteerId) async {
     if (AppConfig.demoMode || !FeatureFlags.enableWebRTC) {
       return CallStatusModel.connected(
         volunteerId: volunteerId,
-        volunteerName: '演示志愿者',
+        volunteerName: '演示志願者',
       );
     }
 
@@ -38,11 +38,11 @@ class CallSessionFacade {
         callDuration: _demoCall.callDuration,
       );
     } catch (e) {
-      return CallStatusModel.error('startCall 失败: $e');
+      return CallStatusModel.error('startCall 失敗: $e');
     }
   }
 
-  /// 结束通话
+  /// 結束通話
   Future<CallStatusModel> endCall() async {
     if (AppConfig.demoMode || !FeatureFlags.enableWebRTC) {
       return CallStatusModel.ended();
@@ -52,43 +52,43 @@ class CallSessionFacade {
       await _demoCall.hangUp();
       return CallStatusModel.ended(callDuration: _demoCall.callDuration);
     } catch (e) {
-      return CallStatusModel.error('endCall 失败: $e');
+      return CallStatusModel.error('endCall 失敗: $e');
     }
   }
 
-  /// 切换静音
+  /// 切換靜音
   CallStatusModel toggleMute() {
     _demoCall.toggleMute();
     return _getCurrentStatus();
   }
 
-  /// 切换扬声器
+  /// 切換揚聲器
   CallStatusModel toggleSpeaker() {
     _demoCall.toggleSpeaker();
     return _getCurrentStatus();
   }
 
-  /// 获取通话状态
+  /// 獲取通話狀態
   CallStatusModel getCallStatus() {
     return _getCurrentStatus();
   }
 
-  /// 模拟断线（Demo 专用）
+  /// 模擬斷線（Demo 專用）
   Future<CallStatusModel> simulateDisconnect() async {
     if (AppConfig.demoMode || !FeatureFlags.enableWebRTC) {
       return CallStatusModel.disconnected();
     }
 
     try {
-      // 模拟断线：先挂断，然后返回 disconnected 状态
+      // 模擬斷線：先掛斷，然後返回 disconnected 狀態
       await _demoCall.hangUp();
       return CallStatusModel.disconnected();
     } catch (e) {
-      return CallStatusModel.error('simulateDisconnect 失败: $e');
+      return CallStatusModel.error('simulateDisconnect 失敗: $e');
     }
   }
 
-  // ────────────────────────── 内部辅助 ──────────────────────────
+  // ────────────────────────── 內部輔助 ──────────────────────────
 
   CallStatusModel _getCurrentStatus() {
     final state = _demoCall.state;

@@ -6,7 +6,7 @@ import '../../services/security/authentication_service.dart';
 import '../../widgets/accessible/accessible_scaffold.dart';
 import '../../widgets/accessible/accessible_button.dart';
 
-/// 多级认证页面
+/// 多級認證頁面
 class AuthenticationScreen extends StatefulWidget {
   final String userId;
 
@@ -49,7 +49,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
   @override
   Widget build(BuildContext context) {
     return AccessibleScaffold(
-      title: '实名认证',
+      title: '實名認證',
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
@@ -100,7 +100,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            '当前认证等级',
+            '當前認證等級',
             style: TextStyle(
               fontSize: 14,
               color: Colors.white70,
@@ -151,7 +151,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          '认证等级',
+          '認證等級',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -199,16 +199,16 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
     switch (level) {
       case AuthLevel.phone:
         icon = Icons.phone_android;
-        subtitle = '已完成手机号验证';
+        subtitle = '已完成手機號驗證';
       case AuthLevel.realName:
         icon = Icons.badge;
-        subtitle = '提交身份证信息';
+        subtitle = '提交身份證信息';
       case AuthLevel.disabledCert:
         icon = Icons.accessibility_new;
-        subtitle = '上传残障证明，获得优先匹配权';
+        subtitle = '上傳殘障證明，獲得優先匹配權';
       case AuthLevel.skillCert:
         icon = Icons.workspace_premium;
-        subtitle = '提交专业技能证书';
+        subtitle = '提交專業技能證書';
     }
 
     return Card(
@@ -261,7 +261,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
             if (isPending) ...[
               const SizedBox(height: 4),
               const Text(
-                '审核中...',
+                '審覈中...',
                 style: TextStyle(
                   color: Colors.orange,
                   fontWeight: FontWeight.bold,
@@ -283,7 +283,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
   void _onAuthLevelTap(AuthLevel level) {
     switch (level) {
       case AuthLevel.phone:
-        // 手机号认证已在登录时完成
+        // 手機號認證已在登錄時完成
         break;
       case AuthLevel.realName:
         _showRealNameDialog();
@@ -311,14 +311,14 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
             if (mounted) {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('实名认证申请已提交')),
+                const SnackBar(content: Text('實名認證申請已提交')),
               );
               _loadData();
             }
           } catch (e) {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('提交失败: $e')),
+                SnackBar(content: Text('提交失敗: $e')),
               );
             }
           }
@@ -329,8 +329,8 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
 
   void _showDisabledCertUpload() {
     _showImageUploadDialog(
-      title: '上传残障证明',
-      description: '请上传您的残障证明照片，支持身份证、残疾证等有效证件',
+      title: '上傳殘障證明',
+      description: '請上傳您的殘障證明照片，支持身份證、殘疾證等有效證件',
       onUpload: (file) async {
         try {
           await _authService.uploadDisabledCertificate(
@@ -340,14 +340,14 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
           if (mounted) {
             Navigator.pop(context);
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('残障证明上传成功，等待审核')),
+              const SnackBar(content: Text('殘障證明上傳成功，等待審覈')),
             );
             _loadData();
           }
         } catch (e) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('上传失败: $e')),
+              SnackBar(content: Text('上傳失敗: $e')),
             );
           }
         }
@@ -357,26 +357,26 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
 
   void _showSkillCertUpload() {
     _showImageUploadDialog(
-      title: '上传技能证书',
-      description: '请上传您的专业技能证书，如手语证书、护理证书等',
+      title: '上傳技能證書',
+      description: '請上傳您的專業技能證書，如手語證書、護理證書等',
       onUpload: (file) async {
         try {
           await _authService.submitSkillCertification(
             userId: widget.userId,
-            skill: '专业技能',
+            skill: '專業技能',
             certificate: file,
           );
           if (mounted) {
             Navigator.pop(context);
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('技能认证申请已提交')),
+              const SnackBar(content: Text('技能認證申請已提交')),
             );
             _loadData();
           }
         } catch (e) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('上传失败: $e')),
+              SnackBar(content: Text('上傳失敗: $e')),
             );
           }
         }
@@ -404,7 +404,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          '认证申请记录',
+          '認證申請記錄',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -423,16 +423,16 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
     switch (app.status) {
       case CertificationStatus.pending:
         statusColor = Colors.orange;
-        statusText = '审核中';
+        statusText = '審覈中';
       case CertificationStatus.approved:
         statusColor = Colors.green;
-        statusText = '已通过';
+        statusText = '已通過';
       case CertificationStatus.rejected:
         statusColor = Colors.red;
-        statusText = '已拒绝';
+        statusText = '已拒絕';
       case CertificationStatus.expired:
         statusColor = Colors.grey;
-        statusText = '已过期';
+        statusText = '已過期';
     }
 
     return Container(
@@ -457,7 +457,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '提交时间: ${_formatDate(app.submittedAt)}',
+                  '提交時間: ${_formatDate(app.submittedAt)}',
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.grey[600],
@@ -505,7 +505,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
   }
 }
 
-/// 实名认证对话框
+/// 實名認證對話框
 class _RealNameVerificationDialog extends StatefulWidget {
   final Function(String name, String idCard) onSubmit;
 
@@ -524,7 +524,7 @@ class _RealNameVerificationDialogState
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('实名认证'),
+      title: const Text('實名認證'),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -532,8 +532,8 @@ class _RealNameVerificationDialogState
             TextField(
               controller: _nameController,
               decoration: const InputDecoration(
-                labelText: '真实姓名',
-                hintText: '请输入您的真实姓名',
+                labelText: '真實姓名',
+                hintText: '請輸入您的真實姓名',
                 prefixIcon: Icon(Icons.person),
               ),
             ),
@@ -541,8 +541,8 @@ class _RealNameVerificationDialogState
             TextField(
               controller: _idCardController,
               decoration: const InputDecoration(
-                labelText: '身份证号',
-                hintText: '请输入18位身份证号',
+                labelText: '身份證號',
+                hintText: '請輸入18位身份證號',
                 prefixIcon: Icon(Icons.credit_card),
               ),
               keyboardType: TextInputType.number,
@@ -560,13 +560,13 @@ class _RealNameVerificationDialogState
           onPressed: () {
             if (_nameController.text.isEmpty) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('请输入姓名')),
+                const SnackBar(content: Text('請輸入姓名')),
               );
               return;
             }
             if (_idCardController.text.length != 18) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('请输入正确的身份证号')),
+                const SnackBar(content: Text('請輸入正確的身份證號')),
               );
               return;
             }
@@ -586,7 +586,7 @@ class _RealNameVerificationDialogState
   }
 }
 
-/// 图片上传对话框
+/// 圖片上傳對話框
 class _ImageUploadDialog extends StatefulWidget {
   final String title;
   final String description;
@@ -666,7 +666,7 @@ class _ImageUploadDialogState extends State<_ImageUploadDialog> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '点击选择图片',
+                      '點擊選擇圖片',
                       style: TextStyle(color: Colors.grey[600]),
                     ),
                   ],
@@ -686,7 +686,7 @@ class _ImageUploadDialogState extends State<_ImageUploadDialog> {
                 Expanded(
                   child: AccessibleButton(
                     onPressed: () => _pickImage(ImageSource.gallery),
-                    label: '相册',
+                    label: '相冊',
                     icon: Icons.photo_library,
                   ),
                 ),
@@ -704,7 +704,7 @@ class _ImageUploadDialogState extends State<_ImageUploadDialog> {
           onPressed: _selectedImage != null
               ? () => widget.onUpload(_selectedImage!)
               : null,
-          child: const Text('上传'),
+          child: const Text('上傳'),
         ),
       ],
     );

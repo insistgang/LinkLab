@@ -124,9 +124,9 @@ class DemoHelpRequestModel {
       case DemoHelpRequestStatus.waitingMatch:
         return '待匹配';
       case DemoHelpRequestStatus.pending:
-        return '待处理';
+        return '待處理';
       case DemoHelpRequestStatus.inProgress:
-        return '进行中';
+        return '進行中';
       case DemoHelpRequestStatus.completed:
         return '已完成';
       case DemoHelpRequestStatus.cancelled:
@@ -139,11 +139,11 @@ class DemoHelpRequestModel {
   String get locationModeLabel {
     switch (locationMode) {
       case DemoHelpLocationMode.online:
-        return '线上';
+        return '線上';
       case DemoHelpLocationMode.offline:
-        return '线下';
+        return '線下';
       case DemoHelpLocationMode.flexible:
-        return '线上/线下皆可';
+        return '線上/線下皆可';
       default:
         return locationMode;
     }
@@ -154,21 +154,21 @@ class DemoHelpRequestModel {
       case 'companion_chat':
         return '陪伴聊天';
       case 'reading_support':
-        return '读屏识别';
+        return '讀屏識別';
       case 'travel_assist':
-        return '出行协助';
+        return '出行協助';
       case 'medical_support':
-        return '医疗陪护';
+        return '醫療陪護';
       case 'device_help':
-        return '设备使用';
+        return '設備使用';
       case 'other':
-        return '其他帮助';
+        return '其他幫助';
       default:
         return type;
     }
   }
 
-  String get accessibilityLabel => accessibilityNeeded ? '需要无障碍支持' : '常规支持即可';
+  String get accessibilityLabel => accessibilityNeeded ? '需要無障礙支持' : '常規支持即可';
 }
 
 class DemoHelpRequestStatus {

@@ -14,7 +14,7 @@ import 'auth_service.dart';
 import 'local_storage.dart';
 import 'real_database_repository.dart';
 
-@Deprecated('使用 Riverpod appSessionProvider 代替。此类保留仅供过渡期非 Consumer 上下文使用。')
+@Deprecated('使用 Riverpod appSessionProvider 代替。此類保留僅供過渡期非 Consumer 上下文使用。')
 class AppSessionService extends ChangeNotifier {
   AppSessionService._internal();
 
@@ -51,7 +51,7 @@ class AppSessionService extends ChangeNotifier {
       await _restoreSupabaseSession();
       _listenToSupabaseAuthState();
     } else if (AppConfig.isRealMode) {
-      // RealMode 没有可用 Supabase Auth 时不能沿用本地 Demo 登录态。
+      // RealMode 沒有可用 Supabase Auth 時不能沿用本地 Demo 登錄態。
       _isLoggedIn = false;
     }
 
@@ -65,7 +65,7 @@ class AppSessionService extends ChangeNotifier {
 
   Future<void> loginExistingUser(String phone) async {
     if (AppConfig.isRealMode) {
-      throw Exception('RealMode 请使用邮箱登录，手机号短信暂未接入。');
+      throw Exception('RealMode 請使用郵箱登錄，手機號短信暫未接入。');
     }
 
     final normalizedPhone = _normalizePhone(phone);
@@ -95,7 +95,7 @@ class AppSessionService extends ChangeNotifier {
     required String password,
   }) async {
     if (!FeatureFlags.enableSupabaseAuth) {
-      return _completeDemoEmailAuth(email: email, message: '已使用本地演示账号登录');
+      return _completeDemoEmailAuth(email: email, message: '已使用本地演示賬號登錄');
     }
 
     final outcome = await _authService.signInWithEmailPassword(
@@ -113,7 +113,7 @@ class AppSessionService extends ChangeNotifier {
     required String password,
   }) async {
     if (!FeatureFlags.enableSupabaseAuth) {
-      return _completeDemoEmailAuth(email: email, message: '已创建本地演示账号并登录');
+      return _completeDemoEmailAuth(email: email, message: '已創建本地演示賬號並登錄');
     }
 
     final outcome = await _authService.signUpWithEmailPassword(
@@ -128,7 +128,7 @@ class AppSessionService extends ChangeNotifier {
 
   Future<void> sendEmailLoginLink(String email) async {
     if (!FeatureFlags.enableSupabaseAuth) {
-      AppLogger.info('DemoMode 已模拟发送邮箱登录邮件');
+      AppLogger.info('DemoMode 已模擬發送郵箱登錄郵件');
       return;
     }
     await _authService.sendEmailLoginLink(email);
@@ -230,7 +230,7 @@ class AppSessionService extends ChangeNotifier {
     if (currentProfile != null) {
       await loginExistingUser(currentProfile.phone);
       await setStageMode(DemoStageMode.day);
-      AppLogger.info('已恢复本地演示账号，直接进入竞赛主演示');
+      AppLogger.info('已恢復本地演示賬號，直接進入競賽主演示');
       return;
     }
 
@@ -248,7 +248,7 @@ class AppSessionService extends ChangeNotifier {
       preferences: presenterPreferences,
     );
     await setStageMode(DemoStageMode.day);
-    AppLogger.info('已注入竞赛演示员会话，默认直达 Demo 主线');
+    AppLogger.info('已注入競賽演示員會話，默認直達 Demo 主線');
   }
 
   List<HelpRequestModel> getRecentHelpHistory({int limit = 3}) {
@@ -309,10 +309,10 @@ class AppSessionService extends ChangeNotifier {
         'id': 'help-demo-1',
         'seekerId': userId,
         'type': 'ai_auto',
-        'intent': '识别药品说明书',
+        'intent': '識別藥品說明書',
         'urgency': 'important',
         'status': 'ai_resolved',
-        'aiResponse': {'summary': '已识别药品名称与用法，并建议人工复核关键剂量信息。'},
+        'aiResponse': {'summary': '已識別藥品名稱與用法，並建議人工複覈關鍵劑量信息。'},
         'durationSeconds': 92,
         'seekerRating': 5,
         'createdAt': now.subtract(const Duration(hours: 4)).toIso8601String(),
@@ -324,7 +324,7 @@ class AppSessionService extends ChangeNotifier {
         'id': 'help-demo-2',
         'seekerId': userId,
         'type': 'realtime_voice',
-        'intent': '协助查看快递面单',
+        'intent': '協助查看快遞面單',
         'urgency': 'normal',
         'status': 'completed',
         'volunteerId': 'demo-volunteer-1',
@@ -344,7 +344,7 @@ class AppSessionService extends ChangeNotifier {
         'id': 'help-demo-3',
         'seekerId': userId,
         'type': 'sos',
-        'intent': '夜间迷路，触发紧急协助',
+        'intent': '夜間迷路，觸發緊急協助',
         'urgency': 'emergency',
         'status': 'completed',
         'volunteerId': 'demo-volunteer-2',
@@ -375,12 +375,12 @@ class AppSessionService extends ChangeNotifier {
         ? phone.substring(phone.length - 4)
         : phone;
     if (roles.contains('volunteer') && roles.contains('seeker')) {
-      return '互助用户$suffix';
+      return '互助用戶$suffix';
     }
     if (roles.contains('volunteer')) {
-      return '志愿者$suffix';
+      return '志願者$suffix';
     }
-    return '用户$suffix';
+    return '用戶$suffix';
   }
 
   Future<EmailAuthOutcome> _completeDemoEmailAuth({
@@ -396,7 +396,7 @@ class AppSessionService extends ChangeNotifier {
     final user = UserModel(
       id: 'demo-email-${safeId.isEmpty ? 'user' : safeId}',
       phone: normalizedEmail,
-      name: localPart.isEmpty ? '邮箱用户' : localPart,
+      name: localPart.isEmpty ? '郵箱用戶' : localPart,
       role: const ['seeker'],
       disabilityType: const [],
       preferences: _preferences,
@@ -418,7 +418,7 @@ class AppSessionService extends ChangeNotifier {
     }
 
     notifyListeners();
-    AppLogger.info('DemoMode 邮箱登录已完成');
+    AppLogger.info('DemoMode 郵箱登錄已完成');
 
     return EmailAuthOutcome(signedIn: true, message: message);
   }
@@ -506,7 +506,7 @@ class AppSessionService extends ChangeNotifier {
         : metadata['name']?.toString().trim();
     final fallbackName = email != null && email.contains('@')
         ? email.split('@').first
-        : 'LinkAble用户';
+        : 'LinkAble用戶';
 
     return UserModel(
       id: authUser.id,
@@ -543,7 +543,7 @@ class AppSessionService extends ChangeNotifier {
       );
     } catch (error, stackTrace) {
       AppLogger.warning(
-        'RealMode profile 同步失败，继续使用 Auth session',
+        'RealMode profile 同步失敗，繼續使用 Auth session',
         error,
         stackTrace,
       );
@@ -566,7 +566,7 @@ class AppSessionService extends ChangeNotifier {
     super.dispose();
   }
 
-  /// 将当前服务状态转换为 Riverpod 状态对象。
-  /// 仅用于过渡期桥接，新代码应直接使用 [AppSessionState.fromService]。
+  /// 將當前服務狀態轉換爲 Riverpod 狀態對象。
+  /// 僅用於過渡期橋接，新代碼應直接使用 [AppSessionState.fromService]。
   AppSessionState toRiverpodState() => AppSessionState.fromService(this);
 }

@@ -4,8 +4,8 @@ import '../../core/utils/logger.dart';
 import '../../models/favorite_volunteer_model.dart';
 import '../local_storage.dart' as app_storage;
 
-/// 常用志愿者服务 (F16)
-/// 管理求助者与志愿者之间的收藏关系，并兼容本地演示模式。
+/// 常用志願者服務 (F16)
+/// 管理求助者與志願者之間的收藏關係，併兼容本地演示模式。
 class FavoriteVolunteerService {
   FavoriteVolunteerService({
     SupabaseClient? supabase,
@@ -39,8 +39,8 @@ class FavoriteVolunteerService {
     _localInitialized = true;
   }
 
-  /// 添加常用志愿者
-  /// 通常在双方互评高分（>=4星）后调用
+  /// 添加常用志願者
+  /// 通常在雙方互評高分（>=4星）後調用
   Future<bool> addFavorite(
     String seekerId,
     String volunteerId, {
@@ -78,7 +78,7 @@ class FavoriteVolunteerService {
             'id': 'favorite_${DateTime.now().microsecondsSinceEpoch}',
             'seekerId': seekerId,
             'volunteerId': volunteerId,
-            'name': volunteerName ?? '志愿者',
+            'name': volunteerName ?? '志願者',
             'avatarUrl': _normalizeLocalAvatar(volunteerAvatar),
             'cooperationCount': 1,
             'averageRating': initialRating,
@@ -88,10 +88,10 @@ class FavoriteVolunteerService {
         }
 
         await _saveLocalFavorites(favorites);
-        AppLogger.info('本地添加常用志愿者成功: $seekerId -> $volunteerId');
+        AppLogger.info('本地添加常用志願者成功: $seekerId -> $volunteerId');
         return true;
       } catch (e) {
-        AppLogger.error('本地添加常用志愿者失败', e);
+        AppLogger.error('本地添加常用志願者失敗', e);
         return false;
       }
     }
@@ -119,7 +119,7 @@ class FavoriteVolunteerService {
             })
             .eq('id', favoriteId);
 
-        AppLogger.info('更新常用志愿者合作次数: $seekerId -> $volunteerId');
+        AppLogger.info('更新常用志願者合作次數: $seekerId -> $volunteerId');
         return true;
       }
 
@@ -137,22 +137,22 @@ class FavoriteVolunteerService {
       await _supabase.from('favorite_volunteers').insert({
         'seeker_id': seekerId,
         'volunteer_id': volunteerId,
-        'volunteer_name': remoteVolunteerName ?? '志愿者',
+        'volunteer_name': remoteVolunteerName ?? '志願者',
         'volunteer_avatar': remoteVolunteerAvatar,
         'cooperation_count': 1,
         'created_at': DateTime.now().toIso8601String(),
         'last_cooperation_at': DateTime.now().toIso8601String(),
       });
 
-      AppLogger.info('添加常用志愿者成功: $seekerId -> $volunteerId');
+      AppLogger.info('添加常用志願者成功: $seekerId -> $volunteerId');
       return true;
     } catch (e) {
-      AppLogger.error('添加常用志愿者失败', e);
+      AppLogger.error('添加常用志願者失敗', e);
       return false;
     }
   }
 
-  /// 获取常用志愿者列表（别名方法，兼容UI调用）
+  /// 獲取常用志願者列表（別名方法，兼容UI調用）
   Future<List<FavoriteVolunteerModel>> getFavoriteVolunteers(
     String seekerId, {
     int limit = 50,
@@ -160,7 +160,7 @@ class FavoriteVolunteerService {
     return getFavorites(seekerId, limit: limit);
   }
 
-  /// 获取常用志愿者列表
+  /// 獲取常用志願者列表
   Future<List<FavoriteVolunteerModel>> getFavorites(
     String seekerId, {
     int limit = 50,
@@ -185,7 +185,7 @@ class FavoriteVolunteerService {
 
         return items.length > limit ? items.sublist(0, limit) : items;
       } catch (e) {
-        AppLogger.error('获取本地常用志愿者列表失败', e);
+        AppLogger.error('獲取本地常用志願者列表失敗', e);
         return [];
       }
     }
@@ -235,12 +235,12 @@ class FavoriteVolunteerService {
 
       return favorites;
     } catch (e) {
-      AppLogger.error('获取常用志愿者列表失败', e);
+      AppLogger.error('獲取常用志願者列表失敗', e);
       return [];
     }
   }
 
-  /// 移除常用志愿者
+  /// 移除常用志願者
   Future<bool> removeFavorite(String seekerId, String volunteerId) async {
     if (!_hasSupabase) {
       try {
@@ -252,10 +252,10 @@ class FavoriteVolunteerService {
               item['volunteerId'] == volunteerId,
         );
         await _saveLocalFavorites(favorites);
-        AppLogger.info('移除本地常用志愿者: $seekerId -> $volunteerId');
+        AppLogger.info('移除本地常用志願者: $seekerId -> $volunteerId');
         return true;
       } catch (e) {
-        AppLogger.error('移除本地常用志愿者失败', e);
+        AppLogger.error('移除本地常用志願者失敗', e);
         return false;
       }
     }
@@ -267,15 +267,15 @@ class FavoriteVolunteerService {
           .eq('seeker_id', seekerId)
           .eq('volunteer_id', volunteerId);
 
-      AppLogger.info('移除常用志愿者: $seekerId -> $volunteerId');
+      AppLogger.info('移除常用志願者: $seekerId -> $volunteerId');
       return true;
     } catch (e) {
-      AppLogger.error('移除常用志愿者失败', e);
+      AppLogger.error('移除常用志願者失敗', e);
       return false;
     }
   }
 
-  /// 检查是否为常用志愿者
+  /// 檢查是否爲常用志願者
   Future<bool> isFavorite(String seekerId, String volunteerId) async {
     if (!_hasSupabase) {
       await _ensureLocalStorage();
@@ -295,12 +295,12 @@ class FavoriteVolunteerService {
 
       return response != null;
     } catch (e) {
-      AppLogger.error('检查常用志愿者状态失败', e);
+      AppLogger.error('檢查常用志願者狀態失敗', e);
       return false;
     }
   }
 
-  /// 获取常用志愿者统计
+  /// 獲取常用志願者統計
   Future<FavoriteVolunteerStats> getStats(String seekerId) async {
     if (!_hasSupabase) {
       try {
@@ -325,7 +325,7 @@ class FavoriteVolunteerService {
           mostFrequentVolunteerName: mostFrequent.volunteerName,
         );
       } catch (e) {
-        AppLogger.error('获取本地常用志愿者统计失败', e);
+        AppLogger.error('獲取本地常用志願者統計失敗', e);
         return const FavoriteVolunteerStats();
       }
     }
@@ -364,12 +364,12 @@ class FavoriteVolunteerService {
         ),
       );
     } catch (e) {
-      AppLogger.error('获取常用志愿者统计失败', e);
+      AppLogger.error('獲取常用志願者統計失敗', e);
       return const FavoriteVolunteerStats();
     }
   }
 
-  /// 更新合作次数（在帮助完成后调用）
+  /// 更新合作次數（在幫助完成後調用）
   Future<void> incrementCooperation(
     String seekerId,
     String volunteerId, {
@@ -419,7 +419,7 @@ class FavoriteVolunteerService {
           );
         }
       } catch (e) {
-        AppLogger.error('更新本地合作次数失败', e);
+        AppLogger.error('更新本地合作次數失敗', e);
       }
       return;
     }
@@ -462,12 +462,12 @@ class FavoriteVolunteerService {
         await addFavorite(seekerId, volunteerId);
       }
     } catch (e) {
-      AppLogger.error('更新合作次数失败', e);
+      AppLogger.error('更新合作次數失敗', e);
     }
   }
 
-  /// 获取重逢提示信息
-  /// 在匹配到常用志愿者时调用
+  /// 獲取重逢提示信息
+  /// 在匹配到常用志願者時調用
   Future<String?> getReunionMessage(String seekerId, String volunteerId) async {
     if (!_hasSupabase) {
       try {
@@ -482,12 +482,12 @@ class FavoriteVolunteerService {
 
         if (favorite == null) return null;
         final count = favorite.cooperationCount;
-        if (count == 1) return '首次合作，感谢信任！';
-        if (count < 5) return '你们已经是第$count次合作了！';
-        if (count < 10) return '默契搭档！这是你们的第$count次合作';
-        return '资深搭档！你们已经合作$count次了！';
+        if (count == 1) return '首次合作，感謝信任！';
+        if (count < 5) return '你們已經是第$count次合作了！';
+        if (count < 10) return '默契搭檔！這是你們的第$count次合作';
+        return '資深搭檔！你們已經合作$count次了！';
       } catch (e) {
-        AppLogger.error('获取本地重逢信息失败', e);
+        AppLogger.error('獲取本地重逢信息失敗', e);
         return null;
       }
     }
@@ -506,21 +506,21 @@ class FavoriteVolunteerService {
       final count = ((responseMap['cooperation_count'] as num?) ?? 1).toInt();
 
       if (count == 1) {
-        return '首次合作，感谢信任！';
+        return '首次合作，感謝信任！';
       } else if (count < 5) {
-        return '你们已经是第$count次合作了！';
+        return '你們已經是第$count次合作了！';
       } else if (count < 10) {
-        return '默契搭档！这是你们的第$count次合作';
+        return '默契搭檔！這是你們的第$count次合作';
       } else {
-        return '资深搭档！你们已经合作$count次了！';
+        return '資深搭檔！你們已經合作$count次了！';
       }
     } catch (e) {
-      AppLogger.error('获取重逢信息失败', e);
+      AppLogger.error('獲取重逢信息失敗', e);
       return null;
     }
   }
 
-  /// 获取在线的常用志愿者
+  /// 獲取在線的常用志願者
   Future<List<FavoriteVolunteerModel>> getOnlineFavorites(
     String seekerId,
   ) async {
@@ -549,7 +549,7 @@ class FavoriteVolunteerService {
 
       return onlineFavorites;
     } catch (e) {
-      AppLogger.error('获取在线常用志愿者失败', e);
+      AppLogger.error('獲取在線常用志願者失敗', e);
       return [];
     }
   }

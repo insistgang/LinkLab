@@ -9,16 +9,16 @@ import 'package:permission_handler/permission_handler.dart';
 import '../../core/utils/logger.dart';
 import 'webrtc_config.dart';
 
-/// 录音状态
+/// 錄音狀態
 enum RecordingState {
-  idle,       // 空闲
-  recording,  // 录音中
-  paused,     // 暂停
+  idle,       // 空閒
+  recording,  // 錄音中
+  paused,     // 暫停
   stopped,    // 已停止
-  error,      // 错误
+  error,      // 錯誤
 }
 
-/// 录音信息
+/// 錄音信息
 class RecordingInfo {
   final String filePath;
   final DateTime startTime;
@@ -36,14 +36,14 @@ class RecordingInfo {
     required this.format,
   });
 
-  /// 获取格式化的时长
+  /// 獲取格式化的時長
   String get formattedDuration {
     final minutes = duration.inMinutes.toString().padLeft(2, '0');
     final seconds = (duration.inSeconds % 60).toString().padLeft(2, '0');
     return '$minutes:$seconds';
   }
 
-  /// 获取格式化的文件大小
+  /// 獲取格式化的文件大小
   String get formattedFileSize {
     if (fileSize < 1024) return '$fileSize B';
     if (fileSize < 1024 * 1024) return '${(fileSize / 1024).toStringAsFixed(1)} KB';
@@ -51,53 +51,53 @@ class RecordingInfo {
   }
 }
 
-/// 通话录音服务
-/// 支持录制本地音频流并保存到文件
+/// 通話錄音服務
+/// 支持錄製本地音頻流並保存到文件
 class CallRecordingService {
   static final CallRecordingService _instance = CallRecordingService._internal();
   factory CallRecordingService() => _instance;
   CallRecordingService._internal();
 
-  // ==================== 录音组件 ====================
+  // ==================== 錄音組件 ====================
 
-  /// FlutterSound录音器
+  /// FlutterSound錄音器
   FlutterSoundRecorder? _recorder;
 
-  /// 录音会话
+  /// 錄音會話
   StreamSubscription? _recordingDataSubscription;
 
-  // ==================== 状态流控制器 ====================
+  // ==================== 狀態流控制器 ====================
 
-  /// 录音状态流
+  /// 錄音狀態流
   final _stateController = StreamController<RecordingState>.broadcast();
 
-  /// 录音时长流
+  /// 錄音時長流
   final _durationController = StreamController<Duration>.broadcast();
 
-  /// 录音电平流（用于显示音量指示）
+  /// 錄音電平流（用於顯示音量指示）
   final _levelController = StreamController<double>.broadcast();
 
-  /// 错误流
+  /// 錯誤流
   final _errorController = StreamController<String>.broadcast();
 
-  // ==================== 状态 ====================
+  // ==================== 狀態 ====================
 
-  /// 当前录音状态
+  /// 當前錄音狀態
   RecordingState _state = RecordingState.idle;
 
-  /// 录音开始时间
+  /// 錄音開始時間
   DateTime? _startTime;
 
-  /// 录音暂停时间
+  /// 錄音暫停時間
   DateTime? _pauseTime;
 
-  /// 累计录音时长
+  /// 累計錄音時長
   Duration _recordedDuration = Duration.zero;
 
-  /// 当前录音文件路径
+  /// 當前錄音文件路徑
   String? _currentFilePath;
 
-  /// 计时器
+  /// 計時器
   Timer? _durationTimer;
 
   /// 是否已初始化
@@ -105,31 +105,31 @@ class CallRecordingService {
 
   // ==================== Getters ====================
 
-  /// 录音状态流
+  /// 錄音狀態流
   Stream<RecordingState> get stateStream => _stateController.stream;
 
-  /// 录音时长流
+  /// 錄音時長流
   Stream<Duration> get durationStream => _durationController.stream;
 
-  /// 录音电平流
+  /// 錄音電平流
   Stream<double> get levelStream => _levelController.stream;
 
-  /// 错误流
+  /// 錯誤流
   Stream<String> get errorStream => _errorController.stream;
 
-  /// 当前录音状态
+  /// 當前錄音狀態
   RecordingState get state => _state;
 
-  /// 是否正在录音
+  /// 是否正在錄音
   bool get isRecording => _state == RecordingState.recording;
 
-  /// 是否已暂停
+  /// 是否已暫停
   bool get isPaused => _state == RecordingState.paused;
 
-  /// 当前录音文件路径
+  /// 當前錄音文件路徑
   String? get currentFilePath => _currentFilePath;
 
-  /// 当前录音时长
+  /// 當前錄音時長
   Duration get currentDuration {
     if (_state == RecordingState.recording && _startTime != null) {
       return _recordedDuration + DateTime.now().difference(_startTime!);
@@ -139,47 +139,47 @@ class CallRecordingService {
 
   // ==================== 初始化方法 ====================
 
-  /// 初始化录音服务
+  /// 初始化錄音服務
   Future<void> initialize() async {
     if (_isInitialized) return;
 
     try {
       _recorder = FlutterSoundRecorder();
 
-      // 打开录音器
+      // 打開錄音器
       await _recorder!.openRecorder();
 
-      // 设置订阅（用于获取录音电平）
+      // 設置訂閱（用於獲取錄音電平）
       await _recorder!.setSubscriptionDuration(
         const Duration(milliseconds: 100),
       );
 
       _isInitialized = true;
-      AppLogger.info('[Recording] 录音服务已初始化');
+      AppLogger.info('[Recording] 錄音服務已初始化');
     } catch (error, stackTrace) {
-      AppLogger.error('[Recording] 初始化录音服务失败', error, stackTrace);
-      _emitError('初始化录音服务失败: $error');
-      throw Exception('初始化录音服务失败: $error');
+      AppLogger.error('[Recording] 初始化錄音服務失敗', error, stackTrace);
+      _emitError('初始化錄音服務失敗: $error');
+      throw Exception('初始化錄音服務失敗: $error');
     }
   }
 
-  /// 检查并请求权限
+  /// 檢查並請求權限
   Future<bool> checkPermissions() async {
     try {
-      // 检查麦克风权限
+      // 檢查麥克風權限
       var microphoneStatus = await Permission.microphone.status;
       if (!microphoneStatus.isGranted) {
         microphoneStatus = await Permission.microphone.request();
       }
 
-      // 检查存储权限（Android）
+      // 檢查存儲權限（Android）
       if (Platform.isAndroid) {
         var storageStatus = await Permission.storage.status;
         if (!storageStatus.isGranted) {
           storageStatus = await Permission.storage.request();
         }
 
-        // Android 13+ 需要更细粒度的权限
+        // Android 13+ 需要更細粒度的權限
         if (await Permission.audio.isRestricted == false) {
           var audioStatus = await Permission.audio.status;
           if (!audioStatus.isGranted) {
@@ -190,18 +190,18 @@ class CallRecordingService {
 
       return microphoneStatus.isGranted;
     } catch (error, stackTrace) {
-      AppLogger.error('[Recording] 权限检查失败', error, stackTrace);
-      _emitError('权限检查失败: $error');
+      AppLogger.error('[Recording] 權限檢查失敗', error, stackTrace);
+      _emitError('權限檢查失敗: $error');
       return false;
     }
   }
 
-  // ==================== 录音控制方法 ====================
+  // ==================== 錄音控制方法 ====================
 
-  /// 开始录音
+  /// 開始錄音
   ///
-  /// [customFileName] - 自定义文件名（可选）
-  /// [codec] - 音频编码格式
+  /// [customFileName] - 自定義文件名（可選）
+  /// [codec] - 音頻編碼格式
   Future<RecordingInfo?> startRecording({
     String? customFileName,
     Codec codec = Codec.aacADTS,
@@ -211,49 +211,49 @@ class CallRecordingService {
     }
 
     if (_state == RecordingState.recording) {
-      throw Exception('正在录音中，请先停止当前录音');
+      throw Exception('正在錄音中，請先停止當前錄音');
     }
 
-    // 检查权限
+    // 檢查權限
     final hasPermission = await checkPermissions();
     if (!hasPermission) {
-      throw Exception('需要麦克风权限才能录音');
+      throw Exception('需要麥克風權限才能錄音');
     }
 
     try {
-      // 生成文件路径
+      // 生成文件路徑
       final filePath = await _generateFilePath(
         customFileName: customFileName,
         codec: codec,
       );
       _currentFilePath = filePath;
 
-      // 开始录音
+      // 開始錄音
       await _recorder!.startRecorder(
         toFile: filePath,
         codec: codec,
         sampleRate: WebRTCConfig.recordingSampleRate,
         bitRate: WebRTCConfig.recordingBitrate,
-        numChannels: 1, // 单声道
+        numChannels: 1, // 單聲道
       );
 
-      // 监听录音数据（获取音量电平）
+      // 監聽錄音數據（獲取音量電平）
       _recordingDataSubscription = _recorder!.onProgress!.listen((event) {
-        // 发送音量电平（0.0 - 1.0）
+        // 發送音量電平（0.0 - 1.0）
         final decibels = event.decibels ?? 0;
         final normalizedLevel = _normalizeDecibels(decibels);
         _levelController.add(normalizedLevel);
       });
 
-      // 更新状态
+      // 更新狀態
       _state = RecordingState.recording;
       _startTime = DateTime.now();
       _stateController.add(_state);
 
-      // 启动计时器
+      // 啓動計時器
       _startDurationTimer();
 
-      AppLogger.info('[Recording] 开始录音: $filePath');
+      AppLogger.info('[Recording] 開始錄音: $filePath');
 
       return RecordingInfo(
         filePath: filePath,
@@ -263,22 +263,22 @@ class CallRecordingService {
         format: _getFormatFromCodec(codec),
       );
     } catch (error, stackTrace) {
-      AppLogger.error('[Recording] 开始录音失败', error, stackTrace);
+      AppLogger.error('[Recording] 開始錄音失敗', error, stackTrace);
       _state = RecordingState.error;
       _stateController.add(_state);
-      _emitError('开始录音失败: $error');
+      _emitError('開始錄音失敗: $error');
       return null;
     }
   }
 
-  /// 暂停录音
+  /// 暫停錄音
   Future<void> pauseRecording() async {
     if (_state != RecordingState.recording) return;
 
     try {
       await _recorder!.pauseRecorder();
 
-      // 计算已录音时长
+      // 計算已錄音時長
       if (_startTime != null) {
         _recordedDuration += DateTime.now().difference(_startTime!);
       }
@@ -287,17 +287,17 @@ class CallRecordingService {
       _state = RecordingState.paused;
       _stateController.add(_state);
 
-      // 停止计时器
+      // 停止計時器
       _stopDurationTimer();
 
-      AppLogger.info('[Recording] 录音已暂停');
+      AppLogger.info('[Recording] 錄音已暫停');
     } catch (error, stackTrace) {
-      AppLogger.error('[Recording] 暂停录音失败', error, stackTrace);
-      _emitError('暂停录音失败: $error');
+      AppLogger.error('[Recording] 暫停錄音失敗', error, stackTrace);
+      _emitError('暫停錄音失敗: $error');
     }
   }
 
-  /// 恢复录音
+  /// 恢復錄音
   Future<void> resumeRecording() async {
     if (_state != RecordingState.paused) return;
 
@@ -309,39 +309,39 @@ class CallRecordingService {
       _state = RecordingState.recording;
       _stateController.add(_state);
 
-      // 启动计时器
+      // 啓動計時器
       _startDurationTimer();
 
-      AppLogger.info('[Recording] 录音已恢复');
+      AppLogger.info('[Recording] 錄音已恢復');
     } catch (error, stackTrace) {
-      AppLogger.error('[Recording] 恢复录音失败', error, stackTrace);
-      _emitError('恢复录音失败: $error');
+      AppLogger.error('[Recording] 恢復錄音失敗', error, stackTrace);
+      _emitError('恢復錄音失敗: $error');
     }
   }
 
-  /// 停止录音
+  /// 停止錄音
   Future<RecordingInfo?> stopRecording() async {
     if (_state != RecordingState.recording && _state != RecordingState.paused) {
       return null;
     }
 
     try {
-      // 停止录音
+      // 停止錄音
       final filePath = await _recorder!.stopRecorder();
 
-      // 计算最终时长
+      // 計算最終時長
       if (_state == RecordingState.recording && _startTime != null) {
         _recordedDuration += DateTime.now().difference(_startTime!);
       }
 
-      // 取消订阅
+      // 取消訂閱
       await _recordingDataSubscription?.cancel();
       _recordingDataSubscription = null;
 
-      // 停止计时器
+      // 停止計時器
       _stopDurationTimer();
 
-      // 获取文件信息
+      // 獲取文件信息
       final file = File(filePath ?? _currentFilePath ?? '');
       int fileSize = 0;
       if (await file.exists()) {
@@ -359,42 +359,42 @@ class CallRecordingService {
         format: _getFormatFromFilePath(filePath ?? _currentFilePath ?? ''),
       );
 
-      // 重置状态
+      // 重置狀態
       _state = RecordingState.stopped;
       _stateController.add(_state);
 
       AppLogger.info(
-        '[Recording] 录音已停止: ${info.formattedDuration}, ${info.formattedFileSize}',
+        '[Recording] 錄音已停止: ${info.formattedDuration}, ${info.formattedFileSize}',
       );
 
       return info;
     } catch (error, stackTrace) {
-      AppLogger.error('[Recording] 停止录音失败', error, stackTrace);
+      AppLogger.error('[Recording] 停止錄音失敗', error, stackTrace);
       _state = RecordingState.error;
       _stateController.add(_state);
-      _emitError('停止录音失败: $error');
+      _emitError('停止錄音失敗: $error');
       return null;
     }
   }
 
-  /// 取消录音（不保存文件）
+  /// 取消錄音（不保存文件）
   Future<void> cancelRecording() async {
     if (_state != RecordingState.recording && _state != RecordingState.paused) {
       return;
     }
 
     try {
-      // 停止录音
+      // 停止錄音
       await _recorder!.stopRecorder();
 
-      // 取消订阅
+      // 取消訂閱
       await _recordingDataSubscription?.cancel();
       _recordingDataSubscription = null;
 
-      // 停止计时器
+      // 停止計時器
       _stopDurationTimer();
 
-      // 删除临时文件
+      // 刪除臨時文件
       if (_currentFilePath != null) {
         final file = File(_currentFilePath!);
         if (await file.exists()) {
@@ -402,7 +402,7 @@ class CallRecordingService {
         }
       }
 
-      // 重置状态
+      // 重置狀態
       _state = RecordingState.idle;
       _recordedDuration = Duration.zero;
       _startTime = null;
@@ -410,16 +410,16 @@ class CallRecordingService {
       _currentFilePath = null;
       _stateController.add(_state);
 
-      AppLogger.info('[Recording] 录音已取消');
+      AppLogger.info('[Recording] 錄音已取消');
     } catch (error, stackTrace) {
-      AppLogger.error('[Recording] 取消录音失败', error, stackTrace);
-      _emitError('取消录音失败: $error');
+      AppLogger.error('[Recording] 取消錄音失敗', error, stackTrace);
+      _emitError('取消錄音失敗: $error');
     }
   }
 
   // ==================== 文件管理方法 ====================
 
-  /// 获取录音文件列表
+  /// 獲取錄音文件列表
   Future<List<RecordingInfo>> getRecordings() async {
     try {
       final directory = await _getRecordingsDirectory();
@@ -433,42 +433,42 @@ class CallRecordingService {
           recordings.add(RecordingInfo(
             filePath: file.path,
             startTime: stat.modified.subtract(const Duration(minutes: 5)), // 估算
-            duration: Duration.zero, // 无法从文件获取
+            duration: Duration.zero, // 無法從文件獲取
             fileSize: stat.size,
             format: _getFormatFromFilePath(file.path),
           ));
         }
       }
 
-      // 按时间排序（最新的在前）
+      // 按時間排序（最新的在前）
       recordings.sort((a, b) => b.startTime.compareTo(a.startTime));
 
       return recordings;
     } catch (error, stackTrace) {
-      AppLogger.error('[Recording] 获取录音列表失败', error, stackTrace);
-      _emitError('获取录音列表失败: $error');
+      AppLogger.error('[Recording] 獲取錄音列表失敗', error, stackTrace);
+      _emitError('獲取錄音列表失敗: $error');
       return [];
     }
   }
 
-  /// 删除录音文件
+  /// 刪除錄音文件
   Future<bool> deleteRecording(String filePath) async {
     try {
       final file = File(filePath);
       if (await file.exists()) {
         await file.delete();
-        AppLogger.info('[Recording] 录音已删除: $filePath');
+        AppLogger.info('[Recording] 錄音已刪除: $filePath');
         return true;
       }
       return false;
     } catch (error, stackTrace) {
-      AppLogger.error('[Recording] 删除录音失败', error, stackTrace);
-      _emitError('删除录音失败: $error');
+      AppLogger.error('[Recording] 刪除錄音失敗', error, stackTrace);
+      _emitError('刪除錄音失敗: $error');
       return false;
     }
   }
 
-  /// 重命名录音文件
+  /// 重命名錄音文件
   Future<String?> renameRecording(String oldPath, String newName) async {
     try {
       final oldFile = File(oldPath);
@@ -481,13 +481,13 @@ class CallRecordingService {
       final newFile = await oldFile.rename(newPath);
       return newFile.path;
     } catch (error, stackTrace) {
-      AppLogger.error('[Recording] 重命名录音失败', error, stackTrace);
-      _emitError('重命名录音失败: $error');
+      AppLogger.error('[Recording] 重命名錄音失敗', error, stackTrace);
+      _emitError('重命名錄音失敗: $error');
       return null;
     }
   }
 
-  /// 获取录音文件
+  /// 獲取錄音文件
   Future<File?> getRecordingFile(String filePath) async {
     try {
       final file = File(filePath);
@@ -496,31 +496,31 @@ class CallRecordingService {
       }
       return null;
     } catch (error, stackTrace) {
-      AppLogger.error('[Recording] 获取录音文件失败', error, stackTrace);
-      _emitError('获取录音文件失败: $error');
+      AppLogger.error('[Recording] 獲取錄音文件失敗', error, stackTrace);
+      _emitError('獲取錄音文件失敗: $error');
       return null;
     }
   }
 
-  /// 导出录音文件到指定路径
+  /// 導出錄音文件到指定路徑
   Future<bool> exportRecording(String sourcePath, String destinationPath) async {
     try {
       final sourceFile = File(sourcePath);
       if (!await sourceFile.exists()) return false;
 
       await sourceFile.copy(destinationPath);
-      AppLogger.info('[Recording] 录音已导出: $destinationPath');
+      AppLogger.info('[Recording] 錄音已導出: $destinationPath');
       return true;
     } catch (error, stackTrace) {
-      AppLogger.error('[Recording] 导出录音失败', error, stackTrace);
-      _emitError('导出录音失败: $error');
+      AppLogger.error('[Recording] 導出錄音失敗', error, stackTrace);
+      _emitError('導出錄音失敗: $error');
       return false;
     }
   }
 
-  // ==================== 内部辅助方法 ====================
+  // ==================== 內部輔助方法 ====================
 
-  /// 生成录音文件路径
+  /// 生成錄音文件路徑
   Future<String> _generateFilePath({
     String? customFileName,
     Codec codec = Codec.aacADTS,
@@ -536,18 +536,18 @@ class CallRecordingService {
     return '${directory.path}/$fileName.$extension';
   }
 
-  /// 获取录音目录
+  /// 獲取錄音目錄
   Future<Directory> _getRecordingsDirectory() async {
     Directory? directory;
 
     if (Platform.isAndroid) {
-      // Android: 使用应用私有目录
+      // Android: 使用應用私有目錄
       directory = await getApplicationDocumentsDirectory();
     } else if (Platform.isIOS) {
-      // iOS: 使用文档目录
+      // iOS: 使用文檔目錄
       directory = await getApplicationDocumentsDirectory();
     } else {
-      // 其他平台
+      // 其他平臺
       directory = await getApplicationDocumentsDirectory();
     }
 
@@ -559,29 +559,29 @@ class CallRecordingService {
     return recordingsDir;
   }
 
-  /// 启动时长计时器
+  /// 啓動時長計時器
   void _startDurationTimer() {
     _durationTimer?.cancel();
     _durationTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       _durationController.add(currentDuration);
 
-      // 检查最大录音时长
+      // 檢查最大錄音時長
       if (currentDuration.inMinutes >= WebRTCConfig.maxRecordingDurationMinutes) {
         stopRecording();
       }
     });
   }
 
-  /// 停止时长计时器
+  /// 停止時長計時器
   void _stopDurationTimer() {
     _durationTimer?.cancel();
     _durationTimer = null;
   }
 
-  /// 标准化分贝值到0-1范围
+  /// 標準化分貝值到0-1範圍
   double _normalizeDecibels(double decibels) {
-    // 将分贝值映射到0-1范围
-    // 假设范围是 -60dB 到 0dB
+    // 將分貝值映射到0-1範圍
+    // 假設範圍是 -60dB 到 0dB
     const minDb = -60.0;
     const maxDb = 0.0;
 
@@ -591,7 +591,7 @@ class CallRecordingService {
     return (decibels - minDb) / (maxDb - minDb);
   }
 
-  /// 从Codec获取文件扩展名
+  /// 從Codec獲取文件擴展名
   String _getExtensionFromCodec(Codec codec) {
     switch (codec) {
       case Codec.aacADTS:
@@ -614,7 +614,7 @@ class CallRecordingService {
     }
   }
 
-  /// 从Codec获取格式名称
+  /// 從Codec獲取格式名稱
   String _getFormatFromCodec(Codec codec) {
     switch (codec) {
       case Codec.aacADTS:
@@ -637,7 +637,7 @@ class CallRecordingService {
     }
   }
 
-  /// 从文件路径获取格式
+  /// 從文件路徑獲取格式
   String _getFormatFromFilePath(String filePath) {
     final extension = filePath.split('.').last.toLowerCase();
     switch (extension) {
@@ -658,30 +658,30 @@ class CallRecordingService {
     }
   }
 
-  /// 发送错误
+  /// 發送錯誤
   void _emitError(String error) {
     AppLogger.error('[Recording] $error');
     _errorController.add(error);
   }
 
-  /// 释放资源
+  /// 釋放資源
   Future<void> dispose() async {
-    // 停止录音
+    // 停止錄音
     if (_state == RecordingState.recording || _state == RecordingState.paused) {
       await stopRecording();
     }
 
-    // 取消订阅
+    // 取消訂閱
     await _recordingDataSubscription?.cancel();
 
-    // 停止计时器
+    // 停止計時器
     _stopDurationTimer();
 
-    // 关闭录音器
+    // 關閉錄音器
     await _recorder?.closeRecorder();
     _recorder = null;
 
-    // 关闭流控制器
+    // 關閉流控制器
     _stateController.close();
     _durationController.close();
     _levelController.close();

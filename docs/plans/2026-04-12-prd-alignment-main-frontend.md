@@ -78,7 +78,7 @@ Load the latest 3 help records from local storage/service fallback instead of ha
 
 **Step 3: Add featured story content on the home page**
 
-Show a small “每日精选故事” section that reads from the community story service fallback.
+Show a small “每日精選故事” section that reads from the community story service fallback.
 
 **Step 4: Make profile page useful**
 

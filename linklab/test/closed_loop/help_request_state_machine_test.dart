@@ -11,7 +11,7 @@ import 'package:linklab/services/demo/demo_ai_service.dart';
 import 'test_harness.dart';
 
 void main() {
-  test('help_request_status 只有 AGENTS.md 允许的 8 个主状态', () {
+  test('help_request_status 只有 AGENTS.md 允許的 8 個主狀態', () {
     final wireNames = HelpRequestStatus.values
         .map((status) => status.wireName)
         .toList(growable: false);
@@ -36,7 +36,7 @@ void main() {
     );
   });
 
-  test('AGENTS.md help_request 状态机只允许 MVP 主状态转移', () {
+  test('AGENTS.md help_request 狀態機只允許 MVP 主狀態轉移', () {
     expect(
       HelpRequestStatus.created.canTransitionTo(HelpRequestStatus.aiProcessing),
       isTrue,
@@ -84,19 +84,19 @@ void main() {
     );
   });
 
-  test('AI 可处理路径：created -> ai_processing -> ai_resolved', () async {
+  test('AI 可處理路徑：created -> ai_processing -> ai_resolved', () async {
     await prepareSignedInDemoEnvironment(clearHelpHistory: true);
     final container = ProviderContainer();
     addTearDown(container.dispose);
 
     final controller = container.read(demoHelpRequestFlowProvider.notifier);
-    await controller.startAiProcessing(intent: '帮我读药品盒');
+    await controller.startAiProcessing(intent: '幫我讀藥品盒');
     expect(
       container.read(demoHelpRequestFlowProvider).status,
       HelpRequestStatus.aiProcessing,
     );
 
-    final result = await DemoAIService().process('帮我读药品盒');
+    final result = await DemoAIService().process('幫我讀藥品盒');
     expect(result.success, isTrue);
     expect(result.text, contains('阿莫西林'));
 
@@ -109,20 +109,20 @@ void main() {
   });
 
   test(
-    'AI 转人工路径：ai_processing -> matching -> connected -> completed',
+    'AI 轉人工路徑：ai_processing -> matching -> connected -> completed',
     () async {
       await prepareSignedInDemoEnvironment(clearHelpHistory: true);
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
       final controller = container.read(demoHelpRequestFlowProvider.notifier);
-      await controller.startAiProcessing(intent: '我在医院找不到科室，需要人帮忙');
+      await controller.startAiProcessing(intent: '我在醫院找不到科室，需要人幫忙');
 
-      final result = await DemoAIService().process('我在医院找不到科室，需要人帮忙');
+      final result = await DemoAIService().process('我在醫院找不到科室，需要人幫忙');
       expect(result.success, isTrue);
       expect(result.data?['intent'], 'need_human');
 
-      await controller.enterMatching(intent: '我在医院找不到科室，需要人帮忙');
+      await controller.enterMatching(intent: '我在醫院找不到科室，需要人幫忙');
       expect(
         container.read(demoHelpRequestFlowProvider).status,
         HelpRequestStatus.matching,
@@ -130,8 +130,8 @@ void main() {
 
       await controller.markConnected(
         volunteerId: 'demo_001',
-        volunteerName: '张小明',
-        volunteerSkills: const ['出行导航'],
+        volunteerName: '張小明',
+        volunteerSkills: const ['出行導航'],
       );
       expect(
         container.read(demoHelpRequestFlowProvider).status,
@@ -146,21 +146,21 @@ void main() {
     },
   );
 
-  test('匹配取消与过期路径：matching -> cancelled / expired', () async {
+  test('匹配取消與過期路徑：matching -> cancelled / expired', () async {
     await prepareSignedInDemoEnvironment(clearHelpHistory: true);
     final container = ProviderContainer();
     addTearDown(container.dispose);
 
     final controller = container.read(demoHelpRequestFlowProvider.notifier);
-    await controller.enterMatching(intent: '需要人帮忙');
-    await controller.markCancelled(reason: '用户取消匹配');
+    await controller.enterMatching(intent: '需要人幫忙');
+    await controller.markCancelled(reason: '用戶取消匹配');
     expect(
       container.read(demoHelpRequestFlowProvider).status,
       HelpRequestStatus.cancelled,
     );
 
     controller.reset();
-    await controller.enterMatching(intent: '需要人帮忙');
+    await controller.enterMatching(intent: '需要人幫忙');
     await controller.markExpired();
     expect(
       container.read(demoHelpRequestFlowProvider).status,
@@ -168,16 +168,16 @@ void main() {
     );
   });
 
-  test('通话掉线 10 秒未恢复可从 connected 回到 matching', () async {
+  test('通話掉線 10 秒未恢復可從 connected 回到 matching', () async {
     await prepareSignedInDemoEnvironment(clearHelpHistory: true);
     final container = ProviderContainer();
     addTearDown(container.dispose);
 
     final controller = container.read(demoHelpRequestFlowProvider.notifier);
-    await controller.enterMatching(intent: '需要语音协助');
+    await controller.enterMatching(intent: '需要語音協助');
     await controller.markConnected(
       volunteerId: 'demo_001',
-      volunteerName: '张小明',
+      volunteerName: '張小明',
     );
 
     await controller.returnToMatchingAfterDisconnect();
@@ -187,7 +187,7 @@ void main() {
     );
   });
 
-  test('F13 SOS 只使用内部流程标记，不污染 help_request 主状态机', () async {
+  test('F13 SOS 只使用內部流程標記，不污染 help_request 主狀態機', () async {
     await prepareSignedInDemoEnvironment(clearHelpHistory: true);
     final container = ProviderContainer();
     addTearDown(container.dispose);

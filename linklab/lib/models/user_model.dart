@@ -3,7 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'user_model.freezed.dart';
 part 'user_model.g.dart';
 
-/// 用户模型
+/// 用戶模型
 @freezed
 class UserModel with _$UserModel {
   const factory UserModel({
@@ -23,20 +23,20 @@ class UserModel with _$UserModel {
 
   const UserModel._();
 
-  /// 是否拥有求助者角色
+  /// 是否擁有求助者角色
   bool get isSeeker => role.contains('seeker');
 
-  /// 是否拥有志愿者角色
+  /// 是否擁有志願者角色
   bool get isVolunteer => role.contains('volunteer');
 
-  /// 是否为视障用户
+  /// 是否爲視障用戶
   bool get isVisualImpaired => disabilityType.contains('visual');
 
-  /// 显示名称
+  /// 顯示名稱
   String get displayName => name ?? phone;
 }
 
-/// 无障碍偏好设置
+/// 無障礙偏好設置
 @freezed
 class AccessibilityPreferences with _$AccessibilityPreferences {
   const factory AccessibilityPreferences({
@@ -54,7 +54,7 @@ class AccessibilityPreferences with _$AccessibilityPreferences {
       _$AccessibilityPreferencesFromJson(json);
 }
 
-/// 志愿者档案模型
+/// 志願者檔案模型
 @freezed
 class VolunteerProfile with _$VolunteerProfile {
   const factory VolunteerProfile({
@@ -76,23 +76,23 @@ class VolunteerProfile with _$VolunteerProfile {
 
   const VolunteerProfile._();
 
-  /// 等级名称
+  /// 等級名稱
   String get levelName {
     switch (level) {
       case 1:
         return '初心者';
       case 2:
-        return '见习志愿者';
+        return '見習志願者';
       case 3:
-        return '正式志愿者';
+        return '正式志願者';
       case 4:
-        return '资深志愿者';
+        return '資深志願者';
       case 5:
-        return '专家志愿者';
+        return '專家志願者';
       case 6:
-        return '大师志愿者';
+        return '大師志願者';
       case 7:
-        return '传奇志愿者';
+        return '傳奇志願者';
       default:
         return '初心者';
     }

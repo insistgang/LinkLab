@@ -1,8 +1,8 @@
 -- ============================================
--- 用户中心和成长体系数据库表结构
+-- 用戶中心和成長體系數據庫表結構
 -- ============================================
 
--- 用户签到表
+-- 用戶簽到表
 CREATE TABLE IF NOT EXISTS user_checkins (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -13,19 +13,19 @@ CREATE TABLE IF NOT EXISTS user_checkins (
     UNIQUE(user_id, checkin_date)
 );
 
--- 积分交易记录表
+-- 積分交易記錄表
 CREATE TABLE IF NOT EXISTS point_transactions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     points INTEGER NOT NULL,
     type VARCHAR(50) NOT NULL, -- dailyCheckIn, weeklyBonus, monthlyBonus, realtimeHelp, asyncHelp, fiveStarRating, continuousHelpBonus, penalty, etc.
     description TEXT,
-    related_id UUID, -- 关联的帮助请求ID等
+    related_id UUID, -- 關聯的幫助請求ID等
     is_positive BOOLEAN DEFAULT true,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 志愿者档案表
+-- 志願者檔案表
 CREATE TABLE IF NOT EXISTS volunteer_profiles (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS volunteer_profiles (
     UNIQUE(user_id)
 );
 
--- 志愿者技能表
+-- 志願者技能表
 CREATE TABLE IF NOT EXISTS volunteer_skills (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     volunteer_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS volunteer_skills (
     UNIQUE(volunteer_id, skill_id)
 );
 
--- 技能认证申请表
+-- 技能認證申請表
 CREATE TABLE IF NOT EXISTS skill_verification_requests (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     volunteer_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS skill_verification_requests (
     reviewed_at TIMESTAMPTZ
 );
 
--- 常用志愿者表
+-- 常用志願者表
 CREATE TABLE IF NOT EXISTS favorite_volunteers (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     seeker_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS badges (
     UNIQUE(user_id, type)
 );
 
--- 善意时间线表
+-- 善意時間線表
 CREATE TABLE IF NOT EXISTS volunteer_timeline (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     volunteer_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS volunteer_timeline (
     UNIQUE(volunteer_id, date)
 );
 
--- 时间线事件表
+-- 時間線事件表
 CREATE TABLE IF NOT EXISTS timeline_events (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     timeline_id UUID NOT NULL REFERENCES volunteer_timeline(id) ON DELETE CASCADE,
@@ -130,7 +130,7 @@ CREATE TABLE IF NOT EXISTS volunteer_schedules (
     UNIQUE(user_id)
 );
 
--- 异步任务表
+-- 異步任務表
 CREATE TABLE IF NOT EXISTS async_tasks (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     help_request_id UUID REFERENCES help_requests(id) ON DELETE CASCADE,
@@ -147,7 +147,7 @@ CREATE TABLE IF NOT EXISTS async_tasks (
 );
 
 -- ============================================
--- 创建索引
+-- 創建索引
 -- ============================================
 
 CREATE INDEX IF NOT EXISTS idx_user_checkins_user_id ON user_checkins(user_id);
@@ -183,7 +183,7 @@ CREATE INDEX IF NOT EXISTS idx_async_tasks_volunteer_id ON async_tasks(volunteer
 CREATE INDEX IF NOT EXISTS idx_async_tasks_status ON async_tasks(status);
 
 -- ============================================
--- 创建RLS策略
+-- 創建RLS策略
 -- ============================================
 
 ALTER TABLE user_checkins ENABLE ROW LEVEL SECURITY;
@@ -198,20 +198,20 @@ ALTER TABLE timeline_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE volunteer_schedules ENABLE ROW LEVEL SECURITY;
 ALTER TABLE async_tasks ENABLE ROW LEVEL SECURITY;
 
--- 用户签到表策略
+-- 用戶簽到表策略
 CREATE POLICY user_checkins_select ON user_checkins
     FOR SELECT USING (auth.uid() = user_id);
 
 CREATE POLICY user_checkins_insert ON user_checkins
     FOR INSERT WITH CHECK (auth.uid() = user_id);
 
--- 积分交易表策略
+-- 積分交易表策略
 CREATE POLICY point_transactions_select ON point_transactions
     FOR SELECT USING (auth.uid() = user_id);
 
--- 志愿者档案表策略
+-- 志願者檔案表策略
 CREATE POLICY volunteer_profiles_select ON volunteer_profiles
-    FOR SELECT USING (true); -- 公开查询
+    FOR SELECT USING (true); -- 公開查詢
 
 CREATE POLICY volunteer_profiles_update_own ON volunteer_profiles
     FOR UPDATE USING (auth.uid() = user_id);
@@ -219,7 +219,7 @@ CREATE POLICY volunteer_profiles_update_own ON volunteer_profiles
 CREATE POLICY volunteer_profiles_insert_own ON volunteer_profiles
     FOR INSERT WITH CHECK (auth.uid() = user_id);
 
--- 志愿者技能表策略
+-- 志願者技能表策略
 CREATE POLICY volunteer_skills_select ON volunteer_skills
     FOR SELECT USING (true);
 
@@ -229,14 +229,14 @@ CREATE POLICY volunteer_skills_update_own ON volunteer_skills
 CREATE POLICY volunteer_skills_insert_own ON volunteer_skills
     FOR INSERT WITH CHECK (auth.uid() = volunteer_id);
 
--- 技能认证申请表策略
+-- 技能認證申請表策略
 CREATE POLICY skill_verification_requests_select ON skill_verification_requests
     FOR SELECT USING (auth.uid() = volunteer_id);
 
 CREATE POLICY skill_verification_requests_insert_own ON skill_verification_requests
     FOR INSERT WITH CHECK (auth.uid() = volunteer_id);
 
--- 常用志愿者表策略
+-- 常用志願者表策略
 CREATE POLICY favorite_volunteers_select ON favorite_volunteers
     FOR SELECT USING (auth.uid() = seeker_id);
 
@@ -250,11 +250,11 @@ CREATE POLICY favorite_volunteers_delete_own ON favorite_volunteers
 CREATE POLICY badges_select ON badges
     FOR SELECT USING (true);
 
--- 时间线表策略
+-- 時間線表策略
 CREATE POLICY volunteer_timeline_select ON volunteer_timeline
     FOR SELECT USING (true);
 
--- 时间线事件表策略
+-- 時間線事件表策略
 CREATE POLICY timeline_events_select ON timeline_events
     FOR SELECT USING (true);
 
@@ -268,7 +268,7 @@ CREATE POLICY volunteer_schedules_update_own ON volunteer_schedules
 CREATE POLICY volunteer_schedules_insert_own ON volunteer_schedules
     FOR INSERT WITH CHECK (auth.uid() = user_id);
 
--- 异步任务表策略
+-- 異步任務表策略
 CREATE POLICY async_tasks_select ON async_tasks
     FOR SELECT USING (
         auth.uid() = seeker_id OR
@@ -286,10 +286,10 @@ CREATE POLICY async_tasks_update_volunteer ON async_tasks
     );
 
 -- ============================================
--- 创建RPC函数
+-- 創建RPC函數
 -- ============================================
 
--- 添加用户积分（原子操作）
+-- 添加用戶積分（原子操作）
 CREATE OR REPLACE FUNCTION add_user_points(
     p_user_id UUID,
     p_points INTEGER,
@@ -299,18 +299,18 @@ CREATE OR REPLACE FUNCTION add_user_points(
 )
 RETURNS VOID AS $$
 BEGIN
-    -- 插入交易记录
+    -- 插入交易記錄
     INSERT INTO point_transactions (user_id, points, type, description, related_id, is_positive)
     VALUES (p_user_id, p_points, p_type, p_description, p_related_id, p_points > 0);
 
-    -- 更新用户积分
+    -- 更新用戶積分
     UPDATE users
     SET points = COALESCE(points, 0) + p_points
     WHERE id = p_user_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 使用积分
+-- 使用積分
 CREATE OR REPLACE FUNCTION use_user_points(
     p_user_id UUID,
     p_points INTEGER,
@@ -321,19 +321,19 @@ RETURNS BOOLEAN AS $$
 DECLARE
     v_current_points INTEGER;
 BEGIN
-    -- 获取当前积分
+    -- 獲取當前積分
     SELECT points INTO v_current_points FROM users WHERE id = p_user_id;
 
-    -- 检查积分是否足够
+    -- 檢查積分是否足夠
     IF v_current_points < p_points THEN
         RETURN false;
     END IF;
 
-    -- 插入交易记录
+    -- 插入交易記錄
     INSERT INTO point_transactions (user_id, points, type, description, related_id, is_positive)
     VALUES (p_user_id, -p_points, 'other', p_description, p_related_id, false);
 
-    -- 扣除积分
+    -- 扣除積分
     UPDATE users
     SET points = points - p_points
     WHERE id = p_user_id;
@@ -342,7 +342,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 增加用户积分（简单版）
+-- 增加用戶積分（簡單版）
 CREATE OR REPLACE FUNCTION increment_user_points(
     user_id UUID,
     points INTEGER
@@ -355,7 +355,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 添加志愿者积分
+-- 添加志願者積分
 CREATE OR REPLACE FUNCTION add_volunteer_points(
     p_volunteer_id UUID,
     p_points INTEGER,
@@ -365,18 +365,18 @@ CREATE OR REPLACE FUNCTION add_volunteer_points(
 )
 RETURNS VOID AS $$
 BEGIN
-    -- 插入交易记录
+    -- 插入交易記錄
     INSERT INTO point_transactions (user_id, points, type, description, related_id, is_positive)
     VALUES (p_volunteer_id, p_points, p_type, p_description, p_related_id, p_points > 0);
 
-    -- 更新志愿者积分
+    -- 更新志願者積分
     UPDATE volunteer_profiles
     SET points = COALESCE(points, 0) + p_points
     WHERE user_id = p_volunteer_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 增加志愿者积分（简单版）
+-- 增加志願者積分（簡單版）
 CREATE OR REPLACE FUNCTION increment_volunteer_points(
     volunteer_id UUID,
     points INTEGER
@@ -389,7 +389,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 检查并升级志愿者等级
+-- 檢查並升級志願者等級
 CREATE OR REPLACE FUNCTION check_and_upgrade_volunteer_level(p_volunteer_id UUID)
 RETURNS TABLE (
     old_level INTEGER,
@@ -401,12 +401,12 @@ DECLARE
     v_current_points INTEGER;
     v_expected_level INTEGER;
 BEGIN
-    -- 获取当前等级和积分
+    -- 獲取當前等級和積分
     SELECT level, points INTO v_current_level, v_current_points
     FROM volunteer_profiles
     WHERE user_id = p_volunteer_id;
 
-    -- 根据积分计算应达等级
+    -- 根據積分計算應達等級
     v_expected_level := CASE
         WHEN v_current_points >= 10000 THEN 7
         WHEN v_current_points >= 5000 THEN 6
@@ -417,7 +417,7 @@ BEGIN
         ELSE 1
     END;
 
-    -- 如果需要升级
+    -- 如果需要升級
     IF v_expected_level > v_current_level THEN
         UPDATE volunteer_profiles
         SET level = v_expected_level
@@ -430,7 +430,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 领取异步任务
+-- 領取異步任務
 CREATE OR REPLACE FUNCTION claim_async_task(
     p_task_id UUID,
     p_volunteer_id UUID
@@ -439,14 +439,14 @@ RETURNS BOOLEAN AS $$
 DECLARE
     v_status VARCHAR;
 BEGIN
-    -- 检查任务状态
+    -- 檢查任務狀態
     SELECT status INTO v_status FROM async_tasks WHERE id = p_task_id;
 
     IF v_status != 'pending' THEN
         RETURN false;
     END IF;
 
-    -- 更新任务
+    -- 更新任務
     UPDATE async_tasks
     SET
         volunteer_id = p_volunteer_id,
@@ -458,7 +458,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 完成异步任务
+-- 完成異步任務
 CREATE OR REPLACE FUNCTION complete_async_task(
     p_task_id UUID,
     p_result TEXT
@@ -476,7 +476,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 添加或更新常用志愿者
+-- 添加或更新常用志願者
 CREATE OR REPLACE FUNCTION upsert_favorite_volunteer(
     p_seeker_id UUID,
     p_volunteer_id UUID,
@@ -488,12 +488,12 @@ DECLARE
     v_existing_count INTEGER;
     v_existing_rating DECIMAL;
 BEGIN
-    -- 获取志愿者名称
+    -- 獲取志願者名稱
     SELECT name INTO v_volunteer_name
     FROM users
     WHERE id = p_volunteer_id;
 
-    -- 检查是否已存在
+    -- 檢查是否已存在
     SELECT cooperation_count, average_rating
     INTO v_existing_count, v_existing_rating
     FROM favorite_volunteers
@@ -549,7 +549,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 更新志愿者时间线
+-- 更新志願者時間線
 CREATE OR REPLACE FUNCTION update_volunteer_timeline(
     p_volunteer_id UUID,
     p_date DATE,
@@ -562,7 +562,7 @@ RETURNS VOID AS $$
 DECLARE
     v_timeline_id UUID;
 BEGIN
-    -- 插入或更新时间线
+    -- 插入或更新時間線
     INSERT INTO volunteer_timeline (volunteer_id, date, help_count, minutes)
     VALUES (p_volunteer_id, p_date, 1, p_minutes)
     ON CONFLICT (volunteer_id, date)
@@ -572,7 +572,7 @@ BEGIN
         updated_at = NOW()
     RETURNING id INTO v_timeline_id;
 
-    -- 如果没有返回id，查询获取
+    -- 如果沒有返回id，查詢獲取
     IF v_timeline_id IS NULL THEN
         SELECT id INTO v_timeline_id
         FROM volunteer_timeline
@@ -615,7 +615,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 设置在线状态
+-- 設置在線狀態
 CREATE OR REPLACE FUNCTION set_volunteer_online_status(
     p_user_id UUID,
     p_is_online BOOLEAN,
@@ -631,7 +631,7 @@ BEGIN
         status = p_status,
         last_status_update_at = NOW();
 
-    -- 同时更新志愿者档案
+    -- 同時更新志願者檔案
     UPDATE volunteer_profiles
     SET
         is_online = p_is_online,
@@ -640,7 +640,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 获取志愿者统计数据
+-- 獲取志願者統計數據
 CREATE OR REPLACE FUNCTION get_volunteer_stats(p_volunteer_id UUID)
 RETURNS TABLE (
     total_helps BIGINT,
@@ -662,7 +662,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 获取求助者统计数据
+-- 獲取求助者統計數據
 CREATE OR REPLACE FUNCTION get_seeker_stats(p_seeker_id UUID)
 RETURNS TABLE (
     total_requests BIGINT,
@@ -687,28 +687,28 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- ============================================
--- 创建触发器
+-- 創建觸發器
 -- ============================================
 
--- 帮助请求完成后更新统计数据
+-- 幫助請求完成後更新統計數據
 CREATE OR REPLACE FUNCTION on_help_request_completed()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- 如果完成了且有志愿者
+    -- 如果完成了且有志願者
     IF NEW.status = 'completed' AND NEW.volunteer_id IS NOT NULL THEN
-        -- 更新志愿者帮助次数
+        -- 更新志願者幫助次數
         UPDATE volunteer_profiles
         SET total_help_count = COALESCE(total_help_count, 0) + 1
         WHERE user_id = NEW.volunteer_id;
 
-        -- 更新常用志愿者
+        -- 更新常用志願者
         PERFORM upsert_favorite_volunteer(
             NEW.seeker_id,
             NEW.volunteer_id,
             NEW.seeker_rating
         );
 
-        -- 更新时间线
+        -- 更新時間線
         IF NEW.completed_at IS NOT NULL AND NEW.duration_seconds IS NOT NULL THEN
             PERFORM update_volunteer_timeline(
                 NEW.volunteer_id,
@@ -725,7 +725,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 创建触发器
+-- 創建觸發器
 DROP TRIGGER IF EXISTS trigger_help_request_completed ON help_requests;
 CREATE TRIGGER trigger_help_request_completed
     AFTER UPDATE ON help_requests
@@ -733,7 +733,7 @@ CREATE TRIGGER trigger_help_request_completed
     WHEN (OLD.status != 'completed' AND NEW.status = 'completed')
     EXECUTE FUNCTION on_help_request_completed();
 
--- 更新 updated_at 触发器
+-- 更新 updated_at 觸發器
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -742,7 +742,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 为相关表添加 updated_at 触发器
+-- 爲相關表添加 updated_at 觸發器
 DROP TRIGGER IF EXISTS update_volunteer_profiles_updated_at ON volunteer_profiles;
 CREATE TRIGGER update_volunteer_profiles_updated_at
     BEFORE UPDATE ON volunteer_profiles

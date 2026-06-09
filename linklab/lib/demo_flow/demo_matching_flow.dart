@@ -1,5 +1,5 @@
 // 演示版匹配流程
-// 控制从AI对话到通话完成的整个流程
+// 控制從AI對話到通話完成的整個流程
 
 import 'dart:async';
 
@@ -12,20 +12,20 @@ import 'demo_flow_controller.dart';
 
 /// 演示版匹配流程控制器
 class DemoMatchingFlow {
-  /// 开始匹配流程
+  /// 開始匹配流程
   static Future<void> startMatching(BuildContext context) async {
-    // 1. 进入匹配等待页面
+    // 1. 進入匹配等待頁面
     await pushDemoStageRoute(context, page: const DemoMatchingScreen());
 
     // 2. 等待匹配完成（由DemoMatchingService控制）
-    // 匹配成功后自动导航到通话页面
+    // 匹配成功後自動導航到通話頁面
   }
 
-  /// 快速匹配（用于演示快捷入口）
+  /// 快速匹配（用於演示快捷入口）
   static Future<void> quickMatch(BuildContext context) async {
     final matchingService = DemoMatchingService();
 
-    // 显示加载对话框
+    // 顯示加載對話框
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -35,20 +35,20 @@ class DemoMatchingFlow {
           children: [
             CircularProgressIndicator(),
             SizedBox(height: 16),
-            Text('正在快速匹配志愿者...'),
+            Text('正在快速匹配志願者...'),
           ],
         ),
       ),
     );
 
-    // 模拟匹配
+    // 模擬匹配
     await matchingService.startMatching();
 
-    // 关闭对话框
+    // 關閉對話框
     if (context.mounted) {
       Navigator.of(context).pop();
 
-      // 直接进入通话
+      // 直接進入通話
       pushDemoStageRoute(context, page: const DemoCallScreen());
     }
   }
@@ -57,26 +57,26 @@ class DemoMatchingFlow {
   static Future<void> sosMatch(BuildContext context) async {
     final sosService = DemoSOSService();
 
-    // 触发SOS
+    // 觸發SOS
     await sosService.triggerSOS();
 
-    // 等待响应后进入通话
+    // 等待響應後進入通話
     // 由DemoSOSService控制流程
   }
 }
 
-/// 演示版通话流程控制器
+/// 演示版通話流程控制器
 class DemoCallFlow {
   static Timer? _autoEndTimer;
 
-  /// 开始通话
+  /// 開始通話
   static Future<void> startCall(BuildContext context) async {
     final callService = DemoCallService();
 
-    // 开始通话
+    // 開始通話
     await callService.startCall();
 
-    // 设置自动结束（演示模式）
+    // 設置自動結束（演示模式）
     _autoEndTimer?.cancel();
     _autoEndTimer = Timer(
       const Duration(seconds: DemoFlowConfig.callAutoEndDuration),
@@ -84,7 +84,7 @@ class DemoCallFlow {
     );
   }
 
-  /// 结束通话
+  /// 結束通話
   static Future<void> endCall(BuildContext context) async {
     _autoEndTimer?.cancel();
 
@@ -95,7 +95,7 @@ class DemoCallFlow {
     await callService.hangUp();
 
     if (context.mounted && volunteer != null) {
-      // 进入评价页面
+      // 進入評價頁面
       Navigator.of(context).pushReplacement(
         buildDemoStageRoute(
           page: DemoCallRatingScreen(volunteer: volunteer, duration: duration),
@@ -104,13 +104,13 @@ class DemoCallFlow {
     }
   }
 
-  /// 跳过通话直接评价（演示用）
+  /// 跳過通話直接評價（演示用）
   static void skipToRating(BuildContext context) {
     _autoEndTimer?.cancel();
 
     final callService = DemoCallService();
     final volunteer = callService.currentVolunteer ?? demoVolunteers.first;
-    final duration = const Duration(seconds: 10); // 模拟10秒通话
+    final duration = const Duration(seconds: 10); // 模擬10秒通話
 
     Navigator.of(context).pushReplacement(
       buildDemoStageRoute(
@@ -120,14 +120,14 @@ class DemoCallFlow {
   }
 }
 
-/// 演示流程状态管理（旧版 ChangeNotifier，已被 Riverpod 版本替代）
+/// 演示流程狀態管理（舊版 ChangeNotifier，已被 Riverpod 版本替代）
 @Deprecated('使用 providers/demo_flow_provider.dart 中的 Riverpod DemoFlowState 替代')
 class _LegacyDemoFlowState extends ChangeNotifier {
   static final _LegacyDemoFlowState _instance = _LegacyDemoFlowState._internal();
   factory _LegacyDemoFlowState() => _instance;
   _LegacyDemoFlowState._internal();
 
-  // 当前流程状态
+  // 當前流程狀態
   bool _isInDemoFlow = false;
   String _currentStep = 'idle';
   String? _currentVolunteerName;
@@ -137,14 +137,14 @@ class _LegacyDemoFlowState extends ChangeNotifier {
   String get currentStep => _currentStep;
   String? get currentVolunteerName => _currentVolunteerName;
 
-  /// 开始演示流程
+  /// 開始演示流程
   void startFlow() {
     _isInDemoFlow = true;
     _currentStep = 'ai_chat';
     notifyListeners();
   }
 
-  /// 进入匹配
+  /// 進入匹配
   void enterMatching() {
     _currentStep = 'matching';
     notifyListeners();
@@ -157,13 +157,13 @@ class _LegacyDemoFlowState extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 进入通话
+  /// 進入通話
   void enterCall() {
     _currentStep = 'call';
     notifyListeners();
   }
 
-  /// 通话结束
+  /// 通話結束
   void endCall() {
     _currentStep = 'rating';
     notifyListeners();
@@ -188,15 +188,15 @@ class _LegacyDemoFlowState extends ChangeNotifier {
 
 /// 演示快捷入口
 class DemoQuickActions {
-  /// 一键演示完整流程
+  /// 一鍵演示完整流程
   static Future<void> runFullDemo(BuildContext context) async {
     final flowState = _LegacyDemoFlowState();
     flowState.startFlow();
 
-    // 1. AI对话
+    // 1. AI對話
     await Future.delayed(const Duration(seconds: 2));
 
-    // 2. 触发匹配
+    // 2. 觸發匹配
     flowState.enterMatching();
     await Future.delayed(const Duration(seconds: 1));
 
@@ -210,7 +210,7 @@ class DemoQuickActions {
     DemoMatchingFlow.quickMatch(context);
   }
 
-  /// 直接演示通话中
+  /// 直接演示通話中
   static void showCallDemo(BuildContext context) {
     pushDemoStageRoute(context, page: const DemoCallScreen());
   }

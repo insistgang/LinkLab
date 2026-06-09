@@ -767,7 +767,7 @@ mixin _$CreditScoreChange {
   double get scoreBefore => throw _privateConstructorUsedError;
   double get scoreAfter => throw _privateConstructorUsedError;
   CreditChangeReason get reason => throw _privateConstructorUsedError;
-  String? get relatedId => throw _privateConstructorUsedError; // 关联的评价ID或举报ID
+  String? get relatedId => throw _privateConstructorUsedError; // 關聯的評價ID或舉報ID
   String? get description => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
 
@@ -991,7 +991,7 @@ class _$CreditScoreChangeImpl implements _CreditScoreChange {
   final CreditChangeReason reason;
   @override
   final String? relatedId;
-  // 关联的评价ID或举报ID
+  // 關聯的評價ID或舉報ID
   @override
   final String? description;
   @override
@@ -1084,7 +1084,7 @@ abstract class _CreditScoreChange implements CreditScoreChange {
   @override
   CreditChangeReason get reason;
   @override
-  String? get relatedId; // 关联的评价ID或举报ID
+  String? get relatedId; // 關聯的評價ID或舉報ID
   @override
   String? get description;
   @override

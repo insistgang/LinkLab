@@ -26,15 +26,15 @@ class LocationSnapshot {
     latitude: 31.2304,
     longitude: 121.4737,
     precision: 'district',
-    label: '演示位置：上海市静安区附近',
+    label: '演示位置：上海市靜安區附近',
     isFromRealProvider: false,
   );
 }
 
-/// 位置能力统一入口。
+/// 位置能力統一入口。
 ///
-/// 精确位置只允许在匹配/SOS等用户主动流程中获取；权限失败或能力关闭时，
-/// 统一回退到演示坐标，避免主链路卡死。
+/// 精確位置只允許在匹配/SOS等用戶主動流程中獲取；權限失敗或能力關閉時，
+/// 統一回退到演示座標，避免主鏈路卡死。
 class LocationFacade {
   const LocationFacade();
 
@@ -48,7 +48,7 @@ class LocationFacade {
     try {
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        AppLogger.warning('位置服务未开启，使用 Demo 位置 fallback');
+        AppLogger.warning('位置服務未開啓，使用 Demo 位置 fallback');
         return LocationSnapshot.demo;
       }
 
@@ -59,7 +59,7 @@ class LocationFacade {
 
       if (permission == LocationPermission.denied ||
           permission == LocationPermission.deniedForever) {
-        AppLogger.warning('位置权限被拒绝，使用 Demo 位置 fallback');
+        AppLogger.warning('位置權限被拒絕，使用 Demo 位置 fallback');
         return LocationSnapshot.demo;
       }
 
@@ -75,12 +75,12 @@ class LocationFacade {
         latitude: position.latitude,
         longitude: position.longitude,
         precision: requirePrecise ? 'exact' : 'district',
-        label: requirePrecise ? '真实精确位置已获取' : '真实大致位置已获取',
+        label: requirePrecise ? '真實精確位置已獲取' : '真實大致位置已獲取',
         isFromRealProvider: true,
         accuracyMeters: position.accuracy,
       );
     } catch (error, stackTrace) {
-      AppLogger.error('获取位置失败，使用 Demo 位置 fallback', error, stackTrace);
+      AppLogger.error('獲取位置失敗，使用 Demo 位置 fallback', error, stackTrace);
       return LocationSnapshot.demo;
     }
   }

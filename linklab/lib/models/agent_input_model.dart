@@ -1,4 +1,4 @@
-/// 用户无障碍偏好
+/// 用戶無障礙偏好
 class AccessibilityPrefs {
   final bool screenReader;
   final bool largeText;
@@ -56,7 +56,7 @@ class LocationInfo {
   }
 }
 
-/// Agent 标准化输入模型
+/// Agent 標準化輸入模型
 /// 符合 AGENTS.md §5.3 要求
 class AgentInput {
   final String requestId;

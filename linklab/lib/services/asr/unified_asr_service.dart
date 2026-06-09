@@ -7,13 +7,13 @@ import '../../config/api_config.dart';
 import '../../core/utils/logger.dart';
 import 'xfyun_asr_service.dart';
 
-/// 统一 ASR 服务
+/// 統一 ASR 服務
 ///
-/// AGENTS.md §12.5 / §8.1：AI 能力必须挂在 facade 后方，
-/// 外部 API 不可用时自动回退到本地能力。
+/// AGENTS.md §12.5 / §8.1：AI 能力必須掛在 facade 後方，
+/// 外部 API 不可用時自動回退到本地能力。
 ///
-/// 识别链路：讯飞 ASR（云端） → speech_to_text（设备本地）
-/// 全部失败时抛出异常，由 UI 层展示友好错误提示，不伪造输入。
+/// 識別鏈路：訊飛 ASR（雲端） → speech_to_text（設備本地）
+/// 全部失敗時拋出異常，由 UI 層展示友好錯誤提示，不僞造輸入。
 class UnifiedAsrService {
   static final UnifiedAsrService _instance = UnifiedAsrService._internal();
   factory UnifiedAsrService() => _instance;
@@ -27,52 +27,52 @@ class UnifiedAsrService {
   String _lastLocalRecognized = '';
   Timer? _localCompletionTimer;
 
-  /// 当前活跃的识别 Completer，供 onError / stop 共同访问
+  /// 當前活躍的識別 Completer，供 onError / stop 共同訪問
   Completer<String>? _activeCompleter;
 
   bool get isListening =>
       _isUsingLocalAsr ? _speech.isListening : _xfyunAsr.isListening;
 
-  // ────────────── 识别已有音频 ──────────────
+  // ────────────── 識別已有音頻 ──────────────
 
   Future<String> recognize(Uint8List audioData) async {
     try {
-      AppLogger.info('[UnifiedASR] 使用讯飞 ASR 识别音频 (${audioData.length} bytes)');
+      AppLogger.info('[UnifiedASR] 使用訊飛 ASR 識別音頻 (${audioData.length} bytes)');
       final result = await _xfyunAsr.recognize(audioData);
-      AppLogger.info('[UnifiedASR] 讯飞 ASR 结果: $result');
+      AppLogger.info('[UnifiedASR] 訊飛 ASR 結果: $result');
       return result;
     } catch (e) {
-      AppLogger.warning('[UnifiedASR] 讯飞 ASR 失败: $e');
+      AppLogger.warning('[UnifiedASR] 訊飛 ASR 失敗: $e');
       rethrow;
     }
   }
 
-  // ────────────── 实时录音识别 ──────────────
+  // ────────────── 實時錄音識別 ──────────────
 
   Future<String> startListening() async {
-    // 1️⃣ 优先尝试讯飞云端 ASR
+    // 1️⃣ 優先嚐試訊飛雲端 ASR
     if (APIConfig.isXfyunConfigured) {
       try {
-        AppLogger.info('[UnifiedASR] 尝试讯飞云端 ASR');
+        AppLogger.info('[UnifiedASR] 嘗試訊飛雲端 ASR');
         final result = await _xfyunAsr.startListening();
-        AppLogger.info('[UnifiedASR] 讯飞 ASR 成功');
+        AppLogger.info('[UnifiedASR] 訊飛 ASR 成功');
         _isUsingLocalAsr = false;
         return result;
       } catch (e) {
-        AppLogger.warning('[UnifiedASR] 讯飞 ASR 失败，回退到设备本地: $e');
+        AppLogger.warning('[UnifiedASR] 訊飛 ASR 失敗，回退到設備本地: $e');
       }
     }
 
-    // 2️⃣ 回退到设备本地 speech_to_text
+    // 2️⃣ 回退到設備本地 speech_to_text
     try {
-      AppLogger.info('[UnifiedASR] 使用设备本地语音识别');
+      AppLogger.info('[UnifiedASR] 使用設備本地語音識別');
       return await _startLocalListening();
     } catch (e) {
-      AppLogger.warning('[UnifiedASR] 本地语音识别也失败: $e');
+      AppLogger.warning('[UnifiedASR] 本地語音識別也失敗: $e');
     }
 
-    // 3️⃣ 全部失败，抛出异常让 UI 层展示错误提示
-    throw Exception('语音识别不可用，请检查网络或麦克风权限');
+    // 3️⃣ 全部失敗，拋出異常讓 UI 層展示錯誤提示
+    throw Exception('語音識別不可用，請檢查網絡或麥克風權限');
   }
 
   Future<void> stopListening() async {
@@ -82,7 +82,7 @@ class UnifiedAsrService {
           await _speech.stop();
         }
       } catch (e) {
-        AppLogger.warning('[UnifiedASR] 停止本地录音失败: $e');
+        AppLogger.warning('[UnifiedASR] 停止本地錄音失敗: $e');
       }
       await Future.delayed(const Duration(milliseconds: 500));
       _completeLocalListening();
@@ -91,24 +91,24 @@ class UnifiedAsrService {
       try {
         await _xfyunAsr.stopListening();
       } catch (e) {
-        AppLogger.warning('[UnifiedASR] 停止讯飞录音失败: $e');
+        AppLogger.warning('[UnifiedASR] 停止訊飛錄音失敗: $e');
       }
     }
   }
 
-  /// 当 completer 仍悬空时，用最近一次非空转写兜底 complete。
+  /// 當 completer 仍懸空時，用最近一次非空轉寫兜底 complete。
   void _completeLocalListening({String? text, Object? error}) {
     final c = _activeCompleter;
     if (c != null && !c.isCompleted) {
       _localCompletionTimer?.cancel();
       final recognized = normalizeRecognizedText(text ?? _lastLocalRecognized);
       if (recognized.isNotEmpty) {
-        AppLogger.info('[UnifiedASR] 本地语音识别完成: $recognized');
+        AppLogger.info('[UnifiedASR] 本地語音識別完成: $recognized');
         c.complete(recognized);
       } else if (error != null) {
         c.completeError(error);
       } else {
-        AppLogger.warning('[UnifiedASR] 本地语音识别结束但没有文本结果');
+        AppLogger.warning('[UnifiedASR] 本地語音識別結束但沒有文本結果');
         c.complete('');
       }
     }
@@ -124,7 +124,7 @@ class UnifiedAsrService {
     _localCompletionTimer = Timer(delay, _completeLocalListening);
   }
 
-  // ────────────── speech_to_text 本地识别 ──────────────
+  // ────────────── speech_to_text 本地識別 ──────────────
 
   Future<String> _startLocalListening() async {
     if (!_speechInitialized) {
@@ -140,14 +140,14 @@ class UnifiedAsrService {
           }
         },
         onStatus: (status) {
-          AppLogger.info('[UnifiedASR] speech_to_text 状态: $status');
+          AppLogger.info('[UnifiedASR] speech_to_text 狀態: $status');
           if (isTerminalSpeechStatus(status)) {
             _scheduleCompleteLocalListening();
           }
         },
       );
       if (!available) {
-        throw Exception('设备不支持本地语音识别');
+        throw Exception('設備不支持本地語音識別');
       }
       _speechInitialized = true;
     }
@@ -190,7 +190,7 @@ class UnifiedAsrService {
           if (recognized.isNotEmpty) {
             return recognized;
           }
-          throw TimeoutException('本地语音识别超时');
+          throw TimeoutException('本地語音識別超時');
         },
       );
     } finally {
@@ -212,12 +212,12 @@ class UnifiedAsrService {
 
   String _friendlySpeechError(String errorMsg) {
     if (errorMsg.contains('permission') || errorMsg.contains('not-allowed')) {
-      return '麦克风权限未开启，请允许浏览器使用麦克风。';
+      return '麥克風權限未開啓，請允許瀏覽器使用麥克風。';
     }
     if (errorMsg.contains('language')) {
-      return '当前浏览器暂不支持这个语音识别语言。';
+      return '當前瀏覽器暫不支持這個語音識別語言。';
     }
-    return '语音识别不可用，请检查麦克风权限或稍后重试。';
+    return '語音識別不可用，請檢查麥克風權限或稍後重試。';
   }
 
   void dispose() {

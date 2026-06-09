@@ -6,8 +6,8 @@ import '../../core/utils/logger.dart';
 import '../../models/help_request_model.dart';
 import '../local_storage.dart' as app_storage;
 
-/// 异步任务服务 (F10/F22)
-/// 兼容 Supabase 与本地演示模式
+/// 異步任務服務 (F10/F22)
+/// 兼容 Supabase 與本地演示模式
 class AsyncTaskService {
   AsyncTaskService({
     SupabaseClient? supabase,
@@ -35,7 +35,7 @@ class AsyncTaskService {
     _localInitialized = true;
   }
 
-  /// 创建异步留言任务
+  /// 創建異步留言任務
   Future<AsyncTaskModel?> createTask({
     required String seekerId,
     required String taskType,
@@ -64,7 +64,7 @@ class AsyncTaskService {
         await _upsertLocalHelpRequest(task);
         return task;
       } catch (e) {
-        AppLogger.error('创建本地异步任务失败', e);
+        AppLogger.error('創建本地異步任務失敗', e);
         return null;
       }
     }
@@ -92,12 +92,12 @@ class AsyncTaskService {
 
       return task;
     } catch (e) {
-      AppLogger.error('创建异步任务失败', e);
+      AppLogger.error('創建異步任務失敗', e);
       return null;
     }
   }
 
-  /// 求助者查看自己的异步留言
+  /// 求助者查看自己的異步留言
   Future<List<AsyncTaskModel>> getSeekerTasks(
     String seekerId, {
     String? status,
@@ -134,12 +134,12 @@ class AsyncTaskService {
           .map((json) => _taskFromStorageOrSupabaseJson(_mapJson(json)))
           .toList();
     } catch (e) {
-      AppLogger.error('获取求助者异步任务失败', e);
+      AppLogger.error('獲取求助者異步任務失敗', e);
       return [];
     }
   }
 
-  /// 获取可领取的异步任务列表
+  /// 獲取可領取的異步任務列表
   Future<List<AsyncTaskModel>> getAvailableTasks(
     String volunteerId, {
     AsyncTaskFilter? filter,
@@ -229,12 +229,12 @@ class AsyncTaskService {
 
       return tasks;
     } catch (e) {
-      AppLogger.error('获取异步任务失败', e);
+      AppLogger.error('獲取異步任務失敗', e);
       return [];
     }
   }
 
-  /// 领取任务
+  /// 領取任務
   Future<bool> claimTask(String taskId, String volunteerId) async {
     if (!_hasSupabase) {
       try {
@@ -257,7 +257,7 @@ class AsyncTaskService {
         await _upsertLocalHelpRequest(updated);
         return true;
       } catch (e) {
-        AppLogger.error('领取本地异步任务失败', e);
+        AppLogger.error('領取本地異步任務失敗', e);
         return false;
       }
     }
@@ -273,7 +273,7 @@ class AsyncTaskService {
 
       final level = (profileData['level'] as num?)?.toInt() ?? 1;
       if (level < 2) {
-        AppLogger.warning('志愿者等级不足，无法领取异步任务: $volunteerId');
+        AppLogger.warning('志願者等級不足，無法領取異步任務: $volunteerId');
         return false;
       }
 
@@ -286,7 +286,7 @@ class AsyncTaskService {
       );
 
       if (taskData['status'] != 'pending' || taskData['volunteer_id'] != null) {
-        AppLogger.warning('任务已被领取或状态不正确: $taskId');
+        AppLogger.warning('任務已被領取或狀態不正確: $taskId');
         return false;
       }
 
@@ -298,12 +298,12 @@ class AsyncTaskService {
 
       return true;
     } catch (e) {
-      AppLogger.error('领取异步任务失败', e);
+      AppLogger.error('領取異步任務失敗', e);
       return false;
     }
   }
 
-  /// 完成任务（简化版）
+  /// 完成任務（簡化版）
   Future<bool> completeTask(String taskId, String result) async {
     if (!_hasSupabase) {
       try {
@@ -323,7 +323,7 @@ class AsyncTaskService {
         await _upsertLocalHelpRequest(updated);
         return true;
       } catch (e) {
-        AppLogger.error('完成本地异步任务失败', e);
+        AppLogger.error('完成本地異步任務失敗', e);
         return false;
       }
     }
@@ -336,12 +336,12 @@ class AsyncTaskService {
       }).eq('id', taskId);
       return true;
     } catch (e) {
-      AppLogger.error('完成异步任务失败', e);
+      AppLogger.error('完成異步任務失敗', e);
       return false;
     }
   }
 
-  /// 完成任务（完整版）
+  /// 完成任務（完整版）
   Future<bool> completeTaskWithVolunteer(
     String taskId,
     String volunteerId,
@@ -362,7 +362,7 @@ class AsyncTaskService {
       );
 
       if (taskData['volunteer_id'] != volunteerId) {
-        AppLogger.warning('无权完成此任务: $taskId');
+        AppLogger.warning('無權完成此任務: $taskId');
         return false;
       }
 
@@ -388,12 +388,12 @@ class AsyncTaskService {
 
       return true;
     } catch (e) {
-      AppLogger.error('完成异步任务失败', e);
+      AppLogger.error('完成異步任務失敗', e);
       return false;
     }
   }
 
-  /// 放弃任务
+  /// 放棄任務
   Future<bool> abandonTask(
     String taskId,
     String volunteerId, {
@@ -416,7 +416,7 @@ class AsyncTaskService {
         await _upsertLocalHelpRequest(updated);
         return true;
       } catch (e) {
-        AppLogger.error('放弃本地异步任务失败', e);
+        AppLogger.error('放棄本地異步任務失敗', e);
         return false;
       }
     }
@@ -443,12 +443,12 @@ class AsyncTaskService {
 
       return true;
     } catch (e) {
-      AppLogger.error('放弃异步任务失败', e);
+      AppLogger.error('放棄異步任務失敗', e);
       return false;
     }
   }
 
-  /// 获取我的任务列表
+  /// 獲取我的任務列表
   Future<List<AsyncTaskModel>> getMyTasks(
     String volunteerId, {
     String? status,
@@ -489,12 +489,12 @@ class AsyncTaskService {
           .map((json) => _taskFromStorageOrSupabaseJson(_mapJson(json)))
           .toList();
     } catch (e) {
-      AppLogger.error('获取我的任务失败', e);
+      AppLogger.error('獲取我的任務失敗', e);
       return [];
     }
   }
 
-  /// 获取任务详情
+  /// 獲取任務詳情
   Future<AsyncTaskModel?> getTaskDetail(String taskId) async {
     if (!_hasSupabase) {
       try {
@@ -518,12 +518,12 @@ class AsyncTaskService {
 
       return _taskFromStorageOrSupabaseJson(_mapJson(response));
     } catch (e) {
-      AppLogger.error('获取任务详情失败', e);
+      AppLogger.error('獲取任務詳情失敗', e);
       return null;
     }
   }
 
-  /// 检查超时任务并重新分配
+  /// 檢查超時任務並重新分配
   Future<void> checkAndReassignExpiredTasks() async {
     if (!_hasSupabase) {
       final tasks = await _getAllLocalTasks();
@@ -572,11 +572,11 @@ class AsyncTaskService {
         }).eq('id', expiredTaskId);
       }
     } catch (e) {
-      AppLogger.error('检查超时任务失败', e);
+      AppLogger.error('檢查超時任務失敗', e);
     }
   }
 
-  /// 获取任务统计
+  /// 獲取任務統計
   Future<AsyncTaskStats> getTaskStats(String volunteerId) async {
     if (!_hasSupabase) {
       final tasks = await _getAllLocalTasks();
@@ -654,12 +654,12 @@ class AsyncTaskService {
             completedCount > 0 ? totalCompletionMinutes ~/ completedCount : 0,
       );
     } catch (e) {
-      AppLogger.error('获取任务统计失败', e);
+      AppLogger.error('獲取任務統計失敗', e);
       return const AsyncTaskStats();
     }
   }
 
-  /// 添加任务回复
+  /// 添加任務回覆
   Future<bool> addTaskResponse(
     String taskId,
     String volunteerId,
@@ -681,12 +681,12 @@ class AsyncTaskService {
 
       return true;
     } catch (e) {
-      AppLogger.error('添加任务回复失败', e);
+      AppLogger.error('添加任務回覆失敗', e);
       return false;
     }
   }
 
-  /// 获取任务回复列表
+  /// 獲取任務回覆列表
   Future<List<TaskResponse>> getTaskResponses(String taskId) async {
     if (!_hasSupabase) {
       final task = await getTaskDetail(taskId);
@@ -716,7 +716,7 @@ class AsyncTaskService {
           .map((json) => TaskResponse.fromJson(_mapJson(json)))
           .toList();
     } catch (e) {
-      AppLogger.error('获取任务回复失败', e);
+      AppLogger.error('獲取任務回覆失敗', e);
       return [];
     }
   }
@@ -791,7 +791,7 @@ class AsyncTaskService {
       'helpRequestId': json['helpRequestId'] ?? json['help_request_id'] ?? json['id'],
       'seekerId': json['seekerId'] ?? json['seeker_id'],
       'volunteerId': json['volunteerId'] ?? json['volunteer_id'],
-      'taskType': json['taskType'] ?? json['task_type'] ?? '异步求助',
+      'taskType': json['taskType'] ?? json['task_type'] ?? '異步求助',
       'description': json['description'] ?? '',
       'imageUrl': json['imageUrl'] ?? json['image_url'] ?? json['content_url'],
       'status': json['status'] as String?,
@@ -807,7 +807,7 @@ class AsyncTaskService {
   }
 }
 
-/// 异步任务筛选条件
+/// 異步任務篩選條件
 class AsyncTaskFilter {
   final String? taskType;
   final double? latitude;
@@ -824,7 +824,7 @@ class AsyncTaskFilter {
   });
 }
 
-/// 任务统计
+/// 任務統計
 class AsyncTaskStats {
   final int pendingCount;
   final int assignedCount;
@@ -851,7 +851,7 @@ class AsyncTaskStats {
   }
 }
 
-/// 任务回复
+/// 任務回覆
 class TaskResponse {
   final String id;
   final String taskId;

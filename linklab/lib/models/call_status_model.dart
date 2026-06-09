@@ -1,6 +1,6 @@
-/// CallSessionFacade 统一输出模型
+/// CallSessionFacade 統一輸出模型
 ///
-/// AGENTS.md §12.2：通话状态标准化。
+/// AGENTS.md §12.2：通話狀態標準化。
 class CallStatusModel {
   final bool success;
   final String? error;
@@ -67,7 +67,7 @@ class CallStatusModel {
     return const CallStatusModel(
       success: false,
       status: 'disconnected',
-      error: '通话已断开',
+      error: '通話已斷開',
     );
   }
 

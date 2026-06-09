@@ -2,7 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/utils/logger.dart';
 import '../../models/security/credit_score_model.dart';
 
-/// 信用分服务
+/// 信用分服務
 class CreditScoreService {
   SupabaseClient? _supabaseClient;
   SupabaseClient get _supabase {
@@ -13,7 +13,7 @@ class CreditScoreService {
     return _supabaseClient!;
   }
 
-  /// 获取用户信用分
+  /// 獲取用戶信用分
   Future<CreditScore?> getCreditScore(String userId) async {
     try {
       final response = await _supabase
@@ -24,12 +24,12 @@ class CreditScoreService {
 
       return CreditScore.fromJson(Map<String, dynamic>.from(response as Map));
     } catch (e) {
-      AppLogger.error('获取信用分失败', e);
+      AppLogger.error('獲取信用分失敗', e);
       return null;
     }
   }
 
-  /// 初始化用户信用分（新用户）
+  /// 初始化用戶信用分（新用戶）
   Future<CreditScore> initializeCreditScore(String userId) async {
     try {
       final creditScore = CreditScore(
@@ -55,15 +55,15 @@ class CreditScoreService {
       AppLogger.info('初始化信用分成功: $userId');
       return creditScore;
     } catch (e) {
-      AppLogger.error('初始化信用分失败', e);
+      AppLogger.error('初始化信用分失敗', e);
       rethrow;
     }
   }
 
-  /// 计算信用分
+  /// 計算信用分
   Future<CreditScoreCalculation> calculateScore(String userId) async {
     try {
-      // 获取当前信用分
+      // 獲取當前信用分
       var creditScore = await getCreditScore(userId);
       if (creditScore == null) {
         creditScore = await initializeCreditScore(userId);
@@ -72,11 +72,11 @@ class CreditScoreService {
       final changes = <CreditScoreChange>[];
       var newScore = creditScore.score;
 
-      // 获取最近30天的评价记录
+      // 獲取最近30天的評價記錄
       final thirtyDaysAgo = DateTime.now().subtract(const Duration(days: 30));
       final recentRatings = await _getRecentRatings(userId, thirtyDaysAgo);
 
-      // 处理每条评价
+      // 處理每條評價
       for (final rating in recentRatings) {
         if (rating.createdAt?.isBefore(thirtyDaysAgo) ?? true) continue;
 
@@ -111,7 +111,7 @@ class CreditScoreService {
         ));
       }
 
-      // 检查连续好评奖励
+      // 檢查連續好評獎勵
       if (creditScore.consecutiveGoodRatings >= 10) {
         final bonus = CreditChangeReason.consecutiveGoodBonus;
         newScore += bonus.defaultChange;
@@ -122,14 +122,14 @@ class CreditScoreService {
           scoreBefore: newScore - bonus.defaultChange,
           scoreAfter: newScore,
           reason: bonus,
-          description: '连续10次好评奖励',
+          description: '連續10次好評獎勵',
         ));
       }
 
-      // 检查30天无违规奖励
+      // 檢查30天無違規獎勵
       if (creditScore.lastViolationAt == null ||
           creditScore.lastViolationAt!.isBefore(thirtyDaysAgo)) {
-        // 检查是否已经有月度奖励
+        // 檢查是否已經有月度獎勵
         final hasMonthlyBonus = await _hasMonthlyBonus(userId);
         if (!hasMonthlyBonus) {
           final bonus = CreditChangeReason.monthlyNoViolation;
@@ -141,12 +141,12 @@ class CreditScoreService {
             scoreBefore: newScore - bonus.defaultChange,
             scoreAfter: newScore,
             reason: bonus,
-            description: '30天无违规奖励',
+            description: '30天無違規獎勵',
           ));
         }
       }
 
-      // 确保分数在0-5范围内
+      // 確保分數在0-5範圍內
       newScore = newScore.clamp(0.0, 5.0);
 
       // 更新信用分
@@ -158,12 +158,12 @@ class CreditScoreService {
         summary: '信用分更新: ${creditScore.score.toStringAsFixed(1)} → ${newScore.toStringAsFixed(1)}',
       );
     } catch (e) {
-      AppLogger.error('计算信用分失败', e);
+      AppLogger.error('計算信用分失敗', e);
       rethrow;
     }
   }
 
-  /// 处理新的评价
+  /// 處理新的評價
   Future<CreditScore> processNewRating(RatingRecord rating) async {
     try {
       var creditScore = await getCreditScore(rating.toUserId);
@@ -174,7 +174,7 @@ class CreditScoreService {
       var newScore = creditScore.score;
       var consecutiveGood = creditScore.consecutiveGoodRatings;
 
-      // 根据评分调整分数
+      // 根據評分調整分數
       switch (rating.rating) {
         case 5:
           newScore += CreditChangeReason.rating5Star.defaultChange;
@@ -190,15 +190,15 @@ class CreditScoreService {
           break;
       }
 
-      // 检查连续好评奖励
+      // 檢查連續好評獎勵
       if (consecutiveGood >= 10 && creditScore.consecutiveGoodRatings < 10) {
         newScore += CreditChangeReason.consecutiveGoodBonus.defaultChange;
       }
 
-      // 确保分数在范围内
+      // 確保分數在範圍內
       newScore = newScore.clamp(0.0, 5.0);
 
-      // 更新数据库
+      // 更新數據庫
       await _supabase.from('credit_scores').update({
         'score': newScore,
         'total_ratings': creditScore.totalRatings + 1,
@@ -213,10 +213,10 @@ class CreditScoreService {
         'updated_at': DateTime.now().toIso8601String(),
       }).eq('user_id', rating.toUserId);
 
-      // 记录变动
+      // 記錄變動
       await _recordCreditChange(rating.toUserId, rating);
 
-      AppLogger.info('处理新评价完成: ${rating.toUserId}, 新分数: $newScore');
+      AppLogger.info('處理新評價完成: ${rating.toUserId}, 新分數: $newScore');
 
       return creditScore.copyWith(
         score: newScore,
@@ -224,12 +224,12 @@ class CreditScoreService {
         consecutiveGoodRatings: consecutiveGood,
       );
     } catch (e) {
-      AppLogger.error('处理新评价失败', e);
+      AppLogger.error('處理新評價失敗', e);
       rethrow;
     }
   }
 
-  /// 处理举报（扣分）
+  /// 處理舉報（扣分）
   Future<CreditScore> processValidReport(String userId) async {
     try {
       var creditScore = await getCreditScore(userId);
@@ -247,18 +247,18 @@ class CreditScoreService {
         'updated_at': DateTime.now().toIso8601String(),
       }).eq('user_id', userId);
 
-      // 记录变动
+      // 記錄變動
       await _supabase.from('credit_score_changes').insert({
         'user_id': userId,
         'change': CreditChangeReason.validReport.defaultChange,
         'score_before': creditScore.score,
         'score_after': newScore,
         'reason': 'validReport',
-        'description': '被有效举报',
+        'description': '被有效舉報',
         'created_at': DateTime.now().toIso8601String(),
       });
 
-      AppLogger.info('处理举报扣分完成: $userId, 新分数: $newScore');
+      AppLogger.info('處理舉報扣分完成: $userId, 新分數: $newScore');
 
       return creditScore.copyWith(
         score: newScore,
@@ -266,24 +266,24 @@ class CreditScoreService {
         consecutiveGoodRatings: 0,
       );
     } catch (e) {
-      AppLogger.error('处理举报扣分失败', e);
+      AppLogger.error('處理舉報扣分失敗', e);
       rethrow;
     }
   }
 
-  /// 获取匹配权重
+  /// 獲取匹配權重
   Future<double> getMatchingWeight(String userId) async {
     final creditScore = await getCreditScore(userId);
     return creditScore?.matchingWeight ?? 0.0;
   }
 
-  /// 检查是否可以匹配
+  /// 檢查是否可以匹配
   Future<bool> canMatch(String userId) async {
     final creditScore = await getCreditScore(userId);
     return creditScore?.canMatch ?? false;
   }
 
-  /// 获取信用分变动历史
+  /// 獲取信用分變動歷史
   Future<List<CreditScoreChange>> getCreditHistory(String userId, {int limit = 20}) async {
     try {
       final response = await _supabase
@@ -301,12 +301,12 @@ class CreditScoreService {
           )
           .toList();
     } catch (e) {
-      AppLogger.error('获取信用分历史失败', e);
+      AppLogger.error('獲取信用分歷史失敗', e);
       return [];
     }
   }
 
-  /// 获取最近评价
+  /// 獲取最近評價
   Future<List<RatingRecord>> _getRecentRatings(String userId, DateTime since) async {
     try {
       final response = await _supabase
@@ -323,12 +323,12 @@ class CreditScoreService {
           )
           .toList();
     } catch (e) {
-      AppLogger.error('获取最近评价失败', e);
+      AppLogger.error('獲取最近評價失敗', e);
       return [];
     }
   }
 
-  /// 检查是否已有月度奖励
+  /// 檢查是否已有月度獎勵
   Future<bool> _hasMonthlyBonus(String userId) async {
     try {
       final thirtyDaysAgo = DateTime.now().subtract(const Duration(days: 30));
@@ -358,7 +358,7 @@ class CreditScoreService {
       'updated_at': DateTime.now().toIso8601String(),
     }).eq('user_id', userId);
 
-    // 批量记录变动
+    // 批量記錄變動
     for (final change in changes) {
       await _supabase.from('credit_score_changes').insert({
         'user_id': userId,
@@ -373,7 +373,7 @@ class CreditScoreService {
     }
   }
 
-  /// 记录信用分变动
+  /// 記錄信用分變動
   Future<void> _recordCreditChange(String userId, RatingRecord rating) async {
     CreditChangeReason reason;
     switch (rating.rating) {
@@ -398,7 +398,7 @@ class CreditScoreService {
     });
   }
 
-  /// 监听信用分变化
+  /// 監聽信用分變化
   Stream<CreditScore?> watchCreditScore(String userId) {
     return _supabase
         .from('credit_scores')

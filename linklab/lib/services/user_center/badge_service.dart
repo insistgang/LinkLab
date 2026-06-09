@@ -6,8 +6,8 @@ import '../../models/volunteer_level_model.dart';
 import 'skill_tag_service.dart';
 import 'volunteer_demo_store.dart';
 
-/// 徽章服务 (F21)
-/// 管理志愿者的徽章成就系统
+/// 徽章服務 (F21)
+/// 管理志願者的徽章成就係統
 class BadgeService {
   BadgeService({
     SupabaseClient? supabase,
@@ -28,12 +28,12 @@ class BadgeService {
     return _supabaseClient!;
   }
 
-  /// 获取我的徽章（别名方法，兼容UI调用）
+  /// 獲取我的徽章（別名方法，兼容UI調用）
   Future<List<BadgeModel>> getMyBadges(String volunteerId) async {
     return getBadges(volunteerId);
   }
 
-  /// 获取可获得的徽章列表
+  /// 獲取可獲得的徽章列表
   Future<List<BadgeDefinition>> getAvailableBadges(String volunteerId) async {
     final existingBadges = await getBadges(volunteerId);
     final existingTypes = existingBadges.map((b) => b.type).toSet();
@@ -43,13 +43,13 @@ class BadgeService {
         .toList();
   }
 
-  /// 获取志愿者的所有徽章
+  /// 獲取志願者的所有徽章
   Future<List<BadgeModel>> getBadges(String volunteerId) async {
     if (!_hasSupabase) {
       try {
         return await _demoStore.getBadges(volunteerId);
       } catch (e) {
-        AppLogger.error('获取本地徽章失败', e);
+        AppLogger.error('獲取本地徽章失敗', e);
         return [];
       }
     }
@@ -65,13 +65,13 @@ class BadgeService {
           .map((json) => BadgeModel.fromJson(Map<String, dynamic>.from(json as Map)))
           .toList();
     } catch (e) {
-      AppLogger.error('获取徽章失败', e);
+      AppLogger.error('獲取徽章失敗', e);
       return [];
     }
   }
 
-  /// 检查并授予徽章
-  /// 在相关事件触发后调用（如帮助完成、升级等）
+  /// 檢查並授予徽章
+  /// 在相關事件觸發後調用（如幫助完成、升級等）
   Future<List<BadgeModel>> checkAndAwardBadges(String volunteerId) async {
     if (!_hasSupabase) {
       try {
@@ -91,8 +91,8 @@ class BadgeService {
               id: 'badge_${volunteerId}_rising_star',
               userId: volunteerId,
               type: BadgeType.risingStar,
-              name: '新星志愿者',
-              description: '完成首次帮助，开启志愿之旅',
+              name: '新星志願者',
+              description: '完成首次幫助，開啓志願之旅',
               earnedAt: DateTime.now(),
               isNew: true,
             ),
@@ -113,8 +113,8 @@ class BadgeService {
               id: 'badge_${volunteerId}_continuous7',
               userId: volunteerId,
               type: BadgeType.continuous7,
-              name: '坚持不懈',
-              description: '连续7天提供帮助',
+              name: '堅持不懈',
+              description: '連續7天提供幫助',
               earnedAt: DateTime.now(),
               isNew: true,
             ),
@@ -128,8 +128,8 @@ class BadgeService {
               id: 'badge_${volunteerId}_skill_master',
               userId: volunteerId,
               type: BadgeType.skillMaster,
-              name: '技能大师',
-              description: '获得3个认证技能标签',
+              name: '技能大師',
+              description: '獲得3個認證技能標籤',
               earnedAt: DateTime.now(),
               isNew: true,
             ),
@@ -143,8 +143,8 @@ class BadgeService {
               id: 'badge_${volunteerId}_lighthouse',
               userId: volunteerId,
               type: BadgeType.lighthouse,
-              name: '灯塔守护者',
-              description: '达到最高等级Lv7',
+              name: '燈塔守護者',
+              description: '達到最高等級Lv7',
               earnedAt: DateTime.now(),
               isNew: true,
             ),
@@ -157,7 +157,7 @@ class BadgeService {
 
         return newBadges;
       } catch (e) {
-        AppLogger.error('检查本地徽章失败', e);
+        AppLogger.error('檢查本地徽章失敗', e);
         return [];
       }
     }
@@ -165,11 +165,11 @@ class BadgeService {
     final newBadges = <BadgeModel>[];
 
     try {
-      // 获取已有徽章
+      // 獲取已有徽章
       final existingBadges = await getBadges(volunteerId);
       final existingTypes = existingBadges.map((b) => b.type).toSet();
 
-      // 检查各种徽章条件
+      // 檢查各種徽章條件
       final checks = [
         _checkRisingStar(volunteerId, existingTypes),
         _checkTranslatorBadge(volunteerId, existingTypes),
@@ -190,17 +190,17 @@ class BadgeService {
       }
 
       if (newBadges.isNotEmpty) {
-        AppLogger.info('授予志愿者新徽章: $volunteerId, 数量: ${newBadges.length}');
+        AppLogger.info('授予志願者新徽章: $volunteerId, 數量: ${newBadges.length}');
       }
 
       return newBadges;
     } catch (e) {
-      AppLogger.error('检查徽章失败', e);
+      AppLogger.error('檢查徽章失敗', e);
       return [];
     }
   }
 
-  /// 检查新星志愿者徽章
+  /// 檢查新星志願者徽章
   Future<BadgeModel?> _checkRisingStar(
     String volunteerId,
     Set<BadgeType> existingTypes,
@@ -219,8 +219,8 @@ class BadgeService {
         id: 'badge_${volunteerId}_rising_star',
         userId: volunteerId,
         type: BadgeType.risingStar,
-        name: '新星志愿者',
-        description: '完成首次帮助，开启志愿之旅',
+        name: '新星志願者',
+        description: '完成首次幫助，開啓志願之旅',
         earnedAt: DateTime.now(),
         isNew: true,
       );
@@ -229,7 +229,7 @@ class BadgeService {
     return null;
   }
 
-  /// 检查翻译达人徽章
+  /// 檢查翻譯達人徽章
   Future<BadgeModel?> _checkTranslatorBadge(
     String volunteerId,
     Set<BadgeType> existingTypes,
@@ -241,7 +241,7 @@ class BadgeService {
         .select()
         .eq('volunteer_id', volunteerId)
         .eq('status', 'completed')
-        .ilike('intent', '%翻译%')
+        .ilike('intent', '%翻譯%')
         .count(CountOption.exact);
 
     if (response.count >= 50) {
@@ -249,8 +249,8 @@ class BadgeService {
         id: 'badge_${volunteerId}_translator',
         userId: volunteerId,
         type: BadgeType.translator,
-        name: '翻译达人',
-        description: '完成50次翻译类求助',
+        name: '翻譯達人',
+        description: '完成50次翻譯類求助',
         earnedAt: DateTime.now(),
         isNew: true,
       );
@@ -259,7 +259,7 @@ class BadgeService {
     return null;
   }
 
-  /// 检查帮助次数徽章
+  /// 檢查幫助次數徽章
   Future<BadgeModel?> _checkHelperBadges(
     String volunteerId,
     Set<BadgeType> existingTypes,
@@ -273,40 +273,40 @@ class BadgeService {
 
     final count = response.count;
 
-    // 检查100次
+    // 檢查100次
     if (count >= 100 && !existingTypes.contains(BadgeType.helper100)) {
       return BadgeModel(
         id: 'badge_${volunteerId}_helper100',
         userId: volunteerId,
         type: BadgeType.helper100,
-        name: '百次帮助',
-        description: '累计完成100次帮助',
+        name: '百次幫助',
+        description: '累計完成100次幫助',
         earnedAt: DateTime.now(),
         isNew: true,
       );
     }
 
-    // 检查500次
+    // 檢查500次
     if (count >= 500 && !existingTypes.contains(BadgeType.helper500)) {
       return BadgeModel(
         id: 'badge_${volunteerId}_helper500',
         userId: volunteerId,
         type: BadgeType.helper500,
-        name: '五百次帮助',
-        description: '累计完成500次帮助',
+        name: '五百次幫助',
+        description: '累計完成500次幫助',
         earnedAt: DateTime.now(),
         isNew: true,
       );
     }
 
-    // 检查1000次
+    // 檢查1000次
     if (count >= 1000 && !existingTypes.contains(BadgeType.helper1000)) {
       return BadgeModel(
         id: 'badge_${volunteerId}_helper1000',
         userId: volunteerId,
         type: BadgeType.helper1000,
-        name: '千次帮助',
-        description: '累计完成1000次帮助',
+        name: '千次幫助',
+        description: '累計完成1000次幫助',
         earnedAt: DateTime.now(),
         isNew: true,
       );
@@ -315,12 +315,12 @@ class BadgeService {
     return null;
   }
 
-  /// 检查连续帮助徽章
+  /// 檢查連續幫助徽章
   Future<BadgeModel?> _checkContinuousBadges(
     String volunteerId,
     Set<BadgeType> existingTypes,
   ) async {
-    // 获取最近30天的帮助记录
+    // 獲取最近30天的幫助記錄
     final thirtyDaysAgo = DateTime.now().subtract(const Duration(days: 30));
 
     final response = await _supabase
@@ -332,7 +332,7 @@ class BadgeService {
 
     final helps = response as List;
 
-    // 提取有帮助的日期
+    // 提取有幫助的日期
     final helpDates = helps
         .map((h) {
           final help = Map<String, dynamic>.from(h as Map);
@@ -342,23 +342,23 @@ class BadgeService {
         .toSet()
         .toList();
 
-    // 检查连续7天
+    // 檢查連續7天
     if (helpDates.length >= 7 && !existingTypes.contains(BadgeType.continuous7)) {
-      // 验证是否真的有连续7天
+      // 驗證是否真的有連續7天
       if (_hasConsecutiveDays(helpDates, 7)) {
         return BadgeModel(
           id: 'badge_${volunteerId}_continuous7',
           userId: volunteerId,
           type: BadgeType.continuous7,
-          name: '坚持不懈',
-          description: '连续7天提供帮助',
+          name: '堅持不懈',
+          description: '連續7天提供幫助',
           earnedAt: DateTime.now(),
           isNew: true,
         );
       }
     }
 
-    // 检查连续30天
+    // 檢查連續30天
     if (helpDates.length >= 30 && !existingTypes.contains(BadgeType.continuous30)) {
       if (_hasConsecutiveDays(helpDates, 30)) {
         return BadgeModel(
@@ -366,7 +366,7 @@ class BadgeService {
           userId: volunteerId,
           type: BadgeType.continuous30,
           name: '月度之星',
-          description: '连续30天提供帮助',
+          description: '連續30天提供幫助',
           earnedAt: DateTime.now(),
           isNew: true,
         );
@@ -376,7 +376,7 @@ class BadgeService {
     return null;
   }
 
-  /// 检查是否有连续N天
+  /// 檢查是否有連續N天
   bool _hasConsecutiveDays(List<String> dates, int n) {
     if (dates.length < n) return false;
 
@@ -404,7 +404,7 @@ class BadgeService {
     return false;
   }
 
-  /// 检查爱心大使徽章
+  /// 檢查愛心大使徽章
   Future<BadgeModel?> _checkKindHeartBadge(
     String volunteerId,
     Set<BadgeType> existingTypes,
@@ -424,8 +424,8 @@ class BadgeService {
         id: 'badge_${volunteerId}_kind_heart',
         userId: volunteerId,
         type: BadgeType.kindHeart,
-        name: '爱心大使',
-        description: '获得100个好评',
+        name: '愛心大使',
+        description: '獲得100個好評',
         earnedAt: DateTime.now(),
         isNew: true,
       );
@@ -434,7 +434,7 @@ class BadgeService {
     return null;
   }
 
-  /// 检查技能大师徽章
+  /// 檢查技能大師徽章
   Future<BadgeModel?> _checkSkillMasterBadge(
     String volunteerId,
     Set<BadgeType> existingTypes,
@@ -453,8 +453,8 @@ class BadgeService {
         id: 'badge_${volunteerId}_skill_master',
         userId: volunteerId,
         type: BadgeType.skillMaster,
-        name: '技能大师',
-        description: '获得3个认证技能标签',
+        name: '技能大師',
+        description: '獲得3個認證技能標籤',
         earnedAt: DateTime.now(),
         isNew: true,
       );
@@ -463,7 +463,7 @@ class BadgeService {
     return null;
   }
 
-  /// 检查灯塔守护者徽章
+  /// 檢查燈塔守護者徽章
   Future<BadgeModel?> _checkLighthouseBadge(
     String volunteerId,
     Set<BadgeType> existingTypes,
@@ -484,8 +484,8 @@ class BadgeService {
         id: 'badge_${volunteerId}_lighthouse',
         userId: volunteerId,
         type: BadgeType.lighthouse,
-        name: '灯塔守护者',
-        description: '达到最高等级Lv7',
+        name: '燈塔守護者',
+        description: '達到最高等級Lv7',
         earnedAt: DateTime.now(),
         isNew: true,
       );
@@ -494,7 +494,7 @@ class BadgeService {
     return null;
   }
 
-  /// 检查特殊事件徽章
+  /// 檢查特殊事件徽章
   Future<BadgeModel?> _checkSpecialEventBadges(
     String volunteerId,
     Set<BadgeType> existingTypes,
@@ -502,7 +502,7 @@ class BadgeService {
     final now = DateTime.now();
 
     // 除夕守夜人
-    if (now.month == 1 && now.day == 21) { // 简化判断，实际需要农历计算
+    if (now.month == 1 && now.day == 21) { // 簡化判斷，實際需要農曆計算
       if (!existingTypes.contains(BadgeType.springFestival)) {
         final hasHelpToday = await _checkHasHelpedToday(volunteerId);
         if (hasHelpToday) {
@@ -511,7 +511,7 @@ class BadgeService {
             userId: volunteerId,
             type: BadgeType.springFestival,
             name: '除夕守夜人',
-            description: '除夕当天完成帮助',
+            description: '除夕當天完成幫助',
             earnedAt: DateTime.now(),
             isNew: true,
           );
@@ -529,7 +529,7 @@ class BadgeService {
             userId: volunteerId,
             type: BadgeType.newYear,
             name: '跨年守夜人',
-            description: '元旦当天完成帮助',
+            description: '元旦當天完成幫助',
             earnedAt: DateTime.now(),
             isNew: true,
           );
@@ -540,7 +540,7 @@ class BadgeService {
     return null;
   }
 
-  /// 检查今天是否已完成帮助
+  /// 檢查今天是否已完成幫助
   Future<bool> _checkHasHelpedToday(String volunteerId) async {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -556,7 +556,7 @@ class BadgeService {
     return (response as List).isNotEmpty;
   }
 
-  /// 保存徽章到数据库
+  /// 保存徽章到數據庫
   Future<void> _saveBadge(BadgeModel badge) async {
     if (!_hasSupabase) {
       await _demoStore.upsertBadges(badge.userId, [badge]);
@@ -573,18 +573,18 @@ class BadgeService {
         'earned_at': badge.earnedAt?.toIso8601String(),
       });
     } catch (e) {
-      AppLogger.error('保存徽章失败', e);
+      AppLogger.error('保存徽章失敗', e);
     }
   }
 
-  /// 标记徽章为已查看
+  /// 標記徽章爲已查看
   Future<void> markBadgeAsSeen(String badgeId) async {
     if (!_hasSupabase) {
       try {
-        // 本地模式下通过全量扫描志愿者徽章列表简化处理。
+        // 本地模式下通過全量掃描志願者徽章列表簡化處理。
         return;
       } catch (e) {
-        AppLogger.error('标记本地徽章已查看失败', e);
+        AppLogger.error('標記本地徽章已查看失敗', e);
         return;
       }
     }
@@ -595,22 +595,22 @@ class BadgeService {
           .update({'is_new': false})
           .eq('id', badgeId);
     } catch (e) {
-      AppLogger.error('标记徽章已查看失败', e);
+      AppLogger.error('標記徽章已查看失敗', e);
     }
   }
 
-  /// 获取徽章统计
+  /// 獲取徽章統計
   Future<BadgeStats> getBadgeStats(String volunteerId) async {
     try {
       final badges = await getBadges(volunteerId);
 
-      // 按类型分组统计
+      // 按類型分組統計
       final typeCount = <BadgeType, int>{};
       for (final badge in badges) {
         typeCount[badge.type] = (typeCount[badge.type] ?? 0) + 1;
       }
 
-      // 新徽章数量
+      // 新徽章數量
       final newBadges = badges.where((b) => b.isNew).length;
 
       return BadgeStats(
@@ -619,13 +619,13 @@ class BadgeService {
         typeDistribution: typeCount,
       );
     } catch (e) {
-      AppLogger.error('获取徽章统计失败', e);
+      AppLogger.error('獲取徽章統計失敗', e);
       return const BadgeStats();
     }
   }
 }
 
-/// 徽章统计
+/// 徽章統計
 class BadgeStats {
   final int totalBadges;
   final int newBadges;

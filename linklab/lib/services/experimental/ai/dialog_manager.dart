@@ -4,8 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'ai_service.dart';
 import '../../core/utils/logger.dart';
 
-/// 对话上下文管理器
-/// 负责管理多轮对话的状态和历史记录
+/// 對話上下文管理器
+/// 負責管理多輪對話的狀態和歷史記錄
 class DialogContextManager {
   static const String _storageKey = 'dialog_sessions';
   static const int _maxHistoryPerSession = 20;
@@ -16,14 +16,14 @@ class DialogContextManager {
 
   DialogContextManager([this._prefs]);
 
-  /// 创建新会话
+  /// 創建新會話
   DialogContext createSession({String? userId}) {
     final session = DialogContext.create(userId: userId);
     _activeSessions[session.sessionId] = session;
     return session;
   }
 
-  /// 获取或创建会话
+  /// 獲取或創建會話
   DialogContext getOrCreateSession(String? sessionId, {String? userId}) {
     if (sessionId != null && _activeSessions.containsKey(sessionId)) {
       return _activeSessions[sessionId]!;
@@ -31,7 +31,7 @@ class DialogContextManager {
     return createSession(userId: userId);
   }
 
-  /// 添加用户消息
+  /// 添加用戶消息
   DialogContext addUserMessage(
     String sessionId,
     String content, {
@@ -76,7 +76,7 @@ class DialogContextManager {
     return updatedSession;
   }
 
-  /// 添加系统消息
+  /// 添加系統消息
   DialogContext addSystemMessage(String sessionId, String content) {
     final session = _activeSessions[sessionId];
     if (session == null) {
@@ -94,13 +94,13 @@ class DialogContextManager {
     return updatedSession;
   }
 
-  /// 获取会话历史
+  /// 獲取會話歷史
   List<DialogMessage> getSessionHistory(String sessionId) {
     final session = _activeSessions[sessionId];
     return session?.history ?? [];
   }
 
-  /// 获取格式化的对话历史（用于AI模型输入）
+  /// 獲取格式化的對話歷史（用於AI模型輸入）
   List<Map<String, String>> getFormattedHistory(
     String sessionId, {
     int maxMessages = 10,
@@ -117,24 +117,24 @@ class DialogContextManager {
     }).toList();
   }
 
-  /// 清除会话历史
+  /// 清除會話歷史
   void clearSession(String sessionId) {
     _activeSessions.remove(sessionId);
   }
 
-  /// 结束会话并保存
+  /// 結束會話並保存
   Future<void> endSession(String sessionId) async {
     final session = _activeSessions[sessionId];
     if (session == null) return;
 
-    // 保存到持久化存储
+    // 保存到持久化存儲
     await _saveSession(session);
 
-    // 从活跃会话中移除
+    // 從活躍會話中移除
     _activeSessions.remove(sessionId);
   }
 
-  /// 获取会话统计信息
+  /// 獲取會話統計信息
   DialogStatistics getStatistics(String sessionId) {
     final session = _activeSessions[sessionId];
     if (session == null) {
@@ -154,7 +154,7 @@ class DialogContextManager {
     );
   }
 
-  /// 检查会话是否超时（默认30分钟）
+  /// 檢查會話是否超時（默認30分鐘）
   bool isSessionTimeout(String sessionId, {Duration timeout = const Duration(minutes: 30)}) {
     final session = _activeSessions[sessionId];
     if (session == null) return true;
@@ -166,7 +166,7 @@ class DialogContextManager {
     return DateTime.now().difference(lastMessage) > timeout;
   }
 
-  /// 清理超时会话
+  /// 清理超時會話
   void cleanupTimeoutSessions({Duration timeout = const Duration(minutes: 30)}) {
     final timeoutSessions = _activeSessions.entries
         .where((e) => isSessionTimeout(e.key, timeout: timeout))
@@ -178,7 +178,7 @@ class DialogContextManager {
     }
   }
 
-  /// 保存会话到本地存储
+  /// 保存會話到本地存儲
   Future<void> _saveSession(DialogContext session) async {
     if (_prefs == null) return;
 
@@ -188,10 +188,10 @@ class DialogContextManager {
           ? jsonDecode(sessionsJson)
           : {};
 
-      // 添加新会话
+      // 添加新會話
       sessions[session.sessionId] = _serializeSession(session);
 
-      // 限制存储数量
+      // 限制存儲數量
       while (sessions.length > _maxStoredSessions) {
         final oldestKey = sessions.keys.first;
         sessions.remove(oldestKey);
@@ -199,16 +199,16 @@ class DialogContextManager {
 
       await _prefs!.setString(_storageKey, jsonEncode(sessions));
     } catch (error, stackTrace) {
-      // 存储失败不抛出异常
+      // 存儲失敗不拋出異常
       AppLogger.error(
-        '保存对话会话失败，已跳过持久化',
+        '保存對話會話失敗，已跳過持久化',
         error,
         stackTrace,
       );
     }
   }
 
-  /// 加载历史会话
+  /// 加載歷史會話
   Future<List<DialogContext>> loadHistorySessions() async {
     if (_prefs == null) return [];
 
@@ -223,7 +223,7 @@ class DialogContextManager {
           .toList();
     } catch (error, stackTrace) {
       AppLogger.error(
-        '加载历史对话会话失败，已回退为空列表',
+        '加載歷史對話會話失敗，已回退爲空列表',
         error,
         stackTrace,
       );
@@ -231,7 +231,7 @@ class DialogContextManager {
     }
   }
 
-  /// 序列化会话
+  /// 序列化會話
   Map<String, dynamic> _serializeSession(DialogContext session) {
     return {
       'sessionId': session.sessionId,
@@ -242,7 +242,7 @@ class DialogContextManager {
     };
   }
 
-  /// 反序列化会话
+  /// 反序列化會話
   DialogContext? _deserializeSession(Map<String, dynamic> data) {
     try {
       return DialogContext(
@@ -258,7 +258,7 @@ class DialogContextManager {
       );
     } catch (error, stackTrace) {
       AppLogger.error(
-        '反序列化对话会话失败，已跳过损坏记录',
+        '反序列化對話會話失敗，已跳過損壞記錄',
         error,
         stackTrace,
       );
@@ -280,7 +280,7 @@ class DialogContextManager {
       );
     } catch (error, stackTrace) {
       AppLogger.error(
-        '反序列化对话消息失败，已跳过损坏消息',
+        '反序列化對話消息失敗，已跳過損壞消息',
         error,
         stackTrace,
       );
@@ -301,7 +301,7 @@ class DialogContextManager {
   }
 }
 
-/// 对话统计信息
+/// 對話統計信息
 class DialogStatistics {
   final int totalMessages;
   final int userMessages;

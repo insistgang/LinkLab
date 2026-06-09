@@ -1,8 +1,8 @@
 import 'dart:math';
 import 'ai_service.dart';
 
-/// 模拟AI服务
-/// 演示优先策略：使用预置回复数据，不调用真实API
+/// 模擬AI服務
+/// 演示優先策略：使用預置回覆數據，不調用真實API
 class MockAIService implements AIService {
   final Random _random = Random();
   final bool _simulateDelay;
@@ -21,45 +21,45 @@ class MockAIService implements AIService {
     String? imageUrl,
     DialogContext? context,
   }) async {
-    // 模拟网络延迟（演示效果）
+    // 模擬網絡延遲（演示效果）
     if (_simulateDelay) {
       await Future.delayed(const Duration(milliseconds: 800));
     }
 
-    // 根据输入内容返回对应的模拟回复
+    // 根據輸入內容返回對應的模擬回覆
     final lowerInput = input.toLowerCase();
 
-    // 1. 检查紧急关键词
+    // 1. 檢查緊急關鍵詞
     if (_containsEmergencyKeyword(lowerInput)) {
       return _emergencyResponse(input);
     }
 
-    // 2. 根据意图返回对应回复
-    if (_containsAny(lowerInput, ['颜色', 'color', '什么色'])) {
+    // 2. 根據意圖返回對應回覆
+    if (_containsAny(lowerInput, ['顏色', 'color', '什麼色'])) {
       return _colorRecognitionResponse(imageUrl);
     }
 
-    if (_containsAny(lowerInput, ['字', '文字', 'text', '写了什么'])) {
+    if (_containsAny(lowerInput, ['字', '文字', 'text', '寫了什麼'])) {
       return _ocrResponse(imageUrl);
     }
 
-    if (_containsAny(lowerInput, ['什么', '物体', '东西', 'object', '这是什么'])) {
+    if (_containsAny(lowerInput, ['什麼', '物體', '東西', 'object', '這是什麼'])) {
       return _objectRecognitionResponse(imageUrl);
     }
 
-    if (_containsAny(lowerInput, ['环境', '周围', '场景', 'scene', 'around'])) {
+    if (_containsAny(lowerInput, ['環境', '周圍', '場景', 'scene', 'around'])) {
       return _sceneDescriptionResponse(imageUrl);
     }
 
-    if (_containsAny(lowerInput, ['药', '药品', 'medicine', '吃药'])) {
+    if (_containsAny(lowerInput, ['藥', '藥品', 'medicine', '喫藥'])) {
       return _medicineResponse();
     }
 
-    if (_containsAny(lowerInput, ['病', '医生', '医院', 'sick', 'doctor'])) {
+    if (_containsAny(lowerInput, ['病', '醫生', '醫院', 'sick', 'doctor'])) {
       return _medicalResponse();
     }
 
-    if (_containsAny(lowerInput, ['难过', '伤心', 'sad', '孤独', 'lonely'])) {
+    if (_containsAny(lowerInput, ['難過', '傷心', 'sad', '孤獨', 'lonely'])) {
       return _emotionalResponse();
     }
 
@@ -67,36 +67,36 @@ class MockAIService implements AIService {
       return _greetingResponse();
     }
 
-    if (_containsAny(lowerInput, ['谢谢', '感谢', 'thank'])) {
+    if (_containsAny(lowerInput, ['謝謝', '感謝', 'thank'])) {
       return _gratitudeResponse();
     }
 
-    if (_containsAny(lowerInput, ['能做什么', '功能', 'help'])) {
+    if (_containsAny(lowerInput, ['能做什麼', '功能', 'help'])) {
       return _helpResponse();
     }
 
-    // 默认回复
+    // 默認回覆
     return _defaultResponse();
   }
 
-  // ==================== 预置回复数据 ====================
+  // ==================== 預置回覆數據 ====================
 
   AIResponse _colorRecognitionResponse(String? imageUrl) {
     final colors = [
-      _ColorPreset('红色', '暖色调，类似番茄的颜色', 'RGB(255, 0, 0)'),
-      _ColorPreset('蓝色', '冷色调，类似天空的颜色', 'RGB(0, 0, 255)'),
-      _ColorPreset('绿色', '冷色调，类似草地的颜色', 'RGB(0, 128, 0)'),
-      _ColorPreset('黄色', '明亮暖色调，类似柠檬的颜色', 'RGB(255, 255, 0)'),
-      _ColorPreset('白色', '很浅的色调，类似雪的颜色', 'RGB(255, 255, 255)'),
-      _ColorPreset('黑色', '很深的色调，类似夜晚的颜色', 'RGB(0, 0, 0)'),
-      _ColorPreset('棕色', '深暖色调，类似木头的颜色', 'RGB(165, 42, 42)'),
-      _ColorPreset('灰色', '中等色调，类似石头的颜色', 'RGB(128, 128, 128)'),
+      _ColorPreset('紅色', '暖色調，類似番茄的顏色', 'RGB(255, 0, 0)'),
+      _ColorPreset('藍色', '冷色調，類似天空的顏色', 'RGB(0, 0, 255)'),
+      _ColorPreset('綠色', '冷色調，類似草地的顏色', 'RGB(0, 128, 0)'),
+      _ColorPreset('黃色', '明亮暖色調，類似檸檬的顏色', 'RGB(255, 255, 0)'),
+      _ColorPreset('白色', '很淺的色調，類似雪的顏色', 'RGB(255, 255, 255)'),
+      _ColorPreset('黑色', '很深的色調，類似夜晚的顏色', 'RGB(0, 0, 0)'),
+      _ColorPreset('棕色', '深暖色調，類似木頭的顏色', 'RGB(165, 42, 42)'),
+      _ColorPreset('灰色', '中等色調，類似石頭的顏色', 'RGB(128, 128, 128)'),
     ];
 
     final color = colors[_random.nextInt(colors.length)];
 
     return AIResponse(
-      text: '主要颜色是${color.name}。\n\n色盲友好描述：${color.description}。\n\n色值：${color.rgbValue}',
+      text: '主要顏色是${color.name}。\n\n色盲友好描述：${color.description}。\n\n色值：${color.rgbValue}',
       intent: IntentType.colorRecognition,
       urgency: UrgencyLevel.normal,
       needsHuman: false,
@@ -111,15 +111,15 @@ class MockAIService implements AIService {
 
   AIResponse _ocrResponse(String? imageUrl) {
     final texts = [
-      '识别到以下内容：\n\n新鲜水果\n苹果 5元/斤\n香蕉 3元/斤\n橙子 4元/斤',
-      '识别到以下内容：\n\n快递单号：SF1234567890\n收件人：张先生\n地址：北京市朝阳区',
-      '识别到以下内容：\n\n温馨提示\n请勿吸烟\n谢谢配合',
-      '识别到以下内容：\n\n菜单\n红烧肉 38元\n清蒸鱼 48元\n炒时蔬 18元',
-      '识别到以下内容：\n\n药品名称：阿莫西林胶囊\n用法：一次2粒，一日3次\n【重要提醒】这是药品标签，用药前请务必向志愿者或医生确认用法用量。',
+      '識別到以下內容：\n\n新鮮水果\n蘋果 5元/斤\n香蕉 3元/斤\n橙子 4元/斤',
+      '識別到以下內容：\n\n快遞單號：SF1234567890\n收件人：張先生\n地址：北京市朝陽區',
+      '識別到以下內容：\n\n溫馨提示\n請勿吸菸\n謝謝配合',
+      '識別到以下內容：\n\n菜單\n紅燒肉 38元\n清蒸魚 48元\n炒時蔬 18元',
+      '識別到以下內容：\n\n藥品名稱：阿莫西林膠囊\n用法：一次2粒，一日3次\n【重要提醒】這是藥品標籤，用藥前請務必向志願者或醫生確認用法用量。',
     ];
 
     final text = texts[_random.nextInt(texts.length)];
-    final isMedicine = text.contains('药品');
+    final isMedicine = text.contains('藥品');
 
     return AIResponse(
       text: text,
@@ -136,11 +136,11 @@ class MockAIService implements AIService {
 
   AIResponse _objectRecognitionResponse(String? imageUrl) {
     final objects = [
-      '这是一张木质桌子，位于画面中央，是深棕色的方形桌子，桌面上有一杯水和一本书。',
-      '这是一把椅子，位于画面右侧，是黑色的办公椅，有扶手和滚轮。',
-      '这是一扇门，位于画面左侧，是白色的木门，门把手在右侧。',
-      '这是一辆汽车，位于画面中央，是银色的轿车，车头朝向右侧。',
-      '这是一本书，位于画面中央偏下，封面是蓝色的，看起来有一定厚度。',
+      '這是一張木質桌子，位於畫面中央，是深棕色的方形桌子，桌面上有一杯水和一本書。',
+      '這是一把椅子，位於畫面右側，是黑色的辦公椅，有扶手和滾輪。',
+      '這是一扇門，位於畫面左側，是白色的木門，門把手在右側。',
+      '這是一輛汽車，位於畫面中央，是銀色的轎車，車頭朝向右側。',
+      '這是一本書，位於畫面中央偏下，封面是藍色的，看起來有一定厚度。',
     ];
 
     return AIResponse(
@@ -155,10 +155,10 @@ class MockAIService implements AIService {
 
   AIResponse _sceneDescriptionResponse(String? imageUrl) {
     final scenes = [
-      '这是一个室内客厅场景。前方约2米处有一张沙发，右侧约1米处有一扇窗户，左侧有一扇门。中间有约1.5米宽的通道可以通行。地面平整，没有明显障碍物。',
-      '这是一个走廊场景。前方约3米处有拐角，右侧约1米处有椅子，左侧墙壁平整。中间有约1.5米宽的通道可以通行。地面平整，【安全提示】前方拐角处请注意。',
-      '这是一个室外街道场景。前方约5米处有斑马线，右侧是人行道，左侧有树木。天气晴朗，光线充足。',
-      '这是一个餐厅场景。前方约2米处有餐桌，右侧约1.5米处有服务台，左侧是窗户。中间有约2米宽的通道可以通行。',
+      '這是一個室內客廳場景。前方約2米處有一張沙發，右側約1米處有一扇窗戶，左側有一扇門。中間有約1.5米寬的通道可以通行。地面平整，沒有明顯障礙物。',
+      '這是一個走廊場景。前方約3米處有拐角，右側約1米處有椅子，左側牆壁平整。中間有約1.5米寬的通道可以通行。地面平整，【安全提示】前方拐角處請注意。',
+      '這是一個室外街道場景。前方約5米處有斑馬線，右側是人行道，左側有樹木。天氣晴朗，光線充足。',
+      '這是一個餐廳場景。前方約2米處有餐桌，右側約1.5米處有服務檯，左側是窗戶。中間有約2米寬的通道可以通行。',
     ];
 
     return AIResponse(
@@ -173,7 +173,7 @@ class MockAIService implements AIService {
 
   AIResponse _medicineResponse() {
     return AIResponse(
-      text: '您咨询的是药品相关问题，药品使用需要谨慎确认，我将为您转接志愿者协助核对药品信息，请稍候。',
+      text: '您諮詢的是藥品相關問題，藥品使用需要謹慎確認，我將爲您轉接志願者協助覈對藥品信息，請稍候。',
       intent: IntentType.medicineConfirmation,
       urgency: UrgencyLevel.important,
       needsHuman: true,
@@ -184,7 +184,7 @@ class MockAIService implements AIService {
 
   AIResponse _medicalResponse() {
     return AIResponse(
-      text: '您咨询的是医疗相关问题，为了您的健康安全，我将为您转接专业医疗志愿者，请稍候。',
+      text: '您諮詢的是醫療相關問題，爲了您的健康安全，我將爲您轉接專業醫療志願者，請稍候。',
       intent: IntentType.medicalConsultation,
       urgency: UrgencyLevel.important,
       needsHuman: true,
@@ -195,7 +195,7 @@ class MockAIService implements AIService {
 
   AIResponse _emotionalResponse() {
     return AIResponse(
-      text: '我理解您可能需要情感支持，让我为您转接心理支持志愿者，他们会更好地陪伴您。',
+      text: '我理解您可能需要情感支持，讓我爲您轉接心理支持志願者，他們會更好地陪伴您。',
       intent: IntentType.emotionalSupport,
       urgency: UrgencyLevel.important,
       needsHuman: true,
@@ -206,7 +206,7 @@ class MockAIService implements AIService {
 
   AIResponse _emergencyResponse(String input) {
     return AIResponse(
-      text: '检测到紧急情况"$input"，正在立即启动SOS流程！',
+      text: '檢測到緊急情況"$input"，正在立即啓動SOS流程！',
       intent: IntentType.emergency,
       urgency: UrgencyLevel.emergency,
       needsHuman: true,
@@ -217,7 +217,7 @@ class MockAIService implements AIService {
 
   AIResponse _greetingResponse() {
     return AIResponse(
-      text: '您好！我是LinkAble智能助手，有什么可以帮助您的吗？您可以问我关于文字识别、物体识别、颜色识别、导航等问题。',
+      text: '您好！我是LinkAble智能助手，有什麼可以幫助您的嗎？您可以問我關於文字識別、物體識別、顏色識別、導航等問題。',
       intent: IntentType.generalChat,
       urgency: UrgencyLevel.normal,
       needsHuman: false,
@@ -228,7 +228,7 @@ class MockAIService implements AIService {
 
   AIResponse _gratitudeResponse() {
     return AIResponse(
-      text: '不客气！很高兴能帮到您。如果还有其他问题，随时告诉我。',
+      text: '不客氣！很高興能幫到您。如果還有其他問題，隨時告訴我。',
       intent: IntentType.generalChat,
       urgency: UrgencyLevel.normal,
       needsHuman: false,
@@ -239,7 +239,7 @@ class MockAIService implements AIService {
 
   AIResponse _helpResponse() {
     return AIResponse(
-      text: '我可以帮您：1. 识别图片中的文字并朗读；2. 识别物体和场景；3. 识别颜色；4. 识别钞票面额；5. 翻译外文；6. 提供导航指引；7. 描述周围环境。请告诉我您需要什么帮助？',
+      text: '我可以幫您：1. 識別圖片中的文字並朗讀；2. 識別物體和場景；3. 識別顏色；4. 識別鈔票面額；5. 翻譯外文；6. 提供導航指引；7. 描述周圍環境。請告訴我您需要什麼幫助？',
       intent: IntentType.generalChat,
       urgency: UrgencyLevel.normal,
       needsHuman: false,
@@ -250,10 +250,10 @@ class MockAIService implements AIService {
 
   AIResponse _defaultResponse() {
     final defaults = [
-      '我理解您的意思。您可以拍照或详细描述一下，我会尽力帮助您。',
-      '明白了，让我来帮您处理这个问题。',
-      '好的，我来帮您看看。',
-      '收到，请稍等片刻。',
+      '我理解您的意思。您可以拍照或詳細描述一下，我會盡力幫助您。',
+      '明白了，讓我來幫您處理這個問題。',
+      '好的，我來幫您看看。',
+      '收到，請稍等片刻。',
     ];
 
     return AIResponse(
@@ -266,12 +266,12 @@ class MockAIService implements AIService {
     );
   }
 
-  // ==================== 辅助方法 ====================
+  // ==================== 輔助方法 ====================
 
   bool _containsEmergencyKeyword(String input) {
     final keywords = [
-      '救命', 'help', 'emergency', '救救我', '杀人', '抢劫',
-      'fire', '着火了', '心脏病', '中风', '昏迷', '大出血',
+      '救命', 'help', 'emergency', '救救我', '殺人', '搶劫',
+      'fire', '着火了', '心臟病', '中風', '昏迷', '大出血',
     ];
     return keywords.any((k) => input.contains(k.toLowerCase()));
   }
@@ -281,7 +281,7 @@ class MockAIService implements AIService {
   }
 }
 
-/// 颜色预设
+/// 顏色預設
 class _ColorPreset {
   final String name;
   final String description;

@@ -1,13 +1,13 @@
-// AGENTS.md §4.2：竞赛版已冻结 Demo 主线。
-// 本 facade 保留为历史页面兼容层，默认只返回 Demo 匹配结果。
+// AGENTS.md §4.2：競賽版已凍結 Demo 主線。
+// 本 facade 保留爲歷史頁面兼容層，默認只返回 Demo 匹配結果。
 
 import 'dart:async';
 
 import '../demo_data/demo_data_exports.dart';
 import '../models/call_models.dart';
 
-/// 匹配服务类
-/// 负责提供 Demo 匹配结果，真实匹配已隔离到 services/experimental/real/。
+/// 匹配服務類
+/// 負責提供 Demo 匹配結果，真實匹配已隔離到 services/experimental/real/。
 class MatchingService {
   static final MatchingService _instance = MatchingService._internal();
   factory MatchingService() => _instance;
@@ -34,8 +34,8 @@ class MatchingService {
     List<String>? skills,
     String? helpType,
   }) async {
-    // AGENTS.md §4.2：真实匹配已隔离到 services/experimental/real/real_matching_service.dart，
-    // 竞赛版兼容 facade 不再自动触发真实匹配。
+    // AGENTS.md §4.2：真實匹配已隔離到 services/experimental/real/real_matching_service.dart，
+    // 競賽版兼容 facade 不再自動觸發真實匹配。
     return _startDemoMatching();
   }
 
@@ -67,7 +67,7 @@ class MatchingService {
       );
     } catch (e) {
       _updateMatchingState(MatchingState.error);
-      throw Exception('演示匹配失败: $e');
+      throw Exception('演示匹配失敗: $e');
     }
   }
 
@@ -101,7 +101,7 @@ class MatchingService {
   }
 }
 
-/// 匹配状态
+/// 匹配狀態
 enum MatchingState {
   idle,
   searching,

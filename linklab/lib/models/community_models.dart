@@ -3,7 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'community_models.freezed.dart';
 part 'community_models.g.dart';
 
-/// 兴趣小组模型
+/// 興趣小組模型
 @freezed
 class InterestGroup with _$InterestGroup {
   const factory InterestGroup({
@@ -23,7 +23,7 @@ class InterestGroup with _$InterestGroup {
       _$InterestGroupFromJson(json);
 }
 
-/// 小组消息模型
+/// 小組消息模型
 @freezed
 class GroupMessage with _$GroupMessage {
   const factory GroupMessage({
@@ -43,7 +43,7 @@ class GroupMessage with _$GroupMessage {
       _$GroupMessageFromJson(json);
 }
 
-/// 地区社群模型
+/// 地區社羣模型
 @freezed
 class RegionalCommunity with _$RegionalCommunity {
   const factory RegionalCommunity({
@@ -64,7 +64,7 @@ class RegionalCommunity with _$RegionalCommunity {
       _$RegionalCommunityFromJson(json);
 }
 
-/// 社群活动模型
+/// 社羣活動模型
 @freezed
 class CommunityEvent with _$CommunityEvent {
   const factory CommunityEvent({
@@ -88,7 +88,7 @@ class CommunityEvent with _$CommunityEvent {
       _$CommunityEventFromJson(json);
 }
 
-/// 精选故事模型
+/// 精選故事模型
 @freezed
 class FeaturedStory with _$FeaturedStory {
   const factory FeaturedStory({
@@ -113,7 +113,7 @@ class FeaturedStory with _$FeaturedStory {
       _$FeaturedStoryFromJson(json);
 }
 
-/// 新手训练模型
+/// 新手訓練模型
 @freezed
 class NewbieTraining with _$NewbieTraining {
   const factory NewbieTraining({
@@ -133,7 +133,7 @@ class NewbieTraining with _$NewbieTraining {
       _$NewbieTrainingFromJson(json);
 }
 
-/// 模拟场景模型
+/// 模擬場景模型
 @freezed
 class TrainingScenario with _$TrainingScenario {
   const factory TrainingScenario({
@@ -153,7 +153,7 @@ class TrainingScenario with _$TrainingScenario {
       _$TrainingScenarioFromJson(json);
 }
 
-/// 内容审核结果模型
+/// 內容審覈結果模型
 @freezed
 class ModerationResult with _$ModerationResult {
   const factory ModerationResult({
@@ -168,7 +168,7 @@ class ModerationResult with _$ModerationResult {
       _$ModerationResultFromJson(json);
 }
 
-/// 小组分类枚举
+/// 小組分類枚舉
 class GroupCategory {
   static const String medical = 'medical';
   static const String translation = 'translation';
@@ -177,10 +177,10 @@ class GroupCategory {
   static const String other = 'other';
 
   static const Map<String, String> labels = {
-    medical: '医疗辅助组',
-    translation: '外语翻译组',
-    psychological: '心理支持组',
-    technical: '技术指导组',
+    medical: '醫療輔助組',
+    translation: '外語翻譯組',
+    psychological: '心理支持組',
+    technical: '技術指導組',
     other: '其他',
   };
 
@@ -189,7 +189,7 @@ class GroupCategory {
   }
 }
 
-/// 故事状态枚举
+/// 故事狀態枚舉
 class StoryStatus {
   static const String pending = 'pending';
   static const String approved = 'approved';
@@ -197,7 +197,7 @@ class StoryStatus {
   static const String featured = 'featured';
 }
 
-/// 训练场景类型枚举
+/// 訓練場景類型枚舉
 class ScenarioType {
   static const String ocr = 'ocr';
   static const String sceneDescription = 'scene_description';
@@ -205,13 +205,13 @@ class ScenarioType {
   static const String emergency = 'emergency';
 
   static const Map<String, String> labels = {
-    ocr: 'OCR识别场景',
-    sceneDescription: '场景描述场景',
-    navigation: '导航指引场景',
-    emergency: '紧急情况场景',
+    ocr: 'OCR識別場景',
+    sceneDescription: '場景描述場景',
+    navigation: '導航指引場景',
+    emergency: '緊急情況場景',
   };
 
   static String getLabel(String type) {
-    return labels[type] ?? '综合场景';
+    return labels[type] ?? '綜合場景';
   }
 }

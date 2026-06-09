@@ -3,7 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'call_recording_model.freezed.dart';
 part 'call_recording_model.g.dart';
 
-/// 通话录音模型
+/// 通話錄音模型
 @freezed
 class CallRecording with _$CallRecording {
   const factory CallRecording({
@@ -14,7 +14,7 @@ class CallRecording with _$CallRecording {
     String? fileUrl,
     String? filePath,
     int? fileSize,
-    int? duration, // 录音时长（秒）
+    int? duration, // 錄音時長（秒）
     @Default(false) bool isUploaded,
     @Default(false) bool isDeleted,
     @Default([]) List<DetectionResult> detectionResults,
@@ -22,7 +22,7 @@ class CallRecording with _$CallRecording {
     DateTime? endedAt,
     DateTime? uploadedAt,
     DateTime? deletedAt,
-    DateTime? expiresAt, // 7天后自动删除
+    DateTime? expiresAt, // 7天后自動刪除
     DateTime? createdAt,
   }) = _CallRecording;
 
@@ -31,17 +31,17 @@ class CallRecording with _$CallRecording {
 
   const CallRecording._();
 
-  /// 是否已过期
+  /// 是否已過期
   bool get isExpired {
     if (expiresAt == null) return false;
     return DateTime.now().isAfter(expiresAt!);
   }
 
-  /// 是否包含违规内容
+  /// 是否包含違規內容
   bool get hasViolation =>
       detectionResults.any((r) => r.isViolation);
 
-  /// 违规严重程度
+  /// 違規嚴重程度
   ViolationLevel? get highestViolationLevel {
     if (detectionResults.isEmpty) return null;
     final violations = detectionResults.where((r) => r.isViolation).toList();
@@ -58,7 +58,7 @@ class CallRecording with _$CallRecording {
   }
 }
 
-/// AI检测结果
+/// AI檢測結果
 @freezed
 class DetectionResult with _$DetectionResult {
   const factory DetectionResult({
@@ -69,7 +69,7 @@ class DetectionResult with _$DetectionResult {
     ViolationLevel? violationLevel,
     String? detectedText,
     String? matchedKeywords,
-    int? timestamp, // 在录音中的时间点（毫秒）
+    int? timestamp, // 在錄音中的時間點（毫秒）
     DateTime? createdAt,
   }) = _DetectionResult;
 
@@ -77,12 +77,12 @@ class DetectionResult with _$DetectionResult {
       _$DetectionResultFromJson(json);
 }
 
-/// 检测类型
+/// 檢測類型
 enum DetectionType {
-  abuse,        // 辱骂/人身攻击
-  sensitive,    // 敏感内容（涉黄/涉暴）
-  fraud,        // 诈骗诱导
-  abnormal,     // 异常行为
+  abuse,        // 辱罵/人身攻擊
+  sensitive,    // 敏感內容（涉黃/涉暴）
+  fraud,        // 詐騙誘導
+  abnormal,     // 異常行爲
   spam,         // 垃圾信息
 }
 
@@ -90,13 +90,13 @@ extension DetectionTypeExtension on DetectionType {
   String get label {
     switch (this) {
       case DetectionType.abuse:
-        return '辱骂攻击';
+        return '辱罵攻擊';
       case DetectionType.sensitive:
-        return '敏感内容';
+        return '敏感內容';
       case DetectionType.fraud:
-        return '诈骗诱导';
+        return '詐騙誘導';
       case DetectionType.abnormal:
-        return '异常行为';
+        return '異常行爲';
       case DetectionType.spam:
         return '垃圾信息';
     }
@@ -105,71 +105,71 @@ extension DetectionTypeExtension on DetectionType {
   String get description {
     switch (this) {
       case DetectionType.abuse:
-        return '检测到辱骂或人身攻击内容';
+        return '檢測到辱罵或人身攻擊內容';
       case DetectionType.sensitive:
-        return '检测到涉黄/涉暴等敏感内容';
+        return '檢測到涉黃/涉暴等敏感內容';
       case DetectionType.fraud:
-        return '检测到金钱交易或个人信息索取';
+        return '檢測到金錢交易或個人信息索取';
       case DetectionType.abnormal:
-        return '检测到长时间沉默或重复呼叫等异常';
+        return '檢測到長時間沉默或重複呼叫等異常';
       case DetectionType.spam:
-        return '检测到垃圾信息';
+        return '檢測到垃圾信息';
     }
   }
 }
 
-/// 违规级别
+/// 違規級別
 enum ViolationLevel {
-  low,      // 轻微
+  low,      // 輕微
   medium,   // 中等
-  high,     // 严重
-  critical, // 极严重
+  high,     // 嚴重
+  critical, // 極嚴重
 }
 
 extension ViolationLevelExtension on ViolationLevel {
   String get label {
     switch (this) {
       case ViolationLevel.low:
-        return '轻微';
+        return '輕微';
       case ViolationLevel.medium:
         return '中等';
       case ViolationLevel.high:
-        return '严重';
+        return '嚴重';
       case ViolationLevel.critical:
-        return '极严重';
+        return '極嚴重';
     }
   }
 
   String get action {
     switch (this) {
       case ViolationLevel.low:
-        return '自动警告';
+        return '自動警告';
       case ViolationLevel.medium:
-        return '记录标记';
+        return '記錄標記';
       case ViolationLevel.high:
-        return '中断通话';
+        return '中斷通話';
       case ViolationLevel.critical:
-        return '立即封号';
+        return '立即封號';
     }
   }
 }
 
-/// 录音配置
+/// 錄音配置
 class RecordingConfig {
-  /// 默认录音存储天数
+  /// 默認錄音存儲天數
   static const int defaultRetentionDays = 7;
 
-  /// 最大录音文件大小（MB）
+  /// 最大錄音文件大小（MB）
   static const int maxFileSizeMB = 100;
 
-  /// 录音质量
+  /// 錄音質量
   static const int sampleRate = 16000;
   static const int bitRate = 32000;
 
-  /// 是否默认开启录音
+  /// 是否默認開啓錄音
   static const bool defaultEnabled = true;
 
-  /// 检测阈值
+  /// 檢測閾值
   static const double abuseThreshold = 0.7;
   static const double sensitiveThreshold = 0.8;
   static const double fraudThreshold = 0.75;

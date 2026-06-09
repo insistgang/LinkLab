@@ -1,6 +1,6 @@
 import '../constants/app_constants.dart';
 
-// 精选故事模型
+// 精選故事模型
 class StoryModel {
   final String id;
   final String title;
@@ -86,14 +86,14 @@ class StoryModel {
       case ContentStatus.draft:
         return '草稿';
       case ContentStatus.published:
-        return '已发布';
+        return '已發佈';
       case ContentStatus.archived:
         return '已下架';
     }
   }
 }
 
-// 社群内容模型
+// 社羣內容模型
 class CommunityContentModel {
   final String id;
   final String content;
@@ -147,14 +147,14 @@ class CommunityContentModel {
   }
 }
 
-// 评论模型
+// 評論模型
 class CommentModel {
   final String id;
   final String content;
   final String authorId;
   final String authorName;
   final String? authorAvatar;
-  final String targetId; // 故事ID或内容ID
+  final String targetId; // 故事ID或內容ID
   final String targetType; // 'story' 或 'community'
   final DateTime createdAt;
   final bool isReported;

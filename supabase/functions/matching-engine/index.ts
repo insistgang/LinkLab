@@ -1,6 +1,6 @@
-// 志愿者匹配引擎 Edge Function
-// AGENTS.md §4.2 / §4.4：竞赛版默认走 Demo 主线；
-// 当前真实函数仅与根 supabase/ schema 对齐，不再依赖 linklab/supabase 历史分叉表。
+// 志願者匹配引擎 Edge Function
+// AGENTS.md §4.2 / §4.4：競賽版默認走 Demo 主線；
+// 當前真實函數僅與根 supabase/ schema 對齊，不再依賴 linklab/supabase 歷史分叉表。
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0';
 
@@ -58,7 +58,7 @@ async function rankVolunteers(
   });
 
   if (error) {
-    throw new Error(`查询匹配志愿者失败: ${error.message}`);
+    throw new Error(`查詢匹配志願者失敗: ${error.message}`);
   }
 
   return (data ?? []) as RankedVolunteer[];
@@ -73,7 +73,7 @@ async function createHelpRequest(
     .insert({
       seeker_id: request.seekerId,
       type: 'realtime_voice',
-      intent: request.helpType || '志愿者协助',
+      intent: request.helpType || '志願者協助',
       urgency: request.urgency,
       status: 'matching',
       help_type: request.helpType || 'general',
@@ -89,7 +89,7 @@ async function createHelpRequest(
     .single();
 
   if (error || !data) {
-    throw new Error(`创建求助记录失败: ${error?.message ?? 'unknown error'}`);
+    throw new Error(`創建求助記錄失敗: ${error?.message ?? 'unknown error'}`);
   }
 
   return data.id as string;
@@ -112,9 +112,9 @@ async function handleMatching(req: Request): Promise<Response> {
     if (volunteers.length === 0) {
       return jsonResponse({
         success: false,
-        error: '5km范围内没有可用志愿者',
+        error: '5km範圍內沒有可用志願者',
         code: 'NO_VOLUNTEERS_IN_RANGE',
-        suggestion: '请稍候重试，或转为异步留言',
+        suggestion: '請稍候重試，或轉爲異步留言',
       });
     }
 
@@ -127,7 +127,7 @@ async function handleMatching(req: Request): Promise<Response> {
       volunteers: volunteers.map((volunteer) => ({
         id: volunteer.user_id,
         userId: volunteer.user_id,
-        name: volunteer.name ?? '志愿者',
+        name: volunteer.name ?? '志願者',
         avatarUrl: volunteer.avatar_url,
         score: Math.min(1, Math.max(0, (volunteer.credit_score ?? 5) / 5)),
         distance: volunteer.distance / 1000,
@@ -136,7 +136,7 @@ async function handleMatching(req: Request): Promise<Response> {
       timeoutAt: new Date(Date.now() + 30 * 1000).toISOString(),
     });
   } catch (error) {
-    console.error('匹配引擎错误:', error);
+    console.error('匹配引擎錯誤:', error);
     return jsonResponse({ error: error.message }, 500);
   }
 }
@@ -160,7 +160,7 @@ async function handleTimeout(req: Request): Promise<Response> {
       .single();
 
     if (error || !helpRequest) {
-      return jsonResponse({ error: '求助记录不存在' }, 404);
+      return jsonResponse({ error: '求助記錄不存在' }, 404);
     }
 
     if (expandRange) {
@@ -195,8 +195,8 @@ async function handleTimeout(req: Request): Promise<Response> {
     await supabase.from('async_tasks').insert({
       request_id: helpRequestId,
       seeker_id: helpRequest.seeker_id,
-      title: (helpRequest.help_type as string?) ?? '异步协助',
-      description: (helpRequest.intent as string?) ?? '匹配超时后自动转为异步留言',
+      title: (helpRequest.help_type as string?) ?? '異步協助',
+      description: (helpRequest.intent as string?) ?? '匹配超時後自動轉爲異步留言',
       type: 'other',
       status: 'pending',
       deadline_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
@@ -205,10 +205,10 @@ async function handleTimeout(req: Request): Promise<Response> {
     return jsonResponse({
       success: true,
       convertedToAsync: true,
-      message: '匹配超时，已转为异步留言',
+      message: '匹配超時，已轉爲異步留言',
     });
   } catch (error) {
-    console.error('匹配超时处理错误:', error);
+    console.error('匹配超時處理錯誤:', error);
     return jsonResponse({ error: error.message }, 500);
   }
 }
@@ -238,14 +238,14 @@ async function handleAccept(req: Request): Promise<Response> {
       .maybeSingle();
 
     if (error) {
-      throw new Error(`接单失败: ${error.message}`);
+      throw new Error(`接單失敗: ${error.message}`);
     }
 
     if (!data) {
       return jsonResponse({
         success: false,
         code: 'ALREADY_CLAIMED',
-        message: '该求助已被其他志愿者接单或已结束',
+        message: '該求助已被其他志願者接單或已結束',
       });
     }
 
@@ -256,7 +256,7 @@ async function handleAccept(req: Request): Promise<Response> {
       status: data.status,
     });
   } catch (error) {
-    console.error('接受匹配失败:', error);
+    console.error('接受匹配失敗:', error);
     return jsonResponse({ error: error.message }, 500);
   }
 }
@@ -277,10 +277,10 @@ async function handleReject(req: Request): Promise<Response> {
       helpRequestId,
       volunteerId,
       ignored: true,
-      message: '根 schema 不再维护逐志愿者匹配历史表，拒绝结果仅用于实验性客户端本地状态。',
+      message: '根 schema 不再維護逐志願者匹配歷史表，拒絕結果僅用於實驗性客戶端本地狀態。',
     });
   } catch (error) {
-    console.error('拒绝匹配失败:', error);
+    console.error('拒絕匹配失敗:', error);
     return jsonResponse({ error: error.message }, 500);
   }
 }

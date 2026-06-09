@@ -69,7 +69,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('加载数据失败: $e')));
+      ).showSnackBar(SnackBar(content: Text('加載數據失敗: $e')));
     }
   }
 
@@ -77,17 +77,17 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     try {
       final workbook = Workbook();
       final sheet = workbook.worksheets[0];
-      sheet.name = '日报表';
+      sheet.name = '日報表';
 
       // Headers
       sheet.getRangeByName('A1').setText('日期');
-      sheet.getRangeByName('B1').setText('新增用户');
-      sheet.getRangeByName('C1').setText('活跃用户');
-      sheet.getRangeByName('D1').setText('总通话');
-      sheet.getRangeByName('E1').setText('平均通话时长');
-      sheet.getRangeByName('F1').setText('满意度');
-      sheet.getRangeByName('G1').setText('求助请求');
-      sheet.getRangeByName('H1').setText('响应率');
+      sheet.getRangeByName('B1').setText('新增用戶');
+      sheet.getRangeByName('C1').setText('活躍用戶');
+      sheet.getRangeByName('D1').setText('總通話');
+      sheet.getRangeByName('E1').setText('平均通話時長');
+      sheet.getRangeByName('F1').setText('滿意度');
+      sheet.getRangeByName('G1').setText('求助請求');
+      sheet.getRangeByName('H1').setText('響應率');
 
       // Data
       for (var i = 0; i < _dailyReports.length; i++) {
@@ -113,11 +113,11 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       // For now, show success message
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Excel导出成功')));
+      ).showSnackBar(const SnackBar(content: Text('Excel導出成功')));
     } catch (e) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('导出失败: $e')));
+      ).showSnackBar(SnackBar(content: Text('導出失敗: $e')));
     }
   }
 
@@ -127,12 +127,12 @@ class _StatisticsScreenState extends State<StatisticsScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('数据统计'),
+        title: const Text('數據統計'),
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
-            Tab(text: '日报表'),
-            Tab(text: '用户增长'),
+            Tab(text: '日報表'),
+            Tab(text: '用戶增長'),
             Tab(text: '求助分析'),
           ],
         ),
@@ -160,7 +160,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
           // Export Button
           IconButton(
             icon: const Icon(Icons.download),
-            tooltip: '导出Excel',
+            tooltip: '導出Excel',
             onPressed: _exportToExcel,
           ),
           const SizedBox(width: 16),
@@ -181,7 +181,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
 
   Widget _buildDailyReportTab(bool isMobile) {
     if (_dailyReports.isEmpty) {
-      return const Center(child: Text('暂无数据'));
+      return const Center(child: Text('暫無數據'));
     }
 
     final trendData = _dailyReports
@@ -207,7 +207,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                 Expanded(
                   child: LineChartWidget(
                     data: trendData,
-                    title: '活跃用户趋势',
+                    title: '活躍用戶趨勢',
                     lineColor: AppTheme.primaryColor,
                   ),
                 ),
@@ -215,7 +215,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                 Expanded(
                   child: LineChartWidget(
                     data: callData,
-                    title: '通话量趋势',
+                    title: '通話量趨勢',
                     lineColor: AppTheme.successColor,
                   ),
                 ),
@@ -224,13 +224,13 @@ class _StatisticsScreenState extends State<StatisticsScreen>
           else ...[
             LineChartWidget(
               data: trendData,
-              title: '活跃用户趋势',
+              title: '活躍用戶趨勢',
               lineColor: AppTheme.primaryColor,
             ),
             const SizedBox(height: 16),
             LineChartWidget(
               data: callData,
-              title: '通话量趋势',
+              title: '通話量趨勢',
               lineColor: AppTheme.successColor,
             ),
           ],
@@ -248,12 +248,12 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         child: DataTable(
           columns: const [
             DataColumn(label: Text('日期')),
-            DataColumn(label: Text('新增用户')),
-            DataColumn(label: Text('活跃用户')),
-            DataColumn(label: Text('总通话')),
-            DataColumn(label: Text('平均时长')),
-            DataColumn(label: Text('满意度')),
-            DataColumn(label: Text('响应率')),
+            DataColumn(label: Text('新增用戶')),
+            DataColumn(label: Text('活躍用戶')),
+            DataColumn(label: Text('總通話')),
+            DataColumn(label: Text('平均時長')),
+            DataColumn(label: Text('滿意度')),
+            DataColumn(label: Text('響應率')),
           ],
           rows: _dailyReports.map((report) {
             return DataRow(
@@ -263,7 +263,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                 DataCell(Text(report.activeUsers.toString())),
                 DataCell(Text(report.totalCalls.toString())),
                 DataCell(
-                  Text('${report.avgCallDuration.toStringAsFixed(1)}分钟'),
+                  Text('${report.avgCallDuration.toStringAsFixed(1)}分鐘'),
                 ),
                 DataCell(Text(report.satisfaction.toStringAsFixed(1))),
                 DataCell(Text('${report.responseRate.toStringAsFixed(1)}%')),
@@ -277,7 +277,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
 
   Widget _buildUserGrowthTab(bool isMobile) {
     if (_userGrowthReports.isEmpty) {
-      return const Center(child: Text('暂无数据'));
+      return const Center(child: Text('暫無數據'));
     }
 
     final disabledData = _userGrowthReports
@@ -309,7 +309,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                 Expanded(
                   child: LineChartWidget(
                     data: disabledData,
-                    title: '新增残障用户',
+                    title: '新增殘障用戶',
                     lineColor: AppTheme.primaryColor,
                   ),
                 ),
@@ -317,7 +317,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                 Expanded(
                   child: LineChartWidget(
                     data: volunteerData,
-                    title: '新增志愿者',
+                    title: '新增志願者',
                     lineColor: AppTheme.successColor,
                   ),
                 ),
@@ -326,13 +326,13 @@ class _StatisticsScreenState extends State<StatisticsScreen>
           else ...[
             LineChartWidget(
               data: disabledData,
-              title: '新增残障用户',
+              title: '新增殘障用戶',
               lineColor: AppTheme.primaryColor,
             ),
             const SizedBox(height: 16),
             LineChartWidget(
               data: volunteerData,
-              title: '新增志愿者',
+              title: '新增志願者',
               lineColor: AppTheme.successColor,
             ),
           ],
@@ -350,10 +350,10 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         child: DataTable(
           columns: const [
             DataColumn(label: Text('日期')),
-            DataColumn(label: Text('新增残障用户')),
-            DataColumn(label: Text('新增志愿者')),
-            DataColumn(label: Text('残障用户总数')),
-            DataColumn(label: Text('志愿者总数')),
+            DataColumn(label: Text('新增殘障用戶')),
+            DataColumn(label: Text('新增志願者')),
+            DataColumn(label: Text('殘障用戶總數')),
+            DataColumn(label: Text('志願者總數')),
             DataColumn(label: Text('留存率')),
           ],
           rows: _userGrowthReports.map((report) {
@@ -377,7 +377,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
 
   Widget _buildHelpAnalysisTab(bool isMobile) {
     if (_helpTypeStats.isEmpty) {
-      return const Center(child: Text('暂无数据'));
+      return const Center(child: Text('暫無數據'));
     }
 
     final distributionData = _helpTypeStats
@@ -388,7 +388,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
-          PieChartWidget(data: distributionData, title: '求助类型分布'),
+          PieChartWidget(data: distributionData, title: '求助類型分佈'),
           const SizedBox(height: 24),
           _buildHelpTypeTable(),
         ],
@@ -402,12 +402,12 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         scrollDirection: Axis.horizontal,
         child: DataTable(
           columns: const [
-            DataColumn(label: Text('求助类型')),
-            DataColumn(label: Text('数量')),
-            DataColumn(label: Text('占比')),
-            DataColumn(label: Text('平均响应时间')),
-            DataColumn(label: Text('平均时长')),
-            DataColumn(label: Text('满意度')),
+            DataColumn(label: Text('求助類型')),
+            DataColumn(label: Text('數量')),
+            DataColumn(label: Text('佔比')),
+            DataColumn(label: Text('平均響應時間')),
+            DataColumn(label: Text('平均時長')),
+            DataColumn(label: Text('滿意度')),
           ],
           rows: _helpTypeStats.map((stat) {
             return DataRow(
@@ -416,7 +416,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                 DataCell(Text(stat.count.toString())),
                 DataCell(Text('${stat.percentage.toStringAsFixed(1)}%')),
                 DataCell(Text('${stat.avgResponseTime.toStringAsFixed(1)}秒')),
-                DataCell(Text('${stat.avgDuration.toStringAsFixed(1)}分钟')),
+                DataCell(Text('${stat.avgDuration.toStringAsFixed(1)}分鐘')),
                 DataCell(Text(stat.satisfaction.toStringAsFixed(1))),
               ],
             );

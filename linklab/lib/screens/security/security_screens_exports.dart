@@ -1,4 +1,4 @@
-// 安全模块UI页面导出
+// 安全模塊UI頁面導出
 
 export 'emergency_contacts_screen.dart';
 export 'rating_screen.dart';

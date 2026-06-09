@@ -2,88 +2,88 @@
   "scenarios": [
     {
       "id": "scenario_001",
-      "title": "药品识别",
+      "title": "藥品識別",
       "category": "daily",
-      "description": "用户需要识别药品说明书",
-      "userInput": "帮我看一下这个药怎么吃",
+      "description": "用戶需要識別藥品說明書",
+      "userInput": "幫我看一下這個藥怎麼喫",
       "aiResponse": {
         "type": "ocr",
-        "text": "阿莫西林胶囊，规格0.25g，成人每次2粒，每6-8小时一次",
+        "text": "阿莫西林膠囊，規格0.25g，成人每次2粒，每6-8小時一次",
         "action": "ai_resolved"
       }
     },
     {
       "id": "scenario_002",
-      "title": "街道导航",
+      "title": "街道導航",
       "category": "navigation",
-      "description": "用户在陌生街道需要导航帮助",
-      "userInput": "我在哪里？怎么去地铁站？",
+      "description": "用戶在陌生街道需要導航幫助",
+      "userInput": "我在哪裏？怎麼去地鐵站？",
       "aiResponse": {
         "type": "scene_description",
-        "text": "您在一条城市街道，前方20米处有地铁站入口",
+        "text": "您在一條城市街道，前方20米處有地鐵站入口",
         "action": "need_volunteer"
       },
       "volunteerResponse": {
         "volunteerId": "volunteer_001",
         "volunteerName": "李明",
-        "guidance": "您现在面向北方，往前走20米，右手边就是地铁站A口。我引导您过去。"
+        "guidance": "您現在面向北方，往前走20米，右手邊就是地鐵站A口。我引導您過去。"
       }
     },
     {
       "id": "scenario_003",
-      "title": "颜色识别",
+      "title": "顏色識別",
       "category": "daily",
-      "description": "用户需要识别衣服颜色",
-      "userInput": "这件衣服是什么颜色？",
+      "description": "用戶需要識別衣服顏色",
+      "userInput": "這件衣服是什麼顏色？",
       "aiResponse": {
         "type": "color_recognition",
-        "text": "这是深蓝色，类似于海军蓝",
+        "text": "這是深藍色，類似於海軍藍",
         "action": "ai_resolved"
       }
     },
     {
       "id": "scenario_004",
-      "title": "餐厅点餐",
+      "title": "餐廳點餐",
       "category": "daily",
-      "description": "用户在餐厅需要看菜单",
-      "userInput": "帮我读一下菜单",
+      "description": "用戶在餐廳需要看菜單",
+      "userInput": "幫我讀一下菜單",
       "aiResponse": {
         "type": "ocr",
-        "text": "今日特推：红烧肉38元，清蒸鲈鱼58元，麻婆豆腐22元",
+        "text": "今日特推：紅燒肉38元，清蒸鱸魚58元，麻婆豆腐22元",
         "action": "need_volunteer"
       },
       "volunteerResponse": {
         "volunteerId": "volunteer_002",
         "volunteerName": "王芳",
-        "guidance": "菜单上还有时令蔬菜、汤品等。您想吃什么类型的菜？我可以详细介绍。"
+        "guidance": "菜單上還有時令蔬菜、湯品等。您想喫什麼類型的菜？我可以詳細介紹。"
       }
     },
     {
       "id": "scenario_005",
-      "title": "SOS紧急求助",
+      "title": "SOS緊急求助",
       "category": "emergency",
-      "description": "用户遇到紧急情况",
+      "description": "用戶遇到緊急情況",
       "userInput": "救命！我摔倒了，腿很痛",
       "aiResponse": {
         "type": "emergency",
-        "text": "检测到紧急情况！正在为您联系志愿者和紧急联系人",
+        "text": "檢測到緊急情況！正在爲您聯繫志願者和緊急聯繫人",
         "action": "sos_triggered"
       },
       "volunteerResponse": {
         "volunteerId": "volunteer_005",
-        "volunteerName": "陈静",
-        "guidance": "我是陈静，已经收到您的求助。请保持冷静，告诉我您的具体位置，我马上过来。"
+        "volunteerName": "陳靜",
+        "guidance": "我是陳靜，已經收到您的求助。請保持冷靜，告訴我您的具體位置，我馬上過來。"
       }
     },
     {
       "id": "scenario_006",
-      "title": "公交站查询",
+      "title": "公交站查詢",
       "category": "navigation",
-      "description": "用户需要确认公交线路",
-      "userInput": "这是几路车？到不到人民公园？",
+      "description": "用戶需要確認公交線路",
+      "userInput": "這是幾路車？到不到人民公園？",
       "aiResponse": {
         "type": "ocr",
-        "text": "101路公交车，下一站是人民公园",
+        "text": "101路公交車，下一站是人民公園",
         "action": "ai_resolved"
       }
     }
@@ -93,55 +93,55 @@
       {
         "step": 1,
         "screen": "home",
-        "action": "点击大按钮开始求助",
+        "action": "點擊大按鈕開始求助",
         "delay": 1000
       },
       {
         "step": 2,
         "screen": "ai_chat",
-        "action": "AI问候语",
-        "aiMessage": "您好！我是您的智能助手，有什么可以帮助您的吗？",
+        "action": "AI問候語",
+        "aiMessage": "您好！我是您的智能助手，有什麼可以幫助您的嗎？",
         "delay": 1500
       },
       {
         "step": 3,
         "screen": "ai_chat",
-        "action": "用户选择场景或输入",
-        "userMessage": "帮我看一下这个药怎么吃",
+        "action": "用戶選擇場景或輸入",
+        "userMessage": "幫我看一下這個藥怎麼喫",
         "delay": 2000
       },
       {
         "step": 4,
         "screen": "ai_chat",
-        "action": "AI识别并回复",
-        "aiMessage": "这是阿莫西林胶囊，每粒0.25克。成人每次服用2粒，每6到8小时一次。",
+        "action": "AI識別並回復",
+        "aiMessage": "這是阿莫西林膠囊，每粒0.25克。成人每次服用2粒，每6到8小時一次。",
         "delay": 2000
       },
       {
         "step": 5,
         "screen": "ai_chat",
-        "action": "询问是否需要进一步帮助",
-        "aiMessage": "还有其他需要我帮助的吗？",
+        "action": "詢問是否需要進一步幫助",
+        "aiMessage": "還有其他需要我幫助的嗎？",
         "delay": 1500
       },
       {
         "step": 6,
         "screen": "ai_chat",
-        "action": "用户请求连接志愿者",
-        "userMessage": "我想问更详细的问题",
+        "action": "用戶請求連接志願者",
+        "userMessage": "我想問更詳細的問題",
         "delay": 1000
       },
       {
         "step": 7,
         "screen": "matching",
-        "action": "进入匹配页面",
+        "action": "進入匹配頁面",
         "matchingTime": 3000,
         "delay": 3500
       },
       {
         "step": 8,
         "screen": "call",
-        "action": "连接志愿者",
+        "action": "連接志願者",
         "volunteerName": "李明",
         "callDuration": 15000,
         "delay": 16000
@@ -149,13 +149,13 @@
       {
         "step": 9,
         "screen": "rating",
-        "action": "通话结束，进入评价",
+        "action": "通話結束，進入評價",
         "delay": 3000
       },
       {
         "step": 10,
         "screen": "home",
-        "action": "返回首页",
+        "action": "返回首頁",
         "delay": 1000
       }
     ]

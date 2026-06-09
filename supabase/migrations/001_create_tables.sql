@@ -1,191 +1,191 @@
 -- =====================================================
--- 共感 LinkAble 数据库初始化脚本
--- 创建核心表结构
+-- 共感 LinkAble 數據庫初始化腳本
+-- 創建核心表結構
 -- =====================================================
 
--- 启用PostGIS扩展（用于地理坐标）
+-- 啓用PostGIS擴展（用於地理座標）
 CREATE EXTENSION IF NOT EXISTS postgis;
 
 -- =====================================================
--- 1. users 用户基础表
+-- 1. users 用戶基礎表
 -- =====================================================
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    phone TEXT UNIQUE,                          -- 手机号登录
-    name TEXT,                                  -- 昵称
-    avatar_url TEXT,                            -- 头像URL
-    role TEXT[] DEFAULT '{}',                   -- ['seeker', 'volunteer'] 可双角色
+    phone TEXT UNIQUE,                          -- 手機號登錄
+    name TEXT,                                  -- 暱稱
+    avatar_url TEXT,                            -- 頭像URL
+    role TEXT[] DEFAULT '{}',                   -- ['seeker', 'volunteer'] 可雙角色
     disability_type TEXT[] DEFAULT '{}',        -- ['visual', 'hearing', 'physical', 'elderly', 'temporary']
-    preferences JSONB DEFAULT '{}',             -- 无障碍偏好配置
-    last_login_at TIMESTAMPTZ,                  -- 最后登录时间
-    is_deleted BOOLEAN DEFAULT FALSE,           -- 软删除标记
+    preferences JSONB DEFAULT '{}',             -- 無障礙偏好配置
+    last_login_at TIMESTAMPTZ,                  -- 最後登錄時間
+    is_deleted BOOLEAN DEFAULT FALSE,           -- 軟刪除標記
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-COMMENT ON TABLE users IS '用户基础表';
-COMMENT ON COLUMN users.role IS '用户角色数组，支持seeker(求助者)和volunteer(志愿者)双角色';
-COMMENT ON COLUMN users.disability_type IS '障碍类型：visual(视障), hearing(听障), physical(肢体), elderly(老年), temporary(临时)';
-COMMENT ON COLUMN users.preferences IS '无障碍偏好配置，如字体大小、高对比度、语音速度等';
+COMMENT ON TABLE users IS '用戶基礎表';
+COMMENT ON COLUMN users.role IS '用戶角色數組，支持seeker(求助者)和volunteer(志願者)雙角色';
+COMMENT ON COLUMN users.disability_type IS '障礙類型：visual(視障), hearing(聽障), physical(肢體), elderly(老年), temporary(臨時)';
+COMMENT ON COLUMN users.preferences IS '無障礙偏好配置，如字體大小、高對比度、語音速度等';
 
 -- =====================================================
--- 2. volunteer_profiles 志愿者扩展表
+-- 2. volunteer_profiles 志願者擴展表
 -- =====================================================
 CREATE TABLE volunteer_profiles (
     user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-    skills TEXT[] DEFAULT '{}',                 -- 技能标签数组
-    level INT DEFAULT 1 CHECK (level >= 1 AND level <= 7),  -- 等级 1-7
-    points INT DEFAULT 0,                       -- 积分
+    skills TEXT[] DEFAULT '{}',                 -- 技能標籤數組
+    level INT DEFAULT 1 CHECK (level >= 1 AND level <= 7),  -- 等級 1-7
+    points INT DEFAULT 0,                       -- 積分
     credit_score DECIMAL(2,1) DEFAULT 5.0 CHECK (credit_score >= 1.0 AND credit_score <= 5.0),  -- 信用分 1-5
-    is_verified BOOLEAN DEFAULT FALSE,          -- 实名认证
+    is_verified BOOLEAN DEFAULT FALSE,          -- 實名認證
     available_schedule JSONB DEFAULT '{}',      -- 排班配置
-    is_online BOOLEAN DEFAULT FALSE,            -- 在线状态
-    last_heartbeat_at TIMESTAMPTZ,              -- 最后心跳时间
-    total_help_count INT DEFAULT 0,             -- 累计帮助次数
-    location GEOGRAPHY(POINT,4326),             -- PostGIS地理坐标(WGS84)
+    is_online BOOLEAN DEFAULT FALSE,            -- 在線狀態
+    last_heartbeat_at TIMESTAMPTZ,              -- 最後心跳時間
+    total_help_count INT DEFAULT 0,             -- 累計幫助次數
+    location GEOGRAPHY(POINT,4326),             -- PostGIS地理座標(WGS84)
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-COMMENT ON TABLE volunteer_profiles IS '志愿者扩展表';
-COMMENT ON COLUMN volunteer_profiles.skills IS '技能标签：medical(医疗), guide(导盲), tech(技术), sign(手语), elderly(敬老), child(儿童), daily(日常)';
-COMMENT ON COLUMN volunteer_profiles.level IS '志愿者等级1-7，根据积分自动计算';
-COMMENT ON COLUMN volunteer_profiles.available_schedule IS '可服务时间段配置';
-COMMENT ON COLUMN volunteer_profiles.location IS '实时位置坐标，仅在匹配时对其他用户可见';
+COMMENT ON TABLE volunteer_profiles IS '志願者擴展表';
+COMMENT ON COLUMN volunteer_profiles.skills IS '技能標籤：medical(醫療), guide(導盲), tech(技術), sign(手語), elderly(敬老), child(兒童), daily(日常)';
+COMMENT ON COLUMN volunteer_profiles.level IS '志願者等級1-7，根據積分自動計算';
+COMMENT ON COLUMN volunteer_profiles.available_schedule IS '可服務時間段配置';
+COMMENT ON COLUMN volunteer_profiles.location IS '實時位置座標，僅在匹配時對其他用戶可見';
 
 -- =====================================================
--- 3. help_requests 求助记录表
+-- 3. help_requests 求助記錄表
 -- =====================================================
 CREATE TABLE help_requests (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     seeker_id UUID NOT NULL REFERENCES users(id),
     type TEXT NOT NULL CHECK (type IN ('ai_auto', 'async', 'realtime_voice', 'realtime_video', 'sos')),
-    intent TEXT,                                -- AI识别的意图
+    intent TEXT,                                -- AI識別的意圖
     urgency TEXT DEFAULT 'normal' CHECK (urgency IN ('normal', 'important', 'urgent', 'emergency')),
     status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'ai_resolved', 'matching', 'matched', 'connected', 'completed', 'cancelled')),
-    ai_response JSONB DEFAULT '{}',             -- AI处理结果缓存
-    volunteer_id UUID REFERENCES users(id),     -- 匹配的志愿者
+    ai_response JSONB DEFAULT '{}',             -- AI處理結果緩存
+    volunteer_id UUID REFERENCES users(id),     -- 匹配的志願者
     location GEOGRAPHY(POINT,4326),             -- 求助位置
-    duration_seconds INT,                       -- 通话时长(秒)
+    duration_seconds INT,                       -- 通話時長(秒)
     seeker_rating INT CHECK (seeker_rating >= 1 AND seeker_rating <= 5),
     volunteer_rating INT CHECK (volunteer_rating >= 1 AND volunteer_rating <= 5),
-    seeker_feedback TEXT,                       -- 求助者评价内容
-    volunteer_feedback TEXT,                    -- 志愿者评价内容
+    seeker_feedback TEXT,                       -- 求助者評價內容
+    volunteer_feedback TEXT,                    -- 志願者評價內容
     cancel_reason TEXT,                         -- 取消原因
-    matched_at TIMESTAMPTZ,                     -- 匹配成功时间
-    completed_at TIMESTAMPTZ,                   -- 完成时间
+    matched_at TIMESTAMPTZ,                     -- 匹配成功時間
+    completed_at TIMESTAMPTZ,                   -- 完成時間
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-COMMENT ON TABLE help_requests IS '求助记录表';
-COMMENT ON COLUMN help_requests.type IS '求助类型：ai_auto(AI自动), async(异步), realtime_voice(实时语音), realtime_video(实时视频), sos(紧急)';
-COMMENT ON COLUMN help_requests.urgency IS '紧急程度：normal(普通), important(重要), urgent(紧急), emergency(危急)';
-COMMENT ON COLUMN help_requests.status IS '状态：pending(待处理), ai_resolved(AI已解决), matching(匹配中), matched(已匹配), connected(通话中), completed(已完成), cancelled(已取消)';
+COMMENT ON TABLE help_requests IS '求助記錄表';
+COMMENT ON COLUMN help_requests.type IS '求助類型：ai_auto(AI自動), async(異步), realtime_voice(實時語音), realtime_video(實時視頻), sos(緊急)';
+COMMENT ON COLUMN help_requests.urgency IS '緊急程度：normal(普通), important(重要), urgent(緊急), emergency(危急)';
+COMMENT ON COLUMN help_requests.status IS '狀態：pending(待處理), ai_resolved(AI已解決), matching(匹配中), matched(已匹配), connected(通話中), completed(已完成), cancelled(已取消)';
 
 -- =====================================================
--- 4. async_tasks 异步任务表
+-- 4. async_tasks 異步任務表
 -- =====================================================
 CREATE TABLE async_tasks (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     request_id UUID NOT NULL REFERENCES help_requests(id) ON DELETE CASCADE,
     seeker_id UUID NOT NULL REFERENCES users(id),
-    volunteer_id UUID REFERENCES users(id),     -- 接单的志愿者
-    title TEXT NOT NULL,                        -- 任务标题
-    description TEXT,                           -- 任务描述
+    volunteer_id UUID REFERENCES users(id),     -- 接單的志願者
+    title TEXT NOT NULL,                        -- 任務標題
+    description TEXT,                           -- 任務描述
     type TEXT NOT NULL CHECK (type IN ('ocr', 'scene_desc', 'translation', 'guidance', 'other')),
-    attachments JSONB DEFAULT '[]',             -- 附件列表(图片等)
+    attachments JSONB DEFAULT '[]',             -- 附件列表(圖片等)
     status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'processing', 'completed', 'cancelled', 'expired')),
     priority TEXT DEFAULT 'normal' CHECK (priority IN ('low', 'normal', 'high', 'urgent')),
-    result TEXT,                                -- 处理结果
-    result_attachments JSONB DEFAULT '[]',      -- 结果附件
-    deadline_at TIMESTAMPTZ,                    -- 截止时间
-    accepted_at TIMESTAMPTZ,                    -- 接单时间
-    completed_at TIMESTAMPTZ,                   -- 完成时间
+    result TEXT,                                -- 處理結果
+    result_attachments JSONB DEFAULT '[]',      -- 結果附件
+    deadline_at TIMESTAMPTZ,                    -- 截止時間
+    accepted_at TIMESTAMPTZ,                    -- 接單時間
+    completed_at TIMESTAMPTZ,                   -- 完成時間
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-COMMENT ON TABLE async_tasks IS '异步任务表';
-COMMENT ON COLUMN async_tasks.type IS '任务类型：ocr(文字识别), scene_desc(场景描述), translation(翻译), guidance(导航指引), other(其他)';
-COMMENT ON COLUMN async_tasks.status IS '状态：pending(待接单), accepted(已接单), processing(处理中), completed(已完成), cancelled(已取消), expired(已过期)';
+COMMENT ON TABLE async_tasks IS '異步任務表';
+COMMENT ON COLUMN async_tasks.type IS '任務類型：ocr(文字識別), scene_desc(場景描述), translation(翻譯), guidance(導航指引), other(其他)';
+COMMENT ON COLUMN async_tasks.status IS '狀態：pending(待接單), accepted(已接單), processing(處理中), completed(已完成), cancelled(已取消), expired(已過期)';
 
 -- =====================================================
--- 5. point_transactions 积分流水表
+-- 5. point_transactions 積分流水錶
 -- =====================================================
 CREATE TABLE point_transactions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id),
     type TEXT NOT NULL CHECK (type IN ('earn', 'spend', 'bonus', 'penalty')),
-    amount INT NOT NULL,                        -- 积分变化量(正数增加，负数减少)
-    balance INT NOT NULL,                       -- 变动后余额
-    source TEXT NOT NULL,                       -- 来源：help_complete, task_complete, sign_in, exchange等
-    source_id UUID,                             -- 关联记录ID
+    amount INT NOT NULL,                        -- 積分變化量(正數增加，負數減少)
+    balance INT NOT NULL,                       -- 變動後餘額
+    source TEXT NOT NULL,                       -- 來源：help_complete, task_complete, sign_in, exchange等
+    source_id UUID,                             -- 關聯記錄ID
     description TEXT,                           -- 描述
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-COMMENT ON TABLE point_transactions IS '积分流水表';
-COMMENT ON COLUMN point_transactions.type IS '类型：earn(获得), spend(消耗), bonus(奖励), penalty(扣除)';
-COMMENT ON COLUMN point_transactions.source IS '积分来源：help_complete(帮助完成), task_complete(任务完成), sign_in(签到), exchange(兑换), system(系统)等';
+COMMENT ON TABLE point_transactions IS '積分流水錶';
+COMMENT ON COLUMN point_transactions.type IS '類型：earn(獲得), spend(消耗), bonus(獎勵), penalty(扣除)';
+COMMENT ON COLUMN point_transactions.source IS '積分來源：help_complete(幫助完成), task_complete(任務完成), sign_in(簽到), exchange(兌換), system(系統)等';
 
 -- =====================================================
--- 6. emergency_contacts 紧急联系人表
+-- 6. emergency_contacts 緊急聯繫人表
 -- =====================================================
 CREATE TABLE emergency_contacts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    name TEXT NOT NULL,                         -- 联系人姓名
-    phone TEXT NOT NULL,                        -- 联系人电话
-    relationship TEXT,                          -- 关系
-    priority INT DEFAULT 1,                     -- 优先级(1最高)
-    is_active BOOLEAN DEFAULT TRUE,             -- 是否启用
-    notify_on_sos BOOLEAN DEFAULT TRUE,         -- SOS时是否通知
+    name TEXT NOT NULL,                         -- 聯繫人姓名
+    phone TEXT NOT NULL,                        -- 聯繫人電話
+    relationship TEXT,                          -- 關係
+    priority INT DEFAULT 1,                     -- 優先級(1最高)
+    is_active BOOLEAN DEFAULT TRUE,             -- 是否啓用
+    notify_on_sos BOOLEAN DEFAULT TRUE,         -- SOS時是否通知
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-COMMENT ON TABLE emergency_contacts IS '紧急联系人表';
+COMMENT ON TABLE emergency_contacts IS '緊急聯繫人表';
 
 -- =====================================================
--- 7. ai_response_cache AI响应缓存表
+-- 7. ai_response_cache AI響應緩存表
 -- =====================================================
 CREATE TABLE ai_response_cache (
-    query_hash TEXT PRIMARY KEY,                -- 查询内容哈希
-    query_type TEXT NOT NULL,                   -- 查询类型
-    response JSONB NOT NULL,                    -- 缓存结果
-    hit_count INT DEFAULT 1,                    -- 命中次数
+    query_hash TEXT PRIMARY KEY,                -- 查詢內容哈希
+    query_type TEXT NOT NULL,                   -- 查詢類型
+    response JSONB NOT NULL,                    -- 緩存結果
+    hit_count INT DEFAULT 1,                    -- 命中次數
     created_at TIMESTAMPTZ DEFAULT NOW(),
-    expires_at TIMESTAMPTZ NOT NULL             -- 过期时间
+    expires_at TIMESTAMPTZ NOT NULL             -- 過期時間
 );
 
-COMMENT ON TABLE ai_response_cache IS 'AI响应缓存表，用于降低API调用成本';
+COMMENT ON TABLE ai_response_cache IS 'AI響應緩存表，用於降低API調用成本';
 
 -- =====================================================
--- 8. reports 举报表
+-- 8. reports 舉報表
 -- =====================================================
 CREATE TABLE reports (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     reporter_id UUID NOT NULL REFERENCES users(id),
     reported_id UUID NOT NULL REFERENCES users(id),
     target_type TEXT NOT NULL CHECK (target_type IN ('user', 'help_request', 'task')),
-    target_id UUID NOT NULL,                    -- 被举报对象ID
-    reason TEXT NOT NULL,                       -- 举报原因
-    description TEXT,                           -- 详细描述
-    evidence JSONB DEFAULT '[]',                -- 证据附件
+    target_id UUID NOT NULL,                    -- 被舉報對象ID
+    reason TEXT NOT NULL,                       -- 舉報原因
+    description TEXT,                           -- 詳細描述
+    evidence JSONB DEFAULT '[]',                -- 證據附件
     status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'resolved', 'rejected')),
-    result TEXT,                                -- 处理结果
-    handled_by UUID REFERENCES users(id),       -- 处理人
-    handled_at TIMESTAMPTZ,                     -- 处理时间
+    result TEXT,                                -- 處理結果
+    handled_by UUID REFERENCES users(id),       -- 處理人
+    handled_at TIMESTAMPTZ,                     -- 處理時間
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-COMMENT ON TABLE reports IS '举报表';
-COMMENT ON COLUMN reports.target_type IS '举报对象类型：user(用户), help_request(求助), task(任务)';
+COMMENT ON TABLE reports IS '舉報表';
+COMMENT ON COLUMN reports.target_type IS '舉報對象類型：user(用戶), help_request(求助), task(任務)';
 
 -- =====================================================
--- 9. call_records 通话记录表(用于WebRTC信令和记录)
+-- 9. call_records 通話記錄表(用於WebRTC信令和記錄)
 -- =====================================================
 CREATE TABLE call_records (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -194,19 +194,19 @@ CREATE TABLE call_records (
     volunteer_id UUID NOT NULL REFERENCES users(id),
     call_type TEXT NOT NULL CHECK (call_type IN ('voice', 'video')),
     status TEXT DEFAULT 'initiating' CHECK (status IN ('initiating', 'ringing', 'connected', 'ended', 'failed')),
-    started_at TIMESTAMPTZ,                     -- 通话开始时间
-    ended_at TIMESTAMPTZ,                       -- 通话结束时间
-    duration_seconds INT,                       -- 通话时长
-    end_reason TEXT,                            -- 结束原因
-    ice_candidate_count INT,                    -- ICE候选数量(用于质量分析)
-    quality_score INT CHECK (quality_score >= 1 AND quality_score <= 5),  -- 通话质量评分
+    started_at TIMESTAMPTZ,                     -- 通話開始時間
+    ended_at TIMESTAMPTZ,                       -- 通話結束時間
+    duration_seconds INT,                       -- 通話時長
+    end_reason TEXT,                            -- 結束原因
+    ice_candidate_count INT,                    -- ICE候選數量(用於質量分析)
+    quality_score INT CHECK (quality_score >= 1 AND quality_score <= 5),  -- 通話質量評分
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-COMMENT ON TABLE call_records IS '通话记录表';
+COMMENT ON TABLE call_records IS '通話記錄表';
 
 -- =====================================================
--- 创建更新时间触发器函数
+-- 創建更新時間觸發器函數
 -- =====================================================
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -216,7 +216,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 为需要自动更新updated_at的表创建触发器
+-- 爲需要自動更新updated_at的表創建觸發器
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 

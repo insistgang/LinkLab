@@ -3,7 +3,7 @@ import '../../widgets/brand/app_logo.dart';
 import '../services/admin_auth_service.dart';
 import 'admin_layout.dart';
 
-/// 管理员登录页面
+/// 管理員登錄頁面
 class AdminLoginScreen extends StatefulWidget {
   const AdminLoginScreen({super.key});
 
@@ -54,7 +54,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
     if (!success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(_authService.error ?? '登录失败'),
+          content: Text(_authService.error ?? '登錄失敗'),
           backgroundColor: Colors.red,
         ),
       );
@@ -92,41 +92,41 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                         const AppLogo(size: 72, borderRadius: 16),
                         const SizedBox(height: 16),
                         Text(
-                          'LinkLab 运营后台',
+                          'LinkLab 運營後臺',
                           style: Theme.of(context).textTheme.headlineMedium
                               ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          '管理员登录',
+                          '管理員登錄',
                           style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(color: Colors.grey[600]),
                         ),
                         const SizedBox(height: 32),
 
-                        // 用户名
+                        // 用戶名
                         TextFormField(
                           controller: _usernameController,
                           decoration: const InputDecoration(
-                            labelText: '用户名',
+                            labelText: '用戶名',
                             prefixIcon: Icon(Icons.person),
                             border: OutlineInputBorder(),
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return '请输入用户名';
+                              return '請輸入用戶名';
                             }
                             return null;
                           },
                         ),
                         const SizedBox(height: 16),
 
-                        // 密码
+                        // 密碼
                         TextFormField(
                           controller: _passwordController,
                           obscureText: _obscurePassword,
                           decoration: InputDecoration(
-                            labelText: '密码',
+                            labelText: '密碼',
                             prefixIcon: const Icon(Icons.lock),
                             suffixIcon: IconButton(
                               icon: Icon(
@@ -144,14 +144,14 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return '请输入密码';
+                              return '請輸入密碼';
                             }
                             return null;
                           },
                         ),
                         const SizedBox(height: 24),
 
-                        // 登录按钮
+                        // 登錄按鈕
                         SizedBox(
                           width: double.infinity,
                           height: 48,
@@ -175,14 +175,14 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                                     ),
                                   )
                                 : const Text(
-                                    '登录',
+                                    '登錄',
                                     style: TextStyle(fontSize: 16),
                                   ),
                           ),
                         ),
                         const SizedBox(height: 16),
 
-                        // 演示账号提示
+                        // 演示賬號提示
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
@@ -193,7 +193,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '演示账号：',
+                                '演示賬號：',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.grey[700],
@@ -201,14 +201,14 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '超级管理员: admin / admin123',
+                                '超級管理員: admin / admin123',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Colors.grey[600],
                                 ),
                               ),
                               Text(
-                                '操作员: operator / operator123',
+                                '操作員: operator / operator123',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Colors.grey[600],

@@ -75,7 +75,7 @@
   <tspan>共感</tspan><tspan dx="10" font-family="Inter, Arial, sans-serif" fill="#3b5bdb">Link</tspan><tspan font-family="Inter, Arial, sans-serif" fill="#f59f00">Able</tspan>
 </text>
 <rect x="367" y="693" width="60" height="3" rx="2" fill="#f59f00"/>
-<text x="397" y="735" font-size="17" fill="#3d4f7c" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="400" text-anchor="middle" letter-spacing="1.5">基於 AI Agent 的無障礙社區互助平台</text>
+<text x="397" y="735" font-size="17" fill="#3d4f7c" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="400" text-anchor="middle" letter-spacing="1.5">基於 AI Agent 的無障礙社區互助平臺</text>
 <text x="397" y="777" font-size="12" fill="#8593b5" font-family="Inter, Arial, sans-serif" font-weight="400" text-anchor="middle" letter-spacing="2.5">Empathy · Connection · Accessibility for All</text>
 <rect x="217.0" y="812" width="112" height="35" rx="8" fill="#dbeafe" stroke="#000" stroke-width="1" stroke-opacity="0.06"/>
 <text x="273.0" y="835" font-size="11.5" fill="#334155" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="600" text-anchor="middle" letter-spacing="1">AI 第一響應</text>

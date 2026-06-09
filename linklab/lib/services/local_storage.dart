@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// 本地存储键名常量
+/// 本地存儲鍵名常量
 class StorageKeys {
   static const String userProfile = 'user_profile';
   static const String accessibilityPrefs = 'accessibility_preferences';
@@ -21,8 +21,8 @@ class StorageKeys {
   static String safetySettings(String userId) => 'safety_settings_$userId';
 }
 
-/// 本地存储服务
-/// 用于演示版的数据持久化（替代Supabase）
+/// 本地存儲服務
+/// 用於演示版的數據持久化（替代Supabase）
 class LocalStorage {
   static final LocalStorage _instance = LocalStorage._internal();
   factory LocalStorage() => _instance;
@@ -35,10 +35,10 @@ class LocalStorage {
     _prefs = await SharedPreferences.getInstance();
   }
 
-  /// 确保已初始化
+  /// 確保已初始化
   void _ensureInitialized() {
     if (_prefs == null) {
-      throw Exception('LocalStorage未初始化，请先调用initialize()');
+      throw Exception('LocalStorage未初始化，請先調用initialize()');
     }
   }
 
@@ -50,15 +50,15 @@ class LocalStorage {
     return _prefs!.getBool(StorageKeys.isDemoMode) ?? true;
   }
 
-  /// 设置演示模式
+  /// 設置演示模式
   Future<bool> setDemoMode(bool value) async {
     _ensureInitialized();
     return await _prefs!.setBool(StorageKeys.isDemoMode, value);
   }
 
-  // ==================== 用户相关 ====================
+  // ==================== 用戶相關 ====================
 
-  /// 保存用户资料
+  /// 保存用戶資料
   Future<bool> saveUserProfile(Map<String, dynamic> profile) async {
     _ensureInitialized();
     return await _prefs!.setString(
@@ -67,7 +67,7 @@ class LocalStorage {
     );
   }
 
-  /// 获取用户资料
+  /// 獲取用戶資料
   Map<String, dynamic>? getUserProfile() {
     _ensureInitialized();
     final jsonString = _prefs!.getString(StorageKeys.userProfile);
@@ -79,61 +79,61 @@ class LocalStorage {
     }
   }
 
-  /// 清除用户资料
+  /// 清除用戶資料
   Future<bool> clearUserProfile() async {
     _ensureInitialized();
     return await _prefs!.remove(StorageKeys.userProfile);
   }
 
-  // ==================== 登录状态 ====================
+  // ==================== 登錄狀態 ====================
 
-  /// 是否已登录
+  /// 是否已登錄
   bool isLoggedIn() {
     _ensureInitialized();
     return _prefs!.getBool(StorageKeys.isLoggedIn) ?? false;
   }
 
-  /// 设置登录状态
+  /// 設置登錄狀態
   Future<bool> setLoggedIn(bool value) async {
     _ensureInitialized();
     return await _prefs!.setBool(StorageKeys.isLoggedIn, value);
   }
 
-  /// 保存认证令牌
+  /// 保存認證令牌
   Future<bool> saveAuthToken(String token) async {
     _ensureInitialized();
     return await _prefs!.setString(StorageKeys.authToken, token);
   }
 
-  /// 获取认证令牌
+  /// 獲取認證令牌
   String? getAuthToken() {
     _ensureInitialized();
     return _prefs!.getString(StorageKeys.authToken);
   }
 
-  /// 清除认证令牌
+  /// 清除認證令牌
   Future<bool> clearAuthToken() async {
     _ensureInitialized();
     return await _prefs!.remove(StorageKeys.authToken);
   }
 
-  // ==================== 首次启动 ====================
+  // ==================== 首次啓動 ====================
 
-  /// 是否首次启动
+  /// 是否首次啓動
   bool isFirstLaunch() {
     _ensureInitialized();
     return _prefs!.getBool(StorageKeys.isFirstLaunch) ?? true;
   }
 
-  /// 设置首次启动标志
+  /// 設置首次啓動標誌
   Future<bool> setFirstLaunch(bool value) async {
     _ensureInitialized();
     return await _prefs!.setBool(StorageKeys.isFirstLaunch, value);
   }
 
-  // ==================== 无障碍偏好 ====================
+  // ==================== 無障礙偏好 ====================
 
-  /// 保存无障碍偏好
+  /// 保存無障礙偏好
   Future<bool> saveAccessibilityPrefs(Map<String, dynamic> prefs) async {
     _ensureInitialized();
     return await _prefs!.setString(
@@ -142,12 +142,12 @@ class LocalStorage {
     );
   }
 
-  /// 获取无障碍偏好
+  /// 獲取無障礙偏好
   Map<String, dynamic> getAccessibilityPrefs() {
     _ensureInitialized();
     final jsonString = _prefs!.getString(StorageKeys.accessibilityPrefs);
     if (jsonString == null) {
-      // 返回默认设置
+      // 返回默認設置
       return {
         'highContrastMode': false,
         'fontScale': 1.0,
@@ -166,7 +166,7 @@ class LocalStorage {
     }
   }
 
-  // ==================== 演示主题模式 ====================
+  // ==================== 演示主題模式 ====================
 
   String getStageThemeMode() {
     _ensureInitialized();
@@ -178,16 +178,16 @@ class LocalStorage {
     return await _prefs!.setString(StorageKeys.stageThemeMode, value);
   }
 
-  // ==================== 求助历史 ====================
+  // ==================== 求助歷史 ====================
 
-  /// 添加求助记录
+  /// 添加求助記錄
   Future<bool> addHelpRecord(Map<String, dynamic> record) async {
     _ensureInitialized();
     final history = getHelpHistory();
     record['id'] = 'help_${DateTime.now().millisecondsSinceEpoch}';
     record['createdAt'] = DateTime.now().toIso8601String();
     history.insert(0, record);
-    // 只保留最近20条
+    // 只保留最近20條
     if (history.length > 20) {
       history.removeRange(20, history.length);
     }
@@ -197,7 +197,7 @@ class LocalStorage {
     );
   }
 
-  /// 保存完整求助历史
+  /// 保存完整求助歷史
   Future<bool> saveHelpHistory(List<Map<String, dynamic>> history) async {
     _ensureInitialized();
     return await _prefs!.setString(
@@ -206,7 +206,7 @@ class LocalStorage {
     );
   }
 
-  /// 新增或更新指定求助记录
+  /// 新增或更新指定求助記錄
   Future<bool> upsertHelpRecord(
     Map<String, dynamic> record, {
     int maxRecords = 50,
@@ -249,7 +249,7 @@ class LocalStorage {
     return await saveHelpHistory(history);
   }
 
-  /// 获取求助历史
+  /// 獲取求助歷史
   List<Map<String, dynamic>> getHelpHistory() {
     _ensureInitialized();
     final jsonString = _prefs!.getString(StorageKeys.helpHistory);
@@ -262,15 +262,15 @@ class LocalStorage {
     }
   }
 
-  /// 清除求助历史
+  /// 清除求助歷史
   Future<bool> clearHelpHistory() async {
     _ensureInitialized();
     return await _prefs!.remove(StorageKeys.helpHistory);
   }
 
-  // ==================== 常用志愿者 ====================
+  // ==================== 常用志願者 ====================
 
-  /// 保存常用志愿者列表
+  /// 保存常用志願者列表
   Future<bool> saveFavoriteVolunteers(
     List<Map<String, dynamic>> favorites,
   ) async {
@@ -281,7 +281,7 @@ class LocalStorage {
     );
   }
 
-  /// 获取常用志愿者列表
+  /// 獲取常用志願者列表
   List<Map<String, dynamic>> getFavoriteVolunteers() {
     _ensureInitialized();
     final jsonString = _prefs!.getString(StorageKeys.favoriteVolunteers);
@@ -294,15 +294,15 @@ class LocalStorage {
     }
   }
 
-  // ==================== 异步任务 ====================
+  // ==================== 異步任務 ====================
 
-  /// 保存异步任务
+  /// 保存異步任務
   Future<bool> saveAsyncTasks(List<Map<String, dynamic>> tasks) async {
     _ensureInitialized();
     return await _prefs!.setString(StorageKeys.asyncTasks, jsonEncode(tasks));
   }
 
-  /// 获取异步任务
+  /// 獲取異步任務
   List<Map<String, dynamic>> getAsyncTasks() {
     _ensureInitialized();
     final jsonString = _prefs!.getString(StorageKeys.asyncTasks);
@@ -315,9 +315,9 @@ class LocalStorage {
     }
   }
 
-  // ==================== 紧急联系人 ====================
+  // ==================== 緊急聯繫人 ====================
 
-  /// 保存紧急联系人
+  /// 保存緊急聯繫人
   Future<bool> saveEmergencyContacts(
     List<Map<String, dynamic>> contacts,
   ) async {
@@ -328,7 +328,7 @@ class LocalStorage {
     );
   }
 
-  /// 获取紧急联系人
+  /// 獲取緊急聯繫人
   List<Map<String, dynamic>> getEmergencyContacts() {
     _ensureInitialized();
     final jsonString = _prefs!.getString(StorageKeys.emergencyContacts);
@@ -341,7 +341,7 @@ class LocalStorage {
     }
   }
 
-  /// 添加紧急联系人
+  /// 添加緊急聯繫人
   Future<bool> addEmergencyContact(Map<String, dynamic> contact) async {
     _ensureInitialized();
     final contacts = getEmergencyContacts();
@@ -350,7 +350,7 @@ class LocalStorage {
     return await saveEmergencyContacts(contacts);
   }
 
-  /// 删除紧急联系人
+  /// 刪除緊急聯繫人
   Future<bool> removeEmergencyContact(String contactId) async {
     _ensureInitialized();
     final contacts = getEmergencyContacts();
@@ -366,43 +366,43 @@ class LocalStorage {
     return await _prefs!.setString(key, value);
   }
 
-  /// 获取字符串
+  /// 獲取字符串
   String? getString(String key) {
     _ensureInitialized();
     return _prefs!.getString(key);
   }
 
-  /// 保存布尔值
+  /// 保存布爾值
   Future<bool> setBool(String key, bool value) async {
     _ensureInitialized();
     return await _prefs!.setBool(key, value);
   }
 
-  /// 获取布尔值
+  /// 獲取布爾值
   bool getBool(String key, {bool defaultValue = false}) {
     _ensureInitialized();
     return _prefs!.getBool(key) ?? defaultValue;
   }
 
-  /// 保存整数
+  /// 保存整數
   Future<bool> setInt(String key, int value) async {
     _ensureInitialized();
     return await _prefs!.setInt(key, value);
   }
 
-  /// 获取整数
+  /// 獲取整數
   int getInt(String key, {int defaultValue = 0}) {
     _ensureInitialized();
     return _prefs!.getInt(key) ?? defaultValue;
   }
 
-  /// 删除键
+  /// 刪除鍵
   Future<bool> remove(String key) async {
     _ensureInitialized();
     return await _prefs!.remove(key);
   }
 
-  /// 清除所有数据
+  /// 清除所有數據
   Future<bool> clearAll() async {
     _ensureInitialized();
     return await _prefs!.clear();

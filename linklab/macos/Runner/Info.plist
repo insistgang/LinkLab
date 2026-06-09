@@ -15,7 +15,7 @@
 	<key>CFBundleName</key>
 	<string>$(PRODUCT_NAME)</string>
 	<key>NSCameraUsageDescription</key>
-	<string>用于在通话协助中开启本机摄像头预览，帮助志愿者确认物品或环境。</string>
+	<string>用於在通話協助中開啓本機攝像頭預覽，幫助志願者確認物品或環境。</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>

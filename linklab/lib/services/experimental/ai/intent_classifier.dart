@@ -1,67 +1,67 @@
 import 'ai_service.dart';
 
-/// 意图分类器
-/// 负责识别用户输入的意图类型
+/// 意圖分類器
+/// 負責識別用戶輸入的意圖類型
 class IntentClassifier {
-  /// 关键词映射表
+  /// 關鍵詞映射表
   static final Map<IntentType, List<String>> _intentKeywords = {
     IntentType.textRecognition: [
-      '文字', '字', '文本', '内容', '写了什么', '是什么字',
+      '文字', '字', '文本', '內容', '寫了什麼', '是什麼字',
       'read', 'text', 'word', 'character',
     ],
     IntentType.objectRecognition: [
-      '什么', '东西', '物体', '物品', '这是什么', '那是什么',
+      '什麼', '東西', '物體', '物品', '這是什麼', '那是什麼',
       'object', 'thing', 'what is this', 'what is that',
     ],
     IntentType.colorRecognition: [
-      '颜色', '色', '什么颜色', '什么色', '颜色的',
+      '顏色', '色', '什麼顏色', '什麼色', '顏色的',
       'color', 'colour', 'what color',
     ],
     IntentType.currencyRecognition: [
-      '钱', '钞票', '纸币', '面额', '多少', '多少钱',
+      '錢', '鈔票', '紙幣', '面額', '多少', '多少錢',
       'money', 'cash', 'bill', 'currency', 'how much',
     ],
     IntentType.translation: [
-      '翻译', '英文', '中文', '什么意思', '怎么说',
+      '翻譯', '英文', '中文', '什麼意思', '怎麼說',
       'translate', 'translation', 'meaning', 'mean',
     ],
     IntentType.navigation: [
-      '导航', '怎么走', '去哪里', '路线', '方向', '怎么走',
+      '導航', '怎麼走', '去哪裏', '路線', '方向', '怎麼走',
       'navigate', 'navigation', 'direction', 'route', 'way to',
     ],
     IntentType.sceneDescription: [
-      '环境', '周围', '场景', '前面', '附近', '有什么',
+      '環境', '周圍', '場景', '前面', '附近', '有什麼',
       'environment', 'scene', 'surrounding', 'around', 'what is around',
     ],
     IntentType.medicineConfirmation: [
-      '药', '药品', '吃药', '用量', '剂量', '怎么吃', '服用',
+      '藥', '藥品', '喫藥', '用量', '劑量', '怎麼喫', '服用',
       'medicine', 'drug', 'pill', 'medication', 'dosage',
     ],
     IntentType.medicalConsultation: [
-      '病', '症状', '不舒服', '疼', '痛', '医院', '医生',
+      '病', '症狀', '不舒服', '疼', '痛', '醫院', '醫生',
       'sick', 'ill', 'pain', 'hurt', 'hospital', 'doctor', 'symptom',
     ],
     IntentType.emotionalSupport: [
-      '难过', '伤心', '孤独', '害怕', '担心', '焦虑', '抑郁',
+      '難過', '傷心', '孤獨', '害怕', '擔心', '焦慮', '抑鬱',
       'sad', 'lonely', 'scared', 'worried', 'anxious', 'depressed',
     ],
     IntentType.emergency: [
-      '救命', 'help', 'emergency', '危险', 'fire', '着火',
+      '救命', 'help', 'emergency', '危險', 'fire', '着火',
     ],
   };
 
-  /// 分类意图
-  /// 返回识别到的意图类型和置信度
+  /// 分類意圖
+  /// 返回識別到的意圖類型和置信度
   IntentClassification classify(String input, {String? imageUrl}) {
     final lowerInput = input.toLowerCase();
 
-    // 1. 紧急意图优先检测
+    // 1. 緊急意圖優先檢測
     final emergencyCheck = _checkEmergencyIntent(lowerInput);
     if (emergencyCheck != null) {
       return emergencyCheck;
     }
 
-    // 2. 如果有图片，分析是否涉及视觉识别类意图
+    // 2. 如果有圖片，分析是否涉及視覺識別類意圖
     if (imageUrl != null) {
       final visualIntent = _classifyVisualIntent(lowerInput);
       if (visualIntent != null) {
@@ -69,24 +69,24 @@ class IntentClassifier {
       }
     }
 
-    // 3. 基于关键词匹配
+    // 3. 基於關鍵詞匹配
     final keywordIntent = _classifyByKeywords(lowerInput);
     if (keywordIntent.confidence > 0.5) {
       return keywordIntent;
     }
 
-    // 4. 默认返回通用对话
+    // 4. 默認返回通用對話
     return IntentClassification(
       intent: IntentType.generalChat,
       confidence: 0.3,
     );
   }
 
-  /// 检测紧急意图
+  /// 檢測緊急意圖
   IntentClassification? _checkEmergencyIntent(String input) {
     final emergencyWords = [
-      '救命', 'help me', 'emergency', '报警', '救护车', 'ambulance',
-      '着火了', 'fire', '杀人', '抢劫', 'robbery', 'kill',
+      '救命', 'help me', 'emergency', '報警', '救護車', 'ambulance',
+      '着火了', 'fire', '殺人', '搶劫', 'robbery', 'kill',
     ];
 
     for (final word in emergencyWords) {
@@ -100,9 +100,9 @@ class IntentClassifier {
     return null;
   }
 
-  /// 分类视觉相关意图
+  /// 分類視覺相關意圖
   IntentClassification? _classifyVisualIntent(String input) {
-    // 颜色识别
+    // 顏色識別
     if (_intentKeywords[IntentType.colorRecognition]!.any(
       (k) => input.contains(k.toLowerCase()),
     )) {
@@ -112,7 +112,7 @@ class IntentClassifier {
       );
     }
 
-    // 文字识别
+    // 文字識別
     if (_intentKeywords[IntentType.textRecognition]!.any(
       (k) => input.contains(k.toLowerCase()),
     )) {
@@ -122,7 +122,7 @@ class IntentClassifier {
       );
     }
 
-    // 钞票识别
+    // 鈔票識別
     if (_intentKeywords[IntentType.currencyRecognition]!.any(
       (k) => input.contains(k.toLowerCase()),
     )) {
@@ -132,7 +132,7 @@ class IntentClassifier {
       );
     }
 
-    // 物体识别（最通用）
+    // 物體識別（最通用）
     if (_intentKeywords[IntentType.objectRecognition]!.any(
       (k) => input.contains(k.toLowerCase()),
     )) {
@@ -142,7 +142,7 @@ class IntentClassifier {
       );
     }
 
-    // 场景描述
+    // 場景描述
     if (_intentKeywords[IntentType.sceneDescription]!.any(
       (k) => input.contains(k.toLowerCase()),
     )) {
@@ -155,7 +155,7 @@ class IntentClassifier {
     return null;
   }
 
-  /// 基于关键词分类
+  /// 基於關鍵詞分類
   IntentClassification _classifyByKeywords(String input) {
     final scores = <IntentType, double>{};
 
@@ -171,7 +171,7 @@ class IntentClassifier {
       }
 
       if (matchCount > 0) {
-        // 计算置信度：匹配数 / 总关键词数
+        // 計算置信度：匹配數 / 總關鍵詞數
         scores[intent] = matchCount / keywords.length;
       }
     }
@@ -183,7 +183,7 @@ class IntentClassifier {
       );
     }
 
-    // 找出得分最高的意图
+    // 找出得分最高的意圖
     final bestMatch = scores.entries.reduce(
       (a, b) => a.value > b.value ? a : b,
     );
@@ -194,25 +194,25 @@ class IntentClassifier {
     );
   }
 
-  /// 判断是否需要转人工
+  /// 判斷是否需要轉人工
   static bool needsHumanHandoff(IntentType intent, double confidence) {
-    // 医疗相关场景必须转人工
+    // 醫療相關場景必須轉人工
     if (intent == IntentType.medicalConsultation ||
         intent == IntentType.medicineConfirmation) {
       return true;
     }
 
-    // 情感陪伴优先转人工
+    // 情感陪伴優先轉人工
     if (intent == IntentType.emotionalSupport) {
       return true;
     }
 
-    // 紧急场景触发SOS流程
+    // 緊急場景觸發SOS流程
     if (intent == IntentType.emergency) {
       return true;
     }
 
-    // 置信度低的场景建议转人工
+    // 置信度低的場景建議轉人工
     if (confidence < 0.5) {
       return true;
     }
@@ -221,7 +221,7 @@ class IntentClassifier {
   }
 }
 
-/// 意图分类结果
+/// 意圖分類結果
 class IntentClassification {
   final IntentType intent;
   final double confidence;

@@ -9,7 +9,7 @@ import '../../widgets/demo/demo_overlays.dart';
 import '../../widgets/demo/demo_stage.dart';
 import '../../widgets/demo/linkable_icon.dart';
 
-/// 紧急联系人管理页面
+/// 緊急聯繫人管理頁面
 class EmergencyContactsScreen extends StatefulWidget {
   const EmergencyContactsScreen({super.key, required this.userId});
 
@@ -50,7 +50,7 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
       if (!mounted) return;
       showDemoStageSnackBar(
         context,
-        message: '最多只能添加 3 个紧急联系人',
+        message: '最多隻能添加 3 個緊急聯繫人',
         icon: Icons.info_outline,
         accentColor: AppTheme.stageAccent,
       );
@@ -89,7 +89,7 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
       if (!mounted) return;
       showDemoStageSnackBar(
         context,
-        message: contact == null ? '紧急联系人已添加' : '紧急联系人已更新',
+        message: contact == null ? '緊急聯繫人已添加' : '緊急聯繫人已更新',
         icon: Icons.check_circle_outline,
         accentColor: AppTheme.stageAccent,
       );
@@ -97,7 +97,7 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
       if (!mounted) return;
       showDemoStageSnackBar(
         context,
-        message: '操作失败：$e',
+        message: '操作失敗：$e',
         icon: Icons.error_outline,
         accentColor: AppTheme.stageAccent,
       );
@@ -110,14 +110,14 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
           context: context,
           builder: (context) => AlertDialog(
             title: const AccessibleText(
-              '删除紧急联系人？',
+              '刪除緊急聯繫人？',
               style: TextStyle(
                 fontSize: AppTheme.fontSizeLarge,
                 fontWeight: FontWeight.bold,
               ),
             ),
             content: AccessibleText(
-              '删除后，${contact.name} 将不会在 SOS 触发时收到通知。',
+              '刪除後，${contact.name} 將不會在 SOS 觸發時收到通知。',
               style: const TextStyle(fontSize: AppTheme.fontSizeNormal),
             ),
             actions: [
@@ -131,7 +131,7 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
                   foregroundColor: AppTheme.textOnPrimary,
                 ),
                 onPressed: () => Navigator.of(context).pop(true),
-                child: const AccessibleText('删除'),
+                child: const AccessibleText('刪除'),
               ),
             ],
           ),
@@ -146,7 +146,7 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
       if (!mounted) return;
       showDemoStageSnackBar(
         context,
-        message: '联系人已删除',
+        message: '聯繫人已刪除',
         icon: Icons.check_circle_outline,
         accentColor: AppTheme.stageAccent,
       );
@@ -154,7 +154,7 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
       if (!mounted) return;
       showDemoStageSnackBar(
         context,
-        message: '删除失败：$e',
+        message: '刪除失敗：$e',
         icon: Icons.error_outline,
         accentColor: AppTheme.stageAccent,
       );
@@ -164,8 +164,8 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
   @override
   Widget build(BuildContext context) {
     return DemoStageScaffold(
-      title: '紧急联系人',
-      subtitle: '配置 SOS 时同步通知的家人或看护人',
+      title: '緊急聯繫人',
+      subtitle: '配置 SOS 時同步通知的家人或看護人',
       body: RefreshIndicator(
         onRefresh: _loadContacts,
         color: AppTheme.stageAccent,
@@ -190,7 +190,7 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
               _EmptyState(onAddPressed: () => _openEditor())
             else ...[
               AccessibleText(
-                '已设置联系人',
+                '已設置聯繫人',
                 style: TextStyle(
                   color: AppTheme.stageTextPrimary,
                   fontSize: AppTheme.fontSizeLarge,
@@ -212,8 +212,8 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
               const SizedBox(height: AppTheme.spacingL),
               if (_contacts.length < 3)
                 AccessibleButton(
-                  label: '添加紧急联系人',
-                  semanticLabel: '添加紧急联系人',
+                  label: '添加緊急聯繫人',
+                  semanticLabel: '添加緊急聯繫人',
                   icon: Icons.person_add_alt_1,
                   backgroundColor: AppTheme.stageAccent,
                   onPressed: () => _openEditor(),
@@ -225,12 +225,12 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
                       LinkableMaterialIcon(
                         icon: Icons.verified_user_outlined,
                         color: AppTheme.stageAccent,
-                        semanticLabel: '联系人上限',
+                        semanticLabel: '聯繫人上限',
                       ),
                       const SizedBox(width: AppTheme.spacingM),
                       Expanded(
                         child: AccessibleText(
-                          '已达到 3 位联系人上限。SOS 将按优先级从上到下通知。',
+                          '已達到 3 位聯繫人上限。SOS 將按優先級從上到下通知。',
                           style: TextStyle(
                             fontSize: AppTheme.fontSizeNormal,
                             color: AppTheme.stageTextSecondary,
@@ -286,7 +286,7 @@ class _SummaryBanner extends StatelessWidget {
                       ? Icons.contact_emergency_outlined
                       : Icons.verified_user_outlined,
                   color: AppTheme.textOnPrimary,
-                  semanticLabel: contactCount == 0 ? '待添加紧急联系人' : '紧急联系人已配置',
+                  semanticLabel: contactCount == 0 ? '待添加緊急聯繫人' : '緊急聯繫人已配置',
                 ),
               ),
               const SizedBox(width: AppTheme.spacingM),
@@ -305,8 +305,8 @@ class _SummaryBanner extends StatelessWidget {
           const SizedBox(height: AppTheme.spacingS),
           AccessibleText(
             contactCount == 0
-                ? '还没有配置联系人。建议至少添加 1 位家人或看护人。'
-                : '当前已配置 $contactCount / 3 位联系人，触发 SOS 时会按优先级通知。',
+                ? '還沒有配置聯繫人。建議至少添加 1 位家人或看護人。'
+                : '當前已配置 $contactCount / 3 位聯繫人，觸發 SOS 時會按優先級通知。',
             style: const TextStyle(
               fontSize: AppTheme.fontSizeNormal,
               color: AppTheme.textOnPrimary,
@@ -318,9 +318,9 @@ class _SummaryBanner extends StatelessWidget {
             spacing: AppTheme.spacingS,
             runSpacing: AppTheme.spacingS,
             children: [
-              _SummaryChip(label: contactCount == 0 ? '待补充联系人' : '联系人已就绪'),
-              _SummaryChip(label: '$contactCount / 3 位联系人'),
-              const _SummaryChip(label: 'SOS 时同步展示'),
+              _SummaryChip(label: contactCount == 0 ? '待補充聯繫人' : '聯繫人已就緒'),
+              _SummaryChip(label: '$contactCount / 3 位聯繫人'),
+              const _SummaryChip(label: 'SOS 時同步展示'),
             ],
           ),
         ],
@@ -373,11 +373,11 @@ class _EmptyState extends StatelessWidget {
             icon: Icons.contact_emergency_outlined,
             size: 72,
             color: AppTheme.stageAccent,
-            semanticLabel: '暂无紧急联系人',
+            semanticLabel: '暫無緊急聯繫人',
           ),
           const SizedBox(height: AppTheme.spacingM),
           AccessibleText(
-            '暂无紧急联系人',
+            '暫無緊急聯繫人',
             style: TextStyle(
               color: AppTheme.stageTextPrimary,
               fontSize: AppTheme.fontSizeLarge,
@@ -386,7 +386,7 @@ class _EmptyState extends StatelessWidget {
           ),
           const SizedBox(height: AppTheme.spacingS),
           AccessibleText(
-            '添加联系人后，演示版 SOS 页面会显示这些联系人将同步收到通知。',
+            '添加聯繫人後，演示版 SOS 頁面會顯示這些聯繫人將同步收到通知。',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: AppTheme.fontSizeNormal,
@@ -396,8 +396,8 @@ class _EmptyState extends StatelessWidget {
           ),
           const SizedBox(height: AppTheme.spacingL),
           AccessibleButton(
-            label: '添加第一位联系人',
-            semanticLabel: '添加第一位紧急联系人',
+            label: '添加第一位聯繫人',
+            semanticLabel: '添加第一位緊急聯繫人',
             icon: Icons.add,
             backgroundColor: AppTheme.stageAccent,
             onPressed: onAddPressed,
@@ -424,7 +424,7 @@ class _ContactCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DemoSurfaceCard(
-      semanticLabel: '紧急联系人 ${contact.name}',
+      semanticLabel: '緊急聯繫人 ${contact.name}',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -506,18 +506,18 @@ class _ContactCard extends StatelessWidget {
                     onPressed: onEdit,
                     icon: const LinkableMaterialIcon(
                       icon: Icons.edit_outlined,
-                      semanticLabel: '编辑联系人',
+                      semanticLabel: '編輯聯繫人',
                     ),
-                    tooltip: '编辑联系人',
+                    tooltip: '編輯聯繫人',
                   ),
                   IconButton(
                     onPressed: onDelete,
                     icon: LinkableMaterialIcon(
                       icon: Icons.delete_outline,
                       color: AppTheme.stageAccent,
-                      semanticLabel: '删除联系人',
+                      semanticLabel: '刪除聯繫人',
                     ),
-                    tooltip: '删除联系人',
+                    tooltip: '刪除聯繫人',
                   ),
                 ],
               ),
@@ -527,7 +527,7 @@ class _ContactCard extends StatelessWidget {
           const Divider(height: 1),
           const SizedBox(height: AppTheme.spacingM),
           AccessibleText(
-            '通知顺序：第 $displayPriority 位',
+            '通知順序：第 $displayPriority 位',
             style: TextStyle(
               fontSize: AppTheme.fontSizeSmall,
               color: AppTheme.stageTextHint,
@@ -597,7 +597,7 @@ class _ContactEditorDialogState extends State<_ContactEditorDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: AccessibleText(
-        _isEdit ? '编辑紧急联系人' : '添加紧急联系人',
+        _isEdit ? '編輯緊急聯繫人' : '添加緊急聯繫人',
         style: const TextStyle(
           fontSize: AppTheme.fontSizeLarge,
           fontWeight: FontWeight.bold,
@@ -612,7 +612,7 @@ class _ContactEditorDialogState extends State<_ContactEditorDialog> {
               AccessibleTextField(
                 controller: _nameController,
                 label: '姓名',
-                hint: '请输入联系人姓名',
+                hint: '請輸入聯繫人姓名',
                 prefixIcon: const LinkableMaterialIcon(
                   icon: Icons.person_outline,
                   semanticLabel: '姓名',
@@ -620,7 +620,7 @@ class _ContactEditorDialogState extends State<_ContactEditorDialog> {
                 textInputAction: TextInputAction.next,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return '请输入联系人姓名';
+                    return '請輸入聯繫人姓名';
                   }
                   return null;
                 },
@@ -631,11 +631,11 @@ class _ContactEditorDialogState extends State<_ContactEditorDialog> {
               DropdownButtonFormField<String>(
                 initialValue: _relationship,
                 decoration: const InputDecoration(
-                  labelText: '关系',
-                  hintText: '请选择关系（可选）',
+                  labelText: '關係',
+                  hintText: '請選擇關係（可選）',
                   prefixIcon: LinkableMaterialIcon(
                     icon: Icons.people_outline,
-                    semanticLabel: '关系',
+                    semanticLabel: '關係',
                   ),
                 ),
                 items: widget.relationshipOptions

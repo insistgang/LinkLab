@@ -1,26 +1,26 @@
 import 'dart:async';
 import 'ai_service.dart';
 
-/// 紧急关键词检测器
-/// F8 紧急关键词检测的核心实现
-/// 本地关键词匹配，支持实时检测
+/// 緊急關鍵詞檢測器
+/// F8 緊急關鍵詞檢測的核心實現
+/// 本地關鍵詞匹配，支持實時檢測
 class EmergencyDetector {
-  /// 危急级别触发词 - 立即触发SOS
+  /// 危急級別觸發詞 - 立即觸發SOS
   static final List<String> _criticalKeywords = [
     '救命',
     'help me',
     'emergency',
     '救救我',
-    '杀人',
-    '抢劫',
+    '殺人',
+    '搶劫',
     'robbery',
     'kill',
     'fire',
     '着火了',
-    '火灾',
-    '心脏病发作',
+    '火災',
+    '心臟病發作',
     'heart attack',
-    '中风',
+    '中風',
     'stroke',
     '昏迷',
     'unconscious',
@@ -32,7 +32,7 @@ class EmergencyDetector {
     'drowning',
   ];
 
-  /// 紧急级别触发词 - 5秒倒计时确认
+  /// 緊急級別觸發詞 - 5秒倒計時確認
   static final List<String> _urgentKeywords = [
     '摔倒',
     '跌倒',
@@ -48,29 +48,29 @@ class EmergencyDetector {
     '好痛',
     'pain',
     'hurt',
-    '头晕',
+    '頭暈',
     'dizzy',
     'faint',
-    '晕',
-    '呼吸困难',
+    '暈',
+    '呼吸困難',
     'breathing',
-    '喘不上气',
-    '过敏',
+    '喘不上氣',
+    '過敏',
     'allergy',
     '休克',
     'shock',
     '被困',
     'trapped',
-    '锁住了',
+    '鎖住了',
     'locked',
     '迷路',
     'lost',
     '找不到路',
     '有人打我',
     '被打了',
-    '袭击',
+    '襲擊',
     'attack',
-    '危险',
+    '危險',
     'danger',
     '害怕',
     'scared',
@@ -78,28 +78,28 @@ class EmergencyDetector {
     'panic',
   ];
 
-  /// 情绪紧急词 - 结合情绪分析使用
+  /// 情緒緊急詞 - 結合情緒分析使用
   static final List<String> _emotionalUrgencyKeywords = [
     '不想活了',
     '想死',
-    '自杀',
+    '自殺',
     'suicide',
-    '绝望',
+    '絕望',
     'hopeless',
-    '没人帮我',
+    '沒人幫我',
     'help me please',
-    '快疯了',
+    '快瘋了',
     'going crazy',
   ];
 
-  /// 否定词 - 用于排除误触发
+  /// 否定詞 - 用於排除誤觸發
   static final List<String> _negationWords = [
-    '没有',
+    '沒有',
     '不是',
-    '别',
+    '別',
     '不要',
-    '没',
-    '无',
+    '沒',
+    '無',
     'not',
     'no',
     'don\'t',
@@ -108,17 +108,17 @@ class EmergencyDetector {
     'isn\'t',
   ];
 
-  /// 回调函数
+  /// 回調函數
   EmergencyCallback? _onEmergencyDetected;
   EmergencyCallback? _onUrgentDetected;
   EmergencyCallback? _onConfirmationRequired;
 
-  /// 检测状态
+  /// 檢測狀態
   bool _isListening = false;
   Timer? _confirmationTimer;
   String? _pendingEmergencyText;
 
-  /// 设置回调
+  /// 設置回調
   void setCallbacks({
     EmergencyCallback? onEmergency,
     EmergencyCallback? onUrgent,
@@ -129,18 +129,18 @@ class EmergencyDetector {
     _onConfirmationRequired = onConfirmation;
   }
 
-  /// 开始监听
+  /// 開始監聽
   void startListening() {
     _isListening = true;
   }
 
-  /// 停止监听
+  /// 停止監聽
   void stopListening() {
     _isListening = false;
     _cancelConfirmation();
   }
 
-  /// 检测文本
+  /// 檢測文本
   EmergencyDetectionResult detect(String text) {
     if (!_isListening) {
       return EmergencyDetectionResult(
@@ -151,13 +151,13 @@ class EmergencyDetector {
 
     final lowerText = text.toLowerCase();
 
-    // 1. 检查是否包含否定词（降低误报）
+    // 1. 檢查是否包含否定詞（降低誤報）
     final hasNegation = _negationWords.any((word) => lowerText.contains(word));
 
-    // 2. 检查危急级别
+    // 2. 檢查危急級別
     for (final keyword in _criticalKeywords) {
       if (lowerText.contains(keyword.toLowerCase())) {
-        // 危急级别即使有否定词也触发（如"要救命"）
+        // 危急級別即使有否定詞也觸發（如"要救命"）
         _triggerEmergency(text, UrgencyLevel.emergency);
         return EmergencyDetectionResult(
           isEmergency: true,
@@ -168,7 +168,7 @@ class EmergencyDetector {
       }
     }
 
-    // 3. 检查情绪紧急词
+    // 3. 檢查情緒緊急詞
     for (final keyword in _emotionalUrgencyKeywords) {
       if (lowerText.contains(keyword.toLowerCase())) {
         _triggerEmergency(text, UrgencyLevel.emergency);
@@ -181,16 +181,16 @@ class EmergencyDetector {
       }
     }
 
-    // 4. 检查紧急级别（需要确认）
+    // 4. 檢查緊急級別（需要確認）
     for (final keyword in _urgentKeywords) {
       if (lowerText.contains(keyword.toLowerCase())) {
-        // 如果包含否定词，降低紧急度
+        // 如果包含否定詞，降低緊急度
         if (hasNegation) {
           return EmergencyDetectionResult(
             isEmergency: false,
             level: UrgencyLevel.important,
             triggerWord: keyword,
-            note: '检测到否定词，降低紧急度',
+            note: '檢測到否定詞，降低緊急度',
           );
         }
 
@@ -211,7 +211,7 @@ class EmergencyDetector {
     );
   }
 
-  /// 触发紧急事件
+  /// 觸發緊急事件
   void _triggerEmergency(String text, UrgencyLevel level) {
     if (level == UrgencyLevel.emergency) {
       _onEmergencyDetected?.call(EmergencyEvent(
@@ -228,7 +228,7 @@ class EmergencyDetector {
     }
   }
 
-  /// 启动确认倒计时
+  /// 啓動確認倒計時
   void _startConfirmation(String text, String triggerWord) {
     _cancelConfirmation();
     _pendingEmergencyText = text;
@@ -241,27 +241,27 @@ class EmergencyDetector {
       confirmationSeconds: 5,
     ));
 
-    // 5秒倒计时
+    // 5秒倒計時
     _confirmationTimer = Timer(const Duration(seconds: 5), () {
-      // 用户未取消，触发紧急事件
+      // 用戶未取消，觸發緊急事件
       _triggerEmergency(text, UrgencyLevel.urgent);
       _pendingEmergencyText = null;
     });
   }
 
-  /// 取消确认
+  /// 取消確認
   void _cancelConfirmation() {
     _confirmationTimer?.cancel();
     _confirmationTimer = null;
     _pendingEmergencyText = null;
   }
 
-  /// 用户确认取消紧急状态
+  /// 用戶確認取消緊急狀態
   void cancelEmergency() {
     _cancelConfirmation();
   }
 
-  /// 用户确认触发紧急状态
+  /// 用戶確認觸發緊急狀態
   void confirmEmergency() {
     if (_pendingEmergencyText != null) {
       _confirmationTimer?.cancel();
@@ -270,7 +270,7 @@ class EmergencyDetector {
     }
   }
 
-  /// 获取当前确认状态
+  /// 獲取當前確認狀態
   ConfirmationStatus? get confirmationStatus {
     if (_confirmationTimer == null || _pendingEmergencyText == null) {
       return null;
@@ -281,14 +281,14 @@ class EmergencyDetector {
     );
   }
 
-  /// 批量检测（用于ASR连续识别）
+  /// 批量檢測（用於ASR連續識別）
   List<EmergencyDetectionResult> detectBatch(List<String> texts) {
     return texts.map((text) => detect(text)).toList();
   }
 
-  /// 添加自定义触发词
+  /// 添加自定義觸發詞
   static void addCustomKeywords(List<String> keywords, UrgencyLevel level) {
-    // 实际项目中可以持久化到本地存储
+    // 實際項目中可以持久化到本地存儲
     switch (level) {
       case UrgencyLevel.emergency:
         _criticalKeywords.addAll(keywords);
@@ -302,10 +302,10 @@ class EmergencyDetector {
   }
 }
 
-/// 紧急检测回调类型
+/// 緊急檢測回調類型
 typedef EmergencyCallback = void Function(EmergencyEvent event);
 
-/// 紧急事件
+/// 緊急事件
 class EmergencyEvent {
   final String text;
   final UrgencyLevel level;
@@ -322,7 +322,7 @@ class EmergencyEvent {
   });
 }
 
-/// 紧急检测结果
+/// 緊急檢測結果
 class EmergencyDetectionResult {
   final bool isEmergency;
   final UrgencyLevel level;
@@ -341,7 +341,7 @@ class EmergencyDetectionResult {
   });
 }
 
-/// 确认状态
+/// 確認狀態
 class ConfirmationStatus {
   final String pendingText;
   final int remainingSeconds;
@@ -352,7 +352,7 @@ class ConfirmationStatus {
   });
 }
 
-/// 紧急检测服务（包装为AIService接口）
+/// 緊急檢測服務（包裝爲AIService接口）
 class EmergencyDetectionService implements AIService {
   final EmergencyDetector _detector = EmergencyDetector();
 
@@ -372,7 +372,7 @@ class EmergencyDetectionService implements AIService {
 
     if (!result.isEmergency) {
       return AIResponse(
-        text: '未检测到紧急情况',
+        text: '未檢測到緊急情況',
         intent: IntentType.generalChat,
         urgency: UrgencyLevel.normal,
         confidence: 1.0,
@@ -381,11 +381,11 @@ class EmergencyDetectionService implements AIService {
 
     String responseText;
     if (result.level == UrgencyLevel.emergency) {
-      responseText = '检测到紧急情况"${result.triggerWord}"，正在立即启动SOS流程！';
+      responseText = '檢測到緊急情況"${result.triggerWord}"，正在立即啓動SOS流程！';
     } else if (result.requiresConfirmation) {
-      responseText = '检测到可能的紧急情况"${result.triggerWord}"，5秒内未取消将自动触发SOS。';
+      responseText = '檢測到可能的緊急情況"${result.triggerWord}"，5秒內未取消將自動觸發SOS。';
     } else {
-      responseText = '检测到紧急信号，请确认是否需要帮助。';
+      responseText = '檢測到緊急信號，請確認是否需要幫助。';
     }
 
     return AIResponse(

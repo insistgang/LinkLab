@@ -1,8 +1,8 @@
-/// AI演示回复数据
-/// 用于演示版的AI功能，替代真实API调用
+/// AI演示回覆數據
+/// 用於演示版的AI功能，替代真實API調用
 library;
 
-/// AI回复数据模型
+/// AI回覆數據模型
 class AIResponse {
   final String id;
   final String type;
@@ -43,113 +43,113 @@ class AIResponse {
       );
 }
 
-/// OCR识别回复（药品）
-const medicineOCRResponse = '''识别结果：阿司匹林肠溶片 100mg
+/// OCR識別回覆（藥品）
+const medicineOCRResponse = '''識別結果：阿司匹林腸溶片 100mg
 
 用法用量：
 • 每日一次，每次1片
-• 饭后服用，温水送服
+• 飯後服用，溫水送服
 
-注意事项：
-• 请勿空腹服用
-• 如有不适请咨询医生
+注意事項：
+• 請勿空腹服用
+• 如有不適請諮詢醫生
 
-⚠️ 这是药品，建议志愿者确认''';
+⚠️ 這是藥品，建議志願者確認''';
 
-/// OCR识别回复（菜单）
-const menuOCRResponse = '''识别结果：
+/// OCR識別回覆（菜單）
+const menuOCRResponse = '''識別結果：
 
-🍽️ 今日推荐
-宫保鸡丁 ........... 38元
-鱼香肉丝 ........... 32元
+🍽️ 今日推薦
+宮保雞丁 ........... 38元
+魚香肉絲 ........... 32元
 麻婆豆腐 ........... 28元
-清蒸鲈鱼 ........... 58元
+清蒸鱸魚 ........... 58元
 
 🥬 素菜
-蒜蓉西兰花 ....... 22元
-干煸四季豆 ....... 26元''';
+蒜蓉西蘭花 ....... 22元
+乾煸四季豆 ....... 26元''';
 
-/// 场景描述回复
-const sceneDescriptionResponse = '''场景描述：
+/// 場景描述回覆
+const sceneDescriptionResponse = '''場景描述：
 
-📍 前方2米有一张木桌
-📍 右侧1米有一扇门
-📍 桌上有水杯（注意避让）
+📍 前方2米有一張木桌
+📍 右側1米有一扇門
+📍 桌上有水杯（注意避讓）
 📍 地面平整，可以直行
 
-💡 建议：
-请缓慢前行，注意桌角''';
+💡 建議：
+請緩慢前行，注意桌角''';
 
-/// 颜色识别回复
-const colorRecognitionResponse = '''颜色识别结果：
+/// 顏色識別回覆
+const colorRecognitionResponse = '''顏色識別結果：
 
-这件衣服是深蓝色
+這件衣服是深藍色
 
-🎨 相近颜色：
+🎨 相近顏色：
 • 藏青色
-• 海军蓝
-• 午夜蓝
+• 海軍藍
+• 午夜藍
 
-💡 搭配建议：
-适合搭配白色或浅灰色裤子''';
+💡 搭配建議：
+適合搭配白色或淺灰色褲子''';
 
-/// 对话回复模板
+/// 對話回覆模板
 final Map<String, String> chatResponses = {
-  'greeting': '您好！我是您的智能助手，有什么可以帮助您的吗？',
-  'help_request': '我理解您需要帮助，请告诉我具体情况。',
-  'volunteer_connect': '好的，正在为您连接志愿者，请稍候...',
-  'ocr_request': '请拍照，我会帮您识别文字内容。',
-  'scene_request': '请拍照，我会为您描述周围环境。',
-  'color_request': '请拍照，我会帮您识别颜色。',
-  'emergency': '⚠️ 检测到紧急情况！正在为您联系志愿者和紧急联系人。',
-  'fallback': '抱歉，我不太明白。您可以换个说法，或者选择连接志愿者。',
+  'greeting': '您好！我是您的智能助手，有什麼可以幫助您的嗎？',
+  'help_request': '我理解您需要幫助，請告訴我具體情況。',
+  'volunteer_connect': '好的，正在爲您連接志願者，請稍候...',
+  'ocr_request': '請拍照，我會幫您識別文字內容。',
+  'scene_request': '請拍照，我會爲您描述周圍環境。',
+  'color_request': '請拍照，我會幫您識別顏色。',
+  'emergency': '⚠️ 檢測到緊急情況！正在爲您聯繫志願者和緊急聯繫人。',
+  'fallback': '抱歉，我不太明白。您可以換個說法，或者選擇連接志願者。',
 };
 
-/// 演示AI回复集合
+/// 演示AI回覆集合
 final Map<String, AIResponse> demoAIResponses = {
   'medicine': const AIResponse(
     id: 'ai_001',
     type: 'ocr',
-    title: '药品识别',
-    input: '帮我看一下这个药',
+    title: '藥品識別',
+    input: '幫我看一下這個藥',
     response: medicineOCRResponse,
-    warning: '药品识别结果仅供参考',
+    warning: '藥品識別結果僅供參考',
   ),
   'menu': const AIResponse(
     id: 'ai_002',
     type: 'ocr',
-    title: '菜单识别',
-    input: '帮我读一下菜单',
+    title: '菜單識別',
+    input: '幫我讀一下菜單',
     response: menuOCRResponse,
   ),
   'scene': const AIResponse(
     id: 'ai_003',
     type: 'scene',
-    title: '场景描述',
-    input: '帮我看一下周围环境',
+    title: '場景描述',
+    input: '幫我看一下周圍環境',
     response: sceneDescriptionResponse,
   ),
   'color': const AIResponse(
     id: 'ai_004',
     type: 'color',
-    title: '颜色识别',
-    input: '这件衣服是什么颜色',
+    title: '顏色識別',
+    input: '這件衣服是什麼顏色',
     response: colorRecognitionResponse,
   ),
 };
 
-/// 根据类型获取AI回复
+/// 根據類型獲取AI回覆
 AIResponse? getAIResponseByType(String type) {
   return demoAIResponses[type];
 }
 
-/// 模拟AI处理延迟
+/// 模擬AI處理延遲
 Future<AIResponse?> mockAIProcess(String type, {int delayMs = 1500}) async {
   await Future.delayed(Duration(milliseconds: delayMs));
   return getAIResponseByType(type);
 }
 
-/// 模拟流式回复（逐字输出）
+/// 模擬流式回覆（逐字輸出）
 Stream<String> mockAIStream(String text, {int charDelayMs = 50}) async* {
   final buffer = StringBuffer();
   for (int i = 0; i < text.length; i++) {

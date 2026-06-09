@@ -14,7 +14,7 @@ class AppLayout extends StatelessWidget {
 
     if (isMobile) {
       return Scaffold(
-        appBar: AppBar(title: const Text('LinkLab 运营后台')),
+        appBar: AppBar(title: const Text('LinkLab 運營後臺')),
         drawer: MobileDrawer(currentRoute: currentRoute),
         body: child,
       );

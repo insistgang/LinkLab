@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-// 应用主题配置
+// 應用主題配置
 class AppTheme {
-  // 主色调
+  // 主色調
   static const Color primaryColor = Color(0xFF6366F1);
   static const Color primaryLight = Color(0xFF818CF8);
   static const Color primaryDark = Color(0xFF4F46E5);
 
-  // 辅助色
+  // 輔助色
   static const Color successColor = Color(0xFF10B981);
   static const Color warningColor = Color(0xFFF59E0B);
   static const Color errorColor = Color(0xFFEF4444);
@@ -20,7 +20,7 @@ class AppTheme {
   static const Color textSecondary = Color(0xFF6B7280);
   static const Color borderColor = Color(0xFFE5E7EB);
 
-  // 图表颜色
+  // 圖表顏色
   static const List<Color> chartColors = [
     Color(0xFF6366F1),
     Color(0xFF10B981),
@@ -32,7 +32,7 @@ class AppTheme {
     Color(0xFF14B8A6),
   ];
 
-  // 亮色主题
+  // 亮色主題
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
@@ -104,7 +104,7 @@ class AppTheme {
   );
 }
 
-// 响应式断点
+// 響應式斷點
 class Breakpoints {
   static const double mobile = 600;
   static const double tablet = 900;

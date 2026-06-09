@@ -3,7 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'report_model.freezed.dart';
 part 'report_model.g.dart';
 
-/// 举报记录模型
+/// 舉報記錄模型
 @freezed
 class Report with _$Report {
   const factory Report({
@@ -29,34 +29,34 @@ class Report with _$Report {
 
   const Report._();
 
-  /// 是否已处理
+  /// 是否已處理
   bool get isProcessed => status != ReportStatus.pending;
 
-  /// 是否举报成立
+  /// 是否舉報成立
   bool get isValid => decision == ReportDecision.valid;
 }
 
-/// 举报状态
+/// 舉報狀態
 enum ReportStatus {
-  pending,    // 待处理
-  processing, // 处理中
-  resolved,   // 已解决
+  pending,    // 待處理
+  processing, // 處理中
+  resolved,   // 已解決
 }
 
-/// 举报处理结果
+/// 舉報處理結果
 enum ReportDecision {
-  valid,      // 举报成立
-  invalid,    // 举报不成立
-  uncertain,  // 无法确定
+  valid,      // 舉報成立
+  invalid,    // 舉報不成立
+  uncertain,  // 無法確定
 }
 
-/// 举报原因类型
+/// 舉報原因類型
 enum ReportReason {
-  harassment,     // 骚扰
-  abuse,          // 辱骂
-  fraud,          // 诈骗
-  inappropriate,  // 不当内容
-  noShow,         // 未履约
+  harassment,     // 騷擾
+  abuse,          // 辱罵
+  fraud,          // 詐騙
+  inappropriate,  // 不當內容
+  noShow,         // 未履約
   other,          // 其他
 }
 
@@ -64,15 +64,15 @@ extension ReportReasonExtension on ReportReason {
   String get label {
     switch (this) {
       case ReportReason.harassment:
-        return '骚扰行为';
+        return '騷擾行爲';
       case ReportReason.abuse:
-        return '辱骂攻击';
+        return '辱罵攻擊';
       case ReportReason.fraud:
-        return '诈骗诱导';
+        return '詐騙誘導';
       case ReportReason.inappropriate:
-        return '不当内容';
+        return '不當內容';
       case ReportReason.noShow:
-        return '未履约';
+        return '未履約';
       case ReportReason.other:
         return '其他';
     }
@@ -81,22 +81,22 @@ extension ReportReasonExtension on ReportReason {
   String get description {
     switch (this) {
       case ReportReason.harassment:
-        return '对方有骚扰行为';
+        return '對方有騷擾行爲';
       case ReportReason.abuse:
-        return '对方使用辱骂或攻击性语言';
+        return '對方使用辱罵或攻擊性語言';
       case ReportReason.fraud:
-        return '对方有诈骗或诱导行为';
+        return '對方有詐騙或誘導行爲';
       case ReportReason.inappropriate:
-        return '对方发布不当内容';
+        return '對方發佈不當內容';
       case ReportReason.noShow:
-        return '对方未按约定提供帮助/求助';
+        return '對方未按約定提供幫助/求助';
       case ReportReason.other:
-        return '其他违规行为';
+        return '其他違規行爲';
     }
  }
 }
 
-/// 黑名单模型
+/// 黑名單模型
 @freezed
 class BlacklistEntry with _$BlacklistEntry {
   const factory BlacklistEntry({
@@ -119,7 +119,7 @@ class BlacklistEntry with _$BlacklistEntry {
   /// 是否永久封禁
   bool get isPermanent => expiresAt == null;
 
-  /// 是否已过期
+  /// 是否已過期
   bool get isExpired {
     if (expiresAt == null) return false;
     return DateTime.now().isAfter(expiresAt!);
@@ -129,20 +129,20 @@ class BlacklistEntry with _$BlacklistEntry {
   bool get isActive => !isExpired;
 }
 
-/// 黑名单级别
+/// 黑名單級別
 enum BlacklistLevel {
-  user,    // 用户级：账号永久封禁
-  device,  // 设备级：设备指纹封禁
-  ip,      // IP级：IP段限制
+  user,    // 用戶級：賬號永久封禁
+  device,  // 設備級：設備指紋封禁
+  ip,      // IP級：IP段限制
 }
 
 extension BlacklistLevelExtension on BlacklistLevel {
   String get label {
     switch (this) {
       case BlacklistLevel.user:
-        return '账号封禁';
+        return '賬號封禁';
       case BlacklistLevel.device:
-        return '设备封禁';
+        return '設備封禁';
       case BlacklistLevel.ip:
         return 'IP限制';
     }
@@ -151,16 +151,16 @@ extension BlacklistLevelExtension on BlacklistLevel {
   String get description {
     switch (this) {
       case BlacklistLevel.user:
-        return '该账号已被永久封禁';
+        return '該賬號已被永久封禁';
       case BlacklistLevel.device:
-        return '该设备已被封禁，无法注册新账号';
+        return '該設備已被封禁，無法註冊新賬號';
       case BlacklistLevel.ip:
-        return '该IP段已被限制注册';
+        return '該IP段已被限制註冊';
     }
   }
 }
 
-/// 举报统计
+/// 舉報統計
 @freezed
 class ReportStatistics with _$ReportStatistics {
   const factory ReportStatistics({
@@ -178,10 +178,10 @@ class ReportStatistics with _$ReportStatistics {
 
   const ReportStatistics._();
 
-  /// 被举报成功率
+  /// 被舉報成功率
   double get validRate =>
       totalReportsReceived > 0 ? validReports / totalReportsReceived : 0;
 
-  /// 是否高风险用户（被多次有效举报）
+  /// 是否高風險用戶（被多次有效舉報）
   bool get isHighRisk => validReports >= 3;
 }

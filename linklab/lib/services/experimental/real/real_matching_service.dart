@@ -10,9 +10,9 @@ import '../../../core/utils/logger.dart';
 import '../../../models/call_models.dart';
 import '../../push_notification_service.dart';
 
-/// 真实匹配服务
-/// 调用Supabase Edge Function进行志愿者匹配
-/// AGENTS.md §4.2：竞赛版仅走 Demo 主线，当前文件只保留为实验性真实链路实现。
+/// 真實匹配服務
+/// 調用Supabase Edge Function進行志願者匹配
+/// AGENTS.md §4.2：競賽版僅走 Demo 主線，當前文件只保留爲實驗性真實鏈路實現。
 class RealMatchingService {
   static final RealMatchingService _instance = RealMatchingService._internal();
   factory RealMatchingService() => _instance;
@@ -27,7 +27,7 @@ class RealMatchingService {
     return _supabaseClient!;
   }
 
-  // 状态流控制器
+  // 狀態流控制器
   final _matchingStateController = StreamController<MatchingState>.broadcast();
   final _matchedVolunteerController =
       StreamController<MatchedVolunteer?>.broadcast();
@@ -40,20 +40,20 @@ class RealMatchingService {
   Stream<MatchProgress> get matchProgressStream =>
       _matchProgressController.stream;
 
-  // 当前匹配状态
+  // 當前匹配狀態
   String? _currentHelpRequestId;
   Timer? _timeoutTimer;
   Timer? _expandTimer;
   Timer? _heartbeatTimer;
   RealtimeChannel? _matchChannel;
 
-  /// 开始匹配
+  /// 開始匹配
   ///
   /// [seekerId] 求助者ID
-  /// [urgency] 紧急度: normal, important, urgent, emergency
+  /// [urgency] 緊急度: normal, important, urgent, emergency
   /// [location] 位置 {latitude, longitude}
-  /// [skills] 需要的技能标签
-  /// [helpType] 求助类型描述
+  /// [skills] 需要的技能標籤
+  /// [helpType] 求助類型描述
   Future<MatchingResult?> findMatches({
     required String seekerId,
     required UrgencyLevel urgency,
@@ -66,7 +66,7 @@ class RealMatchingService {
       _matchProgressController.add(
         MatchProgress(
           stage: MatchStage.searching,
-          message: '正在搜索附近志愿者...',
+          message: '正在搜索附近志願者...',
           progress: 0.1,
         ),
       );
@@ -88,7 +88,7 @@ class RealMatchingService {
       );
 
       if (response.statusCode != 200) {
-        throw Exception('匹配请求失败: ${response.body}');
+        throw Exception('匹配請求失敗: ${response.body}');
       }
 
       final result = jsonDecode(response.body) as Map<String, dynamic>;
@@ -99,7 +99,7 @@ class RealMatchingService {
           _matchProgressController.add(
             MatchProgress(
               stage: MatchStage.asyncPending,
-              message: '当前志愿者繁忙，已转为异步留言',
+              message: '當前志願者繁忙，已轉爲異步留言',
               progress: 1.0,
             ),
           );
@@ -114,7 +114,7 @@ class RealMatchingService {
       _matchProgressController.add(
         MatchProgress(
           stage: MatchStage.notifying,
-          message: '已找到${(result['volunteers'] as List).length}位志愿者，正在发送通知...',
+          message: '已找到${(result['volunteers'] as List).length}位志願者，正在發送通知...',
           progress: 0.3,
         ),
       );
@@ -131,29 +131,29 @@ class RealMatchingService {
       _matchProgressController.add(
         MatchProgress(
           stage: MatchStage.waiting,
-          message: '等待志愿者响应...',
+          message: '等待志願者響應...',
           progress: 0.5,
         ),
       );
 
-      // 设置超时定时器
+      // 設置超時定時器
       _setupTimeoutTimers(matchingResult.timeoutAt);
 
-      // 订阅匹配结果
+      // 訂閱匹配結果
       _subscribeToMatchResult();
 
-      // 启动心跳
+      // 啓動心跳
       _startHeartbeat();
 
       return matchingResult;
     } catch (error, stackTrace) {
-      AppLogger.error('真实匹配请求失败', error, stackTrace);
+      AppLogger.error('真實匹配請求失敗', error, stackTrace);
       _updateMatchingState(MatchingState.error);
-      throw Exception('匹配失败: $error');
+      throw Exception('匹配失敗: $error');
     }
   }
 
-  /// 志愿者接受匹配
+  /// 志願者接受匹配
   Future<bool> acceptMatch(String helpRequestId) async {
     try {
       final userId = _supabase.auth.currentUser?.id;
@@ -179,12 +179,12 @@ class RealMatchingService {
       final result = jsonDecode(response.body) as Map<String, dynamic>;
       return result['success'] == true;
     } catch (error, stackTrace) {
-      AppLogger.error('接受匹配失败', error, stackTrace);
+      AppLogger.error('接受匹配失敗', error, stackTrace);
       return false;
     }
   }
 
-  /// 志愿者拒绝匹配
+  /// 志願者拒絕匹配
   Future<void> rejectMatch(String helpRequestId) async {
     try {
       final userId = _supabase.auth.currentUser?.id;
@@ -205,27 +205,27 @@ class RealMatchingService {
         }),
       );
     } catch (error, stackTrace) {
-      AppLogger.error('拒绝匹配失败', error, stackTrace);
+      AppLogger.error('拒絕匹配失敗', error, stackTrace);
     }
   }
 
-  /// 设置超时定时器
+  /// 設置超時定時器
   void _setupTimeoutTimers(DateTime timeoutAt) {
     final now = DateTime.now();
     final timeoutDuration = timeoutAt.difference(now);
 
-    // 30秒后扩大搜索范围
+    // 30秒後擴大搜索範圍
     _expandTimer = Timer(const Duration(seconds: 30), () async {
       await _expandSearchRange();
     });
 
-    // 60秒后转为异步
+    // 60秒後轉爲異步
     _timeoutTimer = Timer(timeoutDuration, () async {
       await _convertToAsync();
     });
   }
 
-  /// 扩大搜索范围
+  /// 擴大搜索範圍
   Future<void> _expandSearchRange() async {
     if (_currentHelpRequestId == null) return;
 
@@ -234,7 +234,7 @@ class RealMatchingService {
       _matchProgressController.add(
         MatchProgress(
           stage: MatchStage.expanding,
-          message: '扩大搜索范围...',
+          message: '擴大搜索範圍...',
           progress: 0.7,
         ),
       );
@@ -257,7 +257,7 @@ class RealMatchingService {
       final result = jsonDecode(response.body) as Map<String, dynamic>;
 
       if (result['success'] == true && result['expanded'] == true) {
-        // 更新超时时间
+        // 更新超時時間
         if (result['timeoutAt'] != null) {
           _timeoutTimer?.cancel();
           _setupTimeoutTimers(DateTime.parse(result['timeoutAt'] as String));
@@ -266,17 +266,17 @@ class RealMatchingService {
         _matchProgressController.add(
           MatchProgress(
             stage: MatchStage.expanding,
-            message: '已扩大搜索范围，新增${result['newVolunteersCount'] ?? 0}位志愿者',
+            message: '已擴大搜索範圍，新增${result['newVolunteersCount'] ?? 0}位志願者',
             progress: 0.8,
           ),
         );
       }
     } catch (error, stackTrace) {
-      AppLogger.error('扩大搜索范围失败', error, stackTrace);
+      AppLogger.error('擴大搜索範圍失敗', error, stackTrace);
     }
   }
 
-  /// 转为异步留言
+  /// 轉爲異步留言
   Future<void> _convertToAsync() async {
     if (_currentHelpRequestId == null) return;
 
@@ -285,7 +285,7 @@ class RealMatchingService {
       _matchProgressController.add(
         MatchProgress(
           stage: MatchStage.converting,
-          message: '转为异步留言...',
+          message: '轉爲異步留言...',
           progress: 0.9,
         ),
       );
@@ -309,17 +309,17 @@ class RealMatchingService {
       _matchProgressController.add(
         MatchProgress(
           stage: MatchStage.asyncPending,
-          message: '已转为异步留言，志愿者将在有空时回复',
+          message: '已轉爲異步留言，志願者將在有空時回覆',
           progress: 1.0,
         ),
       );
     } catch (error, stackTrace) {
-      AppLogger.error('转异步留言失败', error, stackTrace);
+      AppLogger.error('轉異步留言失敗', error, stackTrace);
       _updateMatchingState(MatchingState.error);
     }
   }
 
-  /// 订阅匹配结果
+  /// 訂閱匹配結果
   void _subscribeToMatchResult() {
     if (_currentHelpRequestId == null) return;
 
@@ -350,7 +350,7 @@ class RealMatchingService {
                 ),
               );
 
-              // 获取志愿者信息
+              // 獲取志願者信息
               final volunteerId = newRecord['volunteer_id']?.toString();
               if (volunteerId != null) {
                 _fetchVolunteerInfo(volunteerId);
@@ -364,7 +364,7 @@ class RealMatchingService {
         .subscribe();
   }
 
-  /// 获取志愿者信息
+  /// 獲取志願者信息
   Future<void> _fetchVolunteerInfo(String volunteerId) async {
     try {
       final response = await _supabase
@@ -390,11 +390,11 @@ class RealMatchingService {
 
       _matchedVolunteerController.add(volunteer);
     } catch (error, stackTrace) {
-      AppLogger.error('获取志愿者信息失败', error, stackTrace);
+      AppLogger.error('獲取志願者信息失敗', error, stackTrace);
     }
   }
 
-  /// 启动心跳
+  /// 啓動心跳
   void _startHeartbeat() {
     _heartbeatTimer?.cancel();
     _heartbeatTimer = Timer.periodic(const Duration(seconds: 30), (_) async {
@@ -409,7 +409,7 @@ class RealMatchingService {
             .update({'updated_at': DateTime.now().toIso8601String()})
             .eq('id', _currentHelpRequestId!);
       } catch (error, stackTrace) {
-        AppLogger.error('匹配心跳更新失败', error, stackTrace);
+        AppLogger.error('匹配心跳更新失敗', error, stackTrace);
       }
     });
   }
@@ -429,7 +429,7 @@ class RealMatchingService {
     _updateMatchingState(MatchingState.cancelled);
   }
 
-  /// 取消定时器
+  /// 取消定時器
   void _cancelTimers() {
     _timeoutTimer?.cancel();
     _expandTimer?.cancel();
@@ -442,12 +442,12 @@ class RealMatchingService {
     _matchChannel = null;
   }
 
-  /// 更新匹配状态
+  /// 更新匹配狀態
   void _updateMatchingState(MatchingState state) {
     _matchingStateController.add(state);
   }
 
-  /// 释放资源
+  /// 釋放資源
   void dispose() {
     _cancelTimers();
     _matchingStateController.close();
@@ -456,7 +456,7 @@ class RealMatchingService {
   }
 }
 
-/// 匹配状态
+/// 匹配狀態
 enum MatchingState {
   searching,
   waitingResponse,
@@ -469,7 +469,7 @@ enum MatchingState {
   error,
 }
 
-/// 匹配阶段
+/// 匹配階段
 enum MatchStage {
   searching,
   notifying,
@@ -480,7 +480,7 @@ enum MatchStage {
   asyncPending,
 }
 
-/// 匹配进度
+/// 匹配進度
 class MatchProgress {
   final MatchStage stage;
   final String message;
@@ -493,12 +493,12 @@ class MatchProgress {
   });
 }
 
-/// 紧急度等级
+/// 緊急度等級
 enum UrgencyLevel {
   normal, // 普通
   important, // 重要
   urgent, // 急迫
-  emergency, // 紧急
+  emergency, // 緊急
 }
 
 /// 位置信息
@@ -508,9 +508,9 @@ class Location {
 
   Location({required this.latitude, required this.longitude});
 
-  /// 使用Haversine公式计算到另一个位置的距离（公里）
+  /// 使用Haversine公式計算到另一個位置的距離（公里）
   double distanceTo(Location other) {
-    const earthRadius = 6371; // 地球半径（公里）
+    const earthRadius = 6371; // 地球半徑（公里）
 
     final dLat = _toRadians(other.latitude - latitude);
     final dLng = _toRadians(other.longitude - longitude);
@@ -532,7 +532,7 @@ class Location {
   }
 }
 
-/// 志愿者在线状态服务
+/// 志願者在線狀態服務
 class VolunteerPresenceService {
   static final VolunteerPresenceService _instance =
       VolunteerPresenceService._internal();
@@ -551,7 +551,7 @@ class VolunteerPresenceService {
   Timer? _heartbeatTimer;
   bool _isOnline = false;
 
-  /// 上线
+  /// 上線
   Future<void> goOnline() async {
     if (_isOnline) return;
 
@@ -559,7 +559,7 @@ class VolunteerPresenceService {
     if (userId == null) return;
 
     try {
-      // 更新志愿者状态
+      // 更新志願者狀態
       await _supabase
           .from('volunteer_profiles')
           .update({
@@ -571,17 +571,17 @@ class VolunteerPresenceService {
 
       _isOnline = true;
 
-      // 启动心跳
+      // 啓動心跳
       _startHeartbeat();
 
-      // 订阅匹配请求
+      // 訂閱匹配請求
       _subscribeToMatchingRequests();
     } catch (error, stackTrace) {
-      AppLogger.error('志愿者上线失败', error, stackTrace);
+      AppLogger.error('志願者上線失敗', error, stackTrace);
     }
   }
 
-  /// 下线
+  /// 下線
   Future<void> goOffline() async {
     _heartbeatTimer?.cancel();
 
@@ -596,11 +596,11 @@ class VolunteerPresenceService {
 
       _isOnline = false;
     } catch (error, stackTrace) {
-      AppLogger.error('志愿者下线失败', error, stackTrace);
+      AppLogger.error('志願者下線失敗', error, stackTrace);
     }
   }
 
-  /// 设置忙碌状态
+  /// 設置忙碌狀態
   Future<void> setBusy(bool busy) async {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) return;
@@ -611,7 +611,7 @@ class VolunteerPresenceService {
           .update({'is_available': !busy})
           .eq('user_id', userId);
     } catch (error, stackTrace) {
-      AppLogger.error('设置志愿者忙碌状态失败', error, stackTrace);
+      AppLogger.error('設置志願者忙碌狀態失敗', error, stackTrace);
     }
   }
 
@@ -630,11 +630,11 @@ class VolunteerPresenceService {
           })
           .eq('user_id', userId);
     } catch (error, stackTrace) {
-      AppLogger.error('更新志愿者位置失败', error, stackTrace);
+      AppLogger.error('更新志願者位置失敗', error, stackTrace);
     }
   }
 
-  /// 启动心跳
+  /// 啓動心跳
   void _startHeartbeat() {
     _heartbeatTimer?.cancel();
     _heartbeatTimer = Timer.periodic(const Duration(minutes: 1), (_) async {
@@ -650,12 +650,12 @@ class VolunteerPresenceService {
             .update({'last_heartbeat_at': DateTime.now().toIso8601String()})
             .eq('user_id', userId);
       } catch (error, stackTrace) {
-        AppLogger.error('志愿者心跳发送失败', error, stackTrace);
+        AppLogger.error('志願者心跳發送失敗', error, stackTrace);
       }
     });
   }
 
-  /// 订阅匹配请求
+  /// 訂閱匹配請求
   void _subscribeToMatchingRequests() {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) return;
@@ -684,12 +684,12 @@ class VolunteerPresenceService {
         .subscribe();
   }
 
-  /// 显示匹配通知
+  /// 顯示匹配通知
   void _showMatchingNotification(Map<String, dynamic> record) {
     final pushService = PushNotificationService();
     pushService.showLocalNotification(
-      title: '有新的求助需要您的帮助',
-      body: '点击查看详情',
+      title: '有新的求助需要您的幫助',
+      body: '點擊查看詳情',
       data: {
         'helpRequestId': record['id'],
         'type': 'matching_request',
@@ -697,22 +697,22 @@ class VolunteerPresenceService {
     );
   }
 
-  /// 释放资源
+  /// 釋放資源
   void dispose() {
     _heartbeatTimer?.cancel();
     goOffline();
   }
 }
 
-/// 扩展推送通知服务
+/// 擴展推送通知服務
 extension PushNotificationServiceExtension on PushNotificationService {
-  /// 显示本地通知
+  /// 顯示本地通知
   Future<void> showLocalNotification({
     required String title,
     required String body,
     required Map<String, dynamic> data,
   }) async {
-    // 这里使用flutter_local_notifications显示本地通知
-    // 实际实现需要在PushNotificationService中添加相应方法
+    // 這裏使用flutter_local_notifications顯示本地通知
+    // 實際實現需要在PushNotificationService中添加相應方法
   }
 }

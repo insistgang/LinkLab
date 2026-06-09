@@ -1,6 +1,6 @@
 import '../constants/app_constants.dart';
 
-// 用户模型
+// 用戶模型
 class UserModel {
   final String id;
   final String email;
@@ -13,13 +13,13 @@ class UserModel {
   final DateTime? lastSignInAt;
   final Map<String, dynamic>? metadata;
 
-  // 残障用户额外信息
+  // 殘障用戶額外信息
   final String? disabilityType;
   final String? disabilityDescription;
   final VerificationStatus? verificationStatus;
   final String? disabilityCertificateUrl;
 
-  // 志愿者额外信息
+  // 志願者額外信息
   final String? volunteerLevel;
   final int? volunteerPoints;
   final List<String>? skills;
@@ -169,18 +169,18 @@ class UserModel {
       case UserStatus.banned:
         return '已封禁';
       case UserStatus.pending:
-        return '待审核';
+        return '待審覈';
     }
   }
 
   String get verificationText {
     switch (verificationStatus) {
       case VerificationStatus.pending:
-        return '待审核';
+        return '待審覈';
       case VerificationStatus.approved:
-        return '已通过';
+        return '已通過';
       case VerificationStatus.rejected:
-        return '已拒绝';
+        return '已拒絕';
       default:
         return '未提交';
     }
@@ -189,16 +189,16 @@ class UserModel {
   String get roleText {
     switch (role) {
       case UserRole.superAdmin:
-        return '超级管理员';
+        return '超級管理員';
       case UserRole.admin:
-        return '管理员';
+        return '管理員';
       case UserRole.operator:
-        return '运营人员';
+        return '運營人員';
     }
   }
 }
 
-// 用户列表响应
+// 用戶列表響應
 class UserListResponse {
   final List<UserModel> users;
   final int total;

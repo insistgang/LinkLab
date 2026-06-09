@@ -8,7 +8,7 @@ import '../../services/community/interest_group_service.dart';
 import '../../widgets/accessible/index.dart';
 import 'group_chat_screen.dart';
 
-/// 兴趣小组页面
+/// 興趣小組頁面
 class InterestGroupsScreen extends ConsumerStatefulWidget {
   const InterestGroupsScreen({super.key});
 
@@ -47,7 +47,7 @@ class _InterestGroupsScreenState
   @override
   Widget build(BuildContext context) {
     return AccessibleScaffold(
-      title: '兴趣小组',
+      title: '興趣小組',
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : DefaultTabController(
@@ -56,8 +56,8 @@ class _InterestGroupsScreenState
                 children: [
                   const TabBar(
                     tabs: [
-                      Tab(text: '全部小组'),
-                      Tab(text: '我的小组'),
+                      Tab(text: '全部小組'),
+                      Tab(text: '我的小組'),
                     ],
                   ),
                   Expanded(
@@ -78,7 +78,7 @@ class _InterestGroupsScreenState
     if (_groups.isEmpty) {
       return const Center(
         child: AccessibleText(
-          '暂无小组',
+          '暫無小組',
           style: TextStyle(color: AppTheme.textSecondary),
         ),
       );
@@ -112,12 +112,12 @@ class _InterestGroupsScreenState
             ),
             SizedBox(height: AppTheme.spacingM),
             AccessibleText(
-              '您还没有加入任何小组',
+              '您還沒有加入任何小組',
               style: TextStyle(color: AppTheme.textSecondary),
             ),
             SizedBox(height: AppTheme.spacingS),
             AccessibleText(
-              '去全部小组看看吧',
+              '去全部小組看看吧',
               style: TextStyle(
                 color: AppTheme.textHint,
                 fontSize: AppTheme.fontSizeSmall,
@@ -157,7 +157,7 @@ class _InterestGroupsScreenState
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('加入失败: $e')),
+          SnackBar(content: Text('加入失敗: $e')),
         );
       }
     }
@@ -173,7 +173,7 @@ class _InterestGroupsScreenState
   }
 }
 
-/// 小组卡片
+/// 小組卡片
 class _GroupCard extends StatelessWidget {
   const _GroupCard({
     required this.group,
@@ -194,7 +194,7 @@ class _GroupCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: AppTheme.spacingM),
       child: Row(
         children: [
-          // 图标
+          // 圖標
           Container(
             width: 56,
             height: 56,
@@ -266,7 +266,7 @@ class _GroupCard extends StatelessWidget {
               ],
             ),
           ),
-          // 加入按钮
+          // 加入按鈕
           if (!isJoined && onJoin != null)
             AccessibleButton(
               onPressed: onJoin!,

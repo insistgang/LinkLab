@@ -6,7 +6,7 @@ import '../../services/app_session_service.dart';
 import '../../services/community/newbie_village_service.dart';
 import '../../widgets/accessible/index.dart';
 
-/// 训练场景页面
+/// 訓練場景頁面
 class TrainingScenarioScreen extends StatefulWidget {
   const TrainingScenarioScreen({
     super.key,
@@ -38,7 +38,7 @@ class _TrainingScenarioScreenState extends State<TrainingScenarioScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 场景类型标签
+          // 場景類型標籤
           Container(
             padding: const EdgeInsets.symmetric(
               horizontal: AppTheme.spacingM,
@@ -58,22 +58,22 @@ class _TrainingScenarioScreenState extends State<TrainingScenarioScreen> {
             ),
           ),
           const SizedBox(height: AppTheme.spacingL),
-          // 场景图片
+          // 場景圖片
           AccessibleImage.asset(
             assetPath: widget.scenario.imageUrl,
-            semanticLabel: '${widget.scenario.title}示意图',
-            hint: '用于辅助理解当前训练场景的示意图片',
+            semanticLabel: '${widget.scenario.title}示意圖',
+            hint: '用於輔助理解當前訓練場景的示意圖片',
             width: double.infinity,
             height: 200,
             fit: BoxFit.cover,
             borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
             fallbackIcon: _getTypeIcon(widget.scenario.type),
-            fallbackText: '${ScenarioType.getLabel(widget.scenario.type)}场景暂无示意图',
+            fallbackText: '${ScenarioType.getLabel(widget.scenario.type)}場景暫無示意圖',
           ),
           const SizedBox(height: AppTheme.spacingL),
-          // 场景描述
+          // 場景描述
           const AccessibleText(
-            '场景描述',
+            '場景描述',
             style: TextStyle(
               fontSize: AppTheme.fontSizeLarge,
               fontWeight: FontWeight.bold,
@@ -136,10 +136,10 @@ class _TrainingScenarioScreenState extends State<TrainingScenarioScreen> {
                 )),
             const SizedBox(height: AppTheme.spacingXL),
           ],
-          // 预期操作
+          // 預期操作
           if (widget.scenario.expectedActions.isNotEmpty) ...[
             const AccessibleText(
-              '预期操作',
+              '預期操作',
               style: TextStyle(
                 fontSize: AppTheme.fontSizeLarge,
                 fontWeight: FontWeight.bold,
@@ -178,15 +178,15 @@ class _TrainingScenarioScreenState extends State<TrainingScenarioScreen> {
             ),
             const SizedBox(height: AppTheme.spacingXL),
           ],
-          // 操作按钮
+          // 操作按鈕
           AccessibleButton(
             onPressed: _completeScenario,
-            label: '完成训练',
+            label: '完成訓練',
           ),
           const SizedBox(height: AppTheme.spacingM),
           AccessibleButton(
             onPressed: () => Navigator.pop(context),
-            label: '稍后再做',
+            label: '稍後再做',
             
           ),
         ],
@@ -208,7 +208,7 @@ class _TrainingScenarioScreenState extends State<TrainingScenarioScreen> {
             ),
             const SizedBox(height: AppTheme.spacingL),
             const AccessibleText(
-              '场景完成！',
+              '場景完成！',
               style: TextStyle(
                 fontSize: AppTheme.fontSizeXLarge,
                 fontWeight: FontWeight.bold,
@@ -216,7 +216,7 @@ class _TrainingScenarioScreenState extends State<TrainingScenarioScreen> {
             ),
             const SizedBox(height: AppTheme.spacingM),
             const AccessibleText(
-              '恭喜您完成了这个训练场景',
+              '恭喜您完成了這個訓練場景',
               style: TextStyle(
                 fontSize: AppTheme.fontSizeNormal,
                 color: AppTheme.textSecondary,
@@ -225,7 +225,7 @@ class _TrainingScenarioScreenState extends State<TrainingScenarioScreen> {
             const SizedBox(height: AppTheme.spacingXL),
             AccessibleButton(
               onPressed: () => Navigator.pop(context, true),
-              label: '继续下一个',
+              label: '繼續下一個',
             ),
           ],
         ),
@@ -247,7 +247,7 @@ class _TrainingScenarioScreenState extends State<TrainingScenarioScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('完成失败: $e')),
+          SnackBar(content: Text('完成失敗: $e')),
         );
       }
     }

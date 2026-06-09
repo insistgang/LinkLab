@@ -3,39 +3,39 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'auth_level_model.freezed.dart';
 part 'auth_level_model.g.dart';
 
-/// 认证等级枚举
+/// 認證等級枚舉
 enum AuthLevel {
-  phone,        // 手机号认证
-  realName,     // 实名认证
-  disabledCert, // 残障证明（求助者）
-  skillCert,    // 技能认证（志愿者）
+  phone,        // 手機號認證
+  realName,     // 實名認證
+  disabledCert, // 殘障證明（求助者）
+  skillCert,    // 技能認證（志願者）
 }
 
-/// 认证等级扩展
+/// 認證等級擴展
 extension AuthLevelExtension on AuthLevel {
   String get label {
     switch (this) {
       case AuthLevel.phone:
-        return '手机认证';
+        return '手機認證';
       case AuthLevel.realName:
-        return '实名认证';
+        return '實名認證';
       case AuthLevel.disabledCert:
-        return '残障证明';
+        return '殘障證明';
       case AuthLevel.skillCert:
-        return '技能认证';
+        return '技能認證';
     }
   }
 
   String get description {
     switch (this) {
       case AuthLevel.phone:
-        return '已完成手机号验证';
+        return '已完成手機號驗證';
       case AuthLevel.realName:
-        return '已完成实名认证';
+        return '已完成實名認證';
       case AuthLevel.disabledCert:
-        return '已上传残障证明，获得优先匹配权';
+        return '已上傳殘障證明，獲得優先匹配權';
       case AuthLevel.skillCert:
-        return '已完成专业技能认证';
+        return '已完成專業技能認證';
     }
   }
 
@@ -53,7 +53,7 @@ extension AuthLevelExtension on AuthLevel {
   }
 }
 
-/// 用户认证状态模型
+/// 用戶認證狀態模型
 @freezed
 class UserAuthStatus with _$UserAuthStatus {
   const factory UserAuthStatus({
@@ -77,7 +77,7 @@ class UserAuthStatus with _$UserAuthStatus {
 
   const UserAuthStatus._();
 
-  /// 获取当前最高认证等级
+  /// 獲取當前最高認證等級
   AuthLevel get currentLevel {
     if (disabledCertVerified) return AuthLevel.disabledCert;
     if (skillCerts.any((cert) => cert.isVerified)) return AuthLevel.skillCert;
@@ -86,18 +86,18 @@ class UserAuthStatus with _$UserAuthStatus {
     return AuthLevel.phone;
   }
 
-  /// 是否已完成基础认证（手机+实名）
+  /// 是否已完成基礎認證（手機+實名）
   bool get isBasicVerified => phoneVerified && realNameVerified;
 
-  /// 是否拥有优先认证（残障证明）
+  /// 是否擁有優先認證（殘障證明）
   bool get hasPriority => disabledCertVerified;
 
-  /// 已认证的技能列表
+  /// 已認證的技能列表
   List<SkillCertification> get verifiedSkills =>
       skillCerts.where((cert) => cert.isVerified).toList();
 }
 
-/// 技能认证模型
+/// 技能認證模型
 @freezed
 class SkillCertification with _$SkillCertification {
   const factory SkillCertification({
@@ -117,15 +117,15 @@ class SkillCertification with _$SkillCertification {
       _$SkillCertificationFromJson(json);
 }
 
-/// 认证申请状态
+/// 認證申請狀態
 enum CertificationStatus {
-  pending,   // 待审核
-  approved,  // 已通过
-  rejected,  // 已拒绝
-  expired,   // 已过期
+  pending,   // 待審覈
+  approved,  // 已通過
+  rejected,  // 已拒絕
+  expired,   // 已過期
 }
 
-/// 认证申请记录
+/// 認證申請記錄
 @freezed
 class CertificationApplication with _$CertificationApplication {
   const factory CertificationApplication({

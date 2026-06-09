@@ -9,7 +9,7 @@ import '../../widgets/demo/demo_routes.dart';
 import '../../widgets/demo/demo_stage.dart';
 import 'verification_screen.dart';
 
-/// 手机号登录页面
+/// 手機號登錄頁面
 class PhoneLoginScreen extends StatefulWidget {
   const PhoneLoginScreen({super.key});
 
@@ -33,7 +33,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
     if (_formKey.currentState?.validate() ?? false) {
       if (AppConfig.isRealMode) {
         setState(() {
-          _errorText = 'RealMode Phase-2 暂未接入真实短信，请使用邮箱登录。';
+          _errorText = 'RealMode Phase-2 暫未接入真實短信，請使用郵箱登錄。';
         });
         return;
       }
@@ -62,10 +62,10 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
     return DemoStageLiveBuilder(
       builder: (context) {
         return DemoStageScaffold(
-          title: '手机号登录',
+          title: '手機號登錄',
           subtitle: AppConfig.isRealMode
-              ? '手机号界面保留，本阶段不接真实短信'
-              : 'DemoMode 使用本地稳定验证码流程',
+              ? '手機號界面保留，本階段不接真實短信'
+              : 'DemoMode 使用本地穩定驗證碼流程',
           body: Form(
             key: _formKey,
             child: ListView(
@@ -78,14 +78,14 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
               children: [
                 DemoReveal(
                   child: DemoAuthBanner(
-                    title: '请输入您的手机号',
+                    title: '請輸入您的手機號',
                     subtitle: AppConfig.isRealMode
-                        ? '真实短信需要单独配置短信服务商。本阶段请返回使用邮箱登录。'
-                        : '演示版使用本地稳定流程，避免现场卡在外部服务。',
+                        ? '真實短信需要單獨配置短信服務商。本階段請返回使用郵箱登錄。'
+                        : '演示版使用本地穩定流程，避免現場卡在外部服務。',
                     icon: Icons.phone_android_rounded,
                     chips: [
-                      DemoPill(label: '验证码登录', color: AppTheme.stageAccent),
-                      DemoPill(label: '90 秒内完成', color: AppTheme.stageSuccess),
+                      DemoPill(label: '驗證碼登錄', color: AppTheme.stageAccent),
+                      DemoPill(label: '90 秒內完成', color: AppTheme.stageSuccess),
                     ],
                   ),
                 ),
@@ -95,13 +95,13 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                   child: DemoMetricStrip(
                     items: [
                       DemoMetricItem(
-                        label: '验证方式',
-                        value: AppConfig.isRealMode ? '暂未接入短信' : '本地稳定短信',
+                        label: '驗證方式',
+                        value: AppConfig.isRealMode ? '暫未接入短信' : '本地穩定短信',
                         color: AppTheme.stageAccent,
                       ),
                       DemoMetricItem(
-                        label: '输入支持',
-                        value: '读屏逐位输入',
+                        label: '輸入支持',
+                        value: '讀屏逐位輸入',
                         color: AppTheme.stageInfo,
                       ),
                     ],
@@ -116,7 +116,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           AccessibleText(
-                            '我们将向您的手机发送验证码',
+                            '我們將向您的手機發送驗證碼',
                             style: TextStyle(
                               color: AppTheme.stageTextSecondary,
                               fontSize: AppTheme.fontSizeNormal,
@@ -124,7 +124,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                           ),
                           const SizedBox(height: AppTheme.spacingL),
                           DemoPill(
-                            label: '支持读屏逐位输入',
+                            label: '支持讀屏逐位輸入',
                             icon: Icons.record_voice_over_outlined,
                             color: AppTheme.stageInfo,
                           ),
@@ -149,7 +149,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                   child: DemoSurfaceCard(
                     color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.96),
                     child: AccessibleText(
-                      '点击“下一步”即表示您同意我们的服务条款和隐私政策。',
+                      '點擊“下一步”即表示您同意我們的服務條款和隱私政策。',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: AppTheme.stageTextHint,
@@ -164,8 +164,8 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
           ),
           bottomBar: AccessibleButton(
             label: '下一步',
-            semanticLabel: '获取验证码',
-            hint: '双击获取短信验证码',
+            semanticLabel: '獲取驗證碼',
+            hint: '雙擊獲取短信驗證碼',
             isLoading: _isLoading,
             backgroundColor: AppTheme.stageAccent,
             foregroundColor: AppTheme.stageBackground,

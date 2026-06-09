@@ -1,34 +1,34 @@
 // =====================================================
-// 共感 LinkAble - AI服务调度 Edge Function
-// 功能：统一调度各种AI服务(OCR、ASR、TTS、VL)
+// 共感 LinkAble - AI服務調度 Edge Function
+// 功能：統一調度各種AI服務(OCR、ASR、TTS、VL)
 // =====================================================
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0';
 
-// CORS头
+// CORS頭
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// AI服务类型
+// AI服務類型
 enum AIServiceType {
-  OCR = 'ocr',                    // 文字识别
-  SCENE_DESC = 'scene_desc',     // 场景描述
-  ASR = 'asr',                    // 语音识别
-  TTS = 'tts',                    // 语音合成
-  CHAT = 'chat',                  // 对话
-  TRANSLATION = 'translation',   // 翻译
+  OCR = 'ocr',                    // 文字識別
+  SCENE_DESC = 'scene_desc',     // 場景描述
+  ASR = 'asr',                    // 語音識別
+  TTS = 'tts',                    // 語音合成
+  CHAT = 'chat',                  // 對話
+  TRANSLATION = 'translation',   // 翻譯
 }
 
-// AI服务配置
+// AI服務配置
 interface AIServiceConfig {
   baseUrl: string;
   apiKey: string;
   timeout: number;
 }
 
-// 请求类型
+// 請求類型
 interface AIDispatchRequest {
   service: AIServiceType;
   input: string | { text?: string; imageUrl?: string; audioUrl?: string };
@@ -41,7 +41,7 @@ interface AIDispatchRequest {
   cache?: boolean;
 }
 
-// 响应类型
+// 響應類型
 interface AIDispatchResponse {
   success: boolean;
   data?: any;
@@ -51,10 +51,10 @@ interface AIDispatchResponse {
 }
 
 /**
- * 计算查询哈希(用于缓存)
+ * 計算查詢哈希(用於緩存)
  */
 function computeHash(input: string): string {
-  // 简化哈希实现
+  // 簡化哈希實現
   let hash = 0;
   for (let i = 0; i < input.length; i++) {
     const char = input.charCodeAt(i);
@@ -65,7 +65,7 @@ function computeHash(input: string): string {
 }
 
 /**
- * 检查缓存
+ * 檢查緩存
  */
 async function checkCache(
   supabase: any,
@@ -82,14 +82,14 @@ async function checkCache(
 
   if (error || !data) return null;
 
-  // 更新命中次数
+  // 更新命中次數
   await supabase.rpc('increment_cache_hit', { hash: queryHash });
 
   return data.response;
 }
 
 /**
- * 写入缓存
+ * 寫入緩存
  */
 async function writeCache(
   supabase: any,
@@ -111,17 +111,17 @@ async function writeCache(
 }
 
 /**
- * 调用百度OCR
+ * 調用百度OCR
  */
 async function callBaiduOCR(imageUrl: string, apiKey: string, secretKey: string): Promise<any> {
-  // 1. 获取access token
+  // 1. 獲取access token
   const tokenRes = await fetch(
     `https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=${apiKey}&client_secret=${secretKey}`,
     { method: 'POST' }
   );
   const tokenData = await tokenRes.json();
 
-  // 2. 调用OCR
+  // 2. 調用OCR
   const ocrRes = await fetch(
     `https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic?access_token=${tokenData.access_token}`,
     {
@@ -135,7 +135,7 @@ async function callBaiduOCR(imageUrl: string, apiKey: string, secretKey: string)
 }
 
 /**
- * 调用通义千问VL(视觉理解)
+ * 調用通義千問VL(視覺理解)
  */
 async function callQwenVL(imageUrl: string, prompt: string, apiKey: string): Promise<any> {
   const res = await fetch('https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation', {
@@ -152,7 +152,7 @@ async function callQwenVL(imageUrl: string, prompt: string, apiKey: string): Pro
             role: 'user',
             content: [
               { image: imageUrl },
-              { text: prompt || '请详细描述这张图片的内容，包括场景、物体、文字等' },
+              { text: prompt || '請詳細描述這張圖片的內容，包括場景、物體、文字等' },
             ],
           },
         ],
@@ -164,10 +164,10 @@ async function callQwenVL(imageUrl: string, prompt: string, apiKey: string): Pro
 }
 
 /**
- * 调用科大讯飞ASR
+ * 調用科大訊飛ASR
  */
 async function callXunfeiASR(audioUrl: string, apiKey: string, appId: string): Promise<any> {
-  // 科大讯飞ASR API调用
+  // 科大訊飛ASR API調用
   const res = await fetch('https://iat-api.xfyun.cn/v2/iat', {
     method: 'POST',
     headers: {
@@ -184,7 +184,7 @@ async function callXunfeiASR(audioUrl: string, apiKey: string, appId: string): P
 }
 
 /**
- * 调用科大讯飞TTS
+ * 調用科大訊飛TTS
  */
 async function callXunfeiTTS(text: string, apiKey: string, options: any): Promise<any> {
   const res = await fetch('https://tts-api.xfyun.cn/v2/tts', {
@@ -206,7 +206,7 @@ async function callXunfeiTTS(text: string, apiKey: string, options: any): Promis
 }
 
 /**
- * 调用通义千问对话
+ * 調用通義千問對話
  */
 async function callQwenChat(messages: any[], apiKey: string, stream: boolean = false): Promise<any> {
   const res = await fetch('https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation', {
@@ -233,29 +233,29 @@ async function callQwenChat(messages: any[], apiKey: string, stream: boolean = f
 }
 
 /**
- * 主调度函数
+ * 主調度函數
  */
 async function dispatchAI(request: AIDispatchRequest): Promise<AIDispatchResponse> {
   const { service, input, options = {}, cache = true } = request;
 
-  // 获取环境变量
+  // 獲取環境變量
   const baiduApiKey = Deno.env.get('BAIDU_OCR_API_KEY') || '';
   const baiduSecretKey = Deno.env.get('BAIDU_OCR_SECRET_KEY') || '';
   const qwenApiKey = Deno.env.get('DASHSCOPE_API_KEY') || '';
   const xunfeiApiKey = Deno.env.get('XUNFEI_API_KEY') || '';
   const xunfeiAppId = Deno.env.get('XUNFEI_APP_ID') || '';
 
-  // 检查缓存
+  // 檢查緩存
   if (cache && typeof input === 'string') {
     const queryHash = computeHash(`${service}:${input}`);
-    // 缓存检查逻辑在handleRequest中处理
+    // 緩存檢查邏輯在handleRequest中處理
   }
 
   try {
     switch (service) {
       case AIServiceType.OCR: {
         const imageUrl = typeof input === 'string' ? input : input.imageUrl;
-        if (!imageUrl) throw new Error('OCR需要图片URL');
+        if (!imageUrl) throw new Error('OCR需要圖片URL');
 
         const result = await callBaiduOCR(imageUrl, baiduApiKey, baiduSecretKey);
         return {
@@ -270,11 +270,11 @@ async function dispatchAI(request: AIDispatchRequest): Promise<AIDispatchRespons
 
       case AIServiceType.SCENE_DESC: {
         const imageUrl = typeof input === 'string' ? input : input.imageUrl;
-        if (!imageUrl) throw new Error('场景描述需要图片URL');
+        if (!imageUrl) throw new Error('場景描述需要圖片URL');
 
         const result = await callQwenVL(
           imageUrl,
-          '请详细描述这张图片的内容，包括场景、物体、人物、文字等，用中文回答',
+          '請詳細描述這張圖片的內容，包括場景、物體、人物、文字等，用中文回答',
           qwenApiKey
         );
 
@@ -289,7 +289,7 @@ async function dispatchAI(request: AIDispatchRequest): Promise<AIDispatchRespons
 
       case AIServiceType.ASR: {
         const audioUrl = typeof input === 'string' ? input : input.audioUrl;
-        if (!audioUrl) throw new Error('ASR需要音频URL');
+        if (!audioUrl) throw new Error('ASR需要音頻URL');
 
         const result = await callXunfeiASR(audioUrl, xunfeiApiKey, xunfeiAppId);
         return {
@@ -340,10 +340,10 @@ async function dispatchAI(request: AIDispatchRequest): Promise<AIDispatchRespons
       }
 
       default:
-        throw new Error(`不支持的AI服务类型: ${service}`);
+        throw new Error(`不支持的AI服務類型: ${service}`);
     }
   } catch (error) {
-    console.error(`AI服务调用失败 [${service}]:`, error);
+    console.error(`AI服務調用失敗 [${service}]:`, error);
     return {
       success: false,
       error: error.message,
@@ -352,26 +352,26 @@ async function dispatchAI(request: AIDispatchRequest): Promise<AIDispatchRespons
 }
 
 /**
- * 处理请求
+ * 處理請求
  */
 async function handleRequest(req: Request): Promise<Response> {
   try {
     const request: AIDispatchRequest = await req.json();
 
-    // 验证请求
+    // 驗證請求
     if (!request.service || !request.input) {
       return new Response(
-        JSON.stringify({ error: '缺少必要参数: service, input' }),
+        JSON.stringify({ error: '缺少必要參數: service, input' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // 创建Supabase客户端(用于缓存)
+    // 創建Supabase客戶端(用於緩存)
     const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // 检查缓存
+    // 檢查緩存
     let cached = false;
     let cacheData = null;
     const inputStr = typeof request.input === 'string' ? request.input : JSON.stringify(request.input);
@@ -396,15 +396,15 @@ async function handleRequest(req: Request): Promise<Response> {
       );
     }
 
-    // 调用AI服务
+    // 調用AI服務
     const result = await dispatchAI(request);
 
-    // 写入缓存(成功的非流式响应)
+    // 寫入緩存(成功的非流式響應)
     if (result.success && request.cache !== false && !request.options?.stream) {
       await writeCache(supabase, queryHash, request.service, result.data);
     }
 
-    // 记录调用日志
+    // 記錄調用日誌
     await supabase.from('ai_call_logs').insert({
       service_type: request.service,
       input_preview: inputStr.substring(0, 200),
@@ -420,7 +420,7 @@ async function handleRequest(req: Request): Promise<Response> {
     );
 
   } catch (error) {
-    console.error('AI调度错误:', error);
+    console.error('AI調度錯誤:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

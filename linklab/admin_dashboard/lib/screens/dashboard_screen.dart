@@ -27,7 +27,7 @@ class _DashboardContent extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('数据看板'),
+        title: const Text('數據看板'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -78,7 +78,7 @@ class _DashboardContent extends StatelessWidget {
                         DashboardLoadRequested(),
                       );
                     },
-                    child: const Text('重试'),
+                    child: const Text('重試'),
                   ),
                 ],
               ),
@@ -96,57 +96,57 @@ class _DashboardContent extends StatelessWidget {
 
     final cards = [
       MetricCard(
-        title: '日活跃用户 (DAU)',
+        title: '日活躍用戶 (DAU)',
         value: metrics.dau.toString(),
         change: metrics.dauChange,
         icon: Icons.people_outline,
         color: AppTheme.primaryColor,
       ),
       MetricCard(
-        title: '月活跃用户 (MAU)',
+        title: '月活躍用戶 (MAU)',
         value: metrics.mau.toString(),
         change: metrics.mauChange,
         icon: Icons.groups_outlined,
         color: AppTheme.infoColor,
       ),
       MetricCard(
-        title: '求助响应率',
+        title: '求助響應率',
         value: '${metrics.responseRate.toStringAsFixed(1)}%',
         change: metrics.responseRateChange,
         icon: Icons.speed_outlined,
         color: AppTheme.successColor,
       ),
       MetricCard(
-        title: '志愿者留存率',
+        title: '志願者留存率',
         value: '${metrics.volunteerRetention.toStringAsFixed(1)}%',
         change: metrics.volunteerRetentionChange,
         icon: Icons.favorite_outline,
         color: AppTheme.warningColor,
       ),
       MetricCard(
-        title: 'AI解决率',
+        title: 'AI解決率',
         value: '${metrics.aiResolutionRate.toStringAsFixed(1)}%',
         change: metrics.aiResolutionRateChange,
         icon: Icons.smart_toy_outlined,
         color: AppTheme.primaryDark,
       ),
       MetricCard(
-        title: '平均通话时长',
-        value: '${metrics.avgCallDuration.toStringAsFixed(1)}分钟',
+        title: '平均通話時長',
+        value: '${metrics.avgCallDuration.toStringAsFixed(1)}分鐘',
         change: metrics.avgCallDurationChange,
         icon: Icons.timer_outlined,
         color: AppTheme.infoColor,
       ),
       MetricCard(
-        title: '用户满意度',
+        title: '用戶滿意度',
         value: metrics.satisfaction.toStringAsFixed(1),
         change: metrics.satisfactionChange,
-        subtitle: '满分5分',
+        subtitle: '滿分5分',
         icon: Icons.star_outline,
         color: AppTheme.warningColor,
       ),
       MetricCard(
-        title: '总通话数',
+        title: '總通話數',
         value: metrics.totalCalls.toString(),
         change: metrics.totalCallsChange.toDouble(),
         icon: Icons.call_outlined,
@@ -191,21 +191,21 @@ class _DashboardContent extends StatelessWidget {
           if (trendData != null) ...[
             LineChartWidget(
               data: trendData.dau,
-              title: 'DAU趋势（最近7天）',
+              title: 'DAU趨勢（最近7天）',
               lineColor: AppTheme.primaryColor,
             ),
             const SizedBox(height: 16),
             LineChartWidget(
               data: trendData.calls,
-              title: '通话量趋势（最近7天）',
+              title: '通話量趨勢（最近7天）',
               lineColor: AppTheme.successColor,
             ),
           ],
           if (distribution != null) ...[
             const SizedBox(height: 16),
-            PieChartWidget(data: distribution.userType, title: '用户类型分布'),
+            PieChartWidget(data: distribution.userType, title: '用戶類型分佈'),
             const SizedBox(height: 16),
-            PieChartWidget(data: distribution.disabilityType, title: '残障类型分布'),
+            PieChartWidget(data: distribution.disabilityType, title: '殘障類型分佈'),
           ],
         ],
       );
@@ -220,7 +220,7 @@ class _DashboardContent extends StatelessWidget {
               Expanded(
                 child: LineChartWidget(
                   data: trendData.dau,
-                  title: 'DAU趋势（最近7天）',
+                  title: 'DAU趨勢（最近7天）',
                   lineColor: AppTheme.primaryColor,
                 ),
               ),
@@ -228,7 +228,7 @@ class _DashboardContent extends StatelessWidget {
               Expanded(
                 child: LineChartWidget(
                   data: trendData.calls,
-                  title: '通话量趋势（最近7天）',
+                  title: '通話量趨勢（最近7天）',
                   lineColor: AppTheme.successColor,
                 ),
               ),
@@ -243,21 +243,21 @@ class _DashboardContent extends StatelessWidget {
               Expanded(
                 child: PieChartWidget(
                   data: distribution.userType,
-                  title: '用户类型分布',
+                  title: '用戶類型分佈',
                 ),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: PieChartWidget(
                   data: distribution.disabilityType,
-                  title: '残障类型分布',
+                  title: '殘障類型分佈',
                 ),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: PieChartWidget(
                   data: distribution.skillDistribution,
-                  title: '志愿者技能分布',
+                  title: '志願者技能分佈',
                 ),
               ),
             ],

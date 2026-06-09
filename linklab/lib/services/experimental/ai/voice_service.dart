@@ -3,8 +3,8 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'ai_service.dart';
 
-/// 语音服务
-/// 负责TTS语音输出和ASR语音输入
+/// 語音服務
+/// 負責TTS語音輸出和ASR語音輸入
 class VoiceService {
   // TTS
   final FlutterTts _flutterTts = FlutterTts();
@@ -15,7 +15,7 @@ class VoiceService {
   bool _asrInitialized = false;
   bool _isListening = false;
 
-  // 回调
+  // 回調
   Function(String)? _onSpeechResult;
   Function()? _onSpeechStart;
   Function()? _onSpeechEnd;
@@ -32,7 +32,7 @@ class VoiceService {
     if (_ttsInitialized) return;
 
     await _flutterTts.setLanguage('zh-CN');
-    await _flutterTts.setSpeechRate(0.5); // 语速适中
+    await _flutterTts.setSpeechRate(0.5); // 語速適中
     await _flutterTts.setVolume(1.0);
     await _flutterTts.setPitch(1.0);
 
@@ -62,42 +62,42 @@ class VoiceService {
 
   // ==================== TTS 方法 ====================
 
-  /// 语音播报
+  /// 語音播報
   Future<void> speak(String text) async {
     if (!_ttsInitialized) await _initTTS();
 
-    // 停止当前播报
+    // 停止當前播報
     await stopSpeaking();
 
     await _flutterTts.speak(text);
   }
 
-  /// 停止播报
+  /// 停止播報
   Future<void> stopSpeaking() async {
     await _flutterTts.stop();
   }
 
-  /// 暂停播报
+  /// 暫停播報
   Future<void> pauseSpeaking() async {
     await _flutterTts.pause();
   }
 
-  /// 设置语速
+  /// 設置語速
   Future<void> setSpeechRate(double rate) async {
     await _flutterTts.setSpeechRate(rate.clamp(0.1, 1.0));
   }
 
-  /// 设置音量
+  /// 設置音量
   Future<void> setVolume(double volume) async {
     await _flutterTts.setVolume(volume.clamp(0.0, 1.0));
   }
 
-  /// 设置语言
+  /// 設置語言
   Future<void> setLanguage(String language) async {
     await _flutterTts.setLanguage(language);
   }
 
-  /// 获取支持的语言
+  /// 獲取支持的語言
   Future<List<String>> getLanguages() async {
     final languages = await _flutterTts.getLanguages;
     return languages.cast<String>();
@@ -105,7 +105,7 @@ class VoiceService {
 
   // ==================== ASR 方法 ====================
 
-  /// 设置ASR回调
+  /// 設置ASR回調
   void setASRCallbacks({
     Function(String)? onResult,
     Function()? onStart,
@@ -118,7 +118,7 @@ class VoiceService {
     _onSpeechError = onError;
   }
 
-  /// 开始语音识别
+  /// 開始語音識別
   Future<bool> startListening({
     String localeId = 'zh_CN',
     Duration listenDuration = const Duration(seconds: 30),
@@ -129,7 +129,7 @@ class VoiceService {
     }
 
     if (!_asrInitialized) {
-      _onSpeechError?.call('语音识别初始化失败');
+      _onSpeechError?.call('語音識別初始化失敗');
       return false;
     }
 
@@ -153,7 +153,7 @@ class VoiceService {
     );
   }
 
-  /// 停止语音识别
+  /// 停止語音識別
   Future<void> stopListening() async {
     if (!_isListening) return;
 
@@ -161,18 +161,18 @@ class VoiceService {
     await _speechToText.stop();
   }
 
-  /// 是否正在监听
+  /// 是否正在監聽
   bool get isListening => _isListening;
 
   /// ASR是否可用
   bool get isASRAvailable => _asrInitialized;
 
-  // ==================== 语音唤醒（模拟）====================
+  // ==================== 語音喚醒（模擬）====================
 
-  /// 唤醒词检测器
+  /// 喚醒詞檢測器
   VoiceWakeDetector? _wakeDetector;
 
-  /// 启动语音唤醒
+  /// 啓動語音喚醒
   void startWakeWordDetection({
     required List<String> wakeWords,
     required VoidCallback onWake,
@@ -184,14 +184,14 @@ class VoiceService {
     _wakeDetector?.start();
   }
 
-  /// 停止语音唤醒
+  /// 停止語音喚醒
   void stopWakeWordDetection() {
     _wakeDetector?.stop();
     _wakeDetector = null;
   }
 }
 
-/// 语音唤醒检测器（简化实现）
+/// 語音喚醒檢測器（簡化實現）
 class VoiceWakeDetector {
   final List<String> wakeWords;
   final VoidCallback onWake;
@@ -204,8 +204,8 @@ class VoiceWakeDetector {
 
   void start() {
     _isRunning = true;
-    // 实际项目中需要集成专门的唤醒词SDK
-    // 如：科大讯飞语音唤醒、百度语音唤醒等
+    // 實際項目中需要集成專門的喚醒詞SDK
+    // 如：科大訊飛語音喚醒、百度語音喚醒等
   }
 
   void stop() {
@@ -227,7 +227,7 @@ class VoiceWakeDetector {
 
 typedef VoidCallback = void Function();
 
-/// TTS服务（包装为AIService接口）
+/// TTS服務（包裝爲AIService接口）
 class TTSService implements AIService {
   final VoiceService _voiceService = VoiceService();
 
@@ -248,7 +248,7 @@ class TTSService implements AIService {
     await _voiceService.speak(input);
 
     return AIResponse(
-      text: '语音播报完成',
+      text: '語音播報完成',
       intent: IntentType.generalChat,
       confidence: 1.0,
     );

@@ -200,7 +200,7 @@ class ContentBloc extends Bloc<ContentEvent, ContentState> {
         hasMore: stories.length == event.pageSize,
       ));
     } catch (e) {
-      emit(ContentError('加载故事失败: ${e.toString()}'));
+      emit(ContentError('加載故事失敗: ${e.toString()}'));
     }
   }
 
@@ -223,7 +223,7 @@ class ContentBloc extends Bloc<ContentEvent, ContentState> {
         hasMore: contents.length == event.pageSize,
       ));
     } catch (e) {
-      emit(ContentError('加载社群内容失败: ${e.toString()}'));
+      emit(ContentError('加載社羣內容失敗: ${e.toString()}'));
     }
   }
 
@@ -234,7 +234,7 @@ class ContentBloc extends Bloc<ContentEvent, ContentState> {
     final previousState = state;
     try {
       await _supabaseService.updateStoryStatus(event.storyId, event.status);
-      emit(ContentActionSuccess('故事状态已更新'));
+      emit(ContentActionSuccess('故事狀態已更新'));
 
       if (previousState is ContentStoriesLoaded) {
         add(ContentLoadStoriesRequested(
@@ -243,7 +243,7 @@ class ContentBloc extends Bloc<ContentEvent, ContentState> {
         ));
       }
     } catch (e) {
-      emit(ContentError('更新故事状态失败: ${e.toString()}'));
+      emit(ContentError('更新故事狀態失敗: ${e.toString()}'));
     }
   }
 
@@ -254,7 +254,7 @@ class ContentBloc extends Bloc<ContentEvent, ContentState> {
     final previousState = state;
     try {
       await _supabaseService.setStoryFeatured(event.storyId, event.isFeatured);
-      emit(ContentActionSuccess(event.isFeatured ? '已设为精选' : '已取消精选'));
+      emit(ContentActionSuccess(event.isFeatured ? '已設爲精選' : '已取消精選'));
 
       if (previousState is ContentStoriesLoaded) {
         add(ContentLoadStoriesRequested(
@@ -263,7 +263,7 @@ class ContentBloc extends Bloc<ContentEvent, ContentState> {
         ));
       }
     } catch (e) {
-      emit(ContentError('设置精选失败: ${e.toString()}'));
+      emit(ContentError('設置精選失敗: ${e.toString()}'));
     }
   }
 
@@ -274,7 +274,7 @@ class ContentBloc extends Bloc<ContentEvent, ContentState> {
     final previousState = state;
     try {
       await _supabaseService.updateContentStatus(event.contentId, event.status);
-      emit(ContentActionSuccess('内容状态已更新'));
+      emit(ContentActionSuccess('內容狀態已更新'));
 
       if (previousState is ContentCommunityLoaded) {
         add(ContentLoadCommunityRequested(
@@ -283,7 +283,7 @@ class ContentBloc extends Bloc<ContentEvent, ContentState> {
         ));
       }
     } catch (e) {
-      emit(ContentError('更新内容状态失败: ${e.toString()}'));
+      emit(ContentError('更新內容狀態失敗: ${e.toString()}'));
     }
   }
 }

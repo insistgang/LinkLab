@@ -16,7 +16,7 @@ import 'test_harness.dart';
 void main() {
   const hospitalRequest = DemoMatchRequest(
     requestId: 'call_flow_hospital',
-    queryText: '我在医院找不到科室，需要真人帮忙',
+    queryText: '我在醫院找不到科室，需要真人幫忙',
     requestType: 'hospital_navigation',
     urgencyLevel: 'medium',
   );
@@ -42,7 +42,7 @@ void main() {
     return container;
   }
 
-  test('Demo Call 从 F9 active volunteer 读取已接单志愿者', () async {
+  test('Demo Call 從 F9 active volunteer 讀取已接單志願者', () async {
     await prepareSignedInDemoEnvironment(clearHelpHistory: true);
     final container = await createConnectedMatchingContainer();
     final matchingState = container.read(demoMatchingFlowProvider);
@@ -68,7 +68,7 @@ void main() {
     );
   });
 
-  test('active volunteer 缺失时使用林同学 fallback', () async {
+  test('active volunteer 缺失時使用林同學 fallback', () async {
     await prepareSignedInDemoEnvironment(clearHelpHistory: true);
     final container = ProviderContainer();
     addTearDown(container.dispose);
@@ -78,12 +78,12 @@ void main() {
         .start(autoConnect: false);
 
     final state = container.read(demoCallFlowProvider);
-    expect(state.volunteer.nickname, '林同学');
+    expect(state.volunteer.nickname, '林同學');
     expect(state.volunteer.isFallback, isTrue);
     expect(state.phase, DemoCallUiPhase.connecting);
   });
 
-  test('connecting 可以进入 connected，静音和免提状态可切换', () async {
+  test('connecting 可以進入 connected，靜音和免提狀態可切換', () async {
     await prepareSignedInDemoEnvironment(clearHelpHistory: true);
     final container = await createConnectedMatchingContainer();
 
@@ -100,7 +100,7 @@ void main() {
     expect(state.isSpeakerOn, isFalse);
   });
 
-  test('正常结束通话后 help_request 进入 completed，重复结束不写坏状态', () async {
+  test('正常結束通話後 help_request 進入 completed，重複結束不寫壞狀態', () async {
     await prepareSignedInDemoEnvironment(clearHelpHistory: true);
     final container = await createConnectedMatchingContainer();
 
@@ -118,7 +118,7 @@ void main() {
     );
   });
 
-  test('模拟掉线后恢复，help_request 保持 connected', () async {
+  test('模擬掉線後恢復，help_request 保持 connected', () async {
     await prepareSignedInDemoEnvironment(clearHelpHistory: true);
     final container = await createConnectedMatchingContainer();
 
@@ -143,7 +143,7 @@ void main() {
     );
   });
 
-  test('模拟重连失败后 help_request 回到 matching', () async {
+  test('模擬重連失敗後 help_request 回到 matching', () async {
     await prepareSignedInDemoEnvironment(clearHelpHistory: true);
     final container = await createConnectedMatchingContainer();
 
@@ -161,7 +161,7 @@ void main() {
     );
   });
 
-  test('reconnecting 时结束通话不崩溃，并完成 help_request', () async {
+  test('reconnecting 時結束通話不崩潰，並完成 help_request', () async {
     await prepareSignedInDemoEnvironment(clearHelpHistory: true);
     final container = await createConnectedMatchingContainer();
 
@@ -179,7 +179,7 @@ void main() {
     );
   });
 
-  test('竞赛版默认不初始化真实 WebRTC 或外部服务', () async {
+  test('競賽版默認不初始化真實 WebRTC 或外部服務', () async {
     await prepareSignedInDemoEnvironment(clearHelpHistory: true);
 
     expect(AppConfig.demoMode, isTrue);

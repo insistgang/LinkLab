@@ -8,8 +8,8 @@ import '../../services/webrtc_service.dart';
 import 'async_help_request_screen.dart';
 import 'call_screen.dart';
 
-/// 匹配等待页面
-/// 显示匹配动画、预估时间和匹配状态
+/// 匹配等待頁面
+/// 顯示匹配動畫、預估時間和匹配狀態
 class MatchingScreen extends StatefulWidget {
   final String seekerId;
   final String urgency;
@@ -66,7 +66,7 @@ class _MatchingScreenState extends State<MatchingScreen>
       duration: const Duration(seconds: 2),
     )..repeat();
 
-    // 监听匹配状态
+    // 監聽匹配狀態
     _matchingService.matchingStateStream.listen(_onMatchingStateChanged);
     _matchingService.matchedVolunteerStream.listen(_onVolunteerMatched);
   }
@@ -94,7 +94,7 @@ class _MatchingScreenState extends State<MatchingScreen>
 
   void _onVolunteerMatched(MatchedVolunteer? volunteer) {
     if (volunteer != null && mounted) {
-      // 志愿者已匹配，准备进入通话
+      // 志願者已匹配，準備進入通話
     }
   }
 
@@ -116,7 +116,7 @@ class _MatchingScreenState extends State<MatchingScreen>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('匹配失败: $e')),
+          SnackBar(content: Text('匹配失敗: $e')),
         );
       }
     }
@@ -152,8 +152,8 @@ class _MatchingScreenState extends State<MatchingScreen>
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
-        title: const Text('当前志愿者繁忙'),
-        content: const Text('是否转为异步留言？志愿者将在空闲时回复您。'),
+        title: const Text('當前志願者繁忙'),
+        content: const Text('是否轉爲異步留言？志願者將在空閒時回覆您。'),
         actions: [
           TextButton(
             onPressed: () {
@@ -171,13 +171,13 @@ class _MatchingScreenState extends State<MatchingScreen>
                   builder: (_) => AsyncHelpRequestScreen(
                     initialTaskType: widget.helpType,
                     initialDescription:
-                        '当前实时匹配暂无响应，我想先留言等待志愿者稍后回复。',
+                        '當前實時匹配暫無響應，我想先留言等待志願者稍後回覆。',
                     replaceWithSeekerCenterOnSubmit: true,
                   ),
                 ),
               );
             },
-            child: const Text('转为留言'),
+            child: const Text('轉爲留言'),
           ),
         ],
       ),
@@ -189,8 +189,8 @@ class _MatchingScreenState extends State<MatchingScreen>
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
-        title: const Text('暂无可用志愿者'),
-        content: const Text('当前附近没有在线志愿者，是否转为异步留言？'),
+        title: const Text('暫無可用志願者'),
+        content: const Text('當前附近沒有在線志願者，是否轉爲異步留言？'),
         actions: [
           TextButton(
             onPressed: () {
@@ -208,13 +208,13 @@ class _MatchingScreenState extends State<MatchingScreen>
                   builder: (_) => AsyncHelpRequestScreen(
                     initialTaskType: widget.helpType,
                     initialDescription:
-                        '当前附近暂无在线志愿者，请帮我转成异步留言。',
+                        '當前附近暫無在線志願者，請幫我轉成異步留言。',
                     replaceWithSeekerCenterOnSubmit: true,
                   ),
                 ),
               );
             },
-            child: const Text('转为留言'),
+            child: const Text('轉爲留言'),
           ),
         ],
       ),
@@ -228,22 +228,22 @@ class _MatchingScreenState extends State<MatchingScreen>
   String get _statusText {
     switch (_currentState) {
       case MatchingState.searching:
-        return '正在搜索志愿者...';
+        return '正在搜索志願者...';
       case MatchingState.waitingResponse:
-        return '已推送至 $_matchedVolunteerCount 位志愿者';
+        return '已推送至 $_matchedVolunteerCount 位志願者';
       case MatchingState.expandingRange:
-        return '扩大搜索范围...';
+        return '擴大搜索範圍...';
       case MatchingState.convertingToAsync:
-        return '转为异步留言...';
+        return '轉爲異步留言...';
       default:
         return '正在匹配...';
     }
   }
 
   String get _estimatedTime {
-    if (_elapsedSeconds < 10) return '预计等待时间: 10-20秒';
-    if (_elapsedSeconds < 30) return '预计等待时间: 5-15秒';
-    return '正在扩大搜索范围...';
+    if (_elapsedSeconds < 10) return '預計等待時間: 10-20秒';
+    if (_elapsedSeconds < 30) return '預計等待時間: 5-15秒';
+    return '正在擴大搜索範圍...';
   }
 
   @override
@@ -264,7 +264,7 @@ class _MatchingScreenState extends State<MatchingScreen>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Spacer(),
-            // 脉冲动画
+            // 脈衝動畫
             AnimatedBuilder(
               animation: _pulseAnimation,
               builder: (context, child) {
@@ -294,7 +294,7 @@ class _MatchingScreenState extends State<MatchingScreen>
               },
             ),
             const SizedBox(height: 40),
-            // 状态文字
+            // 狀態文字
             Text(
               _statusText,
               style: const TextStyle(
@@ -304,7 +304,7 @@ class _MatchingScreenState extends State<MatchingScreen>
               ),
             ),
             const SizedBox(height: 16),
-            // 预计时间
+            // 預計時間
             Text(
               _estimatedTime,
               style: TextStyle(
@@ -313,7 +313,7 @@ class _MatchingScreenState extends State<MatchingScreen>
               ),
             ),
             const SizedBox(height: 8),
-            // 已等待时间
+            // 已等待時間
             Text(
               '已等待: ${_elapsedSeconds}秒',
               style: TextStyle(
@@ -322,7 +322,7 @@ class _MatchingScreenState extends State<MatchingScreen>
               ),
             ),
             const Spacer(),
-            // 取消按钮
+            // 取消按鈕
             Padding(
               padding: const EdgeInsets.all(24),
               child: ElevatedButton.icon(

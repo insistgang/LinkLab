@@ -511,7 +511,7 @@ class _DemoStageHeader extends StatelessWidget {
           Semantics(
             button: true,
             label: '返回',
-            hint: '双击返回上一页',
+            hint: '雙擊返回上一頁',
             child: InkWell(
               onTap: onBackPressed ?? () => Navigator.of(context).pop(),
               borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
@@ -604,19 +604,19 @@ class _DemoStageStatusStrip extends StatelessWidget {
           LinkableSvgIcon(
             icon: LinkableIconName.weakSignal,
             size: 18,
-            semanticLabel: '网络信号',
+            semanticLabel: '網絡信號',
           ),
           SizedBox(width: 4),
           LinkableSvgIcon(
             icon: LinkableIconName.weakSignal,
             size: 18,
-            semanticLabel: '无线网络',
+            semanticLabel: '無線網絡',
           ),
           SizedBox(width: 4),
           LinkableSvgIcon(
             icon: LinkableIconName.completed,
             size: 20,
-            semanticLabel: '电量充足',
+            semanticLabel: '電量充足',
           ),
         ],
       ),
@@ -830,12 +830,12 @@ class _ThemeModeButton extends StatelessWidget {
       builder: (context, _) {
         final isDayMode = session.isDayStageMode;
         final icon = isDayMode ? Icons.dark_mode_outlined : Icons.light_mode;
-        final label = isDayMode ? '切换到深夜模式' : '切换到日间模式';
+        final label = isDayMode ? '切換到深夜模式' : '切換到日間模式';
 
         return Semantics(
           button: true,
           label: label,
-          hint: '双击切换当前界面配色模式',
+          hint: '雙擊切換當前界面配色模式',
           child: InkWell(
             onTap: () {
               session.toggleStageMode();

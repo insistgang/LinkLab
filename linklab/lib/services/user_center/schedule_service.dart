@@ -4,8 +4,8 @@ import '../../core/utils/logger.dart';
 import '../../models/schedule_model.dart';
 import 'volunteer_demo_store.dart';
 
-/// 排班服务 (F23)
-/// 管理志愿者的可用时间和在线状态
+/// 排班服務 (F23)
+/// 管理志願者的可用時間和在線狀態
 class ScheduleService {
   ScheduleService({
     SupabaseClient? supabase,
@@ -26,13 +26,13 @@ class ScheduleService {
     return _supabaseClient!;
   }
 
-  /// 获取志愿者的排班设置
+  /// 獲取志願者的排班設置
   Future<ScheduleModel> getSchedule(String volunteerId) async {
     if (!_hasSupabase) {
       try {
         return await _demoStore.getSchedule(volunteerId);
       } catch (e) {
-        AppLogger.error('获取本地排班设置失败', e);
+        AppLogger.error('獲取本地排班設置失敗', e);
         return ScheduleModel(
           userId: volunteerId,
           weeklySchedule: ScheduleModel.defaultSchedule,
@@ -60,7 +60,7 @@ class ScheduleService {
             : null,
       );
     } catch (e) {
-      AppLogger.error('获取排班设置失败', e);
+      AppLogger.error('獲取排班設置失敗', e);
       return ScheduleModel(
         userId: volunteerId,
         weeklySchedule: ScheduleModel.defaultSchedule,
@@ -68,7 +68,7 @@ class ScheduleService {
     }
   }
 
-  /// 解析周排班数据
+  /// 解析周排班數據
   Map<String, List<TimeSlot>> _parseWeeklySchedule(Map<String, dynamic>? data) {
     if (data == null) return ScheduleModel.defaultSchedule;
 
@@ -96,7 +96,7 @@ class ScheduleService {
     return result;
   }
 
-  /// 更新排班设置
+  /// 更新排班設置
   Future<bool> updateSchedule(
     String volunteerId,
     Map<String, List<TimeSlot>> weeklySchedule,
@@ -112,13 +112,13 @@ class ScheduleService {
         );
         return true;
       } catch (e) {
-        AppLogger.error('更新本地排班设置失败', e);
+        AppLogger.error('更新本地排班設置失敗', e);
         return false;
       }
     }
 
     try {
-      // 转换为JSON格式
+      // 轉換爲JSON格式
       final scheduleData = <String, List<Map<String, String>>>{};
       weeklySchedule.forEach((day, slots) {
         scheduleData[day] = slots
@@ -134,22 +134,22 @@ class ScheduleService {
           })
           .eq('user_id', volunteerId);
 
-      AppLogger.info('更新排班设置成功: $volunteerId');
+      AppLogger.info('更新排班設置成功: $volunteerId');
       return true;
     } catch (e) {
-      AppLogger.error('更新排班设置失败', e);
+      AppLogger.error('更新排班設置失敗', e);
       return false;
     }
   }
 
-  /// 更新单日排班
+  /// 更新單日排班
   Future<bool> updateDaySchedule(
     String volunteerId,
     String day,
     List<TimeSlot> slots,
   ) async {
     try {
-      // 获取当前排班
+      // 獲取當前排班
       final currentSchedule = await getSchedule(volunteerId);
 
       // 更新指定日期
@@ -160,12 +160,12 @@ class ScheduleService {
 
       return await updateSchedule(volunteerId, updatedSchedule);
     } catch (e) {
-      AppLogger.error('更新单日排班失败', e);
+      AppLogger.error('更新單日排班失敗', e);
       return false;
     }
   }
 
-  /// 添加时间段
+  /// 添加時間段
   Future<bool> addTimeSlot(
     String volunteerId,
     String day,
@@ -177,24 +177,24 @@ class ScheduleService {
         currentSchedule.weeklySchedule[day] ?? [],
       );
 
-      // 检查时间冲突
+      // 檢查時間衝突
       if (_hasTimeConflict(currentSlots, newSlot)) {
-        AppLogger.warning('时间段冲突: $day ${newSlot.displayText}');
+        AppLogger.warning('時間段衝突: $day ${newSlot.displayText}');
         return false;
       }
 
       currentSlots.add(newSlot);
-      // 按开始时间排序
+      // 按開始時間排序
       currentSlots.sort((a, b) => a.start.compareTo(b.start));
 
       return await updateDaySchedule(volunteerId, day, currentSlots);
     } catch (e) {
-      AppLogger.error('添加时间段失败', e);
+      AppLogger.error('添加時間段失敗', e);
       return false;
     }
   }
 
-  /// 移除时间段
+  /// 移除時間段
   Future<bool> removeTimeSlot(
     String volunteerId,
     String day,
@@ -213,12 +213,12 @@ class ScheduleService {
 
       return false;
     } catch (e) {
-      AppLogger.error('移除时间段失败', e);
+      AppLogger.error('移除時間段失敗', e);
       return false;
     }
   }
 
-  /// 检查时间冲突
+  /// 檢查時間衝突
   bool _hasTimeConflict(List<TimeSlot> existingSlots, TimeSlot newSlot) {
     final newStart = _timeToMinutes(newSlot.start);
     final newEnd = _timeToMinutes(newSlot.end);
@@ -227,7 +227,7 @@ class ScheduleService {
       final start = _timeToMinutes(slot.start);
       final end = _timeToMinutes(slot.end);
 
-      // 检查是否有重叠
+      // 檢查是否有重疊
       if ((newStart >= start && newStart < end) ||
           (newEnd > start && newEnd <= end) ||
           (newStart <= start && newEnd >= end)) {
@@ -238,29 +238,29 @@ class ScheduleService {
     return false;
   }
 
-  /// 时间转换为分钟数
+  /// 時間轉換爲分鐘數
   int _timeToMinutes(String time) {
     final parts = time.split(':');
     return int.parse(parts[0]) * 60 + int.parse(parts[1]);
   }
 
-  /// 检查是否在线（兼容UI调用）
+  /// 檢查是否在線（兼容UI調用）
   Future<bool> isOnline(String volunteerId) async {
     final schedule = await getSchedule(volunteerId);
     return schedule.isOnline;
   }
 
-  /// 设置在线（兼容UI调用）
+  /// 設置在線（兼容UI調用）
   Future<bool> goOnline(String volunteerId) async {
     return setOnlineStatus(volunteerId, true, status: OnlineStatus.online);
   }
 
-  /// 设置离线（兼容UI调用）
+  /// 設置離線（兼容UI調用）
   Future<bool> goOffline(String volunteerId) async {
     return setOnlineStatus(volunteerId, false, status: OnlineStatus.offline);
   }
 
-  /// 设置在线状态
+  /// 設置在線狀態
   Future<bool> setOnlineStatus(
     String volunteerId,
     bool isOnline, {
@@ -279,7 +279,7 @@ class ScheduleService {
         );
         return true;
       } catch (e) {
-        AppLogger.error('设置本地在线状态失败', e);
+        AppLogger.error('設置本地在線狀態失敗', e);
         return false;
       }
     }
@@ -294,15 +294,15 @@ class ScheduleService {
           })
           .eq('user_id', volunteerId);
 
-      AppLogger.info('更新在线状态: $volunteerId -> $isOnline');
+      AppLogger.info('更新在線狀態: $volunteerId -> $isOnline');
       return true;
     } catch (e) {
-      AppLogger.error('设置在线状态失败', e);
+      AppLogger.error('設置在線狀態失敗', e);
       return false;
     }
   }
 
-  /// 更新心跳（保持在线状态）
+  /// 更新心跳（保持在線狀態）
   Future<void> updateHeartbeat(String volunteerId) async {
     if (!_hasSupabase) {
       try {
@@ -314,7 +314,7 @@ class ScheduleService {
           ),
         );
       } catch (e) {
-        AppLogger.error('更新本地心跳失败', e);
+        AppLogger.error('更新本地心跳失敗', e);
       }
       return;
     }
@@ -327,19 +327,19 @@ class ScheduleService {
           })
           .eq('user_id', volunteerId);
     } catch (e) {
-      AppLogger.error('更新心跳失败', e);
+      AppLogger.error('更新心跳失敗', e);
     }
   }
 
-  /// 检查当前是否可用
+  /// 檢查當前是否可用
   Future<bool> isAvailable(String volunteerId) async {
     try {
       final schedule = await getSchedule(volunteerId);
 
-      // 检查在线状态
+      // 檢查在線狀態
       if (!schedule.isOnline) return false;
 
-      // 检查当前时间是否在排班内
+      // 檢查當前時間是否在排班內
       final now = DateTime.now();
       final dayName = _getDayName(now.weekday);
       final slots = schedule.weeklySchedule[dayName] ?? [];
@@ -354,26 +354,26 @@ class ScheduleService {
 
       return false;
     } catch (e) {
-      AppLogger.error('检查可用性失败', e);
+      AppLogger.error('檢查可用性失敗', e);
       return false;
     }
   }
 
-  /// 获取下一个可用时段
+  /// 獲取下一個可用時段
   Future<TimeSlot?> getNextAvailableSlot(String volunteerId) async {
     try {
       final schedule = await getSchedule(volunteerId);
       final now = DateTime.now();
       final currentTime = TimeOfDay(hour: now.hour, minute: now.minute);
 
-      // 从今天开始查找
+      // 從今天開始查找
       for (int i = 0; i < 7; i++) {
         final checkDate = now.add(Duration(days: i));
         final dayName = _getDayName(checkDate.weekday);
         final slots = schedule.weeklySchedule[dayName] ?? [];
 
         for (final slot in slots) {
-          // 如果是今天，检查时间是否已过
+          // 如果是今天，檢查時間是否已過
           if (i == 0) {
             final slotStart = slot.startTime;
             if (slotStart.hour < currentTime.hour ||
@@ -388,12 +388,12 @@ class ScheduleService {
 
       return null;
     } catch (e) {
-      AppLogger.error('获取下一个可用时段失败', e);
+      AppLogger.error('獲取下一個可用時段失敗', e);
       return null;
     }
   }
 
-  /// 获取今日可用时段
+  /// 獲取今日可用時段
   Future<List<TimeSlot>> getTodaySlots(String volunteerId) async {
     try {
       final schedule = await getSchedule(volunteerId);
@@ -401,12 +401,12 @@ class ScheduleService {
       final dayName = _getDayName(now.weekday);
       return schedule.weeklySchedule[dayName] ?? [];
     } catch (e) {
-      AppLogger.error('获取今日时段失败', e);
+      AppLogger.error('獲取今日時段失敗', e);
       return [];
     }
   }
 
-  /// 获取星期名称
+  /// 獲取星期名稱
   String _getDayName(int weekday) {
     const days = [
       'monday',
@@ -420,12 +420,12 @@ class ScheduleService {
     return days[weekday - 1];
   }
 
-  /// 获取可用性统计
+  /// 獲取可用性統計
   Future<AvailabilityStats> getAvailabilityStats(String volunteerId) async {
     try {
       final schedule = await getSchedule(volunteerId);
 
-      // 计算每周总小时数
+      // 計算每週總小時數
       double totalHoursPerWeek = 0;
       int daysWithSlots = 0;
 
@@ -446,18 +446,18 @@ class ScheduleService {
         isOnline: schedule.isOnline,
       );
     } catch (e) {
-      AppLogger.error('获取可用性统计失败', e);
+      AppLogger.error('獲取可用性統計失敗', e);
       return const AvailabilityStats();
     }
   }
 
-  /// 智能推荐排班
+  /// 智能推薦排班
   List<RecommendedSlot> getRecommendedSlots() {
     return [
       RecommendedSlot(
         day: 'weekday_evening',
-        title: '工作日晚间',
-        description: '周一至周五 19:00-22:00',
+        title: '工作日晚間',
+        description: '週一至週五 19:00-22:00',
         slots: {
           'monday': [const TimeSlot(start: '19:00', end: '22:00')],
           'tuesday': [const TimeSlot(start: '19:00', end: '22:00')],
@@ -470,8 +470,8 @@ class ScheduleService {
       ),
       RecommendedSlot(
         day: 'weekend_day',
-        title: '周末白天',
-        description: '周六日 09:00-18:00',
+        title: '週末白天',
+        description: '週六日 09:00-18:00',
         slots: {
           'monday': [],
           'tuesday': [],
@@ -484,7 +484,7 @@ class ScheduleService {
       ),
       RecommendedSlot(
         day: 'full_week',
-        title: '全周服务',
+        title: '全周服務',
         description: '每天 19:00-22:00',
         slots: {
           'monday': [const TimeSlot(start: '19:00', end: '22:00')],
@@ -499,7 +499,7 @@ class ScheduleService {
     ];
   }
 
-  /// 应用推荐排班
+  /// 應用推薦排班
   Future<bool> applyRecommendedSlot(
     String volunteerId,
     RecommendedSlot recommended,
@@ -508,7 +508,7 @@ class ScheduleService {
   }
 }
 
-/// 可用性统计
+/// 可用性統計
 class AvailabilityStats {
   final double totalHoursPerWeek;
   final int daysWithSlots;
@@ -520,14 +520,14 @@ class AvailabilityStats {
     this.isOnline = false,
   });
 
-  /// 平均每日小时数
+  /// 平均每日小時數
   double get averageHoursPerDay {
     if (daysWithSlots == 0) return 0;
     return totalHoursPerWeek / daysWithSlots;
   }
 }
 
-/// 推荐时段
+/// 推薦時段
 class RecommendedSlot {
   final String day;
   final String title;

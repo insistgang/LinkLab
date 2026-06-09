@@ -1,22 +1,22 @@
-// 应用配置
-// 竞赛 MVP 默认 Demo-first；RealMode 只在显式开启时初始化基础设施。
+// 應用配置
+// 競賽 MVP 默認 Demo-first；RealMode 只在顯式開啓時初始化基礎設施。
 
 import '../core/utils/logger.dart';
 
-/// 应用运行模式
+/// 應用運行模式
 enum AppMode {
-  demo, // 演示模式：使用模拟数据，不依赖网络
-  real, // 真实模式：允许初始化真实基础设施
+  demo, // 演示模式：使用模擬數據，不依賴網絡
+  real, // 真實模式：允許初始化真實基礎設施
 }
 
-/// 应用配置类
+/// 應用配置類
 class AppConfig {
   AppConfig._();
 
   static const String _supabaseUrlEnvKey = 'SUPABASE_URL';
   static const String _supabaseAnonKeyEnvKey = 'SUPABASE_ANON_KEY';
 
-  // 竞赛版：默认锁定 Demo 主线，避免真实配置污染 3 分钟演示。
+  // 競賽版：默認鎖定 Demo 主線，避免真實配置污染 3 分鐘演示。
   static bool get isCompetitionDemoOnly => demoMode;
 
   static AppMode _mode = AppMode.demo;
@@ -25,28 +25,28 @@ class AppConfig {
   static String _supabaseAnonKey = '';
   static bool _supabaseInitialized = false;
 
-  /// 获取当前模式
+  /// 獲取當前模式
   static AppMode get mode => _mode;
 
-  /// Supabase URL，仅来自 .env。
+  /// Supabase URL，僅來自 .env。
   static String get supabaseUrl => _supabaseUrl;
 
-  /// Supabase anon key，仅来自 .env。不要在日志或 UI 中输出。
+  /// Supabase anon key，僅來自 .env。不要在日誌或 UI 中輸出。
   static String get supabaseAnonKey => _supabaseAnonKey;
 
-  /// 只有 URL 与 anon key 都有效，才允许显式 RealMode 初始化。
+  /// 只有 URL 與 anon key 都有效，才允許顯式 RealMode 初始化。
   static bool get hasSupabaseConfig =>
       _isValidSupabaseUrl(_supabaseUrl) &&
       _supabaseAnonKey.isNotEmpty &&
       !_supabaseAnonKey.startsWith('YOUR_');
 
-  /// 是否已经具备初始化 Supabase client 的条件。
+  /// 是否已經具備初始化 Supabase client 的條件。
   static bool get canInitializeSupabase => hasSupabaseConfig;
 
-  /// 本启动流程是否已经成功初始化 Supabase client。
+  /// 本啓動流程是否已經成功初始化 Supabase client。
   static bool get supabaseInitialized => _supabaseInitialized;
 
-  /// 是否处于演示模式。
+  /// 是否處於演示模式。
   static bool get demoMode => _mode == AppMode.demo;
 
   static set demoMode(bool value) {
@@ -57,21 +57,21 @@ class AppConfig {
     }
   }
 
-  /// 是否为演示模式
+  /// 是否爲演示模式
   static bool get isDemoMode => demoMode;
 
-  /// 是否为真实模式
+  /// 是否爲真實模式
   static bool get isRealMode => _mode == AppMode.real;
 
-  /// 是否启用竞赛演示员预置会话。
+  /// 是否啓用競賽演示員預置會話。
   static bool get presenterMode => _presenterMode;
 
-  /// 从 .env 读取运行配置。
+  /// 從 .env 讀取運行配置。
   ///
-  /// 规则：
-  /// - 默认 fallback 到 DemoMode，保障竞赛主线不依赖外部服务。
-  /// - 显式 `preferRealMode: true` 且配置完整时才进入 RealMode。
-  /// - SUPABASE_SERVICE_ROLE_KEY 即使存在也不会读取或使用。
+  /// 規則：
+  /// - 默認 fallback 到 DemoMode，保障競賽主線不依賴外部服務。
+  /// - 顯式 `preferRealMode: true` 且配置完整時才進入 RealMode。
+  /// - SUPABASE_SERVICE_ROLE_KEY 即使存在也不會讀取或使用。
   static void configureFromEnvironment(
     Map<String, String> env, {
     bool preferRealMode = false,
@@ -84,12 +84,12 @@ class AppConfig {
     if (preferRealMode && hasSupabaseConfig) {
       _applyMode(AppMode.real, logChange: false);
       disablePresenterMode();
-      AppLogger.info('RealMode 默认启动：已从 .env 读取 Supabase URL 与 anon key');
+      AppLogger.info('RealMode 默認啓動：已從 .env 讀取 Supabase URL 與 anon key');
       return;
     }
 
     final fallbackReason = hasSupabaseConfig
-        ? '竞赛 MVP 默认锁定 Demo 主线'
+        ? '競賽 MVP 默認鎖定 Demo 主線'
         : '缺少有效的 SUPABASE_URL 或 SUPABASE_ANON_KEY';
     configureDemoFallback(
       reason: fallbackReason,
@@ -97,10 +97,10 @@ class AppConfig {
     );
   }
 
-  /// Phase-1 的真实模式默认配置。
+  /// Phase-1 的真實模式默認配置。
   static void configureRealModeDefaults() {
     if (!hasSupabaseConfig) {
-      configureDemoFallback(reason: 'Supabase 配置不完整，无法进入 RealMode');
+      configureDemoFallback(reason: 'Supabase 配置不完整，無法進入 RealMode');
       return;
     }
 
@@ -108,7 +108,7 @@ class AppConfig {
     disablePresenterMode();
   }
 
-  /// Demo fallback。用于缺少配置或 Supabase 初始化失败。
+  /// Demo fallback。用於缺少配置或 Supabase 初始化失敗。
   static void configureDemoFallback({
     required String reason,
     bool enablePresenterSession = true,
@@ -130,7 +130,7 @@ class AppConfig {
     _supabaseInitialized = false;
   }
 
-  /// 竞赛 Demo 默认配置。保留给测试和手动演示入口显式调用。
+  /// 競賽 Demo 默認配置。保留給測試和手動演示入口顯式調用。
   static void configureCompetitionDemoDefaults({
     bool enablePresenterSession = true,
   }) {
@@ -144,29 +144,29 @@ class AppConfig {
 
   static void enablePresenterMode() {
     _presenterMode = true;
-    AppLogger.info('演示员预置会话已启用');
+    AppLogger.info('演示員預置會話已啓用');
   }
 
   static void disablePresenterMode() {
     _presenterMode = false;
-    AppLogger.info('演示员预置会话已关闭');
+    AppLogger.info('演示員預置會話已關閉');
   }
 
-  /// 兼容旧命名：现在只代表“显式切到 DemoMode”，不再阻止 RealMode 默认启动。
+  /// 兼容舊命名：現在只代表“顯式切到 DemoMode”，不再阻止 RealMode 默認啓動。
   static void lockCompetitionDemoMode() {
     _applyMode(AppMode.demo, logChange: false);
-    AppLogger.info('已切换到 DemoMode');
+    AppLogger.info('已切換到 DemoMode');
   }
 
-  /// 切换到演示模式
+  /// 切換到演示模式
   static void setDemoMode() {
     _applyMode(AppMode.demo);
   }
 
-  /// 切换到真实模式
+  /// 切換到真實模式
   static void setRealMode() {
     if (!hasSupabaseConfig) {
-      configureDemoFallback(reason: '缺少 Supabase 配置，拒绝切换到 RealMode');
+      configureDemoFallback(reason: '缺少 Supabase 配置，拒絕切換到 RealMode');
       return;
     }
 
@@ -174,7 +174,7 @@ class AppConfig {
     disablePresenterMode();
   }
 
-  /// 切换模式
+  /// 切換模式
   static void toggleMode() {
     if (demoMode) {
       setRealMode();
@@ -185,15 +185,15 @@ class AppConfig {
 
   /// Demo fallback 判定。
   ///
-  /// Phase-1 只真实初始化 Supabase client，短信/AI/WebRTC/SOS/真实匹配尚未接入，
-  /// 因此这些能力仍允许走本地 Demo fallback，避免主链路出现死路。
+  /// Phase-1 只真實初始化 Supabase client，短信/AI/WebRTC/SOS/真實匹配尚未接入，
+  /// 因此這些能力仍允許走本地 Demo fallback，避免主鏈路出現死路。
   static bool shouldUseDemoFallback({
     required String feature,
     bool logWhenDisabled = true,
   }) {
     final enabled = demoMode || isRealMode;
     if (!enabled && logWhenDisabled) {
-      AppLogger.warning('$feature 请求 Demo fallback，但当前 fallback 不可用');
+      AppLogger.warning('$feature 請求 Demo fallback，但當前 fallback 不可用');
     }
     return enabled;
   }
@@ -205,9 +205,9 @@ class AppConfig {
     }
 
     if (mode == AppMode.demo) {
-      AppLogger.info('切换到 DemoMode');
+      AppLogger.info('切換到 DemoMode');
     } else {
-      AppLogger.warning('切换到 RealMode');
+      AppLogger.warning('切換到 RealMode');
     }
   }
 
@@ -224,44 +224,44 @@ class AppConfig {
   }
 }
 
-/// 功能开关配置
+/// 功能開關配置
 class FeatureFlags {
-  /// Phase-2 只接入 Supabase Auth 登录态。
+  /// Phase-2 只接入 Supabase Auth 登錄態。
   static bool get enableSupabaseAuth =>
       AppConfig.isRealMode && AppConfig.supabaseInitialized;
 
-  /// Phase-1 不接真实 WebRTC。
+  /// Phase-1 不接真實 WebRTC。
   static bool get enableWebRTC => false;
 
-  /// Phase-1 不接真实匹配引擎。
+  /// Phase-1 不接真實匹配引擎。
   static bool get enableRealMatching => false;
 
-  /// Phase-1 不接真实推送。
+  /// Phase-1 不接真實推送。
   static bool get enablePushNotification => false;
 
-  /// Phase-1 不接真实 AI。
+  /// Phase-1 不接真實 AI。
   static bool get enableRealAI => false;
 
-  /// Phase-3 只接最小真实数据库 CRUD。
+  /// Phase-3 只接最小真實數據庫 CRUD。
   ///
-  /// 范围仅限 profiles / help_requests / volunteer_profiles。匹配、AI、地图、
-  /// WebRTC、SOS 和短信仍保持关闭。
+  /// 範圍僅限 profiles / help_requests / volunteer_profiles。匹配、AI、地圖、
+  /// WebRTC、SOS 和短信仍保持關閉。
   static bool get enableDatabaseSync =>
       AppConfig.isRealMode && AppConfig.supabaseInitialized;
 
-  /// Phase-1 不启用真实位置服务。
+  /// Phase-1 不啓用真實位置服務。
   static bool get enableLocationService => false;
 
-  /// Phase-1 不接真实短信。
+  /// Phase-1 不接真實短信。
   static bool get enableRealSMS => false;
 
-  /// Phase-1 不开放交互式社区入口。
+  /// Phase-1 不開放交互式社區入口。
   static bool get enableCommunity => false;
 
-  /// 首页精选故事卡片。RealMode Phase-1 不加载社区服务。
+  /// 首頁精選故事卡片。RealMode Phase-1 不加載社區服務。
   static bool get enableStaticStoryCards => AppConfig.demoMode;
 
-  /// 安心积分
+  /// 安心積分
   static bool get enablePoints => false;
 
   /// 徽章
@@ -270,32 +270,32 @@ class FeatureFlags {
   /// 排班
   static bool get enableSchedule => false;
 
-  /// 后台入口
+  /// 後臺入口
   static bool get enableAdminDashboard => false;
 
-  /// 通话录音
+  /// 通話錄音
   static bool get enableCallRecording => false;
 }
 
 /// 演示模式配置
 class DemoConfig {
-  /// AI思考延迟（秒）
+  /// AI思考延遲（秒）
   static const int aiThinkingDelay = 2;
 
-  /// 匹配等待时间（秒）
+  /// 匹配等待時間（秒）
   static const int matchingDelay = 4;
 
-  /// 通话自动结束时间（秒）
+  /// 通話自動結束時間（秒）
   static const int callAutoEndDuration = 30;
 
-  /// SOS响应时间（秒）
+  /// SOS響應時間（秒）
   static const int sosResponseDelay = 5;
 
-  /// 是否显示演示水印
+  /// 是否顯示演示水印
   static bool get showDemoWatermark => AppConfig.demoMode;
 }
 
-/// 网络配置
+/// 網絡配置
 class NetworkConfig {
   /// Supabase URL
   static String get supabaseUrl => AppConfig.supabaseUrl;
@@ -303,9 +303,9 @@ class NetworkConfig {
   /// Supabase Anon Key
   static String get supabaseAnonKey => AppConfig.supabaseAnonKey;
 
-  /// 连接超时（秒）
+  /// 連接超時（秒）
   static const int connectionTimeout = 10;
 
-  /// 读取超时（秒）
+  /// 讀取超時（秒）
   static const int readTimeout = 30;
 }

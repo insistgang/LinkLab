@@ -1,105 +1,105 @@
-# 共感 LinkAble 3 分钟竞赛 Demo 脚本
+# 共感 LinkAble 3 分鐘競賽 Demo 腳本
 
-> 最高事实来源：根目录 `AGENTS.md` §8
-> 关键声明：**竞赛 Demo 不依赖外部服务**。脚本必须在无网络、无真实 API key、无真实 Supabase、无真实推送、无真实 WebRTC 的情况下可重复完成。
+> 最高事實來源：根目錄 `AGENTS.md` §8
+> 關鍵聲明：**競賽 Demo 不依賴外部服務**。腳本必須在無網絡、無真實 API key、無真實 Supabase、無真實推送、無真實 WebRTC 的情況下可重複完成。
 
-## 演示前检查
+## 演示前檢查
 
-- 使用竞赛 demo mode 启动 App；默认应通过演示员预置会话进入首页，不在现场消耗时间注册。
-- 设备可以关闭网络或不配置任何真实 API key；OCR、场景描述、匹配、通话、SOS 均使用本地 demo fallback。
-- 默认底部导航只展示 `首页 / AI助手 / 我的`。
-- 不打开 admin、真实 WebRTC、真实 Supabase Dashboard、交互式社群、积分或徽章页面。
+- 使用競賽 demo mode 啓動 App；默認應通過演示員預置會話進入首頁，不在現場消耗時間註冊。
+- 設備可以關閉網絡或不配置任何真實 API key；OCR、場景描述、匹配、通話、SOS 均使用本地 demo fallback。
+- 默認底部導航只展示 `首頁 / AI助手 / 我的`。
+- 不打開 admin、真實 WebRTC、真實 Supabase Dashboard、交互式社羣、積分或徽章頁面。
 
-## 时间轴
+## 時間軸
 
-| 时间 | 必跑动作 | 讲解重点 | 预期可见状态 | 当前代码入口 |
+| 時間 | 必跑動作 | 講解重點 | 預期可見狀態 | 當前代碼入口 |
 |---|---|---|---|---|
-| `0:00-0:20` | 打开 App，停留首页，展示大按钮 | “共感 LinkAble 是 AI Agent 第一响应、人类志愿者兜底的无障碍互助 App。竞赛 Demo 不依赖外部服务。” | 首页立即可见；主按钮“我需要帮助”；底部导航为 `首页 / AI助手 / 我的`；主按钮有读屏语义、高对比和大触摸目标 | `linklab/lib/main.dart`；`linklab/lib/app.dart`；`linklab/lib/screens/home/main_screen.dart`；`linklab/lib/screens/home/home_screen.dart` |
-| `0:20-0:50` | 点击首页大按钮或进入 AI 助手，输入/选择“帮我读药品盒” | “AI 先处理日常求助。本地 demo 数据模拟 OCR，即使没有 OCR key 也能返回稳定结果。” | AI 显示正在分析；返回药品 OCR demo 结果，例如阿莫西林胶囊、规格、用法用量、有效期；页面提供继续提问或转人工入口 | `linklab/lib/screens/ai_chat/demo_ai_chat_screen.dart`；`linklab/lib/services/demo/demo_ai_service.dart`；`linklab/assets/demo_data/ai_responses.json` |
-| `0:50-1:30` | 输入/选择“我面前是什么” | “同一个 AI Agent 入口也承接场景描述，不把 OCR、看图、导航拆成多个复杂入口。” | AI 显示场景描述 demo 响应，例如室内/街道/公园/超市场景；有文字结果、状态变化和继续求助入口 | `linklab/lib/screens/home/ai_chat_screen.dart`；`linklab/lib/screens/ai_chat/demo_ai_chat_screen.dart`；`linklab/lib/services/demo/demo_ai_service.dart` |
-| `1:30-2:10` | 输入复杂需求或点击转人工，进入志愿者匹配，再进入 demo 通话 | “AI 无法处理时 100% 有人类兜底。F9 接单后进入 F11 Demo Call，展示连接中、已接通、结束通话、完成评价；竞赛版不依赖真实 WebRTC。” | 进入匹配页；展示匹配中、Top 5 候选志愿者、匹配成功；自动或手动进入 demo 通话；通话页显示连接中、已接通、通话中、挂断；结束后进入帮助完成评价/结果落点；不建立真实 WebRTC、不录音、不真实推送 | `linklab/lib/demo_flow/demo_matching_flow.dart`；`linklab/lib/screens/call/demo_matching_screen.dart`；`linklab/lib/screens/call/demo_call_screen.dart`；`linklab/lib/screens/call/demo_call_rating_screen.dart`；`linklab/lib/providers/demo_call_flow_provider.dart` |
-| `2:10-2:40` | 返回首页或通过 AI 紧急意图触发 SOS mock 演示 | “SOS 是广播型紧急流程，不走普通匹配公式。Demo 会让评审看到误触撤销、广播和联系人通知状态。” | 进入 SOS 页面；显示 10 秒误触撤销窗口；显示 Mock 广播演示；显示联系人通知状态；可撤销或继续到志愿者响应状态 | `linklab/lib/screens/call/demo_sos_screen.dart`；`linklab/lib/services/demo_call_service.dart` 中 `DemoSOSService`；`linklab/lib/demo_flow/demo_sos_flow.dart` |
-| `2:40-3:00` | 展示未来蓝图 | “当前已演示的是 MVP 六项：F1/F9/F11/F13/F33/F36。V1.0/V2.0 是路线图，不冒充已完成能力。” | 只展示或口播后续计划：真实 WebRTC、真实推送、完整后台、社群、积分等属于后续版本；不进入半成品页面 | `docs/competition_mvp_delivery_plan.md`；首页的 MVP 范围说明；演示 PPT 或静态蓝图页 |
+| `0:00-0:20` | 打開 App，停留首頁，展示大按鈕 | “共感 LinkAble 是 AI Agent 第一響應、人類志願者兜底的無障礙互助 App。競賽 Demo 不依賴外部服務。” | 首頁立即可見；主按鈕“我需要幫助”；底部導航爲 `首頁 / AI助手 / 我的`；主按鈕有讀屏語義、高對比和大觸摸目標 | `linklab/lib/main.dart`；`linklab/lib/app.dart`；`linklab/lib/screens/home/main_screen.dart`；`linklab/lib/screens/home/home_screen.dart` |
+| `0:20-0:50` | 點擊首頁大按鈕或進入 AI 助手，輸入/選擇“幫我讀藥品盒” | “AI 先處理日常求助。本地 demo 數據模擬 OCR，即使沒有 OCR key 也能返回穩定結果。” | AI 顯示正在分析；返回藥品 OCR demo 結果，例如阿莫西林膠囊、規格、用法用量、有效期；頁面提供繼續提問或轉人工入口 | `linklab/lib/screens/ai_chat/demo_ai_chat_screen.dart`；`linklab/lib/services/demo/demo_ai_service.dart`；`linklab/assets/demo_data/ai_responses.json` |
+| `0:50-1:30` | 輸入/選擇“我面前是什麼” | “同一個 AI Agent 入口也承接場景描述，不把 OCR、看圖、導航拆成多個複雜入口。” | AI 顯示場景描述 demo 響應，例如室內/街道/公園/超市場景；有文字結果、狀態變化和繼續求助入口 | `linklab/lib/screens/home/ai_chat_screen.dart`；`linklab/lib/screens/ai_chat/demo_ai_chat_screen.dart`；`linklab/lib/services/demo/demo_ai_service.dart` |
+| `1:30-2:10` | 輸入複雜需求或點擊轉人工，進入志願者匹配，再進入 demo 通話 | “AI 無法處理時 100% 有人類兜底。F9 接單後進入 F11 Demo Call，展示連接中、已接通、結束通話、完成評價；競賽版不依賴真實 WebRTC。” | 進入匹配頁；展示匹配中、Top 5 候選志願者、匹配成功；自動或手動進入 demo 通話；通話頁顯示連接中、已接通、通話中、掛斷；結束後進入幫助完成評價/結果落點；不建立真實 WebRTC、不錄音、不真實推送 | `linklab/lib/demo_flow/demo_matching_flow.dart`；`linklab/lib/screens/call/demo_matching_screen.dart`；`linklab/lib/screens/call/demo_call_screen.dart`；`linklab/lib/screens/call/demo_call_rating_screen.dart`；`linklab/lib/providers/demo_call_flow_provider.dart` |
+| `2:10-2:40` | 返回首頁或通過 AI 緊急意圖觸發 SOS mock 演示 | “SOS 是廣播型緊急流程，不走普通匹配公式。Demo 會讓評審看到誤觸撤銷、廣播和聯繫人通知狀態。” | 進入 SOS 頁面；顯示 10 秒誤觸撤銷窗口；顯示 Mock 廣播演示；顯示聯繫人通知狀態；可撤銷或繼續到志願者響應狀態 | `linklab/lib/screens/call/demo_sos_screen.dart`；`linklab/lib/services/demo_call_service.dart` 中 `DemoSOSService`；`linklab/lib/demo_flow/demo_sos_flow.dart` |
+| `2:40-3:00` | 展示未來藍圖 | “當前已演示的是 MVP 六項：F1/F9/F11/F13/F33/F36。V1.0/V2.0 是路線圖，不冒充已完成能力。” | 只展示或口播後續計劃：真實 WebRTC、真實推送、完整後臺、社羣、積分等屬於後續版本；不進入半成品頁面 | `docs/competition_mvp_delivery_plan.md`；首頁的 MVP 範圍說明；演示 PPT 或靜態藍圖頁 |
 
-## 逐段口播要点
+## 逐段口播要點
 
-### `0:00-0:20` 首页
+### `0:00-0:20` 首頁
 
-推荐口播：
+推薦口播：
 
-> 这是共感 LinkAble。我们的核心不是堆功能，而是让视障或行动不便用户在需要帮助时，用一个大按钮进入 AI Agent；AI 能解决就立即解决，解决不了就转真人志愿者。
+> 這是共感 LinkAble。我們的核心不是堆功能，而是讓視障或行動不便用戶在需要幫助時，用一個大按鈕進入 AI Agent；AI 能解決就立即解決，解決不了就轉真人志願者。
 
-必须展示：
+必須展示：
 
-- 首页第一屏可见。
-- 大按钮足够醒目。
-- 默认导航没有社群、积分、后台等非 MVP 功能。
+- 首頁第一屏可見。
+- 大按鈕足夠醒目。
+- 默認導航沒有社羣、積分、後臺等非 MVP 功能。
 
-### `0:20-0:50` 药品 OCR
+### `0:20-0:50` 藥品 OCR
 
-推荐口播：
+推薦口播：
 
-> 这里演示“帮我读药品盒”。竞赛环境不依赖真实 OCR 服务，当前响应来自本地 demo 数据，所以断网也能稳定复现。
+> 這裏演示“幫我讀藥品盒”。競賽環境不依賴真實 OCR 服務，當前響應來自本地 demo 數據，所以斷網也能穩定復現。
 
-必须展示：
+必須展示：
 
-- 用户输入或选择“帮我读药品盒”。
-- AI 有“正在分析”或类似处理中状态。
-- 结果必须包含药名、规格、用法用量等可读信息。
+- 用戶輸入或選擇“幫我讀藥品盒”。
+- AI 有“正在分析”或類似處理中狀態。
+- 結果必須包含藥名、規格、用法用量等可讀信息。
 
-### `0:50-1:30` 场景描述
+### `0:50-1:30` 場景描述
 
-推荐口播：
+推薦口播：
 
-> 同一个入口继续处理“我面前是什么”。这避免让用户在多个功能按钮里做选择，符合低认知负担原则。
+> 同一個入口繼續處理“我面前是什麼”。這避免讓用戶在多個功能按鈕裏做選擇，符合低認知負擔原則。
 
-必须展示：
+必須展示：
 
-- 场景描述以文字形式展示。
-- 如果 AI 没法处理，必须能转人工，不能出现死路。
+- 場景描述以文字形式展示。
+- 如果 AI 沒法處理，必須能轉人工，不能出現死路。
 
-### `1:30-2:10` 匹配与 demo 通话
+### `1:30-2:10` 匹配與 demo 通話
 
-推荐口播：
+推薦口播：
 
-> 对复杂问题，AI 不硬答，直接转人工。F9 接单后进入 F11 Demo Call，现场展示连接中、已接通、结束通话和完成评价；这里不建立真实 WebRTC，不录音，也不触发真实推送。
+> 對複雜問題，AI 不硬答，直接轉人工。F9 接單後進入 F11 Demo Call，現場展示連接中、已接通、結束通話和完成評價；這裏不建立真實 WebRTC，不錄音，也不觸發真實推送。
 
-必须展示：
+必須展示：
 
-- 匹配页状态变化。
-- 至少一个志愿者被匹配。
-- 通话页状态从连接中到已接通、通话中、结束通话。
-- 结束后出现评价或结果回看落点。
+- 匹配頁狀態變化。
+- 至少一個志願者被匹配。
+- 通話頁狀態從連接中到已接通、通話中、結束通話。
+- 結束後出現評價或結果回看落點。
 
 ### `2:10-2:40` SOS mock
 
-推荐口播：
+推薦口播：
 
-> SOS 是紧急广播流程，与普通匹配不同。为了避免误触，系统保留 10 秒撤销窗口；Demo 同时展示广播和联系人通知状态。
+> SOS 是緊急廣播流程，與普通匹配不同。爲了避免誤觸，系統保留 10 秒撤銷窗口；Demo 同時展示廣播和聯繫人通知狀態。
 
-必须展示：
+必須展示：
 
-- 10 秒误触撤销窗口。
-- Mock 广播演示。
-- 紧急联系人通知状态。
-- 用户能撤销误触，或看到 SOS 继续推进。
+- 10 秒誤觸撤銷窗口。
+- Mock 廣播演示。
+- 緊急聯繫人通知狀態。
+- 用戶能撤銷誤觸，或看到 SOS 繼續推進。
 
-### `2:40-3:00` 未来蓝图
+### `2:40-3:00` 未來藍圖
 
-推荐口播：
+推薦口播：
 
-> 今天验收的是 MVP：AI Agent、志愿者匹配、demo 通话、SOS、登录偏好和全局无障碍。真实 WebRTC、真实推送、后台、社群和积分会进入后续 V1.0/V2.0，不把未完成能力冒充为当前已上线。
+> 今天驗收的是 MVP：AI Agent、志願者匹配、demo 通話、SOS、登錄偏好和全局無障礙。真實 WebRTC、真實推送、後臺、社羣和積分會進入後續 V1.0/V2.0，不把未完成能力冒充爲當前已上線。
 
 禁止口播：
 
-- “真实 WebRTC 已完整上线。”
-- “真实推送和后台唤醒已经完成。”
-- “积分、社群、后台是本次 MVP 的核心能力。”
-- “当前 Demo 依赖线上 Supabase 才能跑。”
+- “真實 WebRTC 已完整上線。”
+- “真實推送和後臺喚醒已經完成。”
+- “積分、社羣、後臺是本次 MVP 的核心能力。”
+- “當前 Demo 依賴線上 Supabase 才能跑。”
 
-## 失败降级口径
+## 失敗降級口徑
 
-- 如果现场无网络：直接说明竞赛 Demo 不依赖外部服务，并继续跑本地 demo fallback。
-- 如果 AI 响应不符合预期：点击预置场景按钮或重新输入脚本词，确保落到 `assets/demo_data/` 中的稳定响应。
-- 如果匹配停留过久：使用默认 demo matching 入口重新进入，避免切到真实匹配页。
-- 如果 SOS 联系人为空：说明当前仍会演示志愿者广播；联系人可在“我的 > 紧急联系人”中补全，但不阻塞 Demo。
+- 如果現場無網絡：直接說明競賽 Demo 不依賴外部服務，並繼續跑本地 demo fallback。
+- 如果 AI 響應不符合預期：點擊預置場景按鈕或重新輸入腳本詞，確保落到 `assets/demo_data/` 中的穩定響應。
+- 如果匹配停留過久：使用默認 demo matching 入口重新進入，避免切到真實匹配頁。
+- 如果 SOS 聯繫人爲空：說明當前仍會演示志願者廣播；聯繫人可在“我的 > 緊急聯繫人”中補全，但不阻塞 Demo。

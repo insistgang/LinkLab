@@ -8,8 +8,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/utils/logger.dart';
 import '../../../models/call_models.dart';
 
-/// WebRTC 服务类
-/// 负责管理PeerConnection、媒体流和信令交换
+/// WebRTC 服務類
+/// 負責管理PeerConnection、媒體流和信令交換
 class WebRTCService {
   static final WebRTCService _instance = WebRTCService._internal();
   factory WebRTCService() => _instance;
@@ -32,12 +32,12 @@ class WebRTCService {
     return _supabaseClient!;
   }
 
-  // 状态
+  // 狀態
   CallInfo? _currentCall;
   final _callStateController = StreamController<CallState>.broadcast();
   final _remoteStreamController = StreamController<MediaStream?>.broadcast();
 
-  // 获取器
+  // 獲取器
   Stream<CallState> get callStateStream => _callStateController.stream;
   Stream<MediaStream?> get remoteStreamStream => _remoteStreamController.stream;
   CallInfo? get currentCall => _currentCall;
@@ -45,7 +45,7 @@ class WebRTCService {
   MediaStream? get remoteStream => _remoteStream;
   bool get isInCall => _currentCall != null && _currentCall!.state == CallState.connected;
 
-  // ICE 服务器配置
+  // ICE 服務器配置
   final Map<String, dynamic> _iceServers = {
     'iceServers': [
       {'urls': 'stun:stun.l.google.com:19302'},
@@ -54,7 +54,7 @@ class WebRTCService {
     ],
   };
 
-  // 约束
+  // 約束
   final Map<String, dynamic> _constraints = {
     'mandatory': {
       'OfferToReceiveAudio': true,
@@ -63,7 +63,7 @@ class WebRTCService {
     'optional': [],
   };
 
-  /// 初始化通话（作为求助者）
+  /// 初始化通話（作爲求助者）
   Future<CallInfo> initializeCallAsSeeker({
     required String seekerId,
     required String helpRequestId,
@@ -84,7 +84,7 @@ class WebRTCService {
     return _currentCall!;
   }
 
-  /// 初始化通话（作为志愿者）
+  /// 初始化通話（作爲志願者）
   Future<CallInfo> initializeCallAsVolunteer({
     required String volunteerId,
     required String seekerId,
@@ -107,7 +107,7 @@ class WebRTCService {
     return _currentCall!;
   }
 
-  /// 初始化本地媒体流
+  /// 初始化本地媒體流
   Future<void> _initializeMedia() async {
     try {
       final Map<String, dynamic> mediaConstraints = {
@@ -116,17 +116,17 @@ class WebRTCService {
           'noiseSuppression': true,
           'autoGainControl': true,
         },
-        'video': false, // 仅语音通话
+        'video': false, // 僅語音通話
       };
 
       _localStream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
     } catch (error, stackTrace) {
-      AppLogger.error('历史 WebRTC 服务获取麦克风失败', error, stackTrace);
-      throw Exception('无法获取麦克风权限: $error');
+      AppLogger.error('歷史 WebRTC 服務獲取麥克風失敗', error, stackTrace);
+      throw Exception('無法獲取麥克風權限: $error');
     }
   }
 
-  /// 创建PeerConnection
+  /// 創建PeerConnection
   Future<void> _createPeerConnection() async {
     _peerConnection = await createPeerConnection(_iceServers, _constraints);
 
@@ -137,7 +137,7 @@ class WebRTCService {
       }
     }
 
-    // 监听远程流
+    // 監聽遠程流
     _peerConnection!.onTrack = (RTCTrackEvent event) {
       if (event.streams.isNotEmpty) {
         _remoteStream = event.streams[0];
@@ -145,7 +145,7 @@ class WebRTCService {
       }
     };
 
-    // 监听连接状态
+    // 監聽連接狀態
     _peerConnection!.onConnectionState = (RTCPeerConnectionState state) {
       switch (state) {
         case RTCPeerConnectionState.RTCPeerConnectionStateConnected:
@@ -165,7 +165,7 @@ class WebRTCService {
       }
     };
 
-    // 监听ICE候选
+    // 監聽ICE候選
     _peerConnection!.onIceCandidate = (RTCIceCandidate candidate) {
       _sendSignalingMessage(SignalingType.iceCandidate, {
         'candidate': candidate.toMap(),
@@ -173,10 +173,10 @@ class WebRTCService {
     };
   }
 
-  /// 加入信令房间
+  /// 加入信令房間
   Future<void> _joinSignalingRoom(String roomId) async {
     final userId = _supabase.auth.currentUser?.id;
-    if (userId == null) throw Exception('用户未登录');
+    if (userId == null) throw Exception('用戶未登錄');
 
     _signalingChannel = _supabase.channel('call:$roomId');
 
@@ -187,19 +187,19 @@ class WebRTCService {
         )
         .subscribe();
 
-    // 发送加入消息
+    // 發送加入消息
     await Future.delayed(const Duration(milliseconds: 500));
     await _sendSignalingMessage(SignalingType.join, {});
   }
 
-  /// 处理信令消息
+  /// 處理信令消息
   Future<void> _handleSignalingMessage(SignalingMessage message) async {
     // 忽略自己的消息
     if (message.fromUserId == _supabase.auth.currentUser?.id) return;
 
     switch (message.type) {
       case SignalingType.join:
-        // 对方加入，发送offer（如果是求助者）
+        // 對方加入，發送offer（如果是求助者）
         if (_currentCall?.myRole == CallRole.seeker) {
           await _createAndSendOffer();
         }
@@ -226,7 +226,7 @@ class WebRTCService {
     }
   }
 
-  /// 创建并发送Offer
+  /// 創建併發送Offer
   Future<void> _createAndSendOffer() async {
     if (_peerConnection == null) return;
 
@@ -245,7 +245,7 @@ class WebRTCService {
     _updateCallState(CallState.ringing);
   }
 
-  /// 处理Offer
+  /// 處理Offer
   Future<void> _handleOffer(dynamic data) async {
     if (_peerConnection == null) return;
 
@@ -256,7 +256,7 @@ class WebRTCService {
     final offer = RTCSessionDescription(sdp, type);
     await _peerConnection!.setRemoteDescription(offer);
 
-    // 创建answer
+    // 創建answer
     final answer = await _peerConnection!.createAnswer({
       'offerToReceiveAudio': true,
       'offerToReceiveVideo': false,
@@ -272,7 +272,7 @@ class WebRTCService {
     _updateCallState(CallState.ringing);
   }
 
-  /// 处理Answer
+  /// 處理Answer
   Future<void> _handleAnswer(dynamic data) async {
     if (_peerConnection == null) return;
 
@@ -284,7 +284,7 @@ class WebRTCService {
     await _peerConnection!.setRemoteDescription(answer);
   }
 
-  /// 处理ICE候选
+  /// 處理ICE候選
   Future<void> _handleIceCandidate(dynamic data) async {
     if (_peerConnection == null) return;
 
@@ -304,7 +304,7 @@ class WebRTCService {
     await _peerConnection!.addCandidate(candidate);
   }
 
-  /// 发送信令消息
+  /// 發送信令消息
   Future<void> _sendSignalingMessage(SignalingType type, dynamic data) async {
     if (_signalingChannel == null || _currentCall == null) return;
 
@@ -324,7 +324,7 @@ class WebRTCService {
     );
   }
 
-  /// 静音/取消静音
+  /// 靜音/取消靜音
   Future<void> toggleMute() async {
     if (_localStream == null) return;
 
@@ -335,15 +335,15 @@ class WebRTCService {
     }
   }
 
-  /// 切换扬声器
+  /// 切換揚聲器
   Future<void> toggleSpeaker() async {
     _currentCall?.isSpeakerOn = !(_currentCall?.isSpeakerOn ?? true);
-    // 实际切换扬声器需要平台特定实现
+    // 實際切換揚聲器需要平臺特定實現
   }
 
-  /// 结束通话
+  /// 結束通話
   Future<void> endCall(CallEndReason reason) async {
-    // 发送bye消息
+    // 發送bye消息
     await _sendSignalingMessage(SignalingType.bye, {
       'reason': reason.name,
     });
@@ -352,18 +352,18 @@ class WebRTCService {
     _updateCallState(CallState.ended);
   }
 
-  /// 清理资源
+  /// 清理資源
   Future<void> _cleanup() async {
     // 停止本地流
     _localStream?.getTracks().forEach((track) => track.stop());
     _localStream?.dispose();
     _localStream = null;
 
-    // 关闭PeerConnection
+    // 關閉PeerConnection
     await _peerConnection?.close();
     _peerConnection = null;
 
-    // 取消订阅信令频道
+    // 取消訂閱信令頻道
     await _signalingChannel?.unsubscribe();
     _signalingChannel = null;
 
@@ -371,13 +371,13 @@ class WebRTCService {
     _remoteStreamController.add(null);
   }
 
-  /// 更新通话状态
+  /// 更新通話狀態
   void _updateCallState(CallState state) {
     _currentCall?.state = state;
     _callStateController.add(state);
   }
 
-  /// 生成房间ID
+  /// 生成房間ID
   String _generateRoomId() {
     const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
     final random = Random();
@@ -389,7 +389,7 @@ class WebRTCService {
     return int.tryParse(value?.toString() ?? '');
   }
 
-  /// 释放资源
+  /// 釋放資源
   void dispose() {
     _cleanup();
     _callStateController.close();

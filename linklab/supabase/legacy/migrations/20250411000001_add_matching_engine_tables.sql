@@ -1,11 +1,11 @@
--- 志愿者匹配引擎相关表和函数
--- 创建时间: 2025-04-11
+-- 志願者匹配引擎相關表和函數
+-- 創建時間: 2025-04-11
 
 -- ============================================
--- 1. 扩展帮助请求表
+-- 1. 擴展幫助請求表
 -- ============================================
 
--- 添加匹配相关字段（如果不存在）
+-- 添加匹配相關字段（如果不存在）
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'help_requests' AND column_name = 'required_skills') THEN
@@ -18,7 +18,7 @@ BEGIN
 END $$;
 
 -- ============================================
--- 2. 创建匹配记录表
+-- 2. 創建匹配記錄表
 -- ============================================
 
 CREATE TABLE IF NOT EXISTS help_request_matches (
@@ -27,9 +27,9 @@ CREATE TABLE IF NOT EXISTS help_request_matches (
     volunteer_id UUID NOT NULL REFERENCES volunteer_profiles(id) ON DELETE CASCADE,
     volunteer_user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     match_score DECIMAL(4,3) NOT NULL CHECK (match_score >= 0 AND match_score <= 1),
-    distance DECIMAL(10,2), -- 距离（公里）
+    distance DECIMAL(10,2), -- 距離（公里）
     status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'notified', 'accepted', 'rejected', 'expired', 'timeout')),
-    priority INTEGER DEFAULT 1, -- 匹配优先级顺序
+    priority INTEGER DEFAULT 1, -- 匹配優先級順序
     notified_at TIMESTAMPTZ,
     responded_at TIMESTAMPTZ,
     expires_at TIMESTAMPTZ,
@@ -38,13 +38,13 @@ CREATE TABLE IF NOT EXISTS help_request_matches (
     UNIQUE(help_request_id, volunteer_id)
 );
 
--- 创建索引
+-- 創建索引
 CREATE INDEX IF NOT EXISTS idx_help_request_matches_request_id ON help_request_matches(help_request_id);
 CREATE INDEX IF NOT EXISTS idx_help_request_matches_volunteer_id ON help_request_matches(volunteer_id);
 CREATE INDEX IF NOT EXISTS idx_help_request_matches_status ON help_request_matches(status);
 CREATE INDEX IF NOT EXISTS idx_help_request_matches_volunteer_user_id ON help_request_matches(volunteer_user_id);
 
--- 启用RLS
+-- 啓用RLS
 ALTER TABLE help_request_matches ENABLE ROW LEVEL SECURITY;
 
 -- RLS策略
@@ -67,7 +67,7 @@ CREATE POLICY "Volunteers can update their own matches"
     USING (volunteer_user_id = auth.uid());
 
 -- ============================================
--- 3. 创建用户设备表（用于FCM推送）
+-- 3. 創建用戶設備表（用於FCM推送）
 -- ============================================
 
 CREATE TABLE IF NOT EXISTS user_devices (
@@ -83,12 +83,12 @@ CREATE TABLE IF NOT EXISTS user_devices (
     UNIQUE(user_id, fcm_token)
 );
 
--- 创建索引
+-- 創建索引
 CREATE INDEX IF NOT EXISTS idx_user_devices_user_id ON user_devices(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_devices_fcm_token ON user_devices(fcm_token);
 CREATE INDEX IF NOT EXISTS idx_user_devices_active ON user_devices(is_active) WHERE is_active = true;
 
--- 启用RLS
+-- 啓用RLS
 ALTER TABLE user_devices ENABLE ROW LEVEL SECURITY;
 
 -- RLS策略
@@ -97,7 +97,7 @@ CREATE POLICY "Users can manage their own devices"
     USING (user_id = auth.uid());
 
 -- ============================================
--- 4. 创建SOS广播日志表
+-- 4. 創建SOS廣播日誌表
 -- ============================================
 
 CREATE TABLE IF NOT EXISTS sos_broadcast_logs (
@@ -110,10 +110,10 @@ CREATE TABLE IF NOT EXISTS sos_broadcast_logs (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 创建索引
+-- 創建索引
 CREATE INDEX IF NOT EXISTS idx_sos_broadcast_logs_sos_id ON sos_broadcast_logs(sos_request_id);
 
--- 启用RLS
+-- 啓用RLS
 ALTER TABLE sos_broadcast_logs ENABLE ROW LEVEL SECURITY;
 
 -- RLS策略
@@ -128,7 +128,7 @@ CREATE POLICY "Only admins can view broadcast logs"
     );
 
 -- ============================================
--- 5. 创建用户在线状态表
+-- 5. 創建用戶在線狀態表
 -- ============================================
 
 CREATE TABLE IF NOT EXISTS user_presence (
@@ -138,10 +138,10 @@ CREATE TABLE IF NOT EXISTS user_presence (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 创建索引
+-- 創建索引
 CREATE INDEX IF NOT EXISTS idx_user_presence_online ON user_presence(is_online) WHERE is_online = true;
 
--- 启用RLS
+-- 啓用RLS
 ALTER TABLE user_presence ENABLE ROW LEVEL SECURITY;
 
 -- RLS策略
@@ -154,7 +154,7 @@ CREATE POLICY "Users can update their own presence"
     USING (user_id = auth.uid());
 
 -- ============================================
--- 6. 创建求助心跳表（用于检测连接状态）
+-- 6. 創建求助心跳錶（用於檢測連接狀態）
 -- ============================================
 
 CREATE TABLE IF NOT EXISTS help_request_heartbeats (
@@ -166,11 +166,11 @@ CREATE TABLE IF NOT EXISTS help_request_heartbeats (
     UNIQUE(help_request_id, user_id)
 );
 
--- 创建索引
+-- 創建索引
 CREATE INDEX IF NOT EXISTS idx_help_request_heartbeats_request_id ON help_request_heartbeats(help_request_id);
 CREATE INDEX IF NOT EXISTS idx_help_request_heartbeats_timestamp ON help_request_heartbeats(timestamp);
 
--- 启用RLS
+-- 啓用RLS
 ALTER TABLE help_request_heartbeats ENABLE ROW LEVEL SECURITY;
 
 -- RLS策略
@@ -189,7 +189,7 @@ CREATE POLICY "Users can insert their own heartbeats"
     WITH CHECK (user_id = auth.uid());
 
 -- ============================================
--- 7. 创建PostGIS函数：获取范围内的志愿者
+-- 7. 創建PostGIS函數：獲取範圍內的志願者
 -- ============================================
 
 CREATE OR REPLACE FUNCTION get_volunteers_in_radius(
@@ -223,7 +223,7 @@ BEGIN
         vp.latitude,
         vp.longitude,
         vp.last_heartbeat_at,
-        -- 使用Haversine公式计算距离
+        -- 使用Haversine公式計算距離
         (6371 * acos(
             cos(radians(lat)) *
             cos(radians(vp.latitude)) *
@@ -250,7 +250,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- ============================================
--- 8. 创建函数：更新志愿者心跳
+-- 8. 創建函數：更新志願者心跳
 -- ============================================
 
 CREATE OR REPLACE FUNCTION update_volunteer_heartbeat(
@@ -271,10 +271,10 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- ============================================
--- 9. 创建触发器：自动更新updated_at
+-- 9. 創建觸發器：自動更新updated_at
 -- ============================================
 
--- 为user_devices创建触发器
+-- 爲user_devices創建觸發器
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -289,7 +289,7 @@ CREATE TRIGGER update_user_devices_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
--- 为user_presence创建触发器
+-- 爲user_presence創建觸發器
 DROP TRIGGER IF EXISTS update_user_presence_updated_at ON user_presence;
 CREATE TRIGGER update_user_presence_updated_at
     BEFORE UPDATE ON user_presence
@@ -297,7 +297,7 @@ CREATE TRIGGER update_user_presence_updated_at
     EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================
--- 10. 创建函数：清理过期匹配记录
+-- 10. 創建函數：清理過期匹配記錄
 -- ============================================
 
 CREATE OR REPLACE FUNCTION cleanup_expired_matches()
@@ -305,7 +305,7 @@ RETURNS INTEGER AS $$
 DECLARE
     deleted_count INTEGER;
 BEGIN
-    -- 将过期匹配标记为timeout
+    -- 將過期匹配標記爲timeout
     UPDATE help_request_matches
     SET status = 'timeout'
     WHERE status = 'pending'
@@ -318,10 +318,10 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- ============================================
--- 11. 创建定时任务（需要pg_cron扩展）
+-- 11. 創建定時任務（需要pg_cron擴展）
 -- ============================================
 
--- 每分钟清理过期匹配（如果安装了pg_cron）
+-- 每分鐘清理過期匹配（如果安裝了pg_cron）
 DO $$
 BEGIN
     IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN
@@ -348,13 +348,13 @@ BEGIN
     END IF;
 END $$;
 
--- 创建索引
+-- 創建索引
 CREATE INDEX IF NOT EXISTS idx_volunteer_profiles_online_available ON volunteer_profiles(is_online, is_available)
     WHERE is_online = true AND is_available = true;
 CREATE INDEX IF NOT EXISTS idx_volunteer_profiles_heartbeat ON volunteer_profiles(last_heartbeat_at);
 
 -- ============================================
--- 13. 创建匹配统计视图
+-- 13. 創建匹配統計視圖
 -- ============================================
 
 CREATE OR REPLACE VIEW matching_statistics AS
@@ -370,7 +370,7 @@ GROUP BY DATE_TRUNC('day', hr.created_at)
 ORDER BY date DESC;
 
 -- ============================================
--- 14. 授予权限
+-- 14. 授予權限
 -- ============================================
 
 GRANT ALL ON help_request_matches TO authenticated;
@@ -379,7 +379,7 @@ GRANT ALL ON user_presence TO authenticated;
 GRANT ALL ON help_request_heartbeats TO authenticated;
 GRANT SELECT ON matching_statistics TO authenticated;
 
--- 服务角色权限
+-- 服務角色權限
 GRANT ALL ON sos_broadcast_logs TO service_role;
 GRANT EXECUTE ON FUNCTION get_volunteers_in_radius TO service_role;
 GRANT EXECUTE ON FUNCTION update_volunteer_heartbeat TO authenticated;
@@ -389,8 +389,8 @@ GRANT EXECUTE ON FUNCTION cleanup_expired_matches TO service_role;
 -- 完成
 -- ============================================
 
-COMMENT ON TABLE help_request_matches IS '志愿者匹配记录表';
-COMMENT ON TABLE user_devices IS '用户设备表，用于FCM推送';
-COMMENT ON TABLE sos_broadcast_logs IS 'SOS广播日志表';
-COMMENT ON TABLE user_presence IS '用户在线状态表';
-COMMENT ON TABLE help_request_heartbeats IS '求助会话心跳表';
+COMMENT ON TABLE help_request_matches IS '志願者匹配記錄表';
+COMMENT ON TABLE user_devices IS '用戶設備表，用於FCM推送';
+COMMENT ON TABLE sos_broadcast_logs IS 'SOS廣播日誌表';
+COMMENT ON TABLE user_presence IS '用戶在線狀態表';
+COMMENT ON TABLE help_request_heartbeats IS '求助會話心跳錶';
