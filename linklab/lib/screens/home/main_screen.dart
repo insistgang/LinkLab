@@ -45,6 +45,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     );
 
     final session = ref.watch(appSessionProvider);
+    final mediaQuery = MediaQuery.of(context);
+    final compactLayout =
+        mediaQuery.size.width < 430 || mediaQuery.textScaler.scale(1) > 1.15;
 
     // 根據身份決定導航項和頁面
     final screens = _buildScreens(_area);
@@ -73,16 +76,23 @@ class _MainScreenState extends ConsumerState<MainScreen> {
             : SafeArea(
                 top: false,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                  padding: EdgeInsets.fromLTRB(
+                    compactLayout ? 8 : 16,
+                    compactLayout ? 6 : 8,
+                    compactLayout ? 8 : 16,
+                    compactLayout ? 8 : 16,
+                  ),
                   child: Semantics(
                     label: '底部導航欄',
                     child: Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: EdgeInsets.all(compactLayout ? 6 : 8),
                       decoration: AppTheme.stageCardDecoration(
                         color: AppTheme.stageSurfaceStrong.withValues(
                           alpha: 0.94,
                         ),
-                        borderRadius: BorderRadius.circular(28),
+                        borderRadius: BorderRadius.circular(
+                          compactLayout ? 22 : 28,
+                        ),
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -92,15 +102,15 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                             curve: Curves.easeOutCubic,
                             alignment: _navIndicatorAlignment(navItems.length),
                             child: Container(
-                              width: 44,
-                              height: 4,
+                              width: compactLayout ? 36 : 44,
+                              height: compactLayout ? 3 : 4,
                               decoration: BoxDecoration(
                                 gradient: AppTheme.stageAccentGradient,
                                 borderRadius: BorderRadius.circular(999),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: compactLayout ? 6 : 8),
                           Row(
                             children: List.generate(navItems.length, (index) {
                               final item = navItems[index];
@@ -109,6 +119,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                                 child: _DemoNavButton(
                                   item: item,
                                   isActive: isActive,
+                                  compactLayout: compactLayout,
                                   onTap: () => _onTabTapped(index),
                                 ),
                               );
@@ -260,15 +271,22 @@ class _DemoNavButton extends StatelessWidget {
   const _DemoNavButton({
     required this.item,
     required this.isActive,
+    required this.compactLayout,
     required this.onTap,
   });
 
   final _NavItem item;
   final bool isActive;
+  final bool compactLayout;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final activeIconBox = compactLayout ? 32.0 : 38.0;
+    final inactiveIconBox = compactLayout ? 28.0 : 32.0;
+    final activeIconSize = compactLayout ? 27.0 : 34.0;
+    final inactiveIconSize = compactLayout ? 23.0 : 30.0;
+
     return Semantics(
       button: true,
       selected: isActive,
@@ -280,13 +298,19 @@ class _DemoNavButton extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 220),
           curve: Curves.easeOutCubic,
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+          constraints: BoxConstraints(
+            minHeight: compactLayout ? 64 : AppTheme.largeButtonHeight,
+          ),
+          padding: EdgeInsets.symmetric(
+            horizontal: compactLayout ? 4 : 10,
+            vertical: compactLayout ? 6 : 12,
+          ),
           decoration: BoxDecoration(
             gradient: isActive ? AppTheme.stageAccentGradient : null,
             color: isActive
                 ? null
                 : AppTheme.stageSurface.withValues(alpha: 0.38),
-            borderRadius: BorderRadius.circular(22),
+            borderRadius: BorderRadius.circular(compactLayout ? 18 : 22),
             border: Border.all(
               color: isActive
                   ? Colors.transparent
@@ -300,8 +324,8 @@ class _DemoNavButton extends StatelessWidget {
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 220),
                   curve: Curves.easeOutCubic,
-                  width: isActive ? 38 : 32,
-                  height: isActive ? 38 : 32,
+                  width: isActive ? activeIconBox : inactiveIconBox,
+                  height: isActive ? activeIconBox : inactiveIconBox,
                   decoration: BoxDecoration(
                     color: isActive
                         ? Colors.white.withValues(alpha: 0.18)
@@ -310,21 +334,23 @@ class _DemoNavButton extends StatelessWidget {
                   ),
                   child: LinkableMaterialIcon(
                     icon: isActive ? item.activeIcon : item.icon,
-                    size: isActive ? 34 : 30,
+                    size: isActive ? activeIconSize : inactiveIconSize,
                     color: isActive
                         ? Colors.white
                         : AppTheme.stageTextSecondary,
                     semanticLabel: item.semanticLabel ?? item.label,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: compactLayout ? 2 : 4),
                 Text(
                   item.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: isActive
                         ? Colors.white
                         : AppTheme.stageTextSecondary,
-                    fontSize: 12,
+                    fontSize: compactLayout ? 11 : 12,
                     fontWeight: FontWeight.w700,
                   ),
                 ),

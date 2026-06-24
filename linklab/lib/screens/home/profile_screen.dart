@@ -47,22 +47,25 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final userId = user?.id ?? 'demo-seeker';
     final safetySnapshotFuture = _loadSafetySnapshot(userId);
     final isVolunteerMode = widget.mode == ProfileScreenMode.volunteer;
+    final mediaQuery = MediaQuery.of(context);
+    final compactLayout =
+        mediaQuery.size.width < 430 || mediaQuery.textScaler.scale(1) > 1.15;
 
     return DemoStageScaffold(
       title: '我的',
       subtitle: isVolunteerMode
-          ? '志願者資料、接單準備和服務記錄都在這裏收口'
-          : '登錄、偏好、安全準備和幫助檔案都在這裏收口',
+          ? (compactLayout ? '志願者資料與接單準備' : '志願者資料、接單準備和服務記錄都在這裏收口')
+          : (compactLayout ? '登錄、偏好與安全準備' : '登錄、偏好、安全準備和幫助檔案都在這裏收口'),
       showBackButton: false,
       showStatusStrip: false,
       showThemeModeButton: false,
       headerTopPadding: AppTheme.spacingXS,
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppTheme.spacingL,
+        padding: EdgeInsets.fromLTRB(
+          compactLayout ? AppTheme.spacingM : AppTheme.spacingL,
           AppTheme.spacingS,
-          AppTheme.spacingL,
-          120,
+          compactLayout ? AppTheme.spacingM : AppTheme.spacingL,
+          compactLayout ? 96 : 120,
         ),
         children: [
           DemoReveal(
@@ -463,8 +466,13 @@ class _ProfileHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final compactLayout =
+        mediaQuery.size.width < 430 || mediaQuery.textScaler.scale(1) > 1.15;
     return Container(
-      padding: const EdgeInsets.all(AppTheme.spacingL),
+      padding: EdgeInsets.all(
+        compactLayout ? AppTheme.spacingM : AppTheme.spacingL,
+      ),
       decoration: BoxDecoration(
         gradient: AppTheme.stagePanelGradient,
         borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge + 8),
@@ -474,7 +482,9 @@ class _ProfileHero extends StatelessWidget {
       child: Row(
         children: [
           _ProfileIdentityAvatar(user: user, mode: mode),
-          const SizedBox(width: AppTheme.spacingL),
+          SizedBox(
+            width: compactLayout ? AppTheme.spacingM : AppTheme.spacingL,
+          ),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -483,7 +493,9 @@ class _ProfileHero extends StatelessWidget {
                   user?.displayName ?? '演示用戶',
                   style: TextStyle(
                     color: AppTheme.stageTextPrimary,
-                    fontSize: AppTheme.fontSizeLarge,
+                    fontSize: compactLayout
+                        ? AppTheme.fontSizeNormal
+                        : AppTheme.fontSizeLarge,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -492,7 +504,9 @@ class _ProfileHero extends StatelessWidget {
                   user?.phone.maskedPhone ?? '未綁定手機號',
                   style: TextStyle(
                     color: AppTheme.stageTextSecondary,
-                    fontSize: AppTheme.fontSizeNormal,
+                    fontSize: compactLayout
+                        ? AppTheme.fontSizeSmall
+                        : AppTheme.fontSizeNormal,
                   ),
                 ),
                 const SizedBox(height: AppTheme.spacingXS),
@@ -518,6 +532,10 @@ class _ProfileHero extends StatelessWidget {
             semanticLabel: '編輯無障礙偏好',
             backgroundColor: AppTheme.stageSurfaceStrong,
             iconColor: AppTheme.stageTextPrimary,
+            size: AppTheme.minTouchTarget,
+            iconSize: compactLayout
+                ? AppTheme.fontSizeNormal
+                : AppTheme.fontSizeLarge,
             onPressed: onEditPreferences,
           ),
         ],
@@ -560,6 +578,12 @@ class _ProfileIdentityAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final compactLayout =
+        mediaQuery.size.width < 430 || mediaQuery.textScaler.scale(1) > 1.15;
+    final avatarSize = compactLayout ? 78.0 : 96.0;
+    final outerRadius = compactLayout ? 22.0 : 28.0;
+    final innerRadius = compactLayout ? 19.0 : 24.0;
     final displayName = user?.displayName.trim();
     final initials = _buildInitials(displayName);
     final roleLabel = _buildRoleBadge(user);
@@ -570,15 +594,15 @@ class _ProfileIdentityAvatar extends StatelessWidget {
           '個人頭像，$roleLabel，名稱 ${displayName?.isNotEmpty == true ? displayName : '演示用戶'}',
       child: ExcludeSemantics(
         child: SizedBox(
-          width: 96,
-          height: 96,
+          width: avatarSize,
+          height: avatarSize,
           child: Stack(
             clipBehavior: Clip.none,
             children: [
               Positioned.fill(
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(28),
+                    borderRadius: BorderRadius.circular(outerRadius),
                     gradient: LinearGradient(
                       colors: [
                         Colors.white.withValues(alpha: 0.72),
@@ -603,10 +627,10 @@ class _ProfileIdentityAvatar extends StatelessWidget {
               ),
               Positioned.fill(
                 child: Padding(
-                  padding: const EdgeInsets.all(9),
+                  padding: EdgeInsets.all(compactLayout ? 7 : 9),
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: BorderRadius.circular(innerRadius),
                       gradient: LinearGradient(
                         colors: [
                           AppTheme.stageAccent,
@@ -625,9 +649,9 @@ class _ProfileIdentityAvatar extends StatelessWidget {
                             initials,
                             maxLines: 1,
                             softWrap: false,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.white,
-                              fontSize: 34,
+                              fontSize: compactLayout ? 28 : 34,
                               fontWeight: FontWeight.w900,
                               height: 1,
                             ),
@@ -639,11 +663,11 @@ class _ProfileIdentityAvatar extends StatelessWidget {
                 ),
               ),
               Positioned(
-                left: 13,
-                top: 13,
+                left: compactLayout ? 10 : 13,
+                top: compactLayout ? 10 : 13,
                 child: Container(
-                  width: 16,
-                  height: 16,
+                  width: compactLayout ? 14 : 16,
+                  height: compactLayout ? 14 : 16,
                   decoration: BoxDecoration(
                     color: AppTheme.stageAccentLight,
                     shape: BoxShape.circle,
@@ -655,11 +679,13 @@ class _ProfileIdentityAvatar extends StatelessWidget {
                 right: -2,
                 bottom: -2,
                 child: Container(
-                  constraints: const BoxConstraints(
-                    minWidth: 42,
-                    minHeight: 34,
+                  constraints: BoxConstraints(
+                    minWidth: compactLayout ? 38 : 42,
+                    minHeight: compactLayout ? 30 : 34,
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: compactLayout ? 8 : 10,
+                  ),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: AppTheme.stageAccent,

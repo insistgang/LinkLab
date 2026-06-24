@@ -92,19 +92,28 @@ class _SeekerHomeScreenState extends ConsumerState<SeekerHomeScreen> {
 
     return DemoStageLiveBuilder(
       builder: (context) {
+        final mediaQuery = MediaQuery.of(context);
+        final compactLayout =
+            mediaQuery.size.width < 430 ||
+            mediaQuery.textScaler.scale(1) > 1.15;
         return DemoStageScaffold(
           title: '共感 LinkAble',
-          subtitle: 'AI 先處理標準化問題，複雜需求再轉真人志願者',
+          subtitle: compactLayout
+              ? 'AI 先處理，複雜需求轉真人'
+              : 'AI 先處理標準化問題，複雜需求再轉真人志願者',
           showBackButton: false,
+          headerTopPadding: compactLayout
+              ? AppTheme.spacingXS
+              : AppTheme.spacingM,
           body: RefreshIndicator(
             color: AppTheme.stageAccent,
             onRefresh: _loadContent,
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(
-                AppTheme.spacingL,
-                AppTheme.spacingL,
-                AppTheme.spacingL,
-                112,
+              padding: EdgeInsets.fromLTRB(
+                compactLayout ? AppTheme.spacingM : AppTheme.spacingL,
+                compactLayout ? AppTheme.spacingM : AppTheme.spacingL,
+                compactLayout ? AppTheme.spacingM : AppTheme.spacingL,
+                compactLayout ? 96 : 112,
               ),
               children: [
                 DemoReveal(
@@ -379,8 +388,13 @@ class _HeroPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final compactLayout =
+        mediaQuery.size.width < 430 || mediaQuery.textScaler.scale(1) > 1.15;
     return Container(
-      padding: const EdgeInsets.all(AppTheme.spacingL),
+      padding: EdgeInsets.all(
+        compactLayout ? AppTheme.spacingM : AppTheme.spacingL,
+      ),
       decoration: BoxDecoration(
         gradient: AppTheme.stagePanelGradient,
         borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge + 8),
@@ -412,11 +426,18 @@ class _HeroPanel extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: AppTheme.spacingL),
+          SizedBox(
+            height: compactLayout ? AppTheme.spacingM : AppTheme.spacingL,
+          ),
           Row(
             children: [
-              const AppLogo(size: 56, borderRadius: 14),
-              const SizedBox(width: AppTheme.spacingM),
+              AppLogo(
+                size: compactLayout ? 46 : 56,
+                borderRadius: compactLayout ? 12 : 14,
+              ),
+              SizedBox(
+                width: compactLayout ? AppTheme.spacingS : AppTheme.spacingM,
+              ),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -426,7 +447,9 @@ class _HeroPanel extends StatelessWidget {
                       isHeader: true,
                       style: TextStyle(
                         color: AppTheme.stageTextPrimary,
-                        fontSize: AppTheme.fontSizeXLarge,
+                        fontSize: compactLayout
+                            ? AppTheme.fontSizeLarge
+                            : AppTheme.fontSizeXLarge,
                         fontWeight: FontWeight.w800,
                         height: 1.1,
                       ),
@@ -445,12 +468,14 @@ class _HeroPanel extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: AppTheme.spacingL),
+          SizedBox(
+            height: compactLayout ? AppTheme.spacingM : AppTheme.spacingL,
+          ),
           AccessibleText(
             '您好，${session.greetingName}',
             style: TextStyle(
               color: AppTheme.stageTextPrimary,
-              fontSize: 34,
+              fontSize: compactLayout ? 28 : 34,
               fontWeight: FontWeight.w800,
               height: 1.1,
             ),
@@ -462,11 +487,15 @@ class _HeroPanel extends StatelessWidget {
                 : '把標準化需求先交給 AI，複雜問題再轉真人。',
             style: TextStyle(
               color: AppTheme.stageTextSecondary,
-              fontSize: AppTheme.fontSizeNormal,
-              height: 1.6,
+              fontSize: compactLayout
+                  ? AppTheme.fontSizeSmall
+                  : AppTheme.fontSizeNormal,
+              height: compactLayout ? 1.45 : 1.6,
             ),
           ),
-          const SizedBox(height: AppTheme.spacingL),
+          SizedBox(
+            height: compactLayout ? AppTheme.spacingM : AppTheme.spacingL,
+          ),
           Center(
             child: _PrimaryHelpCluster(onEmergencyPressed: onEmergencyPressed),
           ),
@@ -499,13 +528,15 @@ class _HeroPanel extends StatelessWidget {
                     side: BorderSide(
                       color: Colors.white.withValues(alpha: 0.5),
                     ),
-                    textStyle: const TextStyle(
-                      fontSize: 18,
+                    textStyle: TextStyle(
+                      fontSize: compactLayout ? 16 : 18,
                       fontWeight: FontWeight.w800,
                     ),
-                    minimumSize: const Size(double.infinity, 64),
+                    minimumSize: Size(double.infinity, compactLayout ? 54 : 64),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(22),
+                      borderRadius: BorderRadius.circular(
+                        compactLayout ? 18 : 22,
+                      ),
                     ),
                   ),
                 ),
@@ -528,8 +559,12 @@ class _PrimaryHelpCluster extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
-    final buttonSize = screenWidth < 360 ? 188.0 : 210.0;
-    final logoSize = buttonSize;
+    final textScale = MediaQuery.textScalerOf(context).scale(1);
+    final compactLayout = screenWidth < 430 || textScale > 1.15;
+    final buttonSize = compactLayout
+        ? 128.0
+        : (screenWidth < 360 ? 172.0 : 190.0);
+    final logoSize = buttonSize * 0.94;
     return Semantics(
       button: true,
       label: '啓動 SOS 緊急求助',

@@ -9,6 +9,11 @@ import 'linkable_icon.dart';
 
 enum DemoGlassIconShape { rounded, circle }
 
+bool _useCompactDemoLayout(BuildContext context) {
+  final mediaQuery = MediaQuery.of(context);
+  return mediaQuery.size.width < 430 || mediaQuery.textScaler.scale(1) > 1.15;
+}
+
 class DemoStageScaffold extends StatelessWidget {
   const DemoStageScaffold({
     super.key,
@@ -41,8 +46,10 @@ class DemoStageScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final session = AppSessionService.instance;
     final mediaQuery = MediaQuery.of(context);
-    final screenWidth = mediaQuery.size.width;
-    final compactPhone = screenWidth < 360;
+    final compactPhone = _useCompactDemoLayout(context);
+    final effectiveHeaderTopPadding = compactPhone
+        ? headerTopPadding.clamp(0.0, AppTheme.spacingS)
+        : headerTopPadding;
     final bottomHorizontalPadding = compactPhone
         ? AppTheme.spacingM
         : AppTheme.spacingL;
@@ -71,7 +78,7 @@ class DemoStageScaffold extends StatelessWidget {
                           0,
                           AppTheme.spacingM,
                           0,
-                        ).copyWith(top: headerTopPadding),
+                        ).copyWith(top: effectiveHeaderTopPadding),
                         child: Column(
                           children: [
                             if (showStatusStrip) ...[
@@ -189,6 +196,7 @@ class DemoSurfaceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final compactLayout = _useCompactDemoLayout(context);
     final content = Container(
       margin: margin,
       decoration: AppTheme.stageCardDecoration(
@@ -204,7 +212,11 @@ class DemoSurfaceCard extends StatelessWidget {
               borderRadius ??
               BorderRadius.circular(AppTheme.borderRadiusLarge + 4),
           child: Padding(
-            padding: padding ?? const EdgeInsets.all(AppTheme.spacingL),
+            padding:
+                padding ??
+                EdgeInsets.all(
+                  compactLayout ? AppTheme.spacingM : AppTheme.spacingL,
+                ),
             child: child,
           ),
         ),
@@ -238,6 +250,7 @@ class DemoPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final compactLayout = _useCompactDemoLayout(context);
     final effectiveColor = color ?? AppTheme.stageAccent;
     final filled = backgroundColor == null;
     final foregroundColor = filled
@@ -247,9 +260,9 @@ class DemoPill extends StatelessWidget {
         : effectiveColor;
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppTheme.spacingM,
-        vertical: AppTheme.spacingS,
+      padding: EdgeInsets.symmetric(
+        horizontal: compactLayout ? 12 : AppTheme.spacingM,
+        vertical: compactLayout ? 6 : AppTheme.spacingS,
       ),
       decoration: BoxDecoration(
         color: backgroundColor ?? effectiveColor,
@@ -264,12 +277,16 @@ class DemoPill extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (svgIcon != null) ...[
-            LinkableSvgIcon(icon: svgIcon!, size: 18, semanticLabel: label),
+            LinkableSvgIcon(
+              icon: svgIcon!,
+              size: compactLayout ? 16 : 18,
+              semanticLabel: label,
+            ),
             const SizedBox(width: AppTheme.spacingXS),
           ] else if (icon != null) ...[
             LinkableMaterialIcon(
               icon: icon!,
-              size: 18,
+              size: compactLayout ? 16 : 18,
               color: foregroundColor,
               semanticLabel: label,
             ),
@@ -278,7 +295,9 @@ class DemoPill extends StatelessWidget {
           AccessibleText(
             label,
             style: TextStyle(
-              fontSize: AppTheme.fontSizeSmall,
+              fontSize: compactLayout
+                  ? AppTheme.fontSizeXSmall
+                  : AppTheme.fontSizeSmall,
               color: foregroundColor,
               fontWeight: FontWeight.w700,
             ),
@@ -431,6 +450,7 @@ class DemoSectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final compactLayout = _useCompactDemoLayout(context);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -442,7 +462,9 @@ class DemoSectionTitle extends StatelessWidget {
                 title,
                 style: TextStyle(
                   color: AppTheme.stageTextPrimary,
-                  fontSize: AppTheme.fontSizeLarge,
+                  fontSize: compactLayout
+                      ? AppTheme.fontSizeNormal
+                      : AppTheme.fontSizeLarge,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -452,7 +474,9 @@ class DemoSectionTitle extends StatelessWidget {
                   subtitle!,
                   style: TextStyle(
                     color: AppTheme.stageTextSecondary,
-                    fontSize: AppTheme.fontSizeSmall,
+                    fontSize: compactLayout
+                        ? AppTheme.fontSizeXSmall
+                        : AppTheme.fontSizeSmall,
                     height: 1.5,
                   ),
                 ),
@@ -504,6 +528,11 @@ class _DemoStageHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final compactLayout = _useCompactDemoLayout(context);
+    final navButtonSize = compactLayout
+        ? AppTheme.minTouchTarget
+        : AppTheme.minTouchTarget + 8;
+    final navIconSize = compactLayout ? 34.0 : 44.0;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -516,8 +545,8 @@ class _DemoStageHeader extends StatelessWidget {
               onTap: onBackPressed ?? () => Navigator.of(context).pop(),
               borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
               child: Ink(
-                width: AppTheme.minTouchTarget + 8,
-                height: AppTheme.minTouchTarget + 8,
+                width: navButtonSize,
+                height: navButtonSize,
                 decoration: BoxDecoration(
                   gradient: AppTheme.stageAccentGradient,
                   shape: BoxShape.circle,
@@ -525,21 +554,26 @@ class _DemoStageHeader extends StatelessWidget {
                     color: Colors.white.withValues(alpha: 0.56),
                   ),
                 ),
-                child: const LinkableSvgIcon(
+                child: LinkableSvgIcon(
                   icon: LinkableIconName.back,
-                  size: 44,
+                  size: navIconSize,
                   semanticLabel: '返回',
                 ),
               ),
             ),
           )
         else if (showBackButton)
-          const SizedBox(width: AppTheme.minTouchTarget + 8),
+          SizedBox(width: navButtonSize),
         if (showBackButton && Navigator.of(context).canPop())
           const SizedBox(width: AppTheme.spacingM),
         if (!showBackButton) ...[
-          const AppLogo(size: 48, borderRadius: 12),
-          const SizedBox(width: AppTheme.spacingM),
+          AppLogo(
+            size: compactLayout ? 40 : 48,
+            borderRadius: compactLayout ? 10 : 12,
+          ),
+          SizedBox(
+            width: compactLayout ? AppTheme.spacingS : AppTheme.spacingM,
+          ),
         ],
         Expanded(
           child: Padding(
@@ -552,13 +586,19 @@ class _DemoStageHeader extends StatelessWidget {
                   isHeader: true,
                   style: TextStyle(
                     color: AppTheme.stageTextPrimary,
-                    fontSize: AppTheme.fontSizeLarge,
+                    fontSize: compactLayout
+                        ? AppTheme.fontSizeNormal
+                        : AppTheme.fontSizeLarge,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: AppTheme.spacingS),
+                SizedBox(
+                  height: compactLayout
+                      ? AppTheme.spacingXS
+                      : AppTheme.spacingS,
+                ),
                 Container(
-                  width: 46,
+                  width: compactLayout ? 38 : 46,
                   height: 4,
                   decoration: BoxDecoration(
                     color: AppTheme.stageAccent,
@@ -566,12 +606,20 @@ class _DemoStageHeader extends StatelessWidget {
                   ),
                 ),
                 if (subtitle != null) ...[
-                  const SizedBox(height: AppTheme.spacingS),
+                  SizedBox(
+                    height: compactLayout
+                        ? AppTheme.spacingXS
+                        : AppTheme.spacingS,
+                  ),
                   AccessibleText(
                     subtitle!,
+                    maxLines: compactLayout ? 2 : null,
+                    overflow: compactLayout ? TextOverflow.ellipsis : null,
                     style: TextStyle(
                       color: AppTheme.stageTextSecondary,
-                      fontSize: AppTheme.fontSizeSmall,
+                      fontSize: compactLayout
+                          ? AppTheme.fontSizeXSmall
+                          : AppTheme.fontSizeSmall,
                     ),
                   ),
                 ],
@@ -824,6 +872,11 @@ class _ThemeModeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final session = AppSessionService.instance;
+    final compactLayout = _useCompactDemoLayout(context);
+    final buttonSize = compactLayout
+        ? AppTheme.minTouchTarget
+        : AppTheme.minTouchTarget + 8;
+    final iconSize = compactLayout ? 34.0 : 44.0;
 
     return AnimatedBuilder(
       animation: session,
@@ -842,8 +895,8 @@ class _ThemeModeButton extends StatelessWidget {
             },
             borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
             child: Ink(
-              width: AppTheme.minTouchTarget + 8,
-              height: AppTheme.minTouchTarget + 8,
+              width: buttonSize,
+              height: buttonSize,
               decoration: BoxDecoration(
                 gradient: AppTheme.stageAccentGradient,
                 shape: BoxShape.circle,
@@ -852,7 +905,7 @@ class _ThemeModeButton extends StatelessWidget {
               child: ExcludeSemantics(
                 child: LinkableMaterialIcon(
                   icon: icon,
-                  size: 44,
+                  size: iconSize,
                   color: Colors.white,
                   semanticLabel: label,
                 ),

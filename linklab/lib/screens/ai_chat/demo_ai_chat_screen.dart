@@ -561,9 +561,9 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
       builder: (context) {
         final mediaQuery = MediaQuery.of(context);
         final textScale = mediaQuery.textScaler.scale(1);
-        final compactLayout = mediaQuery.size.width < 380 || textScale > 1.35;
+        final compactLayout = mediaQuery.size.width < 430 || textScale > 1.15;
         final chatBody = _buildChatBody(compactLayout: compactLayout);
-        final inputBar = _buildInputBar();
+        final inputBar = _buildInputBar(compactLayout: compactLayout);
 
         if (widget.embeddedInTab) {
           return Material(
@@ -576,9 +576,9 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(
                       compactLayout ? AppTheme.spacingM : AppTheme.spacingL,
-                      AppTheme.spacingM,
+                      compactLayout ? AppTheme.spacingS : AppTheme.spacingM,
                       compactLayout ? AppTheme.spacingM : AppTheme.spacingL,
-                      AppTheme.spacingS,
+                      compactLayout ? AppTheme.spacingXS : AppTheme.spacingS,
                     ),
                     child: Column(
                       children: [
@@ -617,14 +617,16 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
       label: 'AI 助手，第一響應入口',
       child: Row(
         children: [
-          const DemoGlassIconBadge(
+          DemoGlassIconBadge(
             icon: Icons.multitrack_audio_rounded,
-            size: 48,
-            iconSize: 24,
+            size: compactLayout ? 40 : 48,
+            iconSize: compactLayout ? 20 : 24,
             shape: DemoGlassIconShape.circle,
             semanticLabel: 'AI 助手',
           ),
-          const SizedBox(width: AppTheme.spacingM),
+          SizedBox(
+            width: compactLayout ? AppTheme.spacingS : AppTheme.spacingM,
+          ),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -662,15 +664,20 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
   }
 
   Widget _buildChatBody({required bool compactLayout}) {
+    final hasUserConversation = _messages.any((message) => message.isUser);
     return Column(
       children: [
-        _buildAssistantContextCard(compactLayout: compactLayout),
+        if (!widget.embeddedInTab || !hasUserConversation)
+          _buildAssistantContextCard(compactLayout: compactLayout)
+        else
+          _buildCompactPromptStrip(compactLayout: compactLayout),
         Expanded(child: _buildMessageList(compactLayout: compactLayout)),
       ],
     );
   }
 
   Widget _buildAssistantContextCard({required bool compactLayout}) {
+    final showCapabilityPills = !widget.embeddedInTab || !compactLayout;
     return Padding(
       padding: EdgeInsets.fromLTRB(
         widget.embeddedInTab ? 0 : AppTheme.spacingL,
@@ -715,30 +722,34 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
                   ),
                 ),
               ],
-              const SizedBox(height: AppTheme.spacingM),
-              Wrap(
-                spacing: AppTheme.spacingS,
-                runSpacing: AppTheme.spacingS,
-                children: [
-                  DemoPill(
-                    label: 'OCR',
-                    icon: Icons.document_scanner_outlined,
-                    color: AppTheme.stageAccentLight,
-                  ),
-                  DemoPill(
-                    label: '場景描述',
-                    icon: Icons.visibility_outlined,
-                    color: AppTheme.stageAccentLight,
-                  ),
-                  DemoPill(
-                    label: '緊急詞檢測',
-                    icon: Icons.warning_amber_rounded,
-                    color: AppTheme.stageAccentLight,
-                  ),
-                ],
-              ),
-              if (widget.quickPrompts.isNotEmpty) ...[
+              if (showCapabilityPills) ...[
                 const SizedBox(height: AppTheme.spacingM),
+                Wrap(
+                  spacing: AppTheme.spacingS,
+                  runSpacing: AppTheme.spacingS,
+                  children: [
+                    DemoPill(
+                      label: 'OCR',
+                      icon: Icons.document_scanner_outlined,
+                      color: AppTheme.stageAccentLight,
+                    ),
+                    DemoPill(
+                      label: '場景描述',
+                      icon: Icons.visibility_outlined,
+                      color: AppTheme.stageAccentLight,
+                    ),
+                    DemoPill(
+                      label: '緊急詞檢測',
+                      icon: Icons.warning_amber_rounded,
+                      color: AppTheme.stageAccentLight,
+                    ),
+                  ],
+                ),
+              ],
+              if (widget.quickPrompts.isNotEmpty) ...[
+                SizedBox(
+                  height: compactLayout ? AppTheme.spacingS : AppTheme.spacingM,
+                ),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
@@ -748,21 +759,9 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
                           padding: const EdgeInsets.only(
                             right: AppTheme.spacingS,
                           ),
-                          child: ActionChip(
-                            backgroundColor: AppTheme.stageAccent.withValues(
-                              alpha: 0.14,
-                            ),
-                            side: BorderSide(
-                              color: AppTheme.stageAccent.withValues(
-                                alpha: 0.24,
-                              ),
-                            ),
-                            label: Text(
-                              prompt,
-                              style: TextStyle(
-                                color: AppTheme.stageTextPrimary,
-                              ),
-                            ),
+                          child: _QuickPromptButton(
+                            label: prompt,
+                            compactLayout: compactLayout,
                             onPressed: _isProcessing
                                 ? null
                                 : () => _sendPresetMessage(prompt),
@@ -780,14 +779,65 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
     );
   }
 
+  Widget _buildCompactPromptStrip({required bool compactLayout}) {
+    if (widget.quickPrompts.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppTheme.spacingS),
+      child: DemoSurfaceCard(
+        color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.9),
+        borderColor: AppTheme.stageBorder.withValues(alpha: 0.32),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppTheme.spacingS,
+          vertical: AppTheme.spacingS,
+        ),
+        child: Row(
+          children: [
+            DemoPill(
+              icon: Icons.offline_bolt_outlined,
+              label: '本地可用',
+              color: AppTheme.stageAccentLight,
+            ),
+            const SizedBox(width: AppTheme.spacingS),
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    for (final prompt in widget.quickPrompts) ...[
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          right: AppTheme.spacingS,
+                        ),
+                        child: _QuickPromptButton(
+                          label: prompt,
+                          compactLayout: compactLayout,
+                          onPressed: _isProcessing
+                              ? null
+                              : () => _sendPresetMessage(prompt),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildMessageList({required bool compactLayout}) {
     return ListView.builder(
       controller: _scrollController,
       padding: EdgeInsets.fromLTRB(
         widget.embeddedInTab ? 0 : AppTheme.spacingL,
-        compactLayout ? AppTheme.spacingM : AppTheme.spacingL,
+        compactLayout ? AppTheme.spacingS : AppTheme.spacingL,
         widget.embeddedInTab ? 0 : AppTheme.spacingL,
-        AppTheme.spacingL,
+        compactLayout ? AppTheme.spacingS : AppTheme.spacingL,
       ),
       itemCount: _messages.length,
       itemBuilder: (context, index) {
@@ -797,18 +847,21 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
           onStartSOS: _startSOSFlowFromAI,
           onSpeak: () => _speakText(_messages[index].text, index),
           isSpeaking: _speakingMessageIndex == index,
+          compactLayout: compactLayout,
         );
       },
     );
   }
 
-  Widget _buildInputBar() {
+  Widget _buildInputBar({required bool compactLayout}) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         if (_selectedImageBytes != null)
           DemoSurfaceCard(
-            margin: const EdgeInsets.only(bottom: AppTheme.spacingM),
+            margin: EdgeInsets.only(
+              bottom: compactLayout ? AppTheme.spacingS : AppTheme.spacingM,
+            ),
             padding: const EdgeInsets.all(AppTheme.spacingS),
             child: Row(
               children: [
@@ -816,8 +869,8 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
                   borderRadius: BorderRadius.circular(12),
                   child: Image.memory(
                     _selectedImageBytes!,
-                    width: 60,
-                    height: 60,
+                    width: compactLayout ? 48 : 60,
+                    height: compactLayout ? 48 : 60,
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -842,10 +895,10 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
             ),
           ),
         Container(
-          padding: const EdgeInsets.all(AppTheme.spacingS),
+          padding: EdgeInsets.all(compactLayout ? 6 : AppTheme.spacingS),
           decoration: AppTheme.stageCardDecoration(
             color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.96),
-            borderRadius: BorderRadius.circular(28),
+            borderRadius: BorderRadius.circular(compactLayout ? 24 : 28),
           ),
           child: Row(
             children: [
@@ -854,9 +907,10 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
                 semanticLabel: '拍照',
                 backgroundColor: AppTheme.stageSurface,
                 iconColor: AppTheme.stageAccent,
+                iconSize: compactLayout ? 22 : AppTheme.fontSizeLarge,
                 onPressed: _showImagePickerOptions,
               ),
-              const SizedBox(width: AppTheme.spacingS),
+              SizedBox(width: compactLayout ? 6 : AppTheme.spacingS),
               Semantics(
                 button: true,
                 label: _isListening ? '停止錄音' : '語音輸入',
@@ -882,20 +936,30 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
                         color: _isListening
                             ? AppTheme.stageDanger
                             : AppTheme.stageAccent,
-                        size: 28,
+                        size: compactLayout ? 24 : 28,
                       ),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: AppTheme.spacingS),
+              SizedBox(width: compactLayout ? 6 : AppTheme.spacingS),
               Expanded(
                 child: TextField(
                   controller: _textController,
-                  style: TextStyle(color: AppTheme.stageTextPrimary),
+                  style: TextStyle(
+                    color: AppTheme.stageTextPrimary,
+                    fontSize: compactLayout
+                        ? AppTheme.fontSizeSmall
+                        : AppTheme.fontSizeNormal,
+                  ),
                   decoration: InputDecoration(
                     hintText: '輸入消息...',
-                    hintStyle: TextStyle(color: AppTheme.stageTextHint),
+                    hintStyle: TextStyle(
+                      color: AppTheme.stageTextHint,
+                      fontSize: compactLayout
+                          ? AppTheme.fontSizeSmall
+                          : AppTheme.fontSizeNormal,
+                    ),
                     filled: true,
                     fillColor: AppTheme.stageSurface,
                     border: OutlineInputBorder(
@@ -915,7 +979,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: AppTheme.spacingM,
-                      vertical: AppTheme.spacingM,
+                      vertical: AppTheme.spacingS,
                     ),
                   ),
                   textInputAction: TextInputAction.send,
@@ -923,7 +987,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
                   enabled: !_isProcessing,
                 ),
               ),
-              const SizedBox(width: AppTheme.spacingS),
+              SizedBox(width: compactLayout ? 6 : AppTheme.spacingS),
               Container(
                 decoration: BoxDecoration(
                   gradient: AppTheme.stageAccentGradient,
@@ -940,12 +1004,12 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
                     child: InkWell(
                       onTap: _isProcessing ? null : _sendMessage,
                       customBorder: const CircleBorder(),
-                      child: const SizedBox(
+                      child: SizedBox(
                         width: AppTheme.minTouchTarget,
                         height: AppTheme.minTouchTarget,
                         child: LinkableSvgIcon(
                           icon: LinkableIconName.send,
-                          size: AppTheme.fontSizeLarge,
+                          size: compactLayout ? 22 : AppTheme.fontSizeLarge,
                           semanticLabel: '發送消息',
                         ),
                       ),
@@ -957,6 +1021,69 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _QuickPromptButton extends StatelessWidget {
+  const _QuickPromptButton({
+    required this.label,
+    required this.compactLayout,
+    required this.onPressed,
+  });
+
+  final String label;
+  final bool compactLayout;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final borderRadius = BorderRadius.circular(compactLayout ? 14 : 16);
+
+    return Semantics(
+      button: true,
+      label: '快捷問題：$label',
+      hint: '雙擊發送這個問題',
+      enabled: onPressed != null,
+      child: Material(
+        color: AppTheme.stageAccent.withValues(
+          alpha: onPressed == null ? 0.08 : 0.14,
+        ),
+        borderRadius: borderRadius,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: borderRadius,
+          child: Container(
+            constraints: BoxConstraints(
+              minHeight: AppTheme.minTouchTarget,
+              maxWidth: compactLayout ? 210 : 260,
+            ),
+            padding: EdgeInsets.symmetric(
+              horizontal: compactLayout ? 12 : AppTheme.spacingM,
+              vertical: AppTheme.spacingS,
+            ),
+            decoration: BoxDecoration(
+              borderRadius: borderRadius,
+              border: Border.all(
+                color: AppTheme.stageAccent.withValues(alpha: 0.28),
+              ),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: AppTheme.stageTextPrimary,
+                fontSize: compactLayout
+                    ? AppTheme.fontSizeSmall
+                    : AppTheme.fontSizeNormal,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -987,6 +1114,7 @@ class _ChatMessageBubble extends StatelessWidget {
     required this.onTransferToHuman,
     required this.onStartSOS,
     required this.onSpeak,
+    required this.compactLayout,
     this.isSpeaking = false,
   });
 
@@ -994,6 +1122,7 @@ class _ChatMessageBubble extends StatelessWidget {
   final VoidCallback onTransferToHuman;
   final VoidCallback onStartSOS;
   final VoidCallback onSpeak;
+  final bool compactLayout;
   final bool isSpeaking;
 
   bool get _isFinalBotResult {
@@ -1078,11 +1207,19 @@ class _ChatMessageBubble extends StatelessWidget {
     final textColor = message.isUser
         ? AppTheme.stageBackground
         : AppTheme.stageTextPrimary;
+    final avatarSize = compactLayout ? 34.0 : 40.0;
+    final iconSize = compactLayout ? 26.0 : 32.0;
+    final bubbleRadius = compactLayout ? 16.0 : 20.0;
+    final bubblePadding = compactLayout
+        ? const EdgeInsets.symmetric(horizontal: 12, vertical: 10)
+        : const EdgeInsets.all(AppTheme.spacingM);
 
     return Semantics(
       label: message.isUser ? '我說：${message.text}' : 'AI 助手說：${message.text}',
       child: Padding(
-        padding: const EdgeInsets.only(bottom: AppTheme.spacingM),
+        padding: EdgeInsets.only(
+          bottom: compactLayout ? AppTheme.spacingS : AppTheme.spacingM,
+        ),
         child: Row(
           mainAxisAlignment: message.isUser
               ? MainAxisAlignment.end
@@ -1091,15 +1228,15 @@ class _ChatMessageBubble extends StatelessWidget {
           children: [
             if (!message.isUser) ...[
               Container(
-                width: 40,
-                height: 40,
+                width: avatarSize,
+                height: avatarSize,
                 decoration: BoxDecoration(
                   gradient: AppTheme.stageAccentGradient,
                   shape: BoxShape.circle,
                 ),
-                child: const LinkableSvgIcon(
+                child: LinkableSvgIcon(
                   icon: LinkableIconName.aiChat,
-                  size: 32,
+                  size: iconSize,
                   semanticLabel: 'AI 助手',
                 ),
               ),
@@ -1121,25 +1258,34 @@ class _ChatMessageBubble extends StatelessWidget {
                       ),
                     ),
                   if (message.text.isNotEmpty)
-                    Container(
-                      padding: const EdgeInsets.all(AppTheme.spacingM),
-                      decoration: BoxDecoration(
-                        color: bubbleColor,
-                        borderRadius: BorderRadius.circular(20),
-                        border: message.isUser
-                            ? null
-                            : Border.all(
-                                color: AppTheme.stageBorder.withValues(
-                                  alpha: 0.82,
-                                ),
-                              ),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth:
+                            MediaQuery.sizeOf(context).width *
+                            (message.isUser ? 0.72 : 0.82),
                       ),
-                      child: AccessibleText(
-                        message.text,
-                        style: TextStyle(
-                          color: textColor,
-                          fontSize: AppTheme.fontSizeNormal,
-                          height: 1.6,
+                      child: Container(
+                        padding: bubblePadding,
+                        decoration: BoxDecoration(
+                          color: bubbleColor,
+                          borderRadius: BorderRadius.circular(bubbleRadius),
+                          border: message.isUser
+                              ? null
+                              : Border.all(
+                                  color: AppTheme.stageBorder.withValues(
+                                    alpha: 0.82,
+                                  ),
+                                ),
+                        ),
+                        child: AccessibleText(
+                          message.text,
+                          style: TextStyle(
+                            color: textColor,
+                            fontSize: compactLayout
+                                ? AppTheme.fontSizeSmall
+                                : AppTheme.fontSizeNormal,
+                            height: compactLayout ? 1.45 : 1.6,
+                          ),
                         ),
                       ),
                     ),
@@ -1156,7 +1302,9 @@ class _ChatMessageBubble extends StatelessWidget {
                               : Icons.volume_up_outlined,
                           semanticLabel: isSpeaking ? '停止播放' : '語音播放',
                           size: 36,
-                          iconSize: AppTheme.fontSizeNormal,
+                          iconSize: compactLayout
+                              ? AppTheme.fontSizeSmall
+                              : AppTheme.fontSizeNormal,
                           backgroundColor: isSpeaking
                               ? AppTheme.stageDanger.withValues(alpha: 0.2)
                               : AppTheme.stageSurface,
@@ -1198,8 +1346,8 @@ class _ChatMessageBubble extends StatelessWidget {
             if (message.isUser) ...[
               const SizedBox(width: AppTheme.spacingS),
               Container(
-                width: 40,
-                height: 40,
+                width: avatarSize,
+                height: avatarSize,
                 decoration: BoxDecoration(
                   color: AppTheme.stageInfo.withValues(alpha: 0.3),
                   shape: BoxShape.circle,
@@ -1207,9 +1355,9 @@ class _ChatMessageBubble extends StatelessWidget {
                     color: AppTheme.stageInfo.withValues(alpha: 0.32),
                   ),
                 ),
-                child: const LinkableSvgIcon(
+                child: LinkableSvgIcon(
                   icon: LinkableIconName.profile,
-                  size: 32,
+                  size: iconSize,
                   semanticLabel: '我',
                 ),
               ),
