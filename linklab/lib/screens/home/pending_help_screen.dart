@@ -1,10 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/app_theme.dart';
-import '../../demo_flow/demo_matching_flow.dart';
 import '../../providers/app_session_provider.dart';
+import '../../providers/demo_help_request_flow_provider.dart';
+import '../call/demo_call_screen.dart';
 import '../../widgets/accessible/index.dart';
 import '../../widgets/demo/demo_motion.dart';
 import '../../widgets/demo/demo_overlays.dart';
@@ -218,8 +221,7 @@ class _PendingHelpScreenState extends ConsumerState<PendingHelpScreen> {
               ),
               onPressed: () {
                 Navigator.of(context).pop();
-                // 進入演示通話流程
-                DemoMatchingFlow.startMatching(context);
+                unawaited(_enterVolunteerCall(item));
               },
               child: const Text('確認響應'),
             ),
@@ -251,8 +253,7 @@ class _PendingHelpScreenState extends ConsumerState<PendingHelpScreen> {
               ),
               onPressed: () {
                 Navigator.of(context).pop();
-                // 進入演示通話流程
-                DemoMatchingFlow.startMatching(context);
+                unawaited(_enterVolunteerCall(item));
               },
               child: const Text('確認響應'),
             ),
@@ -260,6 +261,30 @@ class _PendingHelpScreenState extends ConsumerState<PendingHelpScreen> {
         ),
       );
     }
+  }
+
+  Future<void> _enterVolunteerCall(_PendingHelpItem item) async {
+    await ref
+        .read(demoHelpRequestFlowProvider.notifier)
+        .enterMatching(
+          intent: '${item.seekerName}：${item.title}。${item.description}',
+          type: _requestTypeFor(item.type),
+          urgency: item.urgency == 'emergency' ? 'emergency' : 'normal',
+        );
+    if (!mounted) {
+      return;
+    }
+    await pushDemoStageRoute<void>(context, page: const DemoCallScreen());
+  }
+
+  String _requestTypeFor(String type) {
+    return switch (type) {
+      'ocr' => 'medicine_ocr',
+      'scene' => 'scene_navigation',
+      'sos' => 'sos',
+      'money' => 'money_identify',
+      _ => 'volunteer_response',
+    };
   }
 }
 

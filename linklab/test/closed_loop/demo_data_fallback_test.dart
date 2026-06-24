@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:linklab/config/app_config.dart';
 import 'package:linklab/models/demo_ai_intent.dart';
 import 'package:linklab/models/help_request_status.dart';
 import 'package:linklab/providers/demo_help_request_flow_provider.dart';
@@ -125,6 +126,42 @@ void main() {
     expect(navigation.text, contains('志願者'));
   });
 
+  test('普通問候不會觸發志願者匹配', () async {
+    await prepareEmptyDemoEnvironment();
+
+    final ai = DemoAIService();
+    final greeting = await ai.process('你好');
+    expect(greeting.success, isTrue);
+    expect(greeting.text, contains('AI 助手'));
+    expect(greeting.data?['nextStatus'], isNull);
+    expect(greeting.data?['requiresHumanFallback'], isNull);
+
+    final facade = AgentServiceFacade();
+    final response = await facade.processInput(text: '你好');
+    expect(response.nextAction, 'answer');
+    expect(response.canResolveByAi, isTrue);
+    expect(response.handoffReason, isNull);
+    expect(response.answerText, contains('AI 助手'));
+  });
+
+  test('簡單藥品問答可直接展示，具體用藥仍保留安全邊界', () async {
+    await prepareEmptyDemoEnvironment();
+
+    final ai = DemoAIService();
+    final medicine = await ai.process('布洛芬是什麼藥？');
+    expect(medicine.success, isTrue);
+    expect(medicine.text, contains('解熱鎮痛藥'));
+    expect(medicine.data?['simpleMedicineQa'], isTrue);
+    expect(medicine.data?['nextStatus'], isNull);
+
+    final facade = AgentServiceFacade();
+    final response = await facade.processInput(text: '藥盒有效期怎麼看？');
+    expect(response.nextAction, 'answer');
+    expect(response.canResolveByAi, isTrue);
+    expect(response.safetyFlags, contains('not_medical_diagnosis'));
+    expect(response.answerText, contains('有效期'));
+  });
+
   test('藥品三輪上下文可從說明書讀取進入轉人工確認', () async {
     await prepareSignedInDemoEnvironment(clearHelpHistory: true);
     final ai = DemoAIService();
@@ -185,6 +222,34 @@ void main() {
       stopwatch.elapsed,
       lessThan(const Duration(seconds: 2)),
       reason: 'DemoMode 首次響應不能被真實大模型請求拖慢',
+    );
+  });
+
+  test('真實 AI 開啓時 SOS 和轉人工仍由本地安全規則優先分流', () async {
+    await prepareEmptyDemoEnvironment();
+    AppConfig.configureFromEnvironment(const {
+      'LINKABLE_ENABLE_REAL_AI': 'true',
+    }, enablePresenterSessionOnFallback: false);
+
+    final facade = AgentServiceFacade();
+    final stopwatch = Stopwatch()..start();
+
+    final sos = await facade.processInput(text: '救命，我胸口痛，剛剛摔倒了');
+    expect(sos.urgency, 'emergency');
+    expect(sos.nextAction, 'trigger_sos');
+    expect(sos.canResolveByAi, isFalse);
+    expect(sos.answerText, contains('緊急模式'));
+
+    final human = await facade.processInput(text: '這個問題太複雜了，我需要真人志願者幫助');
+    expect(human.nextAction, 'match_volunteer');
+    expect(human.canResolveByAi, isFalse);
+    expect(human.handoffReason, isNotNull);
+
+    stopwatch.stop();
+    expect(
+      stopwatch.elapsed,
+      lessThan(const Duration(seconds: 2)),
+      reason: 'SOS 和轉人工不能等待真實大模型返回',
     );
   });
 }

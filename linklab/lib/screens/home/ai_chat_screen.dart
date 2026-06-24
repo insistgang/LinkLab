@@ -48,6 +48,17 @@ class AIChatScreen extends StatelessWidget {
         quickPrompts: ['這件衣服是什麼顏色', '幫我分辨這兩個顏色', '這個物體的主色調是什麼'],
       ),
       const _AssistantPreset(
+        label: '藥品問答',
+        subtitle: '常見藥名、成分與有效期',
+        icon: Icons.medication_outlined,
+        color: AppTheme.warningColor,
+        title: 'AI藥品問答',
+        introMessage:
+            '您可以問常見藥品名稱、成分、有效期位置和閱讀注意事項。我不替代醫生或藥師，涉及能不能吃、吃幾片或混合用藥時會提醒您人工確認。',
+        initialPrompt: '布洛芬是什麼藥？',
+        quickPrompts: ['布洛芬是什麼藥？', '感冒藥和退燒藥能一起吃嗎？', '藥盒有效期怎麼看？'],
+      ),
+      const _AssistantPreset(
         label: '緊急識別',
         subtitle: '檢測危險並快速進入 SOS',
         icon: Icons.warning_amber_rounded,
@@ -181,7 +192,7 @@ class AIChatScreen extends StatelessWidget {
       page: const DemoAIChatScreen(
         title: 'AI智能對話',
         introMessage: '您好，我是 AI 助手智動。您可以直接說需求，也可以通過下方按鈕發語音或圖片，我會優先嚐試自己解決。',
-        quickPrompts: ['幫我讀一下這個說明書', '描述一下我周圍的環境', '這件衣服是什麼顏色', '我需要真人志願者幫助'],
+        quickPrompts: ['幫我讀一下這個說明書', '布洛芬是什麼藥？', '藥盒有效期怎麼看？', '我需要真人志願者幫助'],
       ),
     );
   }

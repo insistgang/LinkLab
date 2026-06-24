@@ -1039,9 +1039,16 @@ class _ChatMessageBubble extends StatelessWidget {
   }
 
   bool get _canOfferManualReview {
+    final intent = message.data?['intent'] as String?;
+    final rawConfidence = message.data?['confidence'];
+    final confidence = rawConfidence is num ? rawConfidence.toDouble() : 0.0;
+    final highConfidenceSmallTalk =
+        intent == 'fallback' && confidence >= 0.80 && _canResolveByAI;
+
     return _isFinalBotResult &&
         !_isEmergencyResult &&
         !_requiresTransferAction &&
+        !highConfidenceSmallTalk &&
         _canResolveByAI;
   }
 

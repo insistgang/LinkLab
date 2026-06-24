@@ -138,7 +138,10 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         // 志願者模式：待幫助列表、AI 助手、社羣、我的
         return const [
           PendingHelpScreen(),
-          DemoAIChatScreen(embeddedInTab: true),
+          DemoAIChatScreen(
+            embeddedInTab: true,
+            quickPrompts: ['布洛芬是什麼藥？', '藥盒有效期怎麼看？', '我需要真人志願者幫助'],
+          ),
           CommunityScreen(),
           ProfileScreen(mode: ProfileScreenMode.volunteer),
         ];
@@ -146,7 +149,10 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         // 求助者模式：首頁、AI 助手、社羣、我的
         return const [
           SeekerHomeScreen(),
-          DemoAIChatScreen(embeddedInTab: true),
+          DemoAIChatScreen(
+            embeddedInTab: true,
+            quickPrompts: ['布洛芬是什麼藥？', '藥盒有效期怎麼看？', '我需要真人志願者幫助'],
+          ),
           CommunityScreen(),
           ProfileScreen(mode: ProfileScreenMode.seeker),
         ];

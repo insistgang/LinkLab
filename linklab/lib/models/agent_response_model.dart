@@ -17,11 +17,11 @@ class UiCopy {
   });
 
   Map<String, dynamic> toJson() => {
-        'title': title,
-        'body': body,
-        'primary_action': primaryAction,
-        'secondary_action': secondaryAction,
-      };
+    'title': title,
+    'body': body,
+    'primary_action': primaryAction,
+    'secondary_action': secondaryAction,
+  };
 
   factory UiCopy.fromJson(Map<String, dynamic> json) {
     return UiCopy(
@@ -65,19 +65,19 @@ class AgentResponse {
   });
 
   Map<String, dynamic> toJson() => {
-        'request_id': requestId,
-        'intent': intent,
-        'urgency': urgency,
-        'confidence': confidence,
-        'can_resolve_by_ai': canResolveByAi,
-        'answer_text': answerText,
-        'spoken_text': spokenText,
-        'next_action': nextAction,
-        'handoff_reason': handoffReason,
-        'recommended_volunteer_tags': recommendedVolunteerTags,
-        'safety_flags': safetyFlags,
-        'ui_copy': uiCopy.toJson(),
-      };
+    'request_id': requestId,
+    'intent': intent,
+    'urgency': urgency,
+    'confidence': confidence,
+    'can_resolve_by_ai': canResolveByAi,
+    'answer_text': answerText,
+    'spoken_text': spokenText,
+    'next_action': nextAction,
+    'handoff_reason': handoffReason,
+    'recommended_volunteer_tags': recommendedVolunteerTags,
+    'safety_flags': safetyFlags,
+    'ui_copy': uiCopy.toJson(),
+  };
 
   factory AgentResponse.fromJson(Map<String, dynamic> json) {
     return AgentResponse(
@@ -90,8 +90,9 @@ class AgentResponse {
       spokenText: json['spoken_text'] as String,
       nextAction: json['next_action'] as String,
       handoffReason: json['handoff_reason'] as String?,
-      recommendedVolunteerTags:
-          List<String>.from(json['recommended_volunteer_tags'] as List),
+      recommendedVolunteerTags: List<String>.from(
+        json['recommended_volunteer_tags'] as List,
+      ),
       safetyFlags: List<String>.from(json['safety_flags'] as List),
       uiCopy: UiCopy.fromJson(json['ui_copy'] as Map<String, dynamic>),
     );
@@ -104,7 +105,8 @@ class AgentResponse {
     final intent = DemoAiIntent.fromWireName(intentName);
     final extra = <String, dynamic>{...?data};
     return AgentResponse.fromDemoResult(
-      requestId: requestId ?? 'migrated-${DateTime.now().millisecondsSinceEpoch}',
+      requestId:
+          requestId ?? 'migrated-${DateTime.now().millisecondsSinceEpoch}',
       demoIntent: intent,
       answerText: result.text,
       extra: extra,
@@ -119,12 +121,19 @@ class AgentResponse {
     Map<String, dynamic>? extra,
   }) {
     final intent = demoIntent.wireName;
-    final confidence = _extractConfidence(extra) ?? _defaultConfidence(demoIntent);
+    final confidence =
+        _extractConfidence(extra) ?? _defaultConfidence(demoIntent);
     final urgency = _extractUrgency(extra, demoIntent);
-    final canResolve = _canResolveByAi(demoIntent);
-    final nextAction = _resolveNextAction(demoIntent, canResolve);
+    final isAiResolvedFallback =
+        extra?['smallTalk'] == true || extra?['simpleMedicineQa'] == true;
+    final canResolve = isAiResolvedFallback
+        ? true
+        : _canResolveByAi(demoIntent);
+    final nextAction = isAiResolvedFallback
+        ? 'answer'
+        : _resolveNextAction(demoIntent, canResolve);
     final handoffReason = canResolve ? null : _handoffReason(demoIntent);
-    final tags = _volunteerTags(demoIntent);
+    final tags = isAiResolvedFallback ? <String>[] : _volunteerTags(demoIntent);
     final flags = _safetyFlags(demoIntent);
     final uiCopy = _defaultUiCopy(demoIntent);
 
@@ -175,7 +184,9 @@ class AgentResponse {
   }
 
   static String _extractUrgency(
-      Map<String, dynamic>? extra, DemoAiIntent intent) {
+    Map<String, dynamic>? extra,
+    DemoAiIntent intent,
+  ) {
     if (intent == DemoAiIntent.emergency) return 'emergency';
     if (extra == null) return 'normal';
     final level = extra['urgencyLevel'] as String?;

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app.dart';
+import 'config/api_config.dart';
 import 'config/app_config.dart';
 import 'core/utils/logger.dart';
 import 'services/app_session_service.dart';
@@ -21,12 +22,15 @@ Future<void> initializeLinkLabApp({
   bool preferRealMode = false,
   bool enablePresenterSessionOnFallback = true,
   bool enableAuthAutoRefresh = true,
+  bool enableRealAIFromEnvironment = true,
 }) async {
   await _loadDotEnv();
+  _configureAPIKeysFromEnvironment(dotenv.env);
   AppConfig.configureFromEnvironment(
     dotenv.env,
     preferRealMode: preferRealMode,
     enablePresenterSessionOnFallback: enablePresenterSessionOnFallback,
+    enableRealAIFromEnvironment: enableRealAIFromEnvironment,
   );
 
   if (AppConfig.isRealMode) {
@@ -73,6 +77,29 @@ Future<void> _loadDotEnv() async {
   } catch (error, stackTrace) {
     AppLogger.warning('.env 加載失敗，將按缺少配置處理', error, stackTrace);
   }
+}
+
+void _configureAPIKeysFromEnvironment(Map<String, String> env) {
+  APIConfig.initialize(
+    baiduOcrKey: _envValue(env, 'BAIDU_OCR_API_KEY'),
+    baiduOcrSecret: _envValue(env, 'BAIDU_OCR_SECRET_KEY'),
+    qwenKey: _envValue(env, 'QWEN_API_KEY'),
+    xfyunApp: _envValue(env, 'XFYUN_APP_ID'),
+    xfyunKey: _envValue(env, 'XFYUN_API_KEY'),
+    xfyunSecret: _envValue(env, 'XFYUN_API_SECRET'),
+    translateAppId: _envValue(env, 'BAIDU_TRANSLATE_APP_ID'),
+    translateSecret: _envValue(env, 'BAIDU_TRANSLATE_SECRET'),
+    zhipuKey: _envValue(env, 'ZHIPU_API_KEY'),
+    minimaxKey: _envValue(env, 'MINIMAX_API_KEY'),
+  );
+}
+
+String? _envValue(Map<String, String> env, String key) {
+  final value = env[key]?.trim();
+  if (value == null || value.isEmpty || value.startsWith('YOUR_')) {
+    return null;
+  }
+  return value;
 }
 
 Future<bool> _initializeSupabase({required bool enableAuthAutoRefresh}) async {

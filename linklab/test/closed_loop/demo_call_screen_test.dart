@@ -89,6 +89,28 @@ void main() {
     expect(find.text('通話中'), findsWidgets);
   });
 
+  testWidgets('志願者端通話頁顯示求助用戶，不再顯示已接單志願者卡片', (tester) async {
+    await _prepareVolunteerCallEnvironment();
+    final container = ProviderContainer();
+    await container
+        .read(demoHelpRequestFlowProvider.notifier)
+        .enterMatching(
+          intent: '用戶9012：緊急！迷路了。天黑了找不到回家的路，需要緊急幫助',
+          type: 'sos',
+          urgency: 'emergency',
+        );
+
+    await _pumpCallScreen(tester, container: container);
+    await tester.pump(const Duration(milliseconds: 150));
+
+    expect(find.text('已連接求助用戶'), findsWidgets);
+    expect(find.text('用戶9012'), findsOneWidget);
+    expect(find.text('緊急！迷路了'), findsOneWidget);
+    expect(find.textContaining('天黑了找不到回家的路'), findsWidgets);
+    expect(find.text('已接單志願者'), findsNothing);
+    expect(find.text('志願者已接單'), findsNothing);
+  });
+
   testWidgets('靜音和免提按鈕狀態切換', (tester) async {
     await _prepareSignedInCallEnvironment();
     final container = ProviderContainer();
@@ -237,6 +259,29 @@ Future<void> _prepareSignedInCallEnvironment() async {
     phone: '13800138000',
     role: 'seeker',
     disabilityTypes: const ['visual'],
+    preferences: const AccessibilityPreferences(),
+  );
+  await storage.clearHelpHistory();
+  await DemoHelpRequestTracker.clearCurrentRequest();
+}
+
+Future<void> _prepareVolunteerCallEnvironment() async {
+  AppConfig.demoMode = true;
+  AppConfig.configureCompetitionDemoDefaults(enablePresenterSession: false);
+
+  final storage = LocalStorage();
+  await storage.initialize();
+  await storage.clearAll();
+
+  legacy_demo.DemoCallService().reset();
+  legacy_demo.DemoMatchingService().cancelMatching();
+  legacy_demo.DemoSOSService().cancelSOS();
+  await DemoHelpRequestTracker.clearCurrentRequest();
+
+  await AppSessionService.instance.completeOnboarding(
+    phone: '13900139000',
+    role: 'volunteer',
+    disabilityTypes: const [],
     preferences: const AccessibilityPreferences(),
   );
   await storage.clearHelpHistory();

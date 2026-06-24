@@ -15,6 +15,7 @@ class AppConfig {
 
   static const String _supabaseUrlEnvKey = 'SUPABASE_URL';
   static const String _supabaseAnonKeyEnvKey = 'SUPABASE_ANON_KEY';
+  static const String _enableRealAiEnvKey = 'LINKABLE_ENABLE_REAL_AI';
 
   // 競賽版：默認鎖定 Demo 主線，避免真實配置污染 3 分鐘演示。
   static bool get isCompetitionDemoOnly => demoMode;
@@ -24,6 +25,7 @@ class AppConfig {
   static String _supabaseUrl = '';
   static String _supabaseAnonKey = '';
   static bool _supabaseInitialized = false;
+  static bool _realAiEnabled = false;
 
   /// 獲取當前模式
   static AppMode get mode => _mode;
@@ -66,6 +68,12 @@ class AppConfig {
   /// 是否啓用競賽演示員預置會話。
   static bool get presenterMode => _presenterMode;
 
+  /// 是否允許 AI facade 調用真實外部 AI / OCR / Vision API。
+  ///
+  /// 注意：這不是 RealMode 開關。競賽演示仍可保持 DemoMode，只在此 flag
+  /// 顯式開啓時嘗試真實 AI，失敗後仍由 facade 自動回落到 Demo fallback。
+  static bool get realAiEnabled => _realAiEnabled;
+
   /// 從 .env 讀取運行配置。
   ///
   /// 規則：
@@ -76,10 +84,13 @@ class AppConfig {
     Map<String, String> env, {
     bool preferRealMode = false,
     bool enablePresenterSessionOnFallback = true,
+    bool enableRealAIFromEnvironment = true,
   }) {
     _supabaseUrl = (env[_supabaseUrlEnvKey] ?? '').trim();
     _supabaseAnonKey = (env[_supabaseAnonKeyEnvKey] ?? '').trim();
     _supabaseInitialized = false;
+    _realAiEnabled =
+        enableRealAIFromEnvironment && _readBool(env[_enableRealAiEnvKey]);
 
     if (preferRealMode && hasSupabaseConfig) {
       _applyMode(AppMode.real, logChange: false);
@@ -95,6 +106,10 @@ class AppConfig {
       reason: fallbackReason,
       enablePresenterSession: enablePresenterSessionOnFallback,
     );
+
+    if (_realAiEnabled) {
+      AppLogger.warning('真實 AI API 已由 .env 顯式開啓，失敗時仍會回落 DemoMode');
+    }
   }
 
   /// Phase-1 的真實模式默認配置。
@@ -135,6 +150,7 @@ class AppConfig {
     bool enablePresenterSession = true,
   }) {
     lockCompetitionDemoMode();
+    _realAiEnabled = false;
     if (enablePresenterSession) {
       enablePresenterMode();
     } else {
@@ -222,6 +238,16 @@ class AppConfig {
         (uri.scheme == 'https' || uri.scheme == 'http') &&
         uri.host.isNotEmpty;
   }
+
+  static bool _readBool(String? value) {
+    final normalized = value?.trim().toLowerCase();
+    return normalized == 'true' ||
+        normalized == '1' ||
+        normalized == 'yes' ||
+        normalized == 'y' ||
+        normalized == 'on' ||
+        normalized == 'enabled';
+  }
 }
 
 /// 功能開關配置
@@ -239,8 +265,8 @@ class FeatureFlags {
   /// Phase-1 不接真實推送。
   static bool get enablePushNotification => false;
 
-  /// Phase-1 不接真實 AI。
-  static bool get enableRealAI => false;
+  /// 真實 AI 僅在 .env 顯式開啓時使用。
+  static bool get enableRealAI => AppConfig.realAiEnabled;
 
   /// Phase-3 只接最小真實數據庫 CRUD。
   ///

@@ -264,6 +264,13 @@ class DemoAIService {
       );
     }
 
+    if (_matchesAny(normalizedInput, _greetingKeywords)) {
+      return const _DemoIntentResolution(
+        DemoAiIntent.fallback,
+        reason: 'small_talk_greeting',
+      );
+    }
+
     if (imagePath != null) {
       if (_matchesAny(normalizedInput, _colorKeywords)) {
         return const _DemoIntentResolution(DemoAiIntent.colorRecognition);
@@ -289,6 +296,13 @@ class DemoAIService {
 
     if (_matchesAny(normalizedInput, _moneyKeywords)) {
       return const _DemoIntentResolution(DemoAiIntent.moneyRecognition);
+    }
+
+    if (_matchesAny(normalizedInput, _simpleMedicineQaKeywords)) {
+      return const _DemoIntentResolution(
+        DemoAiIntent.medicationCheck,
+        reason: 'simple_medicine_qa',
+      );
     }
 
     if (_matchesAny(normalizedInput, _translationKeywords)) {
@@ -366,6 +380,17 @@ class DemoAIService {
         );
       case DemoAiIntent.medicationCheck:
         await _simulateDelay(minMs: 220, maxMs: 620);
+        if (resolution.reason == 'simple_medicine_qa') {
+          return _fixedResult(
+            DemoAiIntent.medicationCheck,
+            _simpleMedicineAnswer(input),
+            extra: {
+              'simpleMedicineQa': true,
+              'confidence': 0.86,
+              'safetyNotice': 'not_medical_diagnosis',
+            },
+          );
+        }
         return _fixedResult(
           DemoAiIntent.medicationCheck,
           '根據剛纔識別到的藥品說明，我只能幫你讀取藥名、劑量、用法和禁忌提醒，不做醫療診斷。一次喫幾片請以說明書、醫生或藥師建議爲準，可轉人工確認。',
@@ -396,10 +421,20 @@ class DemoAIService {
         );
       case DemoAiIntent.fallback:
         await _simulateDelay(minMs: 180, maxMs: 420);
+        if (resolution.reason == 'small_talk_greeting') {
+          return _fixedResult(
+            DemoAiIntent.fallback,
+            '你好，我是 LinkAble 的 AI 助手。你可以告訴我需要讀文字、看圖片、找路，或直接說“轉人工”。',
+            extra: {
+              'confidence': 0.88,
+              'smallTalk': true,
+              'nextAction': 'answer',
+            },
+          );
+        }
         return _fixedResult(
           DemoAiIntent.fallback,
-          '這個問題我還不能穩定判斷。你可以換個說法，或直接轉人工找志願者繼續處理。',
-          requiresHumanFallback: true,
+          '這個問題我還不能穩定判斷。你可以換個說法，或點擊轉人工複覈。',
           extra: {'confidence': 0.58},
         );
     }
@@ -468,6 +503,34 @@ class DemoAIService {
     ]);
   }
 
+  String _simpleMedicineAnswer(String input) {
+    final normalized = _normalize(input);
+    if (normalized.contains('布洛芬')) {
+      return '布洛芬是常見的解熱鎮痛藥，常用於發熱、頭痛、牙痛或肌肉酸痛。請按藥盒說明或醫囑使用；胃病、腎病、孕期或正在用抗凝藥時要先問醫生或藥師。';
+    }
+    if (normalized.contains('對乙酰氨基酚') ||
+        normalized.contains('对乙酰氨基酚') ||
+        normalized.contains('撲熱息痛') ||
+        normalized.contains('扑热息痛')) {
+      return '對乙酰氨基酚也叫撲熱息痛，是常見退燒止痛成分。重點要避免和多種感冒藥重複服用同一成分，並按說明書控制每日總量。';
+    }
+    if (normalized.contains('感冒藥') || normalized.contains('感冒药')) {
+      return '感冒藥常是複方藥，可能同時含退燒、止咳、抗過敏等成分。不要同時吃多種名字不同但成分重複的感冒藥；看不清成分時可以拍藥盒讓我讀。';
+    }
+    if (normalized.contains('有效期') ||
+        normalized.contains('過期') ||
+        normalized.contains('过期')) {
+      return '看藥盒有效期時，請找“有效期至”“EXP”或“失效期”。如果已過期、受潮、變色、破損，演示建議不要服用，請諮詢藥師或更換新藥。';
+    }
+    if (normalized.contains('一起吃') ||
+        normalized.contains('一起喫') ||
+        normalized.contains('混著吃') ||
+        normalized.contains('混着吃')) {
+      return '不同藥能不能一起吃，要看有效成分是否重複、是否有相互作用，以及你的年齡、疾病和過敏史。我可以幫你讀成分表，但是否合用請以醫生或藥師確認為準。';
+    }
+    return '我可以做簡單藥品問答：說明常見藥名、成分、有效期位置和閱讀注意事項。不確定能不能吃、吃幾片或和其他藥同用時，請讓醫生或藥師確認。';
+  }
+
   /// 流式對話（模擬）
   Stream<String> chatStream(String userMessage) async* {
     if (!_demoFallbackEnabled) {
@@ -508,10 +571,7 @@ class DemoAIService {
     // 根據 input 類型調用舊方法
     final AIResult result;
     if (input.imageUri != null) {
-      result = await process(
-        input.text ?? '',
-        imagePath: input.imageUri,
-      );
+      result = await process(input.text ?? '', imagePath: input.imageUri);
     } else {
       result = await process(input.text ?? '');
     }
@@ -535,10 +595,7 @@ class DemoAIService {
       requestId: input.requestId,
       demoIntent: intent,
       answerText: result.text,
-      extra: {
-        ...?result.data,
-        'confidence': confidence,
-      },
+      extra: {...?result.data, 'confidence': confidence},
     );
   }
 }
@@ -572,7 +629,26 @@ const _medicationKeywords = ['怎麼喫', '一次幾片', '藥名', '劑量', '�
 
 const _dosageFollowUpKeywords = ['一次喫幾片', '一次幾片', '幾片', '劑量', '怎麼喫'];
 
+const _simpleMedicineQaKeywords = [
+  '布洛芬',
+  '對乙酰氨基酚',
+  '对乙酰氨基酚',
+  '撲熱息痛',
+  '扑热息痛',
+  '感冒藥',
+  '感冒药',
+  '退燒藥',
+  '退烧药',
+  '有效期',
+  '過期',
+  '过期',
+  '藥品問答',
+  '药品问答',
+];
+
 const _emergencyKeywords = ['救命', '暈倒', '摔倒', '胸口痛', '迷路了', '我很害怕', '緊急'];
+
+const _greetingKeywords = ['你好', '您好', 'hello', 'hi', '嗨', '哈囉', '在嗎', '在么'];
 
 const _humanKeywords = [
   '需要人幫忙',

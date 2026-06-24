@@ -22,7 +22,10 @@ void main() {
       tester.view.resetDevicePixelRatio();
     });
 
-    await app_entry.initializeLinkLabApp(enableAuthAutoRefresh: false);
+    await app_entry.initializeLinkLabApp(
+      enableAuthAutoRefresh: false,
+      enableRealAIFromEnvironment: false,
+    );
     await tester.pumpWidget(app_entry.buildLinkLabApp());
     await tester.pumpAndSettle();
 
@@ -64,6 +67,18 @@ void main() {
     expect(FeatureFlags.enableDatabaseSync, isFalse);
     expect(FeatureFlags.enableSupabaseAuth, isFalse);
     expect(FeatureFlags.enableWebRTC, isFalse);
+    expect(FeatureFlags.enableRealAI, isFalse);
+  });
+
+  test('真實 AI 只有 .env 顯式開關時啓用，且不要求切出 DemoMode', () {
+    AppConfig.configureFromEnvironment(const {
+      'LINKABLE_ENABLE_REAL_AI': 'true',
+    }, enablePresenterSessionOnFallback: false);
+
+    expect(AppConfig.demoMode, isTrue);
+    expect(FeatureFlags.enableRealAI, isTrue);
+
+    AppConfig.configureCompetitionDemoDefaults(enablePresenterSession: false);
     expect(FeatureFlags.enableRealAI, isFalse);
   });
 

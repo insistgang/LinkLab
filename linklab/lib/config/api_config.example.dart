@@ -21,7 +21,9 @@ class APIConfig {
   static void setBaiduOcrAccessToken(String token, int expiresIn) {
     _baiduOcrAccessToken = token;
     // 提前1小時過期
-    _baiduTokenExpireTime = DateTime.now().add(Duration(seconds: expiresIn - 3600));
+    _baiduTokenExpireTime = DateTime.now().add(
+      Duration(seconds: expiresIn - 3600),
+    );
   }
 
   /// 檢查百度OCR Token是否有效
@@ -33,10 +35,12 @@ class APIConfig {
   }
 
   /// 百度OCR服務端點
-  static const String baiduOcrBaseUrl = 'https://aip.baidubce.com/rest/2.0/ocr/v1';
+  static const String baiduOcrBaseUrl =
+      'https://aip.baidubce.com/rest/2.0/ocr/v1';
 
   /// 百度OCR Token獲取地址
-  static const String baiduOcrTokenUrl = 'https://aip.baidubce.com/oauth/2.0/token';
+  static const String baiduOcrTokenUrl =
+      'https://aip.baidubce.com/oauth/2.0/token';
 
   // ==================== 通義千問VL API配置 ====================
   /// 通義千問API Key
@@ -100,7 +104,8 @@ class APIConfig {
   static String baiduTranslateSecret = '';
 
   /// 百度翻譯API地址
-  static const String baiduTranslateUrl = 'https://fanyi-api.baidu.com/api/trans/vip/translate';
+  static const String baiduTranslateUrl =
+      'https://fanyi-api.baidu.com/api/trans/vip/translate';
 
   // ==================== 智譜AI視覺API配置 ====================
   /// 智譜AI API Key
@@ -143,7 +148,9 @@ class APIConfig {
 
   /// 驗證科大訊飛配置是否完整
   static bool get isXfyunConfigured {
-    return xfyunAppId.isNotEmpty && xfyunApiKey.isNotEmpty && xfyunApiSecret.isNotEmpty;
+    return xfyunAppId.isNotEmpty &&
+        xfyunApiKey.isNotEmpty &&
+        xfyunApiSecret.isNotEmpty;
   }
 
   /// 驗證百度翻譯配置是否完整
@@ -175,7 +182,11 @@ class APIConfig {
 
   /// 檢查是否有任何AI服務已配置
   static bool get hasAnyServiceConfigured {
-    return isBaiduOcrConfigured || isQwenConfigured || isXfyunConfigured || isMinimaxTtsConfigured || isZhipuConfigured;
+    return isBaiduOcrConfigured ||
+        isQwenConfigured ||
+        isXfyunConfigured ||
+        isMinimaxTtsConfigured ||
+        isZhipuConfigured;
   }
 
   // ==================== 配置初始化方法 ====================
@@ -192,6 +203,7 @@ class APIConfig {
     String? translateAppId,
     String? translateSecret,
     String? zhipuKey,
+    String? minimaxKey,
   }) {
     if (baiduOcrKey != null) baiduOcrApiKey = baiduOcrKey;
     if (baiduOcrSecret != null) baiduOcrSecretKey = baiduOcrSecret;
@@ -202,6 +214,7 @@ class APIConfig {
     if (translateAppId != null) baiduTranslateAppId = translateAppId;
     if (translateSecret != null) baiduTranslateSecret = translateSecret;
     if (zhipuKey != null) zhipuApiKey = zhipuKey;
+    if (minimaxKey != null) minimaxApiKey = minimaxKey;
   }
 
   /// 重置所有配置（用於測試）
@@ -214,6 +227,7 @@ class APIConfig {
     xfyunAppId = '';
     xfyunApiKey = '';
     xfyunApiSecret = '';
+    minimaxApiKey = '';
     baiduTranslateAppId = '';
     baiduTranslateSecret = '';
     zhipuApiKey = '';
@@ -314,11 +328,7 @@ class APIResponse<T> {
   final T? data;
   final APIError? error;
 
-  const APIResponse._({
-    required this.isSuccess,
-    this.data,
-    this.error,
-  });
+  const APIResponse._({required this.isSuccess, this.data, this.error});
 
   /// 創建成功響應
   factory APIResponse.success(T data) {

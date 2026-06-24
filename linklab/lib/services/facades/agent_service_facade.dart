@@ -63,7 +63,15 @@ class AgentServiceFacade {
   }) async {
     final input = text?.trim() ?? '';
     try {
-      if (!FeatureFlags.enableRealAI || AppConfig.isDemoMode) {
+      final safetyRoute = await _tryLocalSafetyRoute(
+        input,
+        imagePath: imagePath,
+      );
+      if (safetyRoute != null) {
+        return safetyRoute;
+      }
+
+      if (!FeatureFlags.enableRealAI) {
         return _processDemoInput(input, imagePath: imagePath);
       }
 
@@ -82,6 +90,40 @@ class AgentServiceFacade {
     } catch (e) {
       return AgentResult.error('processInput 失敗: $e');
     }
+  }
+
+  /// SOS、顯式轉人工與高風險協助必須先走本地確定規則。
+  ///
+  /// 真實大模型可以回答普通問題，但不能吞掉緊急分流和志願者兜底。
+  Future<AgentResult?> _tryLocalSafetyRoute(
+    String input, {
+    String? imagePath,
+  }) async {
+    if (input.trim().isEmpty) {
+      return null;
+    }
+
+    final intent = _demoService.resolveIntent(input, imagePath: imagePath);
+    const localFirstIntents = {
+      DemoAiIntent.emergency,
+      DemoAiIntent.needHuman,
+      DemoAiIntent.navigation,
+      DemoAiIntent.environmentDescription,
+      DemoAiIntent.medicationCheck,
+    };
+    if (!localFirstIntents.contains(intent)) {
+      return null;
+    }
+
+    final result = await _demoService.process(input, imagePath: imagePath);
+    final mapped = _mapAIResultToAgentResult(result);
+    if (mapped.nextAction == 'trigger_sos' ||
+        mapped.nextAction == 'match_volunteer') {
+      AppLogger.info('[AgentFacade] 本地安全分流: ${mapped.nextAction}');
+      return mapped;
+    }
+
+    return null;
   }
 
   Future<AgentResult> _processDemoInput(
@@ -575,8 +617,7 @@ class AgentServiceFacade {
     final requiresHumanFallback =
         data['requiresHumanFallback'] == true ||
         data['nextStatus'] == 'matching' ||
-        demoIntent == DemoAiIntent.needHuman ||
-        demoIntent == DemoAiIntent.fallback;
+        demoIntent == DemoAiIntent.needHuman;
 
     final confidence = (data['confidence'] as num?)?.toDouble() ?? 0.85;
 
