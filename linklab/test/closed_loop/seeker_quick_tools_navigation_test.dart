@@ -11,14 +11,8 @@ import 'test_harness.dart';
 
 void main() {
   test('图片未附带文字时仍按快捷工具场景生成明确请求', () {
-    expect(
-      DemoAIChatToolMode.ocr.imageOnlyPrompt,
-      contains('图片里的文字'),
-    );
-    expect(
-      DemoAIChatToolMode.color.imageOnlyPrompt,
-      contains('主要颜色'),
-    );
+    expect(DemoAIChatToolMode.ocr.imageOnlyPrompt, contains('图片里的文字'));
+    expect(DemoAIChatToolMode.color.imageOnlyPrompt, contains('主要颜色'));
     expect(DemoAIChatToolMode.chat.imageOnlyPrompt, contains('描述'));
   });
 
@@ -30,9 +24,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
 
-    var screen = tester.widget<DemoAIChatScreen>(
-      find.byType(DemoAIChatScreen),
-    );
+    var screen = tester.widget<DemoAIChatScreen>(find.byType(DemoAIChatScreen));
     expect(screen.title, 'AI文字识别');
     expect(screen.introMessage, contains('上传一张图片'));
     expect(screen.initialPrompt, '帮我读一下这个说明书');
@@ -40,16 +32,14 @@ void main() {
     expect(screen.toolMode, DemoAIChatToolMode.ocr);
     var input = tester.widget<EditableText>(find.byType(EditableText).first);
     expect(input.controller.text, '帮我读一下这个说明书');
-    await tester.pageBack();
+    Navigator.of(tester.element(find.byType(DemoAIChatScreen))).pop();
     await tester.pump(const Duration(milliseconds: 400));
 
     await tester.tap(find.text('颜色识别'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
 
-    screen = tester.widget<DemoAIChatScreen>(
-      find.byType(DemoAIChatScreen),
-    );
+    screen = tester.widget<DemoAIChatScreen>(find.byType(DemoAIChatScreen));
     expect(screen.title, 'AI颜色识别');
     expect(screen.introMessage, contains('确认衣服、包装或物品颜色'));
     expect(screen.initialPrompt, '这件衣服是什么颜色');
@@ -57,16 +47,14 @@ void main() {
     expect(screen.toolMode, DemoAIChatToolMode.color);
     input = tester.widget<EditableText>(find.byType(EditableText).first);
     expect(input.controller.text, '这件衣服是什么颜色');
-    await tester.pageBack();
+    Navigator.of(tester.element(find.byType(DemoAIChatScreen))).pop();
     await tester.pump(const Duration(milliseconds: 400));
 
     await tester.tap(find.text('AI 对话'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
 
-    screen = tester.widget<DemoAIChatScreen>(
-      find.byType(DemoAIChatScreen),
-    );
+    screen = tester.widget<DemoAIChatScreen>(find.byType(DemoAIChatScreen));
     expect(screen.title, 'AI智能对话');
     expect(screen.initialPrompt, isNull);
     expect(screen.quickPrompts, contains('布洛芬是什么药？'));

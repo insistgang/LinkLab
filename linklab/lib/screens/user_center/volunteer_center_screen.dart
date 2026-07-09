@@ -25,8 +25,8 @@ String _resolveVolunteerId() {
   return AppSessionService.instance.userProfile?.id ?? 'demo-volunteer-id';
 }
 
-/// 志願者中心頁面 (F18-F23)
-/// MVP: 只保留等級、技能、任務三項；時間線、徽章、排班已砍 (F20/F21/F23)
+/// 志愿者中心页面 (F18-F23)
+/// MVP: 只保留等级、技能、任务三项；时间线、徽章、排班已砍 (F20/F21/F23)
 class VolunteerCenterScreen extends StatefulWidget {
   const VolunteerCenterScreen({super.key});
 
@@ -54,14 +54,14 @@ class _VolunteerCenterScreenState extends State<VolunteerCenterScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('志願者中心'),
+        title: const Text('志愿者中心'),
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,
           tabs: const [
-            Tab(icon: Icon(Icons.military_tech), text: '等級'),
+            Tab(icon: Icon(Icons.military_tech), text: '等级'),
             Tab(icon: Icon(Icons.local_offer), text: '技能'),
-            Tab(icon: Icon(Icons.assignment), text: '任務'),
+            Tab(icon: Icon(Icons.assignment), text: '任务'),
           ],
         ),
       ),
@@ -77,7 +77,7 @@ class _VolunteerCenterScreenState extends State<VolunteerCenterScreen>
   }
 }
 
-/// F18: 等級積分標籤頁
+/// F18: 等级积分标签页
 class LevelPointsTab extends StatefulWidget {
   const LevelPointsTab({super.key});
 
@@ -123,7 +123,7 @@ class _LevelPointsTabState extends State<LevelPointsTab> {
 
     final levelInfo = _levelInfo;
     if (levelInfo == null) {
-      return const Center(child: Text('加載失敗'));
+      return const Center(child: Text('加载失败'));
     }
 
     return RefreshIndicator(
@@ -131,22 +131,22 @@ class _LevelPointsTabState extends State<LevelPointsTab> {
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // 等級卡片
+          // 等级卡片
           _LevelCard(levelInfo: levelInfo),
 
           const SizedBox(height: 24),
 
-          // 等級進度
+          // 等级进度
           _LevelProgress(levelInfo: levelInfo),
 
           const SizedBox(height: 24),
 
-          // 權益說明
+          // 权益说明
           _PrivilegesCard(levelInfo: levelInfo),
 
           const SizedBox(height: 24),
 
-          // MVP: 積分流水已砍 (F15/F20)
+          // MVP: 积分流水已砍 (F15/F20)
           // _TransactionsList(transactions: _transactions),
         ],
       ),
@@ -154,7 +154,7 @@ class _LevelPointsTabState extends State<LevelPointsTab> {
   }
 }
 
-/// F19: 技能標籤標籤頁
+/// F19: 技能标签标签页
 class SkillTagsTab extends StatefulWidget {
   const SkillTagsTab({super.key});
 
@@ -206,16 +206,16 @@ class _SkillTagsTabState extends State<SkillTagsTab> {
 
           const SizedBox(height: 24),
 
-          // 待認證申請
+          // 待认证申请
           if (_pendingRequests.isNotEmpty) _buildPendingSection(),
 
           const SizedBox(height: 24),
 
-          // 添加技能按鈕
+          // 添加技能按钮
           ElevatedButton.icon(
             onPressed: _showAddSkillDialog,
             icon: const Icon(Icons.add),
-            label: const Text('添加技能標籤'),
+            label: const Text('添加技能标签'),
           ),
         ],
       ),
@@ -226,7 +226,7 @@ class _SkillTagsTabState extends State<SkillTagsTab> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('我的技能標籤', style: Theme.of(context).textTheme.titleMedium),
+        Text('我的技能标签', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 12),
         if (_mySkills.isEmpty)
           Card(
@@ -241,7 +241,7 @@ class _SkillTagsTabState extends State<SkillTagsTab> {
                       color: Colors.grey[300],
                     ),
                     const SizedBox(height: 8),
-                    Text('暫無技能標籤', style: TextStyle(color: Colors.grey[600])),
+                    Text('暂无技能标签', style: TextStyle(color: Colors.grey[600])),
                   ],
                 ),
               ),
@@ -273,7 +273,7 @@ class _SkillTagsTabState extends State<SkillTagsTab> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('認證中', style: Theme.of(context).textTheme.titleMedium),
+        Text('认证中', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 12),
         ..._pendingRequests.map((request) {
           return Card(
@@ -281,10 +281,10 @@ class _SkillTagsTabState extends State<SkillTagsTab> {
               leading: const Icon(Icons.hourglass_empty, color: Colors.orange),
               title: Text(request.skillName ?? '未知技能'),
               subtitle: Text(
-                '提交於 ${request.submittedAt?.formatRelative() ?? ''}',
+                '提交于 ${request.submittedAt?.formatRelative() ?? ''}',
               ),
               trailing: const Chip(
-                label: Text('審覈中'),
+                label: Text('审核中'),
                 backgroundColor: Colors.orange,
               ),
             ),
@@ -331,7 +331,7 @@ class _SkillTagsTabState extends State<SkillTagsTab> {
         if (success && mounted) {
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(SnackBar(content: Text('${skill.name} 認證申請已提交')));
+          ).showSnackBar(SnackBar(content: Text('${skill.name} 认证申请已提交')));
         }
         _loadData();
       }
@@ -352,7 +352,7 @@ class _SkillTagsTabState extends State<SkillTagsTab> {
     return showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('認證 ${skill.name}'),
+        title: Text('认证 ${skill.name}'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -361,8 +361,8 @@ class _SkillTagsTabState extends State<SkillTagsTab> {
             TextField(
               controller: controller,
               decoration: const InputDecoration(
-                labelText: '證書/資質說明',
-                hintText: '請描述您的相關資質',
+                labelText: '证书/资质说明',
+                hintText: '请描述您的相关资质',
                 border: OutlineInputBorder(),
               ),
               maxLines: 3,
@@ -378,10 +378,10 @@ class _SkillTagsTabState extends State<SkillTagsTab> {
             onPressed: () => Navigator.pop(
               context,
               controller.text.trim().isEmpty
-                  ? '已提交資質說明'
+                  ? '已提交资质说明'
                   : controller.text.trim(),
             ),
-            child: const Text('提交認證'),
+            child: const Text('提交认证'),
           ),
         ],
       ),
@@ -397,13 +397,13 @@ class _SkillTagsTabState extends State<SkillTagsTab> {
   }
 }
 
-// MVP: F20 善意時間線標籤頁已砍
-// class TimelineTab ... 整個類及相關組件已移除
+// MVP: F20 善意时间线标签页已砍
+// class TimelineTab ... 整个类及相关组件已移除
 
-// MVP: F21 徽章成就標籤頁已砍
-// class BadgesTab ... 整個類及相關組件已移除
+// MVP: F21 徽章成就标签页已砍
+// class BadgesTab ... 整个类及相关组件已移除
 
-/// F22: 異步任務標籤頁
+/// F22: 异步任务标签页
 class AsyncTasksTab extends StatefulWidget {
   const AsyncTasksTab({super.key});
 
@@ -455,7 +455,7 @@ class _AsyncTasksTabState extends State<AsyncTasksTab> {
     if (success && mounted) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('領取成功')));
+      ).showSnackBar(const SnackBar(content: Text('领取成功')));
       _loadData();
     }
   }
@@ -471,7 +471,7 @@ class _AsyncTasksTabState extends State<AsyncTasksTab> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('任務已完成')));
+      ).showSnackBar(const SnackBar(content: Text('任务已完成')));
       _loadData();
     }
   }
@@ -488,9 +488,9 @@ class _AsyncTasksTabState extends State<AsyncTasksTab> {
         children: [
           const TabBar(
             tabs: [
-              Tab(text: '待處理求助'),
-              Tab(text: '可領取'),
-              Tab(text: '我的任務'),
+              Tab(text: '待处理求助'),
+              Tab(text: '可领取'),
+              Tab(text: '我的任务'),
             ],
           ),
           Expanded(
@@ -515,7 +515,7 @@ class _AsyncTasksTabState extends State<AsyncTasksTab> {
           children: [
             Icon(Icons.inbox_outlined, size: 64, color: Colors.grey[300]),
             const SizedBox(height: 16),
-            Text('暫無可領取的任務', style: TextStyle(color: Colors.grey[600])),
+            Text('暂无可领取的任务', style: TextStyle(color: Colors.grey[600])),
           ],
         ),
       );
@@ -550,10 +550,10 @@ class _AsyncTasksTabState extends State<AsyncTasksTab> {
               color: Colors.grey[300],
             ),
             const SizedBox(height: 16),
-            Text('暫無待處理求助', style: TextStyle(color: Colors.grey[600])),
+            Text('暂无待处理求助', style: TextStyle(color: Colors.grey[600])),
             const SizedBox(height: 8),
             Text(
-              '求助者提交後，這裏會直接出現新的演示任務。',
+              '求助者提交后，这里会直接出现新的演示任务。',
               style: TextStyle(color: Colors.grey[400], fontSize: 12),
             ),
           ],
@@ -633,7 +633,7 @@ class _AsyncTasksTabState extends State<AsyncTasksTab> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    '提交於 ${request.createdAt.formatDateTime()}',
+                    '提交于 ${request.createdAt.formatDateTime()}',
                     style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                 ],
@@ -653,7 +653,7 @@ class _AsyncTasksTabState extends State<AsyncTasksTab> {
           children: [
             Icon(Icons.assignment_outlined, size: 64, color: Colors.grey[300]),
             const SizedBox(height: 16),
-            Text('還沒有任務', style: TextStyle(color: Colors.grey[600])),
+            Text('还没有任务', style: TextStyle(color: Colors.grey[600])),
           ],
         ),
       );
@@ -682,17 +682,17 @@ class _AsyncTasksTabState extends State<AsyncTasksTab> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('完成任務'),
+        title: const Text('完成任务'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('任務: ${task.description}'),
+            Text('任务: ${task.description}'),
             const SizedBox(height: 16),
             TextField(
               controller: controller,
               decoration: const InputDecoration(
-                labelText: '處理結果',
-                hintText: '請描述您的處理結果',
+                labelText: '处理结果',
+                hintText: '请描述您的处理结果',
                 border: OutlineInputBorder(),
               ),
               maxLines: 3,
@@ -717,10 +717,10 @@ class _AsyncTasksTabState extends State<AsyncTasksTab> {
   }
 }
 
-// MVP: F23 排班管理標籤頁已砍
-// class ScheduleTab ... 整個類及相關組件已移除
+// MVP: F23 排班管理标签页已砍
+// class ScheduleTab ... 整个类及相关组件已移除
 
-// ==================== 輔助組件 ====================
+// ==================== 辅助组件 ====================
 
 class _LevelCard extends StatelessWidget {
   final VolunteerLevelInfo levelInfo;
@@ -762,7 +762,7 @@ class _LevelCard extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              '${levelInfo.currentPoints} 積分',
+              '${levelInfo.currentPoints} 积分',
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 32,
@@ -792,7 +792,7 @@ class _LevelProgress extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              '等級進度',
+              '等级进度',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
@@ -805,11 +805,11 @@ class _LevelProgress extends StatelessWidget {
             const SizedBox(height: 8),
             if (nextLevel != null)
               Text(
-                '距離 ${nextLevel.name} 還需 ${levelInfo.pointsToNextLevel} 積分',
+                '距离 ${nextLevel.name} 还需 ${levelInfo.pointsToNextLevel} 积分',
                 style: TextStyle(color: Colors.grey[600]),
               )
             else
-              const Text('已達到最高等級！', style: TextStyle(color: Colors.green)),
+              const Text('已达到最高等级！', style: TextStyle(color: Colors.green)),
           ],
         ),
       ),
@@ -833,7 +833,7 @@ class _PrivilegesCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              '當前權益',
+              '当前权益',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
@@ -860,7 +860,7 @@ class _PrivilegesCard extends StatelessWidget {
   }
 }
 
-// MVP: F20 積分流水組件已砍 (point_transaction_model)
+// MVP: F20 积分流水组件已砍 (point_transaction_model)
 // class _TransactionsList extends StatelessWidget { ... }
 
 class _SkillSelector extends StatelessWidget {
@@ -892,7 +892,7 @@ class _SkillSelector extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           const Text(
-            '選擇技能標籤',
+            '选择技能标签',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
@@ -943,10 +943,10 @@ class _SkillSelector extends StatelessWidget {
   }
 }
 
-// MVP: F20 時間線統計卡片已砍
+// MVP: F20 时间线统计卡片已砍
 // class _TimelineStatCard extends StatelessWidget { ... }
 
-// MVP: F21 徽章卡片組件已砍
+// MVP: F21 徽章卡片组件已砍
 // class _BadgeCard extends StatelessWidget { ... }
 
 class _RequestMetaChip extends StatelessWidget {
@@ -998,7 +998,7 @@ class _TaskCard extends StatelessWidget {
                 ),
                 const Spacer(),
                 if (isAvailable)
-                  ElevatedButton(onPressed: onClaim, child: const Text('領取'))
+                  ElevatedButton(onPressed: onClaim, child: const Text('领取'))
                 else if (task.status == 'processing')
                   ElevatedButton(onPressed: onComplete, child: const Text('完成'))
                 else
@@ -1024,7 +1024,7 @@ class _TaskCard extends StatelessWidget {
             ],
             const SizedBox(height: 8),
             Text(
-              '創建於 ${task.createdAt?.formatRelative() ?? ''}',
+              '创建于 ${task.createdAt?.formatRelative() ?? ''}',
               style: TextStyle(fontSize: 12, color: Colors.grey[600]),
             ),
           ],
@@ -1034,6 +1034,6 @@ class _TaskCard extends StatelessWidget {
   }
 }
 
-// MVP: F23 排班相關組件已砍
+// MVP: F23 排班相关组件已砍
 // class _DayScheduleCard extends StatelessWidget { ... }
 // class _ScheduleEditorDialog extends StatefulWidget { ... }

@@ -8,7 +8,7 @@ import 'package:linklab/screens/call/demo_matching_screen.dart';
 import 'test_harness.dart';
 
 void main() {
-  testWidgets('匹配到通話評價閉環會寫回 connected 和 completed 狀態', (tester) async {
+  testWidgets('匹配到通话评价闭环会写回 connected 和 completed 状态', (tester) async {
     await prepareSignedInDemoEnvironment(clearHelpHistory: true);
 
     await pumpDemoShell(tester, home: const DemoMatchingScreen());
@@ -18,27 +18,27 @@ void main() {
 
     await tester.pump(const Duration(seconds: 4));
     await tester.pump(const Duration(milliseconds: 300));
-    expect(find.bySemanticsLabel('結束通話按鈕'), findsOneWidget);
+    expect(find.bySemanticsLabel('结束通话按钮'), findsOneWidget);
 
     await tester.pump(const Duration(seconds: 3));
     await tester.pump();
-    expect(find.text('通話中'), findsOneWidget);
+    expect(find.text('通话中'), findsOneWidget);
 
     final connectedHistory = readLocalHelpHistoryModels();
     expect(connectedHistory.first.status, 'connected');
 
-    await tester.tap(find.bySemanticsLabel('結束通話按鈕'));
+    await tester.tap(find.bySemanticsLabel('结束通话按钮'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 200));
-    expect(find.text('爲這次幫助評分'), findsOneWidget);
+    expect(find.text('为这次帮助评分'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('評分5星'));
+    await tester.tap(find.byTooltip('评分5星'));
     await tester.pump();
-    await tester.tap(find.text('提交評價'));
+    await tester.tap(find.text('提交评价'));
     await tester.pumpAndSettle();
 
     expect(find.text('共感 LinkAble'), findsWidgets);
-    expect(find.text('點擊啓動SOS緊急求助'), findsOneWidget);
+    expect(find.text('点击启动SOS紧急求助'), findsOneWidget);
 
     final completedHistory = readLocalHelpHistoryModels();
     expect(completedHistory.first.status, 'completed');

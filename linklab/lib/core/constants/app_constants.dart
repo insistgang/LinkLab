@@ -1,23 +1,23 @@
 import '../../config/app_config.dart';
 
-/// 應用常量定義
+/// 应用常量定义
 class AppConstants {
   AppConstants._();
 
-  // 應用信息
+  // 应用信息
   static const String appName = '共感LinkAble';
-  static const String appTagline = 'AI驅動的視障人士智能互助平臺';
+  static const String appTagline = 'AI驱动的视障人士智能互助平台';
   static const String appVersion = '1.0.0';
 
-  // Supabase配置：Phase-1 只允許從 .env 讀取。
+  // Supabase配置：Phase-1 只允许从 .env 读取。
   static String get supabaseUrl => AppConfig.supabaseUrl;
   static String get supabaseAnonKey => AppConfig.supabaseAnonKey;
 
-  // 分頁配置
+  // 分页配置
   static const int defaultPageSize = 20;
   static const int maxPageSize = 100;
 
-  // 超時配置
+  // 超时配置
   static const int connectionTimeout = 30000; // 30秒
   static const int receiveTimeout = 30000; // 30秒
   static const int aiResponseTimeout = 10000; // 10秒
@@ -33,23 +33,23 @@ class AppConstants {
     {'urls': 'stun:stun1.l.google.com:19302'},
   ];
 
-  // 緊急檢測關鍵詞
+  // 紧急检测关键词
   static const List<String> emergencyKeywords = [
     '救命',
     'help',
-    '緊急',
-    '危險',
-    '受傷',
+    '紧急',
+    '危险',
+    '受伤',
     '摔倒',
-    '火災',
+    '火灾',
     '地震',
     'sos',
-    '報警',
-    '醫生',
-    '救護車',
+    '报警',
+    '医生',
+    '救护车',
   ];
 
-  // AI意圖類型
+  // AI意图类型
   static const String intentOcr = 'ocr';
   static const String intentSceneDescription = 'scene_description';
   static const String intentColorRecognition = 'color_recognition';
@@ -59,23 +59,23 @@ class AppConstants {
   static const String intentGeneral = 'general';
   static const String intentEmergency = 'emergency';
 
-  // 用戶角色
+  // 用户角色
   static const String roleSeeker = 'seeker';
   static const String roleVolunteer = 'volunteer';
   static const String roleBoth = 'both';
 
-  // 障礙類型
+  // 障碍类型
   static const String disabilityVisual = 'visual';
   static const String disabilityHearing = 'hearing';
   static const String disabilityPhysical = 'physical';
   static const String disabilityElderly = 'elderly';
   static const String disabilityTemporary = 'temporary';
 
-  // 志願者等級
+  // 志愿者等级
   static const int volunteerLevelMin = 1;
   static const int volunteerLevelMax = 7;
 
-  // 幫助請求狀態
+  // 帮助请求状态
   static const String statusCreated = 'created';
   static const String statusAiProcessing = 'ai_processing';
   static const String statusAiResolved = 'ai_resolved';
@@ -85,13 +85,13 @@ class AppConstants {
   static const String statusCancelled = 'cancelled';
   static const String statusExpired = 'expired';
 
-  // 緊急程度
+  // 紧急程度
   static const String urgencyNormal = 'normal';
   static const String urgencyImportant = 'important';
   static const String urgencyUrgent = 'urgent';
   static const String urgencyEmergency = 'emergency';
 
-  // 存儲鍵名
+  // 存储键名
   static const String keyUserId = 'user_id';
   static const String keyAccessToken = 'access_token';
   static const String keyRefreshToken = 'refresh_token';
@@ -104,30 +104,30 @@ class AppConstants {
   static const String keyVoiceSpeed = 'voice_speed';
   static const String keyHapticFeedback = 'haptic_feedback';
 
-  // 默認無障礙偏好
+  // 默认无障碍偏好
   static const double defaultFontScale = 1.0;
   static const double defaultVoiceSpeed = 1.0;
   static const bool defaultHapticFeedback = true;
   static const bool defaultHighContrastMode = false;
 
-  // 圖片壓縮配置
+  // 图片压缩配置
   static const int maxImageWidth = 1920;
   static const int maxImageHeight = 1080;
   static const int imageQuality = 85;
 
-  // 錄音配置
+  // 录音配置
   static const String audioFormat = 'aac';
-  static const int maxRecordingDurationSeconds = 300; // 5分鐘
+  static const int maxRecordingDurationSeconds = 300; // 5分钟
 
-  // 評分配置
+  // 评分配置
   static const int minRating = 1;
   static const int maxRating = 5;
 
-  // 緩存配置
+  // 缓存配置
   static const int cacheMaxAgeHours = 24;
   static const int maxCacheSizeMB = 100;
 
-  // 重試配置
+  // 重试配置
   static const int maxRetryAttempts = 3;
   static const int retryDelayMs = 1000;
 

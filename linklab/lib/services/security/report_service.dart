@@ -5,7 +5,7 @@ import '../../models/security/report_model.dart';
 import 'credit_score_service.dart';
 import 'blacklist_service.dart';
 
-/// 舉報服務
+/// 举报服务
 class ReportService {
   SupabaseClient? _supabaseClient;
   SupabaseClient get _supabase {
@@ -28,7 +28,7 @@ class ReportService {
     return _blacklistServiceInstance!;
   }
 
-  /// 提交舉報
+  /// 提交举报
   Future<Report?> submitReport({
     required String reporterId,
     required String reportedId,
@@ -39,18 +39,18 @@ class ReportService {
     String? helpRequestId,
   }) async {
     try {
-      // 檢查是否重複舉報
+      // 检查是否重复举报
       final existingReport = await _getExistingReport(
         reporterId,
         reportedId,
         callId,
       );
       if (existingReport != null) {
-        AppLogger.warning('已經舉報過此用戶');
+        AppLogger.warning('已经举报过此用户');
         return existingReport;
       }
 
-      // 上傳證據圖片
+      // 上传证据图片
       final evidenceUrls = <String>[];
       if (evidenceFiles != null && evidenceFiles.isNotEmpty) {
         for (final file in evidenceFiles) {
@@ -78,7 +78,7 @@ class ReportService {
         submittedAt: DateTime.now(),
       );
 
-      // 保存舉報記錄
+      // 保存举报记录
       await _supabase.from('reports').insert({
         'id': report.id,
         'reporter_id': reporterId,
@@ -92,21 +92,21 @@ class ReportService {
         'submitted_at': report.submittedAt?.toIso8601String(),
       });
 
-      // 臨時凍結雙方匹配（24小時）
+      // 临时冻结双方匹配（24小时）
       await _temporaryFreeze(reporterId, reportedId);
 
-      // 更新舉報統計
+      // 更新举报统计
       await _updateReportStatistics(reportedId);
 
-      AppLogger.info('舉報提交成功: ${report.id}');
+      AppLogger.info('举报提交成功: ${report.id}');
       return report;
     } catch (e) {
-      AppLogger.error('提交舉報失敗', e);
+      AppLogger.error('提交举报失败', e);
       rethrow;
     }
   }
 
-  /// 處理舉報
+  /// 处理举报
   Future<void> processReport({
     required String reportId,
     required ReportDecision decision,
@@ -116,10 +116,10 @@ class ReportService {
     try {
       final report = await getReport(reportId);
       if (report == null) {
-        throw Exception('舉報記錄不存在');
+        throw Exception('举报记录不存在');
       }
 
-      // 更新舉報狀態
+      // 更新举报状态
       await _supabase.from('reports').update({
         'status': 'resolved',
         'decision': decision.name,
@@ -129,22 +129,22 @@ class ReportService {
       }).eq('id', reportId);
 
       if (decision == ReportDecision.valid) {
-        // 舉報成立，處理被舉報人
+        // 举报成立，处理被举报人
         await _handleValidReport(report);
       } else {
-        // 舉報不成立，恢復匹配
+        // 举报不成立，恢复匹配
         await _unfreezeUser(report.reporterId);
         await _unfreezeUser(report.reportedId);
       }
 
-      AppLogger.info('舉報處理完成: $reportId, 結果: ${decision.name}');
+      AppLogger.info('举报处理完成: $reportId, 结果: ${decision.name}');
     } catch (e) {
-      AppLogger.error('處理舉報失敗', e);
+      AppLogger.error('处理举报失败', e);
       rethrow;
     }
   }
 
-  /// 獲取舉報詳情
+  /// 获取举报详情
   Future<Report?> getReport(String reportId) async {
     try {
       final response = await _supabase
@@ -155,12 +155,12 @@ class ReportService {
 
       return Report.fromJson(Map<String, dynamic>.from(response as Map));
     } catch (e) {
-      AppLogger.error('獲取舉報詳情失敗', e);
+      AppLogger.error('获取举报详情失败', e);
       return null;
     }
   }
 
-  /// 獲取用戶收到的舉報
+  /// 获取用户收到的举报
   Future<List<Report>> getUserReports(
     String userId, {
     ReportStatus? status,
@@ -185,12 +185,12 @@ class ReportService {
           .map((json) => Report.fromJson(Map<String, dynamic>.from(json as Map)))
           .toList();
     } catch (e) {
-      AppLogger.error('獲取用戶舉報失敗', e);
+      AppLogger.error('获取用户举报失败', e);
       return [];
     }
   }
 
-  /// 獲取待處理舉報列表（用於管理後臺）
+  /// 获取待处理举报列表（用于管理后台）
   Future<List<Report>> getPendingReports({
     int limit = 50,
     int offset = 0,
@@ -207,12 +207,12 @@ class ReportService {
           .map((json) => Report.fromJson(Map<String, dynamic>.from(json as Map)))
           .toList();
     } catch (e) {
-      AppLogger.error('獲取待處理舉報失敗', e);
+      AppLogger.error('获取待处理举报失败', e);
       return [];
     }
   }
 
-  /// 獲取舉報統計
+  /// 获取举报统计
   Future<ReportStatistics> getReportStatistics(String userId) async {
     try {
       final response = await _supabase
@@ -247,7 +247,7 @@ class ReportService {
         pendingReports: pending,
       );
     } catch (e) {
-      AppLogger.error('獲取舉報統計失敗', e);
+      AppLogger.error('获取举报统计失败', e);
       return ReportStatistics(
         userId: userId,
         totalReportsReceived: 0,
@@ -258,7 +258,7 @@ class ReportService {
     }
   }
 
-  /// 檢查是否存在重複舉報
+  /// 检查是否存在重复举报
   Future<Report?> _getExistingReport(
     String reporterId,
     String reportedId,
@@ -284,7 +284,7 @@ class ReportService {
     }
   }
 
-  /// 臨時凍結用戶匹配
+  /// 临时冻结用户匹配
   Future<void> _temporaryFreeze(String reporterId, String reportedId) async {
     final freezeUntil = DateTime.now().add(const Duration(hours: 24));
 
@@ -292,23 +292,23 @@ class ReportService {
       {
         'user_id': reporterId,
         'type': 'temporary_freeze',
-        'reason': '舉報處理中',
+        'reason': '举报处理中',
         'expires_at': freezeUntil.toIso8601String(),
         'created_at': DateTime.now().toIso8601String(),
       },
       {
         'user_id': reportedId,
         'type': 'temporary_freeze',
-        'reason': '被舉報，處理中',
+        'reason': '被举报，处理中',
         'expires_at': freezeUntil.toIso8601String(),
         'created_at': DateTime.now().toIso8601String(),
       },
     ]);
 
-    AppLogger.info('臨時凍結用戶匹配: $reporterId, $reportedId');
+    AppLogger.info('临时冻结用户匹配: $reporterId, $reportedId');
   }
 
-  /// 解凍用戶
+  /// 解冻用户
   Future<void> _unfreezeUser(String userId) async {
     await _supabase
         .from('user_restrictions')
@@ -316,48 +316,48 @@ class ReportService {
         .eq('user_id', userId)
         .eq('type', 'temporary_freeze');
 
-    AppLogger.info('解凍用戶: $userId');
+    AppLogger.info('解冻用户: $userId');
   }
 
-  /// 處理舉報成立
+  /// 处理举报成立
   Future<void> _handleValidReport(Report report) async {
     // 扣除信用分
     await _creditScoreService.processValidReport(report.reportedId);
 
-    // 獲取用戶被舉報統計
+    // 获取用户被举报统计
     final stats = await getReportStatistics(report.reportedId);
 
-    // 根據被舉報次數決定處罰
+    // 根据被举报次数决定处罚
     if (stats.validReports >= 5) {
-      // 多次違規，永久封號
+      // 多次违规，永久封号
       await _blacklistService.addToBlacklist(
         userId: report.reportedId,
         level: BlacklistLevel.user,
-        reason: '多次違規被舉報',
+        reason: '多次违规被举报',
       );
     } else if (stats.validReports >= 3) {
-      // 嚴重違規，封號30天
+      // 严重违规，封号30天
       await _blacklistService.addToBlacklist(
         userId: report.reportedId,
         level: BlacklistLevel.user,
-        reason: '多次違規被舉報',
+        reason: '多次违规被举报',
         duration: const Duration(days: 30),
       );
     } else if (stats.validReports >= 1) {
-      // 首次違規，警告+封號7天
+      // 首次违规，警告+封号7天
       await _blacklistService.addToBlacklist(
         userId: report.reportedId,
         level: BlacklistLevel.user,
-        reason: '違規被舉報',
+        reason: '违规被举报',
         duration: const Duration(days: 7),
       );
     }
 
-    // 解凍舉報人
+    // 解冻举报人
     await _unfreezeUser(report.reporterId);
   }
 
-  /// 更新舉報統計
+  /// 更新举报统计
   Future<void> _updateReportStatistics(String userId) async {
     try {
       final stats = await getReportStatistics(userId);
@@ -372,11 +372,11 @@ class ReportService {
         'updated_at': DateTime.now().toIso8601String(),
       });
     } catch (e) {
-      AppLogger.error('更新舉報統計失敗', e);
+      AppLogger.error('更新举报统计失败', e);
     }
   }
 
-  /// 檢查用戶是否被限制匹配
+  /// 检查用户是否被限制匹配
   Future<bool> isUserRestricted(String userId) async {
     try {
       final response = await _supabase
@@ -392,7 +392,7 @@ class ReportService {
     }
   }
 
-  /// 獲取用戶限制信息
+  /// 获取用户限制信息
   Future<Map<String, dynamic>?> getUserRestriction(String userId) async {
     try {
       final response = await _supabase

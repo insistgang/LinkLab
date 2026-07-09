@@ -11,7 +11,7 @@ import '../../widgets/demo/demo_stage.dart';
 import '../../widgets/demo/linkable_icon.dart';
 import '../community/story_detail_screen.dart';
 
-/// 社羣降級頁：僅展示精選故事和未來藍圖，不開放互動社區入口。
+/// 社群降级页：仅展示精选故事和未来蓝图，不开放互动社区入口。
 class CommunityScreen extends ConsumerStatefulWidget {
   const CommunityScreen({super.key});
 
@@ -43,8 +43,8 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
   @override
   Widget build(BuildContext context) {
     return DemoStageScaffold(
-      title: '社羣',
-      subtitle: '精選故事只做價值展示，互動社羣作爲 V1.0 藍圖',
+      title: '社群',
+      subtitle: '精选故事只做价值展示，互动社群作为 V1.0 蓝图',
       showBackButton: false,
       body: RefreshIndicator(
         color: AppTheme.stageAccent,
@@ -62,15 +62,15 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
             DemoReveal(
               delay: const Duration(milliseconds: 80),
               child: _SectionHeader(
-                title: '精選故事',
-                subtitle: '3 條真實互助場景，用於競賽展示與價值說明',
+                title: '精选故事',
+                subtitle: '3 条真实互助场景，用于竞赛展示与价值说明',
                 trailing: IconButton(
-                  tooltip: '刷新精選故事',
+                  tooltip: '刷新精选故事',
                   onPressed: _loadStories,
                   icon: const LinkableSvgIcon(
                     icon: LinkableIconName.processing,
                     size: 28,
-                    semanticLabel: '刷新精選故事',
+                    semanticLabel: '刷新精选故事',
                   ),
                 ),
               ),
@@ -94,7 +94,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
   Widget _buildStoriesList() {
     if (_isLoading) {
       return Semantics(
-        label: '正在加載精選故事',
+        label: '正在加载精选故事',
         liveRegion: true,
         child: const Padding(
           padding: EdgeInsets.symmetric(vertical: AppTheme.spacingXL),
@@ -135,7 +135,7 @@ class _CommunityHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: '社羣頁，展示精選互助故事和未來藍圖',
+      label: '社群页，展示精选互助故事和未来蓝图',
       child: Container(
         padding: const EdgeInsets.all(AppTheme.spacingL),
         decoration: AppTheme.stageCardDecoration(
@@ -157,12 +157,12 @@ class _CommunityHero extends StatelessWidget {
               child: const LinkableSvgIcon(
                 icon: LinkableIconName.community,
                 size: 44,
-                semanticLabel: '社羣',
+                semanticLabel: '社群',
               ),
             ),
             const SizedBox(height: AppTheme.spacingM),
             Text(
-              '社羣',
+              '社群',
               style: TextStyle(
                 color: AppTheme.stageTextPrimary,
                 fontSize: AppTheme.fontSizeXLarge,
@@ -171,7 +171,7 @@ class _CommunityHero extends StatelessWidget {
             ),
             const SizedBox(height: AppTheme.spacingS),
             Text(
-              '這裏先展示精選互助故事。羣聊、地區社區和積分互動屬於後續版本，不進入當前 3 分鐘 Demo 主線。',
+              '这里先展示精选互助故事。群聊、地区社区和积分互动属于后续版本，不进入当前 3 分钟 Demo 主线。',
               style: TextStyle(
                 color: AppTheme.stageTextSecondary,
                 fontSize: AppTheme.fontSizeNormal,
@@ -243,13 +243,13 @@ class _StoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final author = story.authorType == 'anonymous'
-        ? '匿名用戶'
-        : (story.authorName ?? '用戶');
+        ? '匿名用户'
+        : (story.authorName ?? '用户');
     final excerpt = story.summary ?? _shorten(story.content);
 
     return AccessibleCard(
-      semanticLabel: '精選故事，${story.title}',
-      hint: '雙擊查看故事詳情',
+      semanticLabel: '精选故事，${story.title}',
+      hint: '双击查看故事详情',
       onTap: onTap,
       margin: EdgeInsets.zero,
       padding: EdgeInsets.zero,
@@ -311,7 +311,7 @@ class _StoryCard extends StatelessWidget {
                       _StoryMeta(icon: LinkableIconName.profile, label: author),
                       _StoryMeta(
                         icon: LinkableIconName.sceneDescribe,
-                        label: '${story.readCount} 次閱讀',
+                        label: '${story.readCount} 次阅读',
                       ),
                     ],
                   ),
@@ -322,7 +322,7 @@ class _StoryCard extends StatelessWidget {
             const LinkableSvgIcon(
               icon: LinkableIconName.navigationGuide,
               size: 28,
-              semanticLabel: '查看詳情',
+              semanticLabel: '查看详情',
             ),
           ],
         ),
@@ -386,18 +386,18 @@ class _BlueprintPanel extends StatelessWidget {
     final items = const [
       _BlueprintItem(
         icon: LinkableIconName.volunteerMatch,
-        title: '地區社羣',
-        body: '後續用於同城志願者互助與活動組織。',
+        title: '地区社群',
+        body: '后续用于同城志愿者互助与活动组织。',
       ),
       _BlueprintItem(
         icon: LinkableIconName.completed,
-        title: '公益成長',
-        body: '後續再評估積分、徽章和志願者成長體系。',
+        title: '公益成长',
+        body: '后续再评估积分、徽章和志愿者成长体系。',
       ),
       _BlueprintItem(
         icon: LinkableIconName.emergencyContact,
         title: '安全治理',
-        body: '舉報、黑名單、內容審覈會先服務主求助鏈路。',
+        body: '举报、黑名单、内容审核会先服务主求助链路。',
       ),
     ];
 
@@ -413,7 +413,7 @@ class _BlueprintPanel extends StatelessWidget {
           Semantics(
             header: true,
             child: Text(
-              '未來藍圖',
+              '未来蓝图',
               style: TextStyle(
                 color: AppTheme.stageTextPrimary,
                 fontSize: AppTheme.fontSizeLarge,
@@ -423,7 +423,7 @@ class _BlueprintPanel extends StatelessWidget {
           ),
           const SizedBox(height: AppTheme.spacingS),
           Text(
-            '這些能力僅作爲 V1.0 展示，不會影響當前 AI、匹配、通話和 SOS 演示閉環。',
+            '这些能力仅作为 V1.0 展示，不会影响当前 AI、匹配、通话和 SOS 演示闭环。',
             style: TextStyle(
               color: AppTheme.stageTextSecondary,
               fontSize: AppTheme.fontSizeNormal,
@@ -501,7 +501,7 @@ class _EmptyStoriesCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: '暫無精選故事，可稍後刷新',
+      label: '暂无精选故事，可稍后刷新',
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(AppTheme.spacingL),
@@ -514,11 +514,11 @@ class _EmptyStoriesCard extends StatelessWidget {
             const LinkableSvgIcon(
               icon: LinkableIconName.processing,
               size: AppTheme.minTouchTarget,
-              semanticLabel: '暫無精選故事',
+              semanticLabel: '暂无精选故事',
             ),
             const SizedBox(height: AppTheme.spacingM),
             Text(
-              '暫無精選故事',
+              '暂无精选故事',
               style: TextStyle(
                 color: AppTheme.stageTextPrimary,
                 fontSize: AppTheme.fontSizeLarge,
@@ -527,7 +527,7 @@ class _EmptyStoriesCard extends StatelessWidget {
             ),
             const SizedBox(height: AppTheme.spacingS),
             Text(
-              '可以稍後刷新，或繼續完成 AI 求助主流程演示。',
+              '可以稍后刷新，或继续完成 AI 求助主流程演示。',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppTheme.stageTextSecondary,

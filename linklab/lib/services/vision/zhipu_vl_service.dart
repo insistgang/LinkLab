@@ -17,30 +17,30 @@ class ZhipuVlService {
   Future<String> describeScene(String imagePath) async {
     return _callVisionApi(
       imagePath,
-      '請詳細描述這張圖片的場景，包括主要物體、環境、光線等。用簡潔的中文回答，適合視障用戶理解。',
+      '请详细描述这张图片的场景，包括主要物体、环境、光线等。用简洁的中文回答，适合视障用户理解。',
     );
   }
 
   Future<String> recognizeColor(String imagePath) async {
-    return _callVisionApi(imagePath, '請識別這張圖片中的主要顏色，列出前3-5種顏色及其分佈位置。');
+    return _callVisionApi(imagePath, '请识别这张图片中的主要颜色，列出前3-5种颜色及其分布位置。');
   }
 
   Future<String> identifyObject(String imagePath) async {
-    return _callVisionApi(imagePath, '請識別這張圖片中的主要物體，用簡潔的中文描述。');
+    return _callVisionApi(imagePath, '请识别这张图片中的主要物体，用简洁的中文描述。');
   }
 
   Future<String> recognizeMoney(String imagePath) async {
-    return _callVisionApi(imagePath, '請識別這是什麼面額的鈔票/紙幣，用中文回答。');
+    return _callVisionApi(imagePath, '请识别这是什么面额的钞票/纸币，用中文回答。');
   }
 
   Future<String> checkMedicine(String imagePath) async {
-    return _callVisionApi(imagePath, '請識別這是什麼藥品，包括藥品名稱、用法用量等關鍵信息。用中文回答。');
+    return _callVisionApi(imagePath, '请识别这是什么药品，包括药品名称、用法用量等关键信息。用中文回答。');
   }
 
   Future<String> _callVisionApi(String imagePath, String prompt) async {
     if (!isConfigured) {
       throw const ZhipuVlException(
-        '智譜AI API密鑰未配置',
+        '智谱AI API密钥未配置',
         ZhipuVlErrorType.notConfigured,
       );
     }
@@ -48,7 +48,7 @@ class ZhipuVlService {
     final file = File(imagePath);
     if (!file.existsSync()) {
       throw ZhipuVlException(
-        '圖片文件不存在: $imagePath',
+        '图片文件不存在: $imagePath',
         ZhipuVlErrorType.fileNotFound,
       );
     }
@@ -56,7 +56,7 @@ class ZhipuVlService {
     final bytes = await file.readAsBytes();
     if (bytes.length > 10 * 1024 * 1024) {
       throw const ZhipuVlException(
-        '圖片過大，請壓縮後重試（最大10MB）',
+        '图片过大，请压缩后重试（最大10MB）',
         ZhipuVlErrorType.imageTooLarge,
       );
     }
@@ -97,13 +97,13 @@ class ZhipuVlService {
       return _handleResponse(response);
     } on SocketException catch (e) {
       throw ZhipuVlException(
-        '網絡連接失敗，請檢查網絡設置',
+        '网络连接失败，请检查网络设置',
         ZhipuVlErrorType.network,
         e.toString(),
       );
     } on TimeoutException catch (e) {
       throw ZhipuVlException(
-        '請求超時，請稍後重試',
+        '请求超时，请稍后重试',
         ZhipuVlErrorType.timeout,
         e.toString(),
       );
@@ -111,7 +111,7 @@ class ZhipuVlService {
       rethrow;
     } catch (e) {
       throw ZhipuVlException(
-        '視覺識別失敗: $e',
+        '视觉识别失败: $e',
         ZhipuVlErrorType.unknown,
         e.toString(),
       );
@@ -121,19 +121,19 @@ class ZhipuVlService {
   String _handleResponse(http.Response response) {
     if (response.statusCode == 401) {
       throw const ZhipuVlException(
-        'API認證失敗，請檢查API密鑰配置',
+        'API认证失败，请检查API密钥配置',
         ZhipuVlErrorType.authFailed,
       );
     }
     if (response.statusCode == 429) {
       throw const ZhipuVlException(
-        'API調用頻率過高，請稍後重試',
+        'API调用频率过高，请稍后重试',
         ZhipuVlErrorType.rateLimited,
       );
     }
     if (response.statusCode != 200) {
       throw ZhipuVlException(
-        'AI服務暫時不可用 (HTTP ${response.statusCode})',
+        'AI服务暂时不可用 (HTTP ${response.statusCode})',
         ZhipuVlErrorType.serverError,
         response.body,
       );
@@ -144,10 +144,10 @@ class ZhipuVlService {
     final error = data['error'];
     if (error != null) {
       final errorMsg = error is Map<String, dynamic>
-          ? (error['message']?.toString() ?? '未知錯誤')
+          ? (error['message']?.toString() ?? '未知错误')
           : error.toString();
       throw ZhipuVlException(
-        'API錯誤: $errorMsg',
+        'API错误: $errorMsg',
         ZhipuVlErrorType.serverError,
         errorMsg,
       );
@@ -155,7 +155,7 @@ class ZhipuVlService {
 
     final choices = data['choices'] as List<dynamic>?;
     if (choices == null || choices.isEmpty) {
-      throw const ZhipuVlException('AI返回結果爲空', ZhipuVlErrorType.emptyResult);
+      throw const ZhipuVlException('AI返回结果为空', ZhipuVlErrorType.emptyResult);
     }
 
     final firstChoice = choices.first as Map<String, dynamic>?;
@@ -163,10 +163,10 @@ class ZhipuVlService {
     final content = message?['content'] as String?;
 
     if (content == null || content.isEmpty) {
-      throw const ZhipuVlException('AI未能識別圖片內容', ZhipuVlErrorType.emptyResult);
+      throw const ZhipuVlException('AI未能识别图片内容', ZhipuVlErrorType.emptyResult);
     }
 
-    AppLogger.info('智譜AI視覺識別成功，響應長度: ${content.length}');
+    AppLogger.info('智谱AI视觉识别成功，响应长度: ${content.length}');
     return content;
   }
 

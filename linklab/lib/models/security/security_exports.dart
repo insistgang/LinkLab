@@ -1,4 +1,4 @@
-// 安全模塊數據模型導出
+// 安全模块数据模型导出
 
 export 'auth_level_model.dart';
 export 'credit_score_model.dart';

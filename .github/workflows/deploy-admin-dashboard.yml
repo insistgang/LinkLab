@@ -7,6 +7,12 @@ on:
     paths:
       - .github/workflows/deploy-admin-dashboard.yml
       - linklab/**
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/deploy-admin-dashboard.yml
+      - linklab/**
   workflow_dispatch:
 
 permissions:
@@ -51,6 +57,14 @@ jobs:
         working-directory: linklab
         run: flutter pub get
 
+      - name: Analyze
+        working-directory: linklab
+        run: flutter analyze
+
+      - name: Test
+        working-directory: linklab
+        run: flutter test
+
       - name: Build web app
         working-directory: linklab
         run: >
@@ -70,6 +84,7 @@ jobs:
           path: linklab/build/web
 
   deploy:
+    if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     environment:

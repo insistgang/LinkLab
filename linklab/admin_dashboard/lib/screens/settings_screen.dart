@@ -8,31 +8,31 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('系統設置'),
+        title: const Text('系统设置'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
           // Account Settings
           _buildSection(
-            title: '賬戶設置',
+            title: '账户设置',
             children: [
               _buildListTile(
                 icon: Icons.person_outline,
-                title: '個人信息',
-                subtitle: '修改您的個人信息',
+                title: '个人信息',
+                subtitle: '修改您的个人信息',
                 onTap: () {},
               ),
               _buildListTile(
                 icon: Icons.lock_outline,
-                title: '修改密碼',
-                subtitle: '定期更換密碼保護賬戶安全',
+                title: '修改密码',
+                subtitle: '定期更换密码保护账户安全',
                 onTap: () {},
               ),
               _buildListTile(
                 icon: Icons.notifications_outlined,
-                title: '通知設置',
-                subtitle: '配置系統通知方式',
+                title: '通知设置',
+                subtitle: '配置系统通知方式',
                 onTap: () {},
               ),
             ],
@@ -40,24 +40,24 @@ class SettingsScreen extends StatelessWidget {
           const SizedBox(height: 24),
           // System Settings
           _buildSection(
-            title: '系統設置',
+            title: '系统设置',
             children: [
               _buildListTile(
                 icon: Icons.security_outlined,
-                title: '安全設置',
-                subtitle: '配置登錄安全策略',
+                title: '安全设置',
+                subtitle: '配置登录安全策略',
                 onTap: () {},
               ),
               _buildListTile(
                 icon: Icons.backup_outlined,
-                title: '數據備份',
-                subtitle: '配置自動備份策略',
+                title: '数据备份',
+                subtitle: '配置自动备份策略',
                 onTap: () {},
               ),
               _buildListTile(
                 icon: Icons.analytics_outlined,
-                title: '日誌管理',
-                subtitle: '查看系統操作日誌',
+                title: '日志管理',
+                subtitle: '查看系统操作日志',
                 onTap: () {},
               ),
             ],
@@ -65,18 +65,18 @@ class SettingsScreen extends StatelessWidget {
           const SizedBox(height: 24),
           // About
           _buildSection(
-            title: '關於',
+            title: '关于',
             children: [
               _buildListTile(
                 icon: Icons.info_outline,
                 title: '版本信息',
-                subtitle: '當前版本: 1.0.0',
+                subtitle: '当前版本: 1.0.0',
                 onTap: () {},
               ),
               _buildListTile(
                 icon: Icons.help_outline,
-                title: '幫助文檔',
-                subtitle: '查看使用幫助',
+                title: '帮助文档',
+                subtitle: '查看使用帮助',
                 onTap: () {},
               ),
             ],

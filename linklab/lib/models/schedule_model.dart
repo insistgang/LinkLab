@@ -3,7 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'schedule_model.freezed.dart';
 part 'schedule_model.g.dart';
 
-/// 排班設置模型
+/// 排班设置模型
 @freezed
 class ScheduleModel with _$ScheduleModel {
   const factory ScheduleModel({
@@ -21,7 +21,7 @@ class ScheduleModel with _$ScheduleModel {
 
   const ScheduleModel._();
 
-  /// 默認排班（空）
+  /// 默认排班（空）
   static Map<String, List<TimeSlot>> get defaultSchedule => {
     'monday': [],
     'tuesday': [],
@@ -32,7 +32,7 @@ class ScheduleModel with _$ScheduleModel {
     'sunday': [],
   };
 
-  /// 檢查當前是否可用
+  /// 检查当前是否可用
   bool isAvailableNow() {
     if (!isOnline || status == OnlineStatus.busy) return false;
 
@@ -51,21 +51,21 @@ class ScheduleModel with _$ScheduleModel {
     return false;
   }
 
-  /// 獲取今日可用時段
+  /// 获取今日可用时段
   List<TimeSlot> getTodaySlots() {
     final now = DateTime.now();
     final dayName = _getDayName(now.weekday);
     return weeklySchedule[dayName] ?? [];
   }
 
-  /// 獲取星期名稱
+  /// 获取星期名称
   String _getDayName(int weekday) {
     const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
     return days[weekday - 1];
   }
 }
 
-/// 時間段
+/// 时间段
 @freezed
 class TimeSlot with _$TimeSlot {
   const factory TimeSlot({
@@ -78,11 +78,11 @@ class TimeSlot with _$TimeSlot {
 
   const TimeSlot._();
 
-  /// 解析時間字符串 "HH:mm"
+  /// 解析时间字符串 "HH:mm"
   TimeOfDay get startTime => TimeOfDay.fromString(start);
   TimeOfDay get endTime => TimeOfDay.fromString(end);
 
-  /// 檢查時間是否在時段內
+  /// 检查时间是否在时段内
   bool contains(TimeOfDay time) {
     final start = startTime;
     final end = endTime;
@@ -94,21 +94,21 @@ class TimeSlot with _$TimeSlot {
     return timeMinutes >= startMinutes && timeMinutes <= endMinutes;
   }
 
-  /// 格式化顯示
+  /// 格式化显示
   String get displayText => '$start - $end';
 }
 
-/// 在線狀態
+/// 在线状态
 enum OnlineStatus {
-  /// 在線
+  /// 在线
   online,
-  /// 離線
+  /// 离线
   offline,
   /// 忙碌中
   busy,
 }
 
-/// 時間輔助類
+/// 时间辅助类
 class TimeOfDay {
   final int hour;
   final int minute;
@@ -131,15 +131,15 @@ class TimeOfDay {
   }
 }
 
-/// 星期幾枚舉
+/// 星期几枚举
 enum WeekDay {
-  monday('週一', 'monday'),
-  tuesday('週二', 'tuesday'),
-  wednesday('週三', 'wednesday'),
-  thursday('週四', 'thursday'),
-  friday('週五', 'friday'),
-  saturday('週六', 'saturday'),
-  sunday('週日', 'sunday');
+  monday('周一', 'monday'),
+  tuesday('周二', 'tuesday'),
+  wednesday('周三', 'wednesday'),
+  thursday('周四', 'thursday'),
+  friday('周五', 'friday'),
+  saturday('周六', 'saturday'),
+  sunday('周日', 'sunday');
 
   final String displayName;
   final String key;

@@ -1,4 +1,4 @@
-// 無障礙組件庫導出文件
+// 无障碍组件库导出文件
 export 'accessible_button.dart';
 export 'accessible_image.dart';
 export 'accessible_text.dart';

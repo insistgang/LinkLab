@@ -10,9 +10,9 @@ import '../../webrtc/signaling_service.dart';
 import '../../webrtc/webrtc_config.dart';
 import 'webrtc/real_webrtc_service.dart';
 
-/// 真實通話服務
-/// 集成WebRTC、信令和錄音功能的完整通話服務
-/// AGENTS.md §4.2：競賽版僅走 Demo 主線，當前文件只保留爲實驗性真實鏈路實現。
+/// 真实通话服务
+/// 集成WebRTC、信令和录音功能的完整通话服务
+/// AGENTS.md §4.2：竞赛版仅走 Demo 主线，当前文件只保留为实验性真实链路实现。
 class RealCallService extends ChangeNotifier {
   static final RealCallService _instance = RealCallService._internal();
   factory RealCallService() => _instance;
@@ -21,109 +21,109 @@ class RealCallService extends ChangeNotifier {
     _setupSignalingCallbacks();
   }
 
-  // ==================== 核心服務 ====================
+  // ==================== 核心服务 ====================
 
-  /// WebRTC服務
+  /// WebRTC服务
   final RealWebRTCService _webRTCService = RealWebRTCService();
 
-  /// 信令服務
+  /// 信令服务
   final SignalingService _signalingService = SignalingService();
 
-  /// 錄音服務
+  /// 录音服务
   final CallRecordingService _recordingService = CallRecordingService();
 
-  // ==================== 狀態 ====================
+  // ==================== 状态 ====================
 
-  /// 通話狀態
+  /// 通话状态
   CallState _callState = CallState.idle;
 
-  /// 當前通話信息
+  /// 当前通话信息
   CallInfo? _currentCall;
 
-  /// 當前志願者信息
+  /// 当前志愿者信息
   VolunteerInfo? _currentVolunteer;
 
-  /// 通話時長
+  /// 通话时长
   Duration _callDuration = Duration.zero;
 
-  /// 網絡質量
+  /// 网络质量
   NetworkQuality _networkQuality = NetworkQuality.unknown;
 
-  /// 是否正在錄音
+  /// 是否正在录音
   bool _isRecording = false;
 
-  /// 錯誤信息
+  /// 错误信息
   String? _errorMessage;
 
-  /// 遠程媒體流
+  /// 远程媒体流
   MediaStream? _remoteStream;
 
-  /// 訂閱列表
+  /// 订阅列表
   final List<StreamSubscription<dynamic>> _subscriptions = [];
 
   // ==================== Getters ====================
 
-  /// 通話狀態
+  /// 通话状态
   CallState get callState => _callState;
 
-  /// 當前通話信息
+  /// 当前通话信息
   CallInfo? get currentCall => _currentCall;
 
-  /// 當前志願者信息
+  /// 当前志愿者信息
   VolunteerInfo? get currentVolunteer => _currentVolunteer;
 
-  /// 通話時長
+  /// 通话时长
   Duration get callDuration => _callDuration;
 
-  /// 格式化的通話時長
+  /// 格式化的通话时长
   String get formattedDuration {
     final minutes = _callDuration.inMinutes.toString().padLeft(2, '0');
     final seconds = (_callDuration.inSeconds % 60).toString().padLeft(2, '0');
     return '$minutes:$seconds';
   }
 
-  /// 網絡質量
+  /// 网络质量
   NetworkQuality get networkQuality => _networkQuality;
 
-  /// 網絡質量描述
+  /// 网络质量描述
   String get networkQualityText =>
       NetworkQualityEvaluator.getQualityDescription(_networkQuality);
 
-  /// 是否正在通話中
+  /// 是否正在通话中
   bool get isInCall => _callState == CallState.connected;
 
-  /// 是否正在連接中
+  /// 是否正在连接中
   bool get isConnecting =>
       _callState == CallState.connecting || _callState == CallState.ringing;
 
-  /// 是否正在錄音
+  /// 是否正在录音
   bool get isRecording => _isRecording;
 
-  /// 是否靜音
+  /// 是否静音
   bool get isMuted => _currentCall?.isMuted ?? false;
 
-  /// 是否使用揚聲器
+  /// 是否使用扬声器
   bool get isSpeakerOn => _currentCall?.isSpeakerOn ?? true;
 
-  /// 錯誤信息
+  /// 错误信息
   String? get errorMessage => _errorMessage;
 
-  /// 遠程媒體流
+  /// 远程媒体流
   MediaStream? get remoteStream => _remoteStream;
 
-  /// 通話狀態流
+  /// 通话状态流
   Stream<CallState> get callStateStream => _webRTCService.callStateStream;
 
-  /// 通話統計信息流
+  /// 通话统计信息流
   Stream<CallStats> get statsStream => _webRTCService.statsStream;
 
-  /// 網絡質量流
+  /// 网络质量流
   Stream<NetworkQuality> get networkQualityStream =>
       _webRTCService.networkQualityStream;
 
-  // ==================== 回調設置 ====================
+  // ==================== 回调设置 ====================
 
-  /// 設置WebRTC回調
+  /// 设置WebRTC回调
   void _setupWebRTCCallbacks() {
     _webRTCService.onOfferCreated = (sdp, type) {
       if (_currentCall != null) {
@@ -153,24 +153,24 @@ class RealCallService extends ChangeNotifier {
     };
   }
 
-  /// 設置信令回調
+  /// 设置信令回调
   void _setupSignalingCallbacks() {
-    // 監聽信令消息
+    // 监听信令消息
     _subscriptions.add(
       _signalingService.signalingMessageStream.listen(_handleSignalingMessage),
     );
 
-    // 監聽房間狀態
+    // 监听房间状态
     _subscriptions.add(
       _signalingService.roomStateStream.listen(_handleRoomStateChange),
     );
 
-    // 監聽WebRTC狀態
+    // 监听WebRTC状态
     _subscriptions.add(
       _webRTCService.callStateStream.listen(_handleCallStateChange),
     );
 
-    // 監聽遠程流
+    // 监听远程流
     _subscriptions.add(
       _webRTCService.remoteStreamStream.listen((stream) {
         _remoteStream = stream;
@@ -178,7 +178,7 @@ class RealCallService extends ChangeNotifier {
       }),
     );
 
-    // 監聽網絡質量
+    // 监听网络质量
     _subscriptions.add(
       _webRTCService.networkQualityStream.listen((quality) {
         _networkQuality = quality;
@@ -186,7 +186,7 @@ class RealCallService extends ChangeNotifier {
       }),
     );
 
-    // 監聽通話時長
+    // 监听通话时长
     _subscriptions.add(
       Stream.periodic(const Duration(seconds: 1)).listen((_) {
         if (_callState == CallState.connected) {
@@ -197,14 +197,14 @@ class RealCallService extends ChangeNotifier {
     );
   }
 
-  // ==================== 通話控制方法 ====================
+  // ==================== 通话控制方法 ====================
 
-  /// 初始化服務
+  /// 初始化服务
   Future<void> initialize() async {
     await _recordingService.initialize();
   }
 
-  /// 作爲求助者發起通話
+  /// 作为求助者发起通话
   Future<void> startCallAsSeeker({
     required String seekerId,
     required String helpRequestId,
@@ -223,23 +223,23 @@ class RealCallService extends ChangeNotifier {
         volunteerId: volunteer.id,
       );
 
-      // 加入信令房間
+      // 加入信令房间
       await _signalingService.joinRoom(
         _currentCall!.roomId,
         role: CallRole.seeker,
       );
 
-      // 等待對方加入後創建Offer
-      // 實際在收到對方join消息後創建Offer
+      // 等待对方加入后创建Offer
+      // 实际在收到对方join消息后创建Offer
     } catch (error, stackTrace) {
-      AppLogger.error('真實通話發起失敗', error, stackTrace);
-      _errorMessage = '發起通話失敗: $error';
+      AppLogger.error('真实通话发起失败', error, stackTrace);
+      _errorMessage = '发起通话失败: $error';
       _callState = CallState.failed;
       notifyListeners();
     }
   }
 
-  /// 作爲志願者接聽通話
+  /// 作为志愿者接听通话
   Future<void> answerCallAsVolunteer({
     required String volunteerId,
     required String seekerId,
@@ -261,31 +261,31 @@ class RealCallService extends ChangeNotifier {
         roomId: roomId,
       );
 
-      // 加入信令房間
+      // 加入信令房间
       await _signalingService.joinRoom(roomId, role: CallRole.volunteer);
 
-      // 志願者加入後，等待求助者的Offer
+      // 志愿者加入后，等待求助者的Offer
     } catch (error, stackTrace) {
-      AppLogger.error('真實通話接聽失敗', error, stackTrace);
-      _errorMessage = '接聽通話失敗: $error';
+      AppLogger.error('真实通话接听失败', error, stackTrace);
+      _errorMessage = '接听通话失败: $error';
       _callState = CallState.failed;
       notifyListeners();
     }
   }
 
-  /// 靜音/取消靜音
+  /// 静音/取消静音
   Future<void> toggleMute() async {
     await _webRTCService.toggleMute();
     notifyListeners();
   }
 
-  /// 切換揚聲器
+  /// 切换扬声器
   Future<void> toggleSpeaker() async {
     await _webRTCService.toggleSpeaker();
     notifyListeners();
   }
 
-  /// 開始錄音
+  /// 开始录音
   Future<void> startRecording() async {
     if (_isRecording) return;
 
@@ -296,13 +296,13 @@ class RealCallService extends ChangeNotifier {
         notifyListeners();
       }
     } catch (error, stackTrace) {
-      AppLogger.error('真實通話開始錄音失敗', error, stackTrace);
-      _errorMessage = '開始錄音失敗: $error';
+      AppLogger.error('真实通话开始录音失败', error, stackTrace);
+      _errorMessage = '开始录音失败: $error';
       notifyListeners();
     }
   }
 
-  /// 停止錄音
+  /// 停止录音
   Future<RecordingInfo?> stopRecording() async {
     if (!_isRecording) return null;
 
@@ -312,45 +312,45 @@ class RealCallService extends ChangeNotifier {
       notifyListeners();
       return info;
     } catch (error, stackTrace) {
-      AppLogger.error('真實通話停止錄音失敗', error, stackTrace);
-      _errorMessage = '停止錄音失敗: $error';
+      AppLogger.error('真实通话停止录音失败', error, stackTrace);
+      _errorMessage = '停止录音失败: $error';
       notifyListeners();
       return null;
     }
   }
 
-  /// 結束通話
+  /// 结束通话
   Future<void> endCall() async {
     if (_currentCall == null) return;
 
-    // 停止錄音
+    // 停止录音
     if (_isRecording) {
       await stopRecording();
     }
 
-    // 發送掛斷信號
+    // 发送挂断信号
     await _signalingService.sendBye(
       _currentCall!.roomId,
       reason: CallEndReason.userHangup,
     );
 
-    // 結束WebRTC通話
+    // 结束WebRTC通话
     await _webRTCService.endCall(CallEndReason.userHangup);
 
-    // 離開信令房間
+    // 离开信令房间
     await _signalingService.leaveRoom();
 
     _callState = CallState.ended;
     notifyListeners();
   }
 
-  // ==================== 事件處理方法 ====================
+  // ==================== 事件处理方法 ====================
 
-  /// 處理信令消息
+  /// 处理信令消息
   void _handleSignalingMessage(SignalingMessage message) {
     switch (message.type) {
       case SignalingType.offer:
-        // 收到Offer，創建Answer
+        // 收到Offer，创建Answer
         final sdp = message.data['sdp'] as String?;
         final type = message.data['type'] as String?;
         if (sdp != null && type != null) {
@@ -368,7 +368,7 @@ class RealCallService extends ChangeNotifier {
         break;
 
       case SignalingType.iceCandidate:
-        // 收到ICE候選
+        // 收到ICE候选
         final candidate = message.data['candidate'] as String?;
         final sdpMid = message.data['sdp_mid'] as String?;
         final sdpMLineIndex = message.data['sdp_mline_index'] as int?;
@@ -378,14 +378,14 @@ class RealCallService extends ChangeNotifier {
         break;
 
       case SignalingType.join:
-        // 對方加入，如果是求助者則創建Offer
+        // 对方加入，如果是求助者则创建Offer
         if (_currentCall?.myRole == CallRole.seeker) {
           _webRTCService.createOffer();
         }
         break;
 
       case SignalingType.bye:
-        // 對方掛斷
+        // 对方挂断
         final reasonStr = message.data['reason'] as String?;
         final reason = CallEndReason.values.firstWhere(
           (r) => r.name == reasonStr,
@@ -399,20 +399,20 @@ class RealCallService extends ChangeNotifier {
     }
   }
 
-  /// 處理房間狀態變化
+  /// 处理房间状态变化
   void _handleRoomStateChange(RoomState state) {
     switch (state) {
       case RoomState.peerJoined:
-        // 對方已加入
+        // 对方已加入
         break;
       case RoomState.peerLeft:
-        // 對方已離開
+        // 对方已离开
         if (_callState == CallState.connected) {
           _handleCallEnded(CallEndReason.remoteHangup);
         }
         break;
       case RoomState.callEnded:
-        // 通話結束
+        // 通话结束
         _handleCallEnded(CallEndReason.remoteHangup);
         break;
       default:
@@ -420,15 +420,15 @@ class RealCallService extends ChangeNotifier {
     }
   }
 
-  /// 處理通話狀態變化
+  /// 处理通话状态变化
   void _handleCallStateChange(CallState state) {
     _callState = state;
     notifyListeners();
 
     if (state == CallState.connected) {
-      // 通話連接成功，可以開始錄音（如果需要）
+      // 通话连接成功，可以开始录音（如果需要）
     } else if (state == CallState.ended || state == CallState.failed) {
-      // 通話結束
+      // 通话结束
       _handleCallEnded(
         state == CallState.failed
             ? CallEndReason.networkError
@@ -437,21 +437,21 @@ class RealCallService extends ChangeNotifier {
     }
   }
 
-  /// 處理通話結束
+  /// 处理通话结束
   void _handleCallEnded(CallEndReason reason) {
-    // 停止錄音
+    // 停止录音
     if (_isRecording) {
       stopRecording();
     }
 
-    // 離開信令房間
+    // 离开信令房间
     _signalingService.leaveRoom();
 
     _callState = CallState.ended;
     notifyListeners();
   }
 
-  /// 重置狀態
+  /// 重置状态
   void _resetState() {
     _callState = CallState.idle;
     _currentCall = null;
@@ -462,17 +462,17 @@ class RealCallService extends ChangeNotifier {
     _remoteStream = null;
   }
 
-  // ==================== 資源釋放 ====================
+  // ==================== 资源释放 ====================
 
   @override
   void dispose() {
-    // 取消訂閱
+    // 取消订阅
     for (final subscription in _subscriptions) {
       subscription.cancel();
     }
     _subscriptions.clear();
 
-    // 釋放服務
+    // 释放服务
     _webRTCService.dispose();
     _signalingService.dispose();
     _recordingService.dispose();
@@ -481,7 +481,7 @@ class RealCallService extends ChangeNotifier {
   }
 }
 
-/// 志願者信息
+/// 志愿者信息
 class VolunteerInfo {
   final String id;
   final String name;

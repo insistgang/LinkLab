@@ -6,7 +6,7 @@ analyzer:
     - "**/*.freezed.dart"
     - "admin_dashboard/**"
     # AGENTS.md §1 / §3 / §4.2：
-    # 競賽版 analyze 默認只收斂 MVP 主鏈路，已隔離的實驗/歷史模塊不再阻塞交付。
+    # 竞赛版 analyze 默认只收敛 MVP 主链路，已隔离的实验/历史模块不再阻塞交付。
     - "lib/admin/**"
     - "lib/screens/archive/**"
     - "lib/services/archive/**"
@@ -56,7 +56,7 @@ analyzer:
 
 linter:
   rules:
-    # 代碼風格
+    # 代码风格
     prefer_single_quotes: true
     prefer_const_constructors: true
     prefer_const_literals_to_create_immutables: true
@@ -66,12 +66,12 @@ linter:
     avoid_unnecessary_containers: true
     sized_box_for_whitespace: true
 
-    # 命名規範
+    # 命名规范
     constant_identifier_names: true
     file_names: true
     package_names: true
 
-    # 類型安全
+    # 类型安全
     always_specify_types: false
     avoid_dynamic_calls: true
 

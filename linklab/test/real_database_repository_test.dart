@@ -36,8 +36,8 @@ void main() {
     final request = RealHelpRequest.fromJson({
       'id': 'help-1',
       'seeker_id': 'user-1',
-      'title': '出行協助',
-      'description': '需要確認路線',
+      'title': '出行协助',
+      'description': '需要确认路线',
       'status': 'created',
       'latitude': null,
       'longitude': null,
@@ -56,7 +56,7 @@ void main() {
     expect(profile.effectiveDisplayName, 'Alice');
     expect(profile.role, 'volunteer');
     expect(request.status, 'created');
-    expect(request.title, '出行協助');
+    expect(request.title, '出行协助');
     expect(volunteer.serviceRadiusM, 3000);
     expect(volunteer.isAvailable, isTrue);
   });

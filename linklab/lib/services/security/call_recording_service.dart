@@ -6,7 +6,7 @@ import 'package:uuid/uuid.dart';
 import '../../core/utils/logger.dart';
 import '../../models/security/call_recording_model.dart';
 
-/// 通話錄音服務
+/// 通话录音服务
 class CallRecordingService {
   SupabaseClient? _supabaseClient;
   SupabaseClient get _supabase {
@@ -19,10 +19,10 @@ class CallRecordingService {
 
   final _uuid = const Uuid();
 
-  // 存儲當前錄音的引用
+  // 存储当前录音的引用
   final Map<String, CallRecording> _activeRecordings = {};
 
-  /// 開始錄音
+  /// 开始录音
   Future<CallRecording?> startRecording({
     required String callId,
     required String seekerId,
@@ -41,7 +41,7 @@ class CallRecordingService {
         ),
       );
 
-      // 保存到數據庫
+      // 保存到数据库
       await _supabase.from('call_recordings').insert({
         'id': recordingId,
         'call_id': callId,
@@ -53,20 +53,20 @@ class CallRecordingService {
 
       _activeRecordings[callId] = recording;
 
-      AppLogger.info('錄音開始: $recordingId for call: $callId');
+      AppLogger.info('录音开始: $recordingId for call: $callId');
       return recording;
     } catch (e) {
-      AppLogger.error('開始錄音失敗', e);
+      AppLogger.error('开始录音失败', e);
       return null;
     }
   }
 
-  /// 停止錄音
+  /// 停止录音
   Future<CallRecording?> stopRecording(String callId) async {
     try {
       final recording = _activeRecordings[callId];
       if (recording == null) {
-        AppLogger.warning('未找到活動錄音: $callId');
+        AppLogger.warning('未找到活动录音: $callId');
         return null;
       }
 
@@ -75,7 +75,7 @@ class CallRecordingService {
           ? endedAt.difference(recording.startedAt!).inSeconds
           : 0;
 
-      // 更新數據庫
+      // 更新数据库
       await _supabase.from('call_recordings').update({
         'ended_at': endedAt.toIso8601String(),
         'duration': duration,
@@ -83,18 +83,18 @@ class CallRecordingService {
 
       _activeRecordings.remove(callId);
 
-      AppLogger.info('錄音結束: ${recording.id}, 時長: ${duration}s');
+      AppLogger.info('录音结束: ${recording.id}, 时长: ${duration}s');
       return recording.copyWith(
         endedAt: endedAt,
         duration: duration,
       );
     } catch (e) {
-      AppLogger.error('停止錄音失敗', e);
+      AppLogger.error('停止录音失败', e);
       return null;
     }
   }
 
-  /// 上傳錄音文件
+  /// 上传录音文件
   Future<bool> uploadRecording(String recordingId, File audioFile) async {
     try {
       final fileName = 'recording_$recordingId.wav';
@@ -110,7 +110,7 @@ class CallRecordingService {
 
       final fileSize = await audioFile.length();
 
-      // 更新數據庫
+      // 更新数据库
       await _supabase.from('call_recordings').update({
         'file_url': fileUrl,
         'file_size': fileSize,
@@ -118,15 +118,15 @@ class CallRecordingService {
         'uploaded_at': DateTime.now().toIso8601String(),
       }).eq('id', recordingId);
 
-      AppLogger.info('錄音上傳成功: $recordingId');
+      AppLogger.info('录音上传成功: $recordingId');
       return true;
     } catch (e) {
-      AppLogger.error('上傳錄音失敗', e);
+      AppLogger.error('上传录音失败', e);
       return false;
     }
   }
 
-  /// 獲取錄音記錄
+  /// 获取录音记录
   Future<CallRecording?> getRecording(String recordingId) async {
     try {
       final response = await _supabase
@@ -137,12 +137,12 @@ class CallRecordingService {
 
       return CallRecording.fromJson(Map<String, dynamic>.from(response as Map));
     } catch (e) {
-      AppLogger.error('獲取錄音記錄失敗', e);
+      AppLogger.error('获取录音记录失败', e);
       return null;
     }
   }
 
-  /// 獲取通話的錄音記錄
+  /// 获取通话的录音记录
   Future<CallRecording?> getRecordingByCallId(String callId) async {
     try {
       final response = await _supabase
@@ -154,19 +154,19 @@ class CallRecordingService {
       if (response == null) return null;
       return CallRecording.fromJson(Map<String, dynamic>.from(response as Map));
     } catch (e) {
-      AppLogger.error('獲取通話錄音記錄失敗', e);
+      AppLogger.error('获取通话录音记录失败', e);
       return null;
     }
   }
 
-  /// 刪除錄音（自動清理過期錄音）
+  /// 删除录音（自动清理过期录音）
   Future<void> deleteRecording(String recordingId) async {
     try {
-      // 獲取錄音信息
+      // 获取录音信息
       final recording = await getRecording(recordingId);
       if (recording == null) return;
 
-      // 刪除存儲文件
+      // 删除存储文件
       if (recording.fileUrl != null) {
         final fileName = 'recording_$recordingId.wav';
         await _supabase.storage
@@ -174,23 +174,23 @@ class CallRecordingService {
             .remove(['recordings/$fileName']);
       }
 
-      // 更新數據庫
+      // 更新数据库
       await _supabase.from('call_recordings').update({
         'is_deleted': true,
         'deleted_at': DateTime.now().toIso8601String(),
         'file_url': null,
       }).eq('id', recordingId);
 
-      AppLogger.info('錄音已刪除: $recordingId');
+      AppLogger.info('录音已删除: $recordingId');
     } catch (e) {
-      AppLogger.error('刪除錄音失敗', e);
+      AppLogger.error('删除录音失败', e);
     }
   }
 
-  /// 清理過期錄音
+  /// 清理过期录音
   Future<int> cleanupExpiredRecordings() async {
     try {
-      // 獲取所有過期且未刪除的錄音
+      // 获取所有过期且未删除的录音
       final response = await _supabase
           .from('call_recordings')
           .select('id')
@@ -201,26 +201,26 @@ class CallRecordingService {
           .map((r) => Map<String, dynamic>.from(r as Map)['id'] as String)
           .toList();
 
-      // 刪除每個過期錄音
+      // 删除每个过期录音
       for (final id in expiredIds) {
         await deleteRecording(id);
       }
 
-      AppLogger.info('清理過期錄音: ${expiredIds.length} 條');
+      AppLogger.info('清理过期录音: ${expiredIds.length} 条');
       return expiredIds.length;
     } catch (e) {
-      AppLogger.error('清理過期錄音失敗', e);
+      AppLogger.error('清理过期录音失败', e);
       return 0;
     }
   }
 
-  /// 獲取臨時錄音文件路徑
+  /// 获取临时录音文件路径
   Future<String> getTempRecordingPath(String callId) async {
     final directory = await getTemporaryDirectory();
     return '${directory.path}/recording_$callId.wav';
   }
 
-  /// 檢查錄音是否啓用
+  /// 检查录音是否启用
   Future<bool> isRecordingEnabled(String userId) async {
     try {
       final response = await _supabase
@@ -241,7 +241,7 @@ class CallRecordingService {
     }
   }
 
-  /// 設置錄音啓用狀態
+  /// 设置录音启用状态
   Future<void> setRecordingEnabled(String userId, bool enabled) async {
     try {
       await _supabase.from('user_preferences').upsert({
@@ -250,7 +250,7 @@ class CallRecordingService {
         'updated_at': DateTime.now().toIso8601String(),
       });
     } catch (e) {
-      AppLogger.error('設置錄音狀態失敗', e);
+      AppLogger.error('设置录音状态失败', e);
     }
   }
 }

@@ -7,7 +7,7 @@ import '../../services/community/newbie_village_service.dart';
 import '../../widgets/accessible/index.dart';
 import 'training_scenario_screen.dart';
 
-/// 新手村頁面
+/// 新手村页面
 class NewbieVillageScreen extends StatefulWidget {
   const NewbieVillageScreen({super.key});
 
@@ -56,20 +56,20 @@ class _NewbieVillageScreenState extends State<NewbieVillageScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 歡迎卡片
+                  // 欢迎卡片
                   _buildWelcomeCard(isGraduated),
                   const SizedBox(height: AppTheme.spacingXL),
-                  // 進度卡片
+                  // 进度卡片
                   _buildProgressCard(progressPercentage),
                   const SizedBox(height: AppTheme.spacingXL),
-                  // 導師信息
+                  // 导师信息
                   if (_stats['mentorName'] != null) ...[
                     _buildMentorCard(_stats['mentorName'] as String),
                     const SizedBox(height: AppTheme.spacingXL),
                   ],
-                  // 訓練場景
+                  // 训练场景
                   const AccessibleText(
-                    '訓練場景',
+                    '训练场景',
                     style: TextStyle(
                       fontSize: AppTheme.fontSizeLarge,
                       fontWeight: FontWeight.bold,
@@ -81,7 +81,7 @@ class _NewbieVillageScreenState extends State<NewbieVillageScreen> {
                         onTap: () => _startScenario(scenario),
                       )),
                   const SizedBox(height: AppTheme.spacingXL),
-                  // 畢業按鈕
+                  // 毕业按钮
                   if (isGraduated)
                     Container(
                       padding: const EdgeInsets.all(AppTheme.spacingL),
@@ -104,7 +104,7 @@ class _NewbieVillageScreenState extends State<NewbieVillageScreen> {
                           ),
                           const SizedBox(height: AppTheme.spacingM),
                           const AccessibleText(
-                            '恭喜畢業！',
+                            '恭喜毕业！',
                             style: TextStyle(
                               fontSize: AppTheme.fontSizeXLarge,
                               fontWeight: FontWeight.bold,
@@ -113,7 +113,7 @@ class _NewbieVillageScreenState extends State<NewbieVillageScreen> {
                           ),
                           const SizedBox(height: AppTheme.spacingS),
                           const AccessibleText(
-                            '您已完成所有訓練，可以正式成爲志願者了',
+                            '您已完成所有训练，可以正式成为志愿者了',
                             style: TextStyle(
                               fontSize: AppTheme.fontSizeNormal,
                               color: Colors.white70,
@@ -153,7 +153,7 @@ class _NewbieVillageScreenState extends State<NewbieVillageScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     AccessibleText(
-                      isGraduated ? '歡迎回來！' : '歡迎來到新手村！',
+                      isGraduated ? '欢迎回来！' : '欢迎来到新手村！',
                       style: const TextStyle(
                         fontSize: AppTheme.fontSizeXLarge,
                         fontWeight: FontWeight.bold,
@@ -162,7 +162,7 @@ class _NewbieVillageScreenState extends State<NewbieVillageScreen> {
                     ),
                     const SizedBox(height: AppTheme.spacingXS),
                     const AccessibleText(
-                      '完成訓練即可成爲正式志願者',
+                      '完成训练即可成为正式志愿者',
                       style: TextStyle(
                         fontSize: AppTheme.fontSizeNormal,
                         color: Colors.white70,
@@ -184,7 +184,7 @@ class _NewbieVillageScreenState extends State<NewbieVillageScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const AccessibleText(
-            '訓練進度',
+            '训练进度',
             style: TextStyle(
               fontSize: AppTheme.fontSizeLarge,
               fontWeight: FontWeight.bold,
@@ -206,7 +206,7 @@ class _NewbieVillageScreenState extends State<NewbieVillageScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               AccessibleText(
-                '已完成 ${_stats['completedScenarios'] ?? 0}/${_stats['totalScenarios'] ?? 3} 個場景',
+                '已完成 ${_stats['completedScenarios'] ?? 0}/${_stats['totalScenarios'] ?? 3} 个场景',
                 style: const TextStyle(
                   fontSize: AppTheme.fontSizeSmall,
                   color: AppTheme.textSecondary,
@@ -250,7 +250,7 @@ class _NewbieVillageScreenState extends State<NewbieVillageScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const AccessibleText(
-                  '您的導師',
+                  '您的导师',
                   style: TextStyle(
                     fontSize: AppTheme.fontSizeSmall,
                     color: AppTheme.textSecondary,
@@ -269,9 +269,9 @@ class _NewbieVillageScreenState extends State<NewbieVillageScreen> {
           ),
           AccessibleButton(
             onPressed: () {
-              // TODO: 聯繫導師
+              // TODO: 联系导师
             },
-            label: '聯繫',
+            label: '联系',
             
           ),
         ],
@@ -289,7 +289,7 @@ class _NewbieVillageScreenState extends State<NewbieVillageScreen> {
   }
 }
 
-/// 場景卡片
+/// 场景卡片
 class _ScenarioCard extends StatelessWidget {
   const _ScenarioCard({
     required this.scenario,

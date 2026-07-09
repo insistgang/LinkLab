@@ -6,7 +6,7 @@ import '../services/security/safety_settings_service.dart';
 import '../services/user_center/help_archive_service.dart';
 import 'user_session_provider.dart';
 
-/// 首頁數據聚合模型
+/// 首页数据聚合模型
 class HomeScreenData {
   const HomeScreenData({
     required this.recentHistory,
@@ -19,8 +19,8 @@ class HomeScreenData {
   final int emergencyContactCount;
 }
 
-/// 首頁數據 Provider
-/// 聚合最近求助記錄、安全設置、緊急聯繫人數量
+/// 首页数据 Provider
+/// 聚合最近求助记录、安全设置、紧急联系人数量
 final homeDataProvider = FutureProvider<HomeScreenData>((ref) async {
   final userId = ref.watch(currentUserIdProvider);
 

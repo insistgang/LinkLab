@@ -6,16 +6,16 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// 匹配權重配置
+// 匹配权重配置
 const MATCHING_WEIGHTS = {
-  urgency: 0.30,      // 緊急度
-  distance: 0.25,     // 地理距離
+  urgency: 0.30,      // 紧急度
+  distance: 0.25,     // 地理距离
   skills: 0.20,       // 技能匹配
-  credit: 0.15,       // 信譽分
-  intimacy: 0.10,     // 歷史親密度
+  credit: 0.15,       // 信誉分
+  intimacy: 0.10,     // 历史亲密度
 };
 
-// 緊急度映射值
+// 紧急度映射值
 const URGENCY_VALUES: Record<string, number> = {
   normal: 0.4,
   important: 0.6,
@@ -23,7 +23,7 @@ const URGENCY_VALUES: Record<string, number> = {
   emergency: 1.0,
 };
 
-// 地球半徑（km）
+// 地球半径（km）
 const EARTH_RADIUS_KM = 6371;
 
 interface Location {
@@ -56,7 +56,7 @@ interface MatchResult {
 }
 
 /**
- * 主入口函數
+ * 主入口函数
  */
 export async function matchingEngine(req: Request): Promise<Response> {
   // Handle CORS preflight
@@ -68,7 +68,7 @@ export async function matchingEngine(req: Request): Promise<Response> {
     const url = new URL(req.url);
     const path = url.pathname;
 
-    // 路由分發
+    // 路由分发
     if (path.endsWith('/matching-engine') && req.method === 'POST') {
       return await handleMatching(req);
     } else if (path.endsWith('/matching-engine/timeout') && req.method === 'POST') {
@@ -93,7 +93,7 @@ export async function matchingEngine(req: Request): Promise<Response> {
 }
 
 /**
- * 處理匹配請求
+ * 处理匹配请求
  */
 async function handleMatching(req: Request): Promise<Response> {
   const supabase = createSupabaseClient(req);
@@ -105,7 +105,7 @@ async function handleMatching(req: Request): Promise<Response> {
     location,
     skills = [],
     helpType = '一般求助',
-    excludeVolunteers = [], // 已拒絕的志願者ID列表
+    excludeVolunteers = [], // 已拒绝的志愿者ID列表
   } = body;
 
   if (!seekerId || !location) {
@@ -115,7 +115,7 @@ async function handleMatching(req: Request): Promise<Response> {
     );
   }
 
-  // 1. 創建求助記錄
+  // 1. 创建求助记录
   const helpRequest = await createHelpRequest(supabase, {
     seekerId,
     urgency,
@@ -124,11 +124,11 @@ async function handleMatching(req: Request): Promise<Response> {
     helpType,
   });
 
-  // 2. 獲取在線志願者
+  // 2. 获取在线志愿者
   const volunteers = await getOnlineVolunteers(supabase, location, excludeVolunteers);
 
   if (volunteers.length === 0) {
-    // 無可用的志願者，轉爲異步
+    // 无可用的志愿者，转为异步
     await convertToAsync(supabase, helpRequest.id);
     return new Response(
       JSON.stringify({
@@ -141,7 +141,7 @@ async function handleMatching(req: Request): Promise<Response> {
     );
   }
 
-  // 3. 計算匹配分數
+  // 3. 计算匹配分数
   const matches = calculateMatchScores(volunteers, {
     urgency,
     location,
@@ -149,14 +149,14 @@ async function handleMatching(req: Request): Promise<Response> {
     seekerId,
   });
 
-  // 4. 獲取Top 5
+  // 4. 获取Top 5
   const topMatches = matches.slice(0, 5);
 
-  // 5. 創建匹配記錄併發送推送
+  // 5. 创建匹配记录并发送推送
   await createMatchRecordsAndNotify(supabase, helpRequest.id, topMatches);
 
-  // 6. 返回結果
-  const timeoutAt = new Date(Date.now() + 60 * 1000); // 60秒超時
+  // 6. 返回结果
+  const timeoutAt = new Date(Date.now() + 60 * 1000); // 60秒超时
 
   return new Response(
     JSON.stringify({
@@ -176,7 +176,7 @@ async function handleMatching(req: Request): Promise<Response> {
 }
 
 /**
- * 處理超時/擴大搜索範圍
+ * 处理超时/扩大搜索范围
  */
 async function handleTimeout(req: Request): Promise<Response> {
   const supabase = createSupabaseClient(req);
@@ -191,7 +191,7 @@ async function handleTimeout(req: Request): Promise<Response> {
     );
   }
 
-  // 獲取求助記錄
+  // 获取求助记录
   const { data: helpRequest, error } = await supabase
     .from('help_requests')
     .select('*')
@@ -206,13 +206,13 @@ async function handleTimeout(req: Request): Promise<Response> {
   }
 
   if (expandRange) {
-    // 擴大搜索範圍至Top 10
+    // 扩大搜索范围至Top 10
     const location = {
       lat: helpRequest.location_lat,
       lng: helpRequest.location_lng,
     };
 
-    // 獲取已拒絕的志願者
+    // 获取已拒绝的志愿者
     const { data: rejectedMatches } = await supabase
       .from('help_request_matches')
       .select('volunteer_id')
@@ -221,11 +221,11 @@ async function handleTimeout(req: Request): Promise<Response> {
 
     const excludeVolunteers = rejectedMatches?.map(m => m.volunteer_id) || [];
 
-    // 重新獲取志願者（擴大範圍）
+    // 重新获取志愿者（扩大范围）
     const volunteers = await getOnlineVolunteers(supabase, location, excludeVolunteers, 10);
 
     if (volunteers.length > 0) {
-      // 計算匹配分數
+      // 计算匹配分数
       const matches = calculateMatchScores(volunteers, {
         urgency: helpRequest.urgency,
         location,
@@ -233,7 +233,7 @@ async function handleTimeout(req: Request): Promise<Response> {
         seekerId: helpRequest.seeker_id,
       });
 
-      // 獲取新的志願者（排除已推送過的）
+      // 获取新的志愿者（排除已推送过的）
       const { data: existingMatches } = await supabase
         .from('help_request_matches')
         .select('volunteer_id')
@@ -243,7 +243,7 @@ async function handleTimeout(req: Request): Promise<Response> {
       const newMatches = matches.filter(m => !existingIds.has(m.id)).slice(0, 5);
 
       if (newMatches.length > 0) {
-        // 發送給新的志願者
+        // 发送给新的志愿者
         await createMatchRecordsAndNotify(supabase, helpRequestId, newMatches);
 
         const newTimeoutAt = new Date(Date.now() + 30 * 1000);
@@ -261,7 +261,7 @@ async function handleTimeout(req: Request): Promise<Response> {
     }
   }
 
-  // 轉爲異步留言
+  // 转为异步留言
   await convertToAsync(supabase, helpRequestId);
 
   return new Response(
@@ -275,7 +275,7 @@ async function handleTimeout(req: Request): Promise<Response> {
 }
 
 /**
- * 處理志願者接單
+ * 处理志愿者接单
  */
 async function handleAccept(req: Request): Promise<Response> {
   const supabase = createSupabaseClient(req);
@@ -290,7 +290,7 @@ async function handleAccept(req: Request): Promise<Response> {
     );
   }
 
-  // 使用事務確保只有一個志願者能接單
+  // 使用事务确保只有一个志愿者能接单
   const { data: updatedRequest, error } = await supabase
     .from('help_requests')
     .update({
@@ -299,12 +299,12 @@ async function handleAccept(req: Request): Promise<Response> {
       matched_at: new Date().toISOString(),
     })
     .eq('id', helpRequestId)
-    .eq('status', 'matching') // 確保只有在matching狀態才能接單
+    .eq('status', 'matching') // 确保只有在matching状态才能接单
     .select()
     .single();
 
   if (error || !updatedRequest) {
-    // 可能已被其他志願者接單
+    // 可能已被其他志愿者接单
     return new Response(
       JSON.stringify({
         success: false,
@@ -314,14 +314,14 @@ async function handleAccept(req: Request): Promise<Response> {
     );
   }
 
-  // 更新匹配記錄狀態
+  // 更新匹配记录状态
   await supabase
     .from('help_request_matches')
     .update({ status: 'accepted' })
     .eq('help_request_id', helpRequestId)
     .eq('volunteer_id', volunteerId);
 
-  // 拒絕其他志願者
+  // 拒绝其他志愿者
   await supabase
     .from('help_request_matches')
     .update({ status: 'expired' })
@@ -329,7 +329,7 @@ async function handleAccept(req: Request): Promise<Response> {
     .neq('volunteer_id', volunteerId)
     .eq('status', 'pending');
 
-  // 發送通知給求助者
+  // 发送通知给求助者
   await notifySeekerMatched(supabase, helpRequestId, volunteerId);
 
   return new Response(
@@ -343,7 +343,7 @@ async function handleAccept(req: Request): Promise<Response> {
 }
 
 /**
- * 處理志願者拒絕
+ * 处理志愿者拒绝
  */
 async function handleReject(req: Request): Promise<Response> {
   const supabase = createSupabaseClient(req);
@@ -351,7 +351,7 @@ async function handleReject(req: Request): Promise<Response> {
 
   const { helpRequestId, volunteerId } = body;
 
-  // 更新匹配記錄
+  // 更新匹配记录
   await supabase
     .from('help_request_matches')
     .update({ status: 'rejected' })
@@ -365,7 +365,7 @@ async function handleReject(req: Request): Promise<Response> {
 }
 
 /**
- * 創建Supabase客戶端
+ * 创建Supabase客户端
  */
 function createSupabaseClient(req: Request) {
   const authHeader = req.headers.get('Authorization') || '';
@@ -382,7 +382,7 @@ function createSupabaseClient(req: Request) {
 }
 
 /**
- * 創建求助記錄
+ * 创建求助记录
  */
 async function createHelpRequest(
   supabase: any,
@@ -417,7 +417,7 @@ async function createHelpRequest(
 }
 
 /**
- * 獲取在線志願者
+ * 获取在线志愿者
  */
 async function getOnlineVolunteers(
   supabase: any,
@@ -425,7 +425,7 @@ async function getOnlineVolunteers(
   excludeIds: string[] = [],
   limit: number = 20
 ): Promise<VolunteerProfile[]> {
-  // 計算5分鐘前的時間
+  // 计算5分钟前的时间
   const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
 
   let query = supabase
@@ -452,7 +452,7 @@ async function getOnlineVolunteers(
 }
 
 /**
- * 計算匹配分數
+ * 计算匹配分数
  */
 function calculateMatchScores(
   volunteers: VolunteerProfile[],
@@ -466,28 +466,28 @@ function calculateMatchScores(
   const urgencyValue = URGENCY_VALUES[params.urgency] || 0.4;
 
   return volunteers.map(volunteer => {
-    // 1. 緊急度分數（所有志願者相同）
+    // 1. 紧急度分数（所有志愿者相同）
     const urgencyScore = urgencyValue;
 
-    // 2. 距離分數（使用Haversine公式）
+    // 2. 距离分数（使用Haversine公式）
     const distance = calculateHaversineDistance(
       params.location.lat,
       params.location.lng,
       volunteer.latitude,
       volunteer.longitude
     );
-    const distanceScore = Math.max(0, 1 - Math.min(distance / 5, 1)); // 5km內線性衰減
+    const distanceScore = Math.max(0, 1 - Math.min(distance / 5, 1)); // 5km内线性衰减
 
-    // 3. 技能匹配分數
+    // 3. 技能匹配分数
     const skillScore = calculateSkillMatch(params.skills, volunteer.skills);
 
-    // 4. 信譽分數
+    // 4. 信誉分数
     const creditScore = (volunteer.credit_score || 5) / 5;
 
-    // 5. 歷史親密度分數（這裏簡化處理，實際應查詢歷史配對記錄）
-    const intimacyScore = 0.5; // 默認值
+    // 5. 历史亲密度分数（这里简化处理，实际应查询历史配对记录）
+    const intimacyScore = 0.5; // 默认值
 
-    // 加權計算總分
+    // 加权计算总分
     const totalScore =
       MATCHING_WEIGHTS.urgency * urgencyScore +
       MATCHING_WEIGHTS.distance * distanceScore +
@@ -504,11 +504,11 @@ function calculateMatchScores(
       creditScore: volunteer.credit_score || 5,
       intimacyScore,
     };
-  }).sort((a, b) => b.score - a.score); // 按分數降序排序
+  }).sort((a, b) => b.score - a.score); // 按分数降序排序
 }
 
 /**
- * Haversine公式計算兩點間距離
+ * Haversine公式计算两点间距离
  */
 function calculateHaversineDistance(
   lat1: number,
@@ -536,10 +536,10 @@ function toRadians(degrees: number): number {
 }
 
 /**
- * 計算技能匹配度
+ * 计算技能匹配度
  */
 function calculateSkillMatch(required: string[], volunteerSkills: string[]): number {
-  if (required.length === 0) return 1; // 無特定技能要求，視爲完全匹配
+  if (required.length === 0) return 1; // 无特定技能要求，视为完全匹配
   if (volunteerSkills.length === 0) return 0;
 
   const matched = required.filter(skill =>
@@ -550,7 +550,7 @@ function calculateSkillMatch(required: string[], volunteerSkills: string[]): num
 }
 
 /**
- * 創建匹配記錄併發送推送通知
+ * 创建匹配记录并发送推送通知
  */
 async function createMatchRecordsAndNotify(
   supabase: any,
@@ -558,23 +558,23 @@ async function createMatchRecordsAndNotify(
   matches: MatchResult[]
 ) {
   const now = new Date();
-  const expiresAt = new Date(now.getTime() + 60 * 1000); // 60秒後過期
+  const expiresAt = new Date(now.getTime() + 60 * 1000); // 60秒后过期
 
-  // 創建匹配記錄
+  // 创建匹配记录
   const matchRecords = matches.map((match, index) => ({
     help_request_id: helpRequestId,
     volunteer_id: match.id,
     match_score: match.score,
     distance: match.distance,
     status: 'pending',
-    priority: index + 1, // 優先級順序
+    priority: index + 1, // 优先级顺序
     notified_at: now.toISOString(),
     expires_at: expiresAt.toISOString(),
   }));
 
   await supabase.from('help_request_matches').insert(matchRecords);
 
-  // 發送推送通知（通過調用push-notifier函數）
+  // 发送推送通知（通过调用push-notifier函数）
   for (const match of matches) {
     try {
       await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/push-notifier`, {
@@ -586,8 +586,8 @@ async function createMatchRecordsAndNotify(
         body: JSON.stringify({
           type: 'matching_request',
           userId: match.userId,
-          title: '有新的求助需要您的幫助',
-          body: `距離您 ${match.distance.toFixed(1)}km 有人需要幫助，匹配度 ${Math.round(match.score * 100)}%`,
+          title: '有新的求助需要您的帮助',
+          body: `距离您 ${match.distance.toFixed(1)}km 有人需要帮助，匹配度 ${Math.round(match.score * 100)}%`,
           data: {
             helpRequestId,
             type: 'matching_request',
@@ -602,20 +602,20 @@ async function createMatchRecordsAndNotify(
 }
 
 /**
- * 轉爲異步任務
+ * 转为异步任务
  */
 async function convertToAsync(supabase: any, helpRequestId: string) {
-  // 更新求助記錄
+  // 更新求助记录
   await supabase
     .from('help_requests')
     .update({ status: 'async_pending' })
     .eq('id', helpRequestId);
 
-  // 創建異步任務
+  // 创建异步任务
   await supabase.from('async_tasks').insert({
     help_request_id: helpRequestId,
     status: 'pending',
-    deadline: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24小時
+    deadline: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24小时
   });
 }
 
@@ -623,7 +623,7 @@ async function convertToAsync(supabase: any, helpRequestId: string) {
  * 通知求助者已匹配
  */
 async function notifySeekerMatched(supabase: any, helpRequestId: string, volunteerId: string) {
-  // 獲取求助者信息
+  // 获取求助者信息
   const { data: helpRequest } = await supabase
     .from('help_requests')
     .select('seeker_id')
@@ -632,7 +632,7 @@ async function notifySeekerMatched(supabase: any, helpRequestId: string, volunte
 
   if (!helpRequest) return;
 
-  // 獲取志願者信息
+  // 获取志愿者信息
   const { data: volunteer } = await supabase
     .from('volunteer_profiles')
     .select('user_id, level')
@@ -641,7 +641,7 @@ async function notifySeekerMatched(supabase: any, helpRequestId: string, volunte
 
   if (!volunteer) return;
 
-  // 發送推送
+  // 发送推送
   try {
     await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/push-notifier`, {
       method: 'POST',
@@ -652,8 +652,8 @@ async function notifySeekerMatched(supabase: any, helpRequestId: string, volunte
       body: JSON.stringify({
         type: 'matching_confirmed',
         userId: helpRequest.seeker_id,
-        title: '志願者已接單',
-        body: '有志願者接受了您的求助，即將開始通話',
+        title: '志愿者已接单',
+        body: '有志愿者接受了您的求助，即将开始通话',
         data: {
           helpRequestId,
           volunteerId,

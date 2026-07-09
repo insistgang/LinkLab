@@ -1,32 +1,32 @@
-/// 本地 API 配置文件。
-/// AGENTS.md §4.2 / §4.6：競賽版默認走 Demo 主線，此文件只允許保存本地實驗配置，
-/// 不得提交到版本控制；請以 `api_config.example.dart` 爲模板複製生成。
+/// 客户端 API 配置结构示例。
+///
+/// 不要在此文件或 `api_config.dart` 中填写真实密钥；真实服务必须通过服务端代理。
 class APIConfig {
   // ==================== 百度OCR API配置 ====================
   /// 百度OCR API Key
-  /// 獲取地址：https://ai.baidu.com/tech/ocr
+  /// 获取地址：https://ai.baidu.com/tech/ocr
   static String baiduOcrApiKey = '';
 
   /// 百度OCR Secret Key
   static String baiduOcrSecretKey = '';
 
-  /// 百度OCR Access Token（自動獲取，無需手動設置）
+  /// 百度OCR Access Token（自动获取，无需手动设置）
   static String? _baiduOcrAccessToken;
   static DateTime? _baiduTokenExpireTime;
 
-  /// 獲取百度OCR Access Token
+  /// 获取百度OCR Access Token
   static String? get baiduOcrAccessToken => _baiduOcrAccessToken;
 
-  /// 設置百度OCR Access Token
+  /// 设置百度OCR Access Token
   static void setBaiduOcrAccessToken(String token, int expiresIn) {
     _baiduOcrAccessToken = token;
-    // 提前1小時過期
+    // 提前1小时过期
     _baiduTokenExpireTime = DateTime.now().add(
       Duration(seconds: expiresIn - 3600),
     );
   }
 
-  /// 檢查百度OCR Token是否有效
+  /// 检查百度OCR Token是否有效
   static bool get isBaiduOcrTokenValid {
     if (_baiduOcrAccessToken == null || _baiduTokenExpireTime == null) {
       return false;
@@ -34,141 +34,141 @@ class APIConfig {
     return DateTime.now().isBefore(_baiduTokenExpireTime!);
   }
 
-  /// 百度OCR服務端點
+  /// 百度OCR服务端点
   static const String baiduOcrBaseUrl =
       'https://aip.baidubce.com/rest/2.0/ocr/v1';
 
-  /// 百度OCR Token獲取地址
+  /// 百度OCR Token获取地址
   static const String baiduOcrTokenUrl =
       'https://aip.baidubce.com/oauth/2.0/token';
 
-  // ==================== 通義千問VL API配置 ====================
-  /// 通義千問API Key
-  /// 獲取地址：https://dashscope.aliyun.com/
+  // ==================== 通义千问VL API配置 ====================
+  /// 通义千问API Key
+  /// 获取地址：https://dashscope.aliyun.com/
   static String qwenApiKey = '';
 
-  /// 通義千問VL服務端點
+  /// 通义千问VL服务端点
   static const String qwenBaseUrl = 'https://dashscope.aliyuncs.com/api/v1';
 
-  /// 通義千問VL模型名稱
+  /// 通义千问VL模型名称
   static const String qwenModel = 'qwen-vl-plus';
 
-  /// 通義千問VL最大token數
+  /// 通义千问VL最大token数
   static const int qwenMaxTokens = 800;
 
-  /// 通義千問VL溫度參數（0-1，越低越確定）
+  /// 通义千问VL温度参数（0-1，越低越确定）
   static const double qwenTemperature = 0.3;
 
-  // ==================== 科大訊飛語音API配置 ====================
-  /// 科大訊飛APP ID
-  /// 獲取地址：https://www.xfyun.cn/
+  // ==================== 科大讯飞语音API配置 ====================
+  /// 科大讯飞APP ID
+  /// 获取地址：https://www.xfyun.cn/
   static String xfyunAppId = '';
 
-  /// 科大訊飛API Key
+  /// 科大讯飞API Key
   static String xfyunApiKey = '';
 
-  /// 科大訊飛API Secret
+  /// 科大讯飞API Secret
   static String xfyunApiSecret = '';
 
-  /// 科大訊飛語音聽寫（ASR）WebSocket地址
+  /// 科大讯飞语音听写（ASR）WebSocket地址
   static const String xfyunAsrWsUrl = 'wss://iat-api.xfyun.cn/v2/iat';
 
-  /// 科大訊飛語音合成（TTS）WebSocket地址
+  /// 科大讯飞语音合成（TTS）WebSocket地址
   static const String xfyunTtsWsUrl = 'wss://tts-api.xfyun.cn/v2/tts';
 
-  /// 科大訊飛語音聽寫HTTP地址（備選）
+  /// 科大讯飞语音听写HTTP地址（备选）
   static const String xfyunAsrHttpUrl = 'http://api.xfyun.cn/v1/service/v1/iat';
 
-  /// 科大訊飛語音合成HTTP地址（備選）
+  /// 科大讯飞语音合成HTTP地址（备选）
   static const String xfyunTtsHttpUrl = 'http://api.xfyun.cn/v1/service/v1/tts';
 
   // ==================== MiniMax TTS API配置 ====================
   /// MiniMax API Key
-  /// 獲取地址：https://platform.minimaxi.com/
+  /// 获取地址：https://platform.minimaxi.com/
   static String minimaxApiKey = '';
 
-  /// MiniMax API 服務端點
+  /// MiniMax API 服务端点
   static const String minimaxApiHost = 'https://api.minimaxi.com';
 
   /// MiniMax TTS API地址
   static const String minimaxTtsEndpoint = '$minimaxApiHost/v1/t2a_v2';
 
-  /// MiniMax TTS 模型名稱
+  /// MiniMax TTS 模型名称
   static const String minimaxTtsModel = 'speech-2.8-hd';
 
-  // ==================== 百度翻譯API配置（可選） ====================
-  /// 百度翻譯APP ID
+  // ==================== 百度翻译API配置（可选） ====================
+  /// 百度翻译APP ID
   static String baiduTranslateAppId = '';
 
-  /// 百度翻譯密鑰
+  /// 百度翻译密钥
   static String baiduTranslateSecret = '';
 
-  /// 百度翻譯API地址
+  /// 百度翻译API地址
   static const String baiduTranslateUrl =
       'https://fanyi-api.baidu.com/api/trans/vip/translate';
 
-  // ==================== 智譜AI視覺API配置 ====================
-  /// 智譜AI API Key
-  /// 獲取地址：https://open.bigmodel.cn/
+  // ==================== 智谱AI视觉API配置 ====================
+  /// 智谱AI API Key
+  /// 获取地址：https://open.bigmodel.cn/
   static String zhipuApiKey = '';
 
-  /// 智譜AI服務端點
+  /// 智谱AI服务端点
   static const String zhipuBaseUrl = 'https://open.bigmodel.cn/api/paas/v4';
 
-  /// 智譜AI視覺模型名稱
+  /// 智谱AI视觉模型名称
   static const String zhipuVlModel = 'glm-4v-flash';
 
   // ==================== 通用配置 ====================
-  /// 請求超時時間（秒）
+  /// 请求超时时间（秒）
   static const int requestTimeoutSeconds = 30;
 
-  /// 連接超時時間（秒）
+  /// 连接超时时间（秒）
   static const int connectionTimeoutSeconds = 10;
 
-  /// 最大重試次數
+  /// 最大重试次数
   static const int maxRetries = 3;
 
-  /// 重試間隔（毫秒）
+  /// 重试间隔（毫秒）
   static const int retryDelayMs = 1000;
 
-  /// 是否啓用日誌
+  /// 是否启用日志
   static const bool enableLogging = true;
 
-  // ==================== 配置驗證方法 ====================
+  // ==================== 配置验证方法 ====================
 
-  /// 驗證百度OCR配置是否完整
+  /// 验证百度OCR配置是否完整
   static bool get isBaiduOcrConfigured {
     return baiduOcrApiKey.isNotEmpty && baiduOcrSecretKey.isNotEmpty;
   }
 
-  /// 驗證通義千問配置是否完整
+  /// 验证通义千问配置是否完整
   static bool get isQwenConfigured {
     return qwenApiKey.isNotEmpty;
   }
 
-  /// 驗證科大訊飛配置是否完整
+  /// 验证科大讯飞配置是否完整
   static bool get isXfyunConfigured {
     return xfyunAppId.isNotEmpty &&
         xfyunApiKey.isNotEmpty &&
         xfyunApiSecret.isNotEmpty;
   }
 
-  /// 驗證百度翻譯配置是否完整
+  /// 验证百度翻译配置是否完整
   static bool get isBaiduTranslateConfigured {
     return baiduTranslateAppId.isNotEmpty && baiduTranslateSecret.isNotEmpty;
   }
 
-  /// 驗證MiniMax TTS配置是否完整
+  /// 验证MiniMax TTS配置是否完整
   static bool get isMinimaxTtsConfigured {
     return minimaxApiKey.isNotEmpty;
   }
 
-  /// 驗證智譜AI配置是否完整
+  /// 验证智谱AI配置是否完整
   static bool get isZhipuConfigured {
     return zhipuApiKey.isNotEmpty;
   }
 
-  /// 獲取配置狀態摘要
+  /// 获取配置状态摘要
   static Map<String, bool> getConfigStatus() {
     return {
       'baiduOcr': isBaiduOcrConfigured,
@@ -180,7 +180,7 @@ class APIConfig {
     };
   }
 
-  /// 檢查是否有任何AI服務已配置
+  /// 检查是否有任何AI服务已配置
   static bool get hasAnyServiceConfigured {
     return isBaiduOcrConfigured ||
         isQwenConfigured ||
@@ -191,8 +191,8 @@ class APIConfig {
 
   // ==================== 配置初始化方法 ====================
 
-  /// 從環境變量或配置文件初始化
-  /// 實際項目中可以從安全存儲中讀取
+  /// 从环境变量或配置文件初始化
+  /// 实际项目中可以从安全存储中读取
   static void initialize({
     String? baiduOcrKey,
     String? baiduOcrSecret,
@@ -217,7 +217,7 @@ class APIConfig {
     if (minimaxKey != null) minimaxApiKey = minimaxKey;
   }
 
-  /// 重置所有配置（用於測試）
+  /// 重置所有配置（用于测试）
   static void reset() {
     baiduOcrApiKey = '';
     baiduOcrSecretKey = '';
@@ -234,31 +234,31 @@ class APIConfig {
   }
 }
 
-/// API錯誤類型
+/// API错误类型
 enum APIErrorType {
-  /// 網絡錯誤
+  /// 网络错误
   networkError,
 
-  /// 認證失敗
+  /// 认证失败
   authenticationError,
 
-  /// 請求參數錯誤
+  /// 请求参数错误
   invalidParameter,
 
-  /// 服務不可用
+  /// 服务不可用
   serviceUnavailable,
 
-  /// 配額不足
+  /// 配额不足
   quotaExceeded,
 
-  /// 超時
+  /// 超时
   timeout,
 
-  /// 未知錯誤
+  /// 未知错误
   unknown,
 }
 
-/// API錯誤信息
+/// API错误信息
 class APIError {
   final APIErrorType type;
   final String message;
@@ -272,48 +272,48 @@ class APIError {
     this.statusCode,
   });
 
-  /// 創建網絡錯誤
+  /// 创建网络错误
   factory APIError.network(String? original) {
     return APIError(
       type: APIErrorType.networkError,
-      message: '網絡連接失敗，請檢查網絡設置',
+      message: '网络连接失败，请检查网络设置',
       originalError: original,
     );
   }
 
-  /// 創建認證錯誤
+  /// 创建认证错误
   factory APIError.authentication(String? original) {
     return APIError(
       type: APIErrorType.authenticationError,
-      message: 'API認證失敗，請檢查API密鑰配置',
+      message: 'API认证失败，请检查API密钥配置',
       originalError: original,
     );
   }
 
-  /// 創建超時錯誤
+  /// 创建超时错误
   factory APIError.timeout(String? original) {
     return APIError(
       type: APIErrorType.timeout,
-      message: '請求超時，請稍後重試',
+      message: '请求超时，请稍后重试',
       originalError: original,
     );
   }
 
-  /// 創建服務不可用錯誤
+  /// 创建服务不可用错误
   factory APIError.serviceUnavailable(String? original, int? code) {
     return APIError(
       type: APIErrorType.serviceUnavailable,
-      message: 'AI服務暫時不可用，請稍後重試',
+      message: 'AI服务暂时不可用，请稍后重试',
       originalError: original,
       statusCode: code,
     );
   }
 
-  /// 創建配額不足錯誤
+  /// 创建配额不足错误
   factory APIError.quotaExceeded(String? original) {
     return APIError(
       type: APIErrorType.quotaExceeded,
-      message: 'API調用配額已用完，請聯繫管理員',
+      message: 'API调用配额已用完，请联系管理员',
       originalError: original,
     );
   }
@@ -322,7 +322,7 @@ class APIError {
   String toString() => 'APIError[$type]: $message';
 }
 
-/// API響應包裝類
+/// API响应包装类
 class APIResponse<T> {
   final bool isSuccess;
   final T? data;
@@ -330,20 +330,20 @@ class APIResponse<T> {
 
   const APIResponse._({required this.isSuccess, this.data, this.error});
 
-  /// 創建成功響應
+  /// 创建成功响应
   factory APIResponse.success(T data) {
     return APIResponse._(isSuccess: true, data: data);
   }
 
-  /// 創建失敗響應
+  /// 创建失败响应
   factory APIResponse.failure(APIError error) {
     return APIResponse._(isSuccess: false, error: error);
   }
 
-  /// 是否失敗
+  /// 是否失败
   bool get isFailure => !isSuccess;
 
-  /// 獲取數據或拋出異常
+  /// 获取数据或抛出异常
   T getOrThrow() {
     if (isSuccess && data != null) {
       return data!;

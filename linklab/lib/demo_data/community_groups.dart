@@ -1,15 +1,15 @@
 import '../models/community_group_model.dart';
 import '../widgets/demo/linkable_icon.dart';
 
-/// 社區小組Demo數據
+/// 社区小组Demo数据
 class CommunityGroupsData {
-  /// 獲取所有Demo小組
+  /// 获取所有Demo小组
   static List<CommunityGroup> getAllGroups() {
     return [
       CommunityGroup(
         id: 'group_visual',
-        name: '視障互助圈',
-        description: '視障朋友交流日常生活經驗，分享出行技巧和輔助工具使用心得。',
+        name: '视障互助圈',
+        description: '视障朋友交流日常生活经验，分享出行技巧和辅助工具使用心得。',
         icon: LinkableIconName.visualImpairment,
         memberCount: 1286,
         category: CommunityGroupCategory.visualImpairment,
@@ -17,8 +17,8 @@ class CommunityGroupsData {
       ),
       CommunityGroup(
         id: 'group_hearing',
-        name: '聽障交流圈',
-        description: '聽障夥伴分享溝通技巧、助聽設備使用體驗，互相支持鼓勵。',
+        name: '听障交流圈',
+        description: '听障伙伴分享沟通技巧、助听设备使用体验，互相支持鼓励。',
         icon: LinkableIconName.hearingImpairment,
         memberCount: 958,
         category: CommunityGroupCategory.hearingImpairment,
@@ -26,8 +26,8 @@ class CommunityGroupsData {
       ),
       CommunityGroup(
         id: 'group_mobility',
-        name: '輪椅出行圈',
-        description: '輪椅使用者交流無障礙出行經驗，分享坡道、電梯等設施信息。',
+        name: '轮椅出行圈',
+        description: '轮椅使用者交流无障碍出行经验，分享坡道、电梯等设施信息。',
         icon: LinkableIconName.mobilityImpairment,
         memberCount: 723,
         category: CommunityGroupCategory.mobilityImpairment,
@@ -35,8 +35,8 @@ class CommunityGroupsData {
       ),
       CommunityGroup(
         id: 'group_elderly',
-        name: '老年關愛圈',
-        description: '老年人健康生活交流，分享養生知識和防騙技巧。',
+        name: '老年关爱圈',
+        description: '老年人健康生活交流，分享养生知识和防骗技巧。',
         icon: LinkableIconName.elderly,
         memberCount: 2156,
         category: CommunityGroupCategory.elderlyCare,
@@ -44,8 +44,8 @@ class CommunityGroupsData {
       ),
       CommunityGroup(
         id: 'group_medicine',
-        name: '藥品諮詢圈',
-        description: '藥品使用經驗分享，用藥注意事項交流，互相提醒健康事項。',
+        name: '药品谘询圈',
+        description: '药品使用经验分享，用药注意事项交流，互相提醒健康事项。',
         icon: LinkableIconName.medicineCheck,
         memberCount: 1567,
         category: CommunityGroupCategory.medicineConsult,
@@ -53,8 +53,8 @@ class CommunityGroupsData {
       ),
       CommunityGroup(
         id: 'group_hospital',
-        name: '導診互助圈',
-        description: '醫院就診經驗分享，掛號流程指引，陪診志願者招募。',
+        name: '导诊互助圈',
+        description: '医院就诊经验分享，挂号流程指引，陪诊志愿者招募。',
         icon: LinkableIconName.navigationGuide,
         memberCount: 892,
         category: CommunityGroupCategory.hospitalGuide,
@@ -63,7 +63,7 @@ class CommunityGroupsData {
     ];
   }
 
-  /// 根據ID獲取小組
+  /// 根据ID获取小组
   static CommunityGroup? getGroupById(String id) {
     try {
       return getAllGroups().firstWhere((group) => group.id == id);
@@ -72,7 +72,7 @@ class CommunityGroupsData {
     }
   }
 
-  /// 獲取小組討論列表
+  /// 获取小组讨论列表
   static List<GroupDiscussion> getDiscussions(String groupId) {
     final now = DateTime.now();
 
@@ -82,8 +82,8 @@ class CommunityGroupsData {
           GroupDiscussion(
             id: 'disc_1',
             groupId: groupId,
-            userName: '陽光行者',
-            content: '今天用讀屏軟件成功在新超市購物了！分享一下經驗...',
+            userName: '阳光行者',
+            content: '今天用读屏软件成功在新超市购物了！分享一下经验...',
             createdAt: now.subtract(const Duration(minutes: 30)),
             likeCount: 24,
             replyCount: 8,
@@ -91,8 +91,8 @@ class CommunityGroupsData {
           GroupDiscussion(
             id: 'disc_2',
             groupId: groupId,
-            userName: '獨立生活家',
-            content: '推薦一款很好用的盲文學習APP，界面簡潔易操作。',
+            userName: '独立生活家',
+            content: '推荐一款很好用的盲文学习APP，界面简洁易操作。',
             createdAt: now.subtract(const Duration(hours: 2)),
             likeCount: 18,
             replyCount: 5,
@@ -101,7 +101,7 @@ class CommunityGroupsData {
             id: 'disc_3',
             groupId: groupId,
             userName: '探索者',
-            content: '週末有誰想去公園散步？可以一起交流出行心得。',
+            content: '周末有谁想去公园散步？可以一起交流出行心得。',
             createdAt: now.subtract(const Duration(hours: 5)),
             likeCount: 12,
             replyCount: 15,
@@ -113,8 +113,8 @@ class CommunityGroupsData {
           GroupDiscussion(
             id: 'disc_4',
             groupId: groupId,
-            userName: '靜默舞者',
-            content: '這款助聽器降噪效果很好，推薦給大家！',
+            userName: '静默舞者',
+            content: '这款助听器降噪效果很好，推荐给大家！',
             createdAt: now.subtract(const Duration(hours: 1)),
             likeCount: 32,
             replyCount: 12,
@@ -122,8 +122,8 @@ class CommunityGroupsData {
           GroupDiscussion(
             id: 'disc_5',
             groupId: groupId,
-            userName: '手語達人',
-            content: '本週六有手語角活動，歡迎新手參加！',
+            userName: '手语达人',
+            content: '本周六有手语角活动，欢迎新手参加！',
             createdAt: now.subtract(const Duration(hours: 4)),
             likeCount: 45,
             replyCount: 20,
@@ -135,8 +135,8 @@ class CommunityGroupsData {
           GroupDiscussion(
             id: 'disc_6',
             groupId: groupId,
-            userName: '輪椅行者',
-            content: '分享一個無障礙地圖小程序，可以查看各地坡道信息。',
+            userName: '轮椅行者',
+            content: '分享一个无障碍地图小程序，可以查看各地坡道信息。',
             createdAt: now.subtract(const Duration(hours: 3)),
             likeCount: 28,
             replyCount: 9,
@@ -144,8 +144,8 @@ class CommunityGroupsData {
           GroupDiscussion(
             id: 'disc_7',
             groupId: groupId,
-            userName: '自由飛翔',
-            content: '地鐵站的無障礙電梯位置彙總，持續更新中...',
+            userName: '自由飞翔',
+            content: '地铁站的无障碍电梯位置汇总，持续更新中...',
             createdAt: now.subtract(const Duration(hours: 8)),
             likeCount: 56,
             replyCount: 25,
@@ -157,8 +157,8 @@ class CommunityGroupsData {
           GroupDiscussion(
             id: 'disc_8',
             groupId: groupId,
-            userName: '夕陽紅',
-            content: '今天學了手機拍照，感覺自己又年輕了！',
+            userName: '夕阳红',
+            content: '今天学了手机拍照，感觉自己又年轻了！',
             createdAt: now.subtract(const Duration(minutes: 45)),
             likeCount: 38,
             replyCount: 15,
@@ -166,8 +166,8 @@ class CommunityGroupsData {
           GroupDiscussion(
             id: 'disc_9',
             groupId: groupId,
-            userName: '健康達人',
-            content: '提醒大家注意最近的電話詐騙，手法又更新了...',
+            userName: '健康达人',
+            content: '提醒大家注意最近的电话诈骗，手法又更新了...',
             createdAt: now.subtract(const Duration(hours: 2)),
             likeCount: 67,
             replyCount: 30,
@@ -179,8 +179,8 @@ class CommunityGroupsData {
           GroupDiscussion(
             id: 'disc_10',
             groupId: groupId,
-            userName: '用藥小助手',
-            content: '降壓藥和哪些食物不能一起喫？整理了一份清單。',
+            userName: '用药小助手',
+            content: '降压药和哪些食物不能一起吃？整理了一份清单。',
             createdAt: now.subtract(const Duration(hours: 2)),
             likeCount: 42,
             replyCount: 18,
@@ -188,8 +188,8 @@ class CommunityGroupsData {
           GroupDiscussion(
             id: 'disc_11',
             groupId: groupId,
-            userName: '健康守護者',
-            content: '過期藥品如何正確處理？環保又安全的方法。',
+            userName: '健康守护者',
+            content: '过期药品如何正确处理？环保又安全的方法。',
             createdAt: now.subtract(const Duration(hours: 6)),
             likeCount: 35,
             replyCount: 12,
@@ -201,8 +201,8 @@ class CommunityGroupsData {
           GroupDiscussion(
             id: 'disc_12',
             groupId: groupId,
-            userName: '導診志願者',
-            content: '市人民醫院最新掛號流程指南，包含線上預約步驟。',
+            userName: '导诊志愿者',
+            content: '市人民医院最新挂号流程指南，包含线上预约步骤。',
             createdAt: now.subtract(const Duration(hours: 5)),
             likeCount: 89,
             replyCount: 35,
@@ -210,8 +210,8 @@ class CommunityGroupsData {
           GroupDiscussion(
             id: 'disc_13',
             groupId: groupId,
-            userName: '熱心市民',
-            content: '本週可以陪同就診，有需要的請聯繫我。',
+            userName: '热心市民',
+            content: '本周可以陪同就诊，有需要的请联系我。',
             createdAt: now.subtract(const Duration(hours: 10)),
             likeCount: 23,
             replyCount: 8,

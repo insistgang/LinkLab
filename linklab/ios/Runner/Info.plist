@@ -28,12 +28,6 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>用于在通话协助中开启本机摄像头预览，帮助志愿者确认物品或环境。</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>用于语音求助和通话协助。</string>
-	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>用于将语音求助转换为文字，帮助 AI 理解您的需求。</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>用于选择照片进行文字和颜色识别。</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>用于选择需要识别文字、颜色或环境的图片。</string>
 	<key>NSMicrophoneUsageDescription</key>

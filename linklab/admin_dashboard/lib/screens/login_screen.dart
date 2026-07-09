@@ -95,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             const SizedBox(height: 24),
                             // Title
                             const Text(
-                              'LinkLab 運營後臺',
+                              'LinkLab 运营后台',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 24,
@@ -106,8 +106,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             const SizedBox(height: 8),
                             Text(
                               AppConstants.isDemoMode
-                                  ? 'GitHub Pages 演示登錄'
-                                  : '管理員登錄',
+                                  ? 'GitHub Pages 演示登录'
+                                  : '管理员登录',
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 fontSize: 16,
@@ -121,15 +121,15 @@ class _LoginScreenState extends State<LoginScreen> {
                               keyboardType: TextInputType.emailAddress,
                               enabled: state is! AuthLoading,
                               decoration: const InputDecoration(
-                                labelText: '郵箱',
+                                labelText: '邮箱',
                                 prefixIcon: Icon(Icons.email_outlined),
                               ),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return '請輸入郵箱';
+                                  return '请输入邮箱';
                                 }
                                 if (!value.contains('@')) {
-                                  return '請輸入有效的郵箱地址';
+                                  return '请输入有效的邮箱地址';
                                 }
                                 return null;
                               },
@@ -141,7 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               obscureText: _obscurePassword,
                               enabled: state is! AuthLoading,
                               decoration: InputDecoration(
-                                labelText: '密碼',
+                                labelText: '密码',
                                 prefixIcon: const Icon(Icons.lock_outlined),
                                 suffixIcon: IconButton(
                                   icon: Icon(
@@ -158,10 +158,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return '請輸入密碼';
+                                  return '请输入密码';
                                 }
                                 if (value.length < 6) {
-                                  return '密碼至少6位';
+                                  return '密码至少6位';
                                 }
                                 return null;
                               },
@@ -187,7 +187,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         ),
                                       )
                                     : const Text(
-                                        '登錄',
+                                        '登录',
                                         style: TextStyle(fontSize: 16),
                                       ),
                               ),
@@ -205,8 +205,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 children: [
                                   Text(
                                     AppConstants.isDemoMode
-                                        ? '演示環境已啓用本地數據:'
-                                        : '演示賬號:',
+                                        ? '演示环境已启用本地数据:'
+                                        : '演示账号:',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 12,
@@ -214,18 +214,18 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    '郵箱: ${AppConstants.demoAdminEmail}',
+                                    '邮箱: ${AppConstants.demoAdminEmail}',
                                     style: const TextStyle(fontSize: 12),
                                   ),
                                   Text(
-                                    '密碼: ${AppConstants.demoAdminPassword}',
+                                    '密码: ${AppConstants.demoAdminPassword}',
                                     style: const TextStyle(fontSize: 12),
                                   ),
                                   if (AppConstants.isDemoMode)
                                     const Padding(
                                       padding: EdgeInsets.only(top: 4),
                                       child: Text(
-                                        '當前構建不會連接真實 Supabase，適合公開演示。',
+                                        '当前构建不会连接真实 Supabase，适合公开演示。',
                                         style: TextStyle(fontSize: 12),
                                       ),
                                     ),

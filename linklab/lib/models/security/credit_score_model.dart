@@ -24,7 +24,7 @@ class CreditScore with _$CreditScore {
 
   const CreditScore._();
 
-  /// 信用等級
+  /// 信用等级
   CreditLevel get creditLevel {
     if (score >= 4.5) return CreditLevel.excellent;
     if (score >= 4.0) return CreditLevel.good;
@@ -32,7 +32,7 @@ class CreditScore with _$CreditScore {
     return CreditLevel.poor;
   }
 
-  /// 匹配權重係數
+  /// 匹配权重系数
   double get matchingWeight {
     if (score >= 4.5) return 1.0;
     if (score >= 4.0) return 0.8;
@@ -43,43 +43,43 @@ class CreditScore with _$CreditScore {
   /// 是否可以匹配
   bool get canMatch => score >= 3.5;
 
-  /// 好評率
+  /// 好评率
   double get positiveRate =>
       totalRatings > 0 ? positiveRatings / totalRatings : 1.0;
 }
 
-/// 信用等級
+/// 信用等级
 enum CreditLevel {
-  excellent, // 優秀 (4.5-5.0)
+  excellent, // 优秀 (4.5-5.0)
   good,      // 良好 (4.0-4.5)
   fair,      // 一般 (3.5-4.0)
-  poor,      // 較差 (<3.5)
+  poor,      // 较差 (<3.5)
 }
 
 extension CreditLevelExtension on CreditLevel {
   String get label {
     switch (this) {
       case CreditLevel.excellent:
-        return '信用優秀';
+        return '信用优秀';
       case CreditLevel.good:
         return '信用良好';
       case CreditLevel.fair:
         return '信用一般';
       case CreditLevel.poor:
-        return '信用較差';
+        return '信用较差';
     }
   }
 
   String get description {
     switch (this) {
       case CreditLevel.excellent:
-        return '正常匹配權重';
+        return '正常匹配权重';
       case CreditLevel.good:
-        return '匹配權重×0.8';
+        return '匹配权重×0.8';
       case CreditLevel.fair:
-        return '匹配權重×0.5，限制匹配頻率';
+        return '匹配权重×0.5，限制匹配频率';
       case CreditLevel.poor:
-        return '暫停匹配，需人工審覈';
+        return '暂停匹配，需人工审核';
     }
   }
 
@@ -97,7 +97,7 @@ extension CreditLevelExtension on CreditLevel {
   }
 }
 
-/// 評價記錄模型
+/// 评价记录模型
 @freezed
 class RatingRecord with _$RatingRecord {
   const factory RatingRecord({
@@ -118,14 +118,14 @@ class RatingRecord with _$RatingRecord {
 
   const RatingRecord._();
 
-  /// 是否爲好評
+  /// 是否为好评
   bool get isPositive => rating >= 4;
 
-  /// 是否爲差評
+  /// 是否为差评
   bool get isNegative => rating <= 3;
 }
 
-/// 信用分變動記錄
+/// 信用分变动记录
 @freezed
 class CreditScoreChange with _$CreditScoreChange {
   const factory CreditScoreChange({
@@ -135,7 +135,7 @@ class CreditScoreChange with _$CreditScoreChange {
     required double scoreBefore,
     required double scoreAfter,
     required CreditChangeReason reason,
-    String? relatedId, // 關聯的評價ID或舉報ID
+    String? relatedId, // 关联的评价ID或举报ID
     String? description,
     DateTime? createdAt,
   }) = _CreditScoreChange;
@@ -144,34 +144,34 @@ class CreditScoreChange with _$CreditScoreChange {
       _$CreditScoreChangeFromJson(json);
 }
 
-/// 信用分變動原因
+/// 信用分变动原因
 enum CreditChangeReason {
-  rating5Star,           // 獲得5星評價
-  rating4Star,           // 獲得4星評價
-  rating3StarOrBelow,    // 獲得3星及以下評價
-  validReport,           // 被有效舉報
-  consecutiveGoodBonus,  // 連續好評獎勵
-  monthlyNoViolation,    // 月度無違規獎勵
-  manualAdjustment,      // 人工調整
+  rating5Star,           // 获得5星评价
+  rating4Star,           // 获得4星评价
+  rating3StarOrBelow,    // 获得3星及以下评价
+  validReport,           // 被有效举报
+  consecutiveGoodBonus,  // 连续好评奖励
+  monthlyNoViolation,    // 月度无违规奖励
+  manualAdjustment,      // 人工调整
 }
 
 extension CreditChangeReasonExtension on CreditChangeReason {
   String get label {
     switch (this) {
       case CreditChangeReason.rating5Star:
-        return '獲得5星評價';
+        return '获得5星评价';
       case CreditChangeReason.rating4Star:
-        return '獲得4星評價';
+        return '获得4星评价';
       case CreditChangeReason.rating3StarOrBelow:
-        return '獲得差評';
+        return '获得差评';
       case CreditChangeReason.validReport:
-        return '被有效舉報';
+        return '被有效举报';
       case CreditChangeReason.consecutiveGoodBonus:
-        return '連續好評獎勵';
+        return '连续好评奖励';
       case CreditChangeReason.monthlyNoViolation:
-        return '月度無違規獎勵';
+        return '月度无违规奖励';
       case CreditChangeReason.manualAdjustment:
-        return '人工調整';
+        return '人工调整';
     }
   }
 
@@ -195,7 +195,7 @@ extension CreditChangeReasonExtension on CreditChangeReason {
   }
 }
 
-/// 信用分計算結果
+/// 信用分计算结果
 class CreditScoreCalculation {
   final double newScore;
   final List<CreditScoreChange> changes;

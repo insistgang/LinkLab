@@ -12,7 +12,7 @@ import '../../widgets/demo/demo_stage.dart';
 import '../home/main_screen.dart';
 import 'identity_select_screen.dart';
 
-/// 驗證碼頁面
+/// 验证码页面
 class VerificationScreen extends ConsumerStatefulWidget {
   const VerificationScreen({super.key, required this.phone});
 
@@ -72,7 +72,7 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
   void _onResendCode() {
     showDemoStageSnackBar(
       context,
-      message: '驗證碼已發送',
+      message: '验证码已发送',
       icon: Icons.sms_outlined,
       accentColor: AppTheme.stageInfo,
     );
@@ -82,11 +82,11 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
     showDemoStageDialog<void>(
       context,
       builder: (dialogContext) => DemoDialog(
-        title: '驗證碼說明',
+        title: '验证码说明',
         icon: Icons.help_outline_rounded,
         accentColor: AppTheme.stageInfo,
         description:
-            '競賽演示版使用本地穩定驗證流程，不依賴真實短信服務。若現場未收到短信，可直接點擊"重新發送"，系統會繼續按演示路徑完成驗證。',
+            '竞赛演示版使用本地稳定验证流程，不依赖真实短信服务。若现场未收到短信，可直接点击"重新发送"，系统会继续按演示路径完成验证。',
         actions: [
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -109,8 +109,8 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
     return DemoStageLiveBuilder(
       builder: (context) {
         return DemoStageScaffold(
-          title: '輸入驗證碼',
-          subtitle: '驗證碼驗證通過後，繼續完成身份與偏好設置',
+          title: '输入验证码',
+          subtitle: '验证码验证通过后，继续完成身份与偏好设置',
           body: Form(
             key: _formKey,
             child: ListView(
@@ -123,12 +123,12 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
               children: [
                 DemoReveal(
                   child: DemoAuthBanner(
-                    title: '輸入並驗證驗證碼',
-                    subtitle: '請輸入 6 位驗證碼。演示版保持流程穩定，驗證成功後會繼續完成首次資料設置。',
+                    title: '输入并验证验证码',
+                    subtitle: '请输入 6 位验证码。演示版保持流程稳定，验证成功后会继续完成首次资料设置。',
                     icon: Icons.mark_email_read_outlined,
                     chips: [
-                      DemoPill(label: '6 位數字', color: AppTheme.stageAccent),
-                      DemoPill(label: '可重新發送', color: AppTheme.stageInfo),
+                      DemoPill(label: '6 位数字', color: AppTheme.stageAccent),
+                      DemoPill(label: '可重新发送', color: AppTheme.stageInfo),
                     ],
                   ),
                 ),
@@ -138,13 +138,13 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
                   child: DemoMetricStrip(
                     items: [
                       DemoMetricItem(
-                        label: '手機號',
+                        label: '手机号',
                         value: maskedPhone,
                         color: AppTheme.stageInfo,
                       ),
                       DemoMetricItem(
                         label: '下一步',
-                        value: '身份與偏好',
+                        value: '身份与偏好',
                         color: AppTheme.stageAccent,
                       ),
                     ],
@@ -159,7 +159,7 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           AccessibleText(
-                            '驗證碼已發送至 $maskedPhone',
+                            '验证码已发送至 $maskedPhone',
                             style: TextStyle(
                               color: AppTheme.stageTextPrimary,
                               fontSize: AppTheme.fontSizeLarge,
@@ -168,7 +168,7 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
                           ),
                           const SizedBox(height: AppTheme.spacingS),
                           AccessibleText(
-                            '請輸入6位驗證碼',
+                            '请输入6位验证码',
                             style: TextStyle(
                               color: AppTheme.stageTextSecondary,
                               fontSize: AppTheme.fontSizeNormal,
@@ -197,7 +197,7 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
                     child: TextButton(
                       onPressed: _showVerificationHelp,
                       child: Text(
-                        '收不到驗證碼？',
+                        '收不到验证码？',
                         style: TextStyle(color: AppTheme.stageAccent),
                       ),
                     ),
@@ -207,9 +207,9 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
             ),
           ),
           bottomBar: AccessibleButton(
-            label: '驗證',
-            semanticLabel: '驗證驗證碼',
-            hint: '雙擊完成驗證並登錄',
+            label: '验证',
+            semanticLabel: '验证验证码',
+            hint: '双击完成验证并登录',
             isLoading: _isLoading,
             backgroundColor: AppTheme.stageAccent,
             foregroundColor: AppTheme.stageBackground,

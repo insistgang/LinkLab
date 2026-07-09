@@ -11,6 +11,11 @@ void main() {
     expect(manifest, contains('android.permission.CAMERA'));
     expect(manifest, contains('android.permission.RECORD_AUDIO'));
     expect(manifest, contains('android.permission.INTERNET'));
+    expect(
+      'android.permission.RECORD_AUDIO'.allMatches(manifest),
+      hasLength(1),
+    );
+    expect('android.permission.INTERNET'.allMatches(manifest), hasLength(1));
   });
 
   test('iOS 主发布配置包含图片、语音和相册权限说明', () {
@@ -20,5 +25,14 @@ void main() {
     expect(infoPlist, contains('NSPhotoLibraryUsageDescription'));
     expect(infoPlist, contains('NSMicrophoneUsageDescription'));
     expect(infoPlist, contains('NSSpeechRecognitionUsageDescription'));
+    expect(
+      'NSPhotoLibraryUsageDescription'.allMatches(infoPlist),
+      hasLength(1),
+    );
+    expect('NSMicrophoneUsageDescription'.allMatches(infoPlist), hasLength(1));
+    expect(
+      'NSSpeechRecognitionUsageDescription'.allMatches(infoPlist),
+      hasLength(1),
+    );
   });
 }

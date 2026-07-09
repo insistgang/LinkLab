@@ -97,7 +97,7 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
       final metrics = await _supabaseService.getDashboardMetrics();
       final distribution = await _supabaseService.getDistributionData();
 
-      // 獲取最近7天趨勢數據
+      // 获取最近7天趋势数据
       final endDate = DateTime.now();
       final startDate = endDate.subtract(const Duration(days: 7));
       final trendData = await _supabaseService.getTrendData(
@@ -111,7 +111,7 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
         distribution: distribution,
       ));
     } catch (e) {
-      emit(DashboardError('加載數據失敗: ${e.toString()}'));
+      emit(DashboardError('加载数据失败: ${e.toString()}'));
     }
   }
 
@@ -125,7 +125,7 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
         final metrics = await _supabaseService.getDashboardMetrics();
         emit(currentState.copyWith(metrics: metrics));
       } catch (e) {
-        emit(DashboardError('刷新數據失敗: ${e.toString()}'));
+        emit(DashboardError('刷新数据失败: ${e.toString()}'));
       }
     }
   }
@@ -143,7 +143,7 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
         );
         emit(currentState.copyWith(trendData: trendData));
       } catch (e) {
-        // 不覆蓋錯誤狀態，保持當前數據
+        // 不覆盖错误状态，保持当前数据
       }
     }
   }

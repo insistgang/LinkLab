@@ -3,7 +3,7 @@ import '../../models/security/credit_score_model.dart';
 import '../../services/security/credit_score_service.dart';
 import '../../widgets/accessible/accessible_scaffold.dart';
 
-/// 信用分頁面
+/// 信用分页面
 class CreditScoreScreen extends StatefulWidget {
   final String userId;
 
@@ -164,7 +164,7 @@ class _CreditScoreScreenState extends State<CreditScoreScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          '信用分規則',
+          '信用分规则',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -174,37 +174,37 @@ class _CreditScoreScreenState extends State<CreditScoreScreen> {
         _buildRuleItem(
           icon: Icons.add_circle,
           color: Colors.green,
-          title: '獲得5星評價',
+          title: '获得5星评价',
           value: '+0.1',
         ),
         _buildRuleItem(
           icon: Icons.add_circle_outline,
           color: Colors.green,
-          title: '獲得4星評價',
+          title: '获得4星评价',
           value: '+0.05',
         ),
         _buildRuleItem(
           icon: Icons.remove_circle,
           color: Colors.red,
-          title: '獲得3星及以下',
+          title: '获得3星及以下',
           value: '-0.2',
         ),
         _buildRuleItem(
           icon: Icons.warning,
           color: Colors.red,
-          title: '被有效舉報',
+          title: '被有效举报',
           value: '-1.0',
         ),
         _buildRuleItem(
           icon: Icons.emoji_events,
           color: Colors.amber,
-          title: '連續10次好評',
+          title: '连续10次好评',
           value: '+0.3',
         ),
         _buildRuleItem(
           icon: Icons.calendar_today,
           color: Colors.blue,
-          title: '30天無違規',
+          title: '30天无违规',
           value: '+0.1',
         ),
       ],
@@ -248,7 +248,7 @@ class _CreditScoreScreenState extends State<CreditScoreScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            '變動記錄',
+            '变动记录',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -257,7 +257,7 @@ class _CreditScoreScreenState extends State<CreditScoreScreen> {
           const SizedBox(height: 16),
           Center(
             child: Text(
-              '暫無變動記錄',
+              '暂无变动记录',
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey[500],
@@ -272,7 +272,7 @@ class _CreditScoreScreenState extends State<CreditScoreScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          '變動記錄',
+          '变动记录',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,

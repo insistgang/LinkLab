@@ -39,7 +39,7 @@ class DemoMatchResponse {
 
   factory DemoMatchResponse.topFive(
     List<DemoMatchResult> results, {
-    String message = '已按本地 demo 匹配公式生成 Top 5 志願者。',
+    String message = '已按本地 demo 匹配公式生成 Top 5 志愿者。',
   }) {
     return DemoMatchResponse(
       results: results,
@@ -51,7 +51,7 @@ class DemoMatchResponse {
   factory DemoMatchResponse.sos() {
     return const DemoMatchResponse(
       results: [],
-      message: 'SOS 由 F13 廣播型流程處理，不使用普通 Top 5 匹配。',
+      message: 'SOS 由 F13 广播型流程处理，不使用普通 Top 5 匹配。',
       usesTopFive: false,
     );
   }

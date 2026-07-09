@@ -16,8 +16,8 @@ import '../../widgets/demo/demo_stage.dart';
 import '../../widgets/demo/linkable_icon.dart';
 import 'volunteer_growth_screen.dart';
 
-/// 待幫助列表頁面（志願者模式）
-/// 顯示待處理的求助請求，志願者可以響應
+/// 待帮助列表页面（志愿者模式）
+/// 显示待处理的求助请求，志愿者可以响应
 class PendingHelpScreen extends ConsumerStatefulWidget {
   const PendingHelpScreen({super.key});
 
@@ -26,61 +26,61 @@ class PendingHelpScreen extends ConsumerStatefulWidget {
 }
 
 class _PendingHelpScreenState extends ConsumerState<PendingHelpScreen> {
-  // 演示用的待幫助請求列表
+  // 演示用的待帮助请求列表
   final List<_PendingHelpItem> _pendingItems = const [
     _PendingHelpItem(
       id: 'pending-1',
-      title: '需要幫忙讀藥品說明書',
-      description: '剛拿到新藥，需要有人幫忙確認用法用量',
+      title: '需要帮忙读药品说明书',
+      description: '刚拿到新药，需要有人帮忙确认用法用量',
       urgency: 'important',
       type: 'ocr',
-      timeAgo: '2分鐘前',
-      seekerName: '用戶1234',
+      timeAgo: '2分钟前',
+      seekerName: '用户1234',
     ),
     _PendingHelpItem(
       id: 'pending-2',
       title: '看不清面前的路牌',
-      description: '在醫院門口，需要幫忙看路牌方向',
+      description: '在医院门口，需要帮忙看路牌方向',
       urgency: 'normal',
       type: 'scene',
-      timeAgo: '5分鐘前',
-      seekerName: '用戶5678',
+      timeAgo: '5分钟前',
+      seekerName: '用户5678',
     ),
     _PendingHelpItem(
       id: 'pending-3',
-      title: '緊急！迷路了',
-      description: '天黑了找不到回家的路，需要緊急幫助',
+      title: '紧急！迷路了',
+      description: '天黑了找不到回家的路，需要紧急帮助',
       urgency: 'emergency',
       type: 'sos',
-      timeAgo: '剛剛',
-      seekerName: '用戶9012',
+      timeAgo: '刚刚',
+      seekerName: '用户9012',
     ),
     _PendingHelpItem(
       id: 'pending-4',
-      title: '需要幫忙確認鈔票面額',
-      description: '買東西時需要確認手裏的是多少錢',
+      title: '需要帮忙确认钞票面额',
+      description: '买东西时需要确认手里的是多少钱',
       urgency: 'normal',
       type: 'money',
-      timeAgo: '8分鐘前',
-      seekerName: '用戶3456',
+      timeAgo: '8分钟前',
+      seekerName: '用户3456',
     ),
   ];
 
   @override
   Widget build(BuildContext context) {
     final session = ref.watch(appSessionProvider);
-    final volunteerName = session.userProfile?.displayName ?? '志願者';
+    final volunteerName = session.userProfile?.displayName ?? '志愿者';
 
     return DemoStageLiveBuilder(
       builder: (context) {
         return DemoStageScaffold(
-          title: '待幫助列表',
-          subtitle: '查看並響應求助請求',
+          title: '待帮助列表',
+          subtitle: '查看并响应求助请求',
           showBackButton: false,
           body: RefreshIndicator(
             color: AppTheme.stageAccent,
             onRefresh: () async {
-              // 演示模式下模擬刷新
+              // 演示模式下模拟刷新
               await Future.delayed(const Duration(seconds: 1));
             },
             child: ListView(
@@ -91,7 +91,7 @@ class _PendingHelpScreenState extends ConsumerState<PendingHelpScreen> {
                 112,
               ),
               children: [
-                // 歡迎卡片
+                // 欢迎卡片
                 DemoReveal(child: _WelcomeCard(volunteerName: volunteerName)),
                 const SizedBox(height: AppTheme.spacingL),
                 DemoReveal(
@@ -106,14 +106,14 @@ class _PendingHelpScreenState extends ConsumerState<PendingHelpScreen> {
                   ),
                 ),
                 const SizedBox(height: AppTheme.spacingL),
-                // 統計卡片
+                // 统计卡片
                 DemoReveal(
                   delay: const Duration(milliseconds: 80),
                   child: Row(
                     children: [
                       Expanded(
                         child: _StatCard(
-                          label: '待響應',
+                          label: '待响应',
                           value: '${_pendingItems.length}',
                           color: AppTheme.stageAccent,
                         ),
@@ -121,7 +121,7 @@ class _PendingHelpScreenState extends ConsumerState<PendingHelpScreen> {
                       const SizedBox(width: AppTheme.spacingM),
                       Expanded(
                         child: _StatCard(
-                          label: '緊急',
+                          label: '紧急',
                           value:
                               '${_pendingItems.where((i) => i.urgency == 'emergency').length}',
                           color: AppTheme.stageDanger,
@@ -139,9 +139,9 @@ class _PendingHelpScreenState extends ConsumerState<PendingHelpScreen> {
                   ),
                 ),
                 const SizedBox(height: AppTheme.spacingXL),
-                // 緊急求助區域
+                // 紧急求助区域
                 if (_pendingItems.any((i) => i.urgency == 'emergency')) ...[
-                  const DemoSectionTitle(title: '緊急求助', subtitle: '需要立即響應的請求'),
+                  const DemoSectionTitle(title: '紧急求助', subtitle: '需要立即响应的请求'),
                   const SizedBox(height: AppTheme.spacingM),
                   ..._pendingItems
                       .where((item) => item.urgency == 'emergency')
@@ -162,10 +162,10 @@ class _PendingHelpScreenState extends ConsumerState<PendingHelpScreen> {
                       ),
                   const SizedBox(height: AppTheme.spacingL),
                 ],
-                // 普通求助區域
+                // 普通求助区域
                 const DemoSectionTitle(
                   title: '普通求助',
-                  subtitle: 'AI 無法處理，需要志願者協助',
+                  subtitle: 'AI 无法处理，需要志愿者协助',
                 ),
                 const SizedBox(height: AppTheme.spacingM),
                 ..._pendingItems
@@ -197,15 +197,15 @@ class _PendingHelpScreenState extends ConsumerState<PendingHelpScreen> {
     HapticFeedback.mediumImpact();
 
     if (item.urgency == 'emergency') {
-      // 緊急求助直接進入SOS流程
+      // 紧急求助直接进入SOS流程
       showDemoStageDialog<void>(
         context,
         barrierDismissible: false,
         builder: (context) => DemoDialog(
-          title: '確認響應緊急求助？',
+          title: '确认响应紧急求助？',
           icon: Icons.emergency_outlined,
           accentColor: AppTheme.stageDanger,
-          description: '${item.seekerName} 發送了緊急求助：${item.title}。確認後將立即建立語音連接。',
+          description: '${item.seekerName} 发送了紧急求助：${item.title}。确认后将立即建立语音连接。',
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -223,21 +223,21 @@ class _PendingHelpScreenState extends ConsumerState<PendingHelpScreen> {
                 Navigator.of(context).pop();
                 unawaited(_enterVolunteerCall(item));
               },
-              child: const Text('確認響應'),
+              child: const Text('确认响应'),
             ),
           ],
         ),
       );
     } else {
-      // 普通求助進入匹配流程
+      // 普通求助进入匹配流程
       showDemoStageDialog<void>(
         context,
         barrierDismissible: false,
         builder: (context) => DemoDialog(
-          title: '確認響應求助？',
+          title: '确认响应求助？',
           icon: Icons.handshake_outlined,
           accentColor: AppTheme.stageAccent,
-          description: '${item.seekerName} 需要幫助：${item.title}。確認後將建立語音連接。',
+          description: '${item.seekerName} 需要帮助：${item.title}。确认后将建立语音连接。',
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -255,7 +255,7 @@ class _PendingHelpScreenState extends ConsumerState<PendingHelpScreen> {
                 Navigator.of(context).pop();
                 unawaited(_enterVolunteerCall(item));
               },
-              child: const Text('確認響應'),
+              child: const Text('确认响应'),
             ),
           ],
         ),
@@ -296,8 +296,8 @@ class _GrowthEntryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DemoSurfaceCard(
-      semanticLabel: '志願者貢獻成長入口',
-      hint: '雙擊查看貢獻等級說明和最近貢獻記錄',
+      semanticLabel: '志愿者贡献成长入口',
+      hint: '双击查看贡献等级说明和最近贡献记录',
       onTap: onTap,
       color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.96),
       child: Row(
@@ -312,7 +312,7 @@ class _GrowthEntryCard extends StatelessWidget {
             child: const LinkableSvgIcon(
               icon: LinkableIconName.points,
               size: 40,
-              semanticLabel: '貢獻成長',
+              semanticLabel: '贡献成长',
             ),
           ),
           const SizedBox(width: AppTheme.spacingM),
@@ -321,7 +321,7 @@ class _GrowthEntryCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 AccessibleText(
-                  '貢獻成長',
+                  '贡献成长',
                   style: TextStyle(
                     color: AppTheme.stageTextPrimary,
                     fontSize: AppTheme.fontSizeNormal,
@@ -330,7 +330,7 @@ class _GrowthEntryCard extends StatelessWidget {
                 ),
                 const SizedBox(height: AppTheme.spacingXS),
                 AccessibleText(
-                  '查看貢獻等級說明，最近貢獻記錄會和貢獻值保持一致。',
+                  '查看贡献等级说明，最近贡献记录会和贡献值保持一致。',
                   style: TextStyle(
                     color: AppTheme.stageTextSecondary,
                     fontSize: AppTheme.fontSizeSmall,
@@ -344,7 +344,7 @@ class _GrowthEntryCard extends StatelessWidget {
           const LinkableSvgIcon(
             icon: LinkableIconName.navigationGuide,
             size: 24,
-            semanticLabel: '進入貢獻成長',
+            semanticLabel: '进入贡献成长',
           ),
         ],
       ),
@@ -352,7 +352,7 @@ class _GrowthEntryCard extends StatelessWidget {
   }
 }
 
-/// 歡迎卡片
+/// 欢迎卡片
 class _WelcomeCard extends StatelessWidget {
   const _WelcomeCard({required this.volunteerName});
 
@@ -374,7 +374,7 @@ class _WelcomeCard extends StatelessWidget {
             child: const LinkableSvgIcon(
               icon: LinkableIconName.volunteerRole,
               size: 42,
-              semanticLabel: '志願者',
+              semanticLabel: '志愿者',
             ),
           ),
           const SizedBox(width: AppTheme.spacingM),
@@ -392,7 +392,7 @@ class _WelcomeCard extends StatelessWidget {
                 ),
                 const SizedBox(height: AppTheme.spacingXS),
                 AccessibleText(
-                  '感謝您願意幫助他人！以下是當前待響應的求助請求。',
+                  '感谢您愿意帮助他人！以下是当前待响应的求助请求。',
                   style: TextStyle(
                     color: AppTheme.stageTextSecondary,
                     fontSize: AppTheme.fontSizeSmall,
@@ -408,7 +408,7 @@ class _WelcomeCard extends StatelessWidget {
   }
 }
 
-/// 統計卡片
+/// 统计卡片
 class _StatCard extends StatelessWidget {
   const _StatCard({
     required this.label,
@@ -449,7 +449,7 @@ class _StatCard extends StatelessWidget {
   }
 }
 
-/// 待幫助請求卡片
+/// 待帮助请求卡片
 class _PendingHelpCard extends StatelessWidget {
   const _PendingHelpCard({
     required this.item,
@@ -465,14 +465,14 @@ class _PendingHelpCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return DemoSurfaceCard(
       semanticLabel: '${item.title}，${item.seekerName}，${item.timeAgo}',
-      hint: '雙擊響應此求助',
+      hint: '双击响应此求助',
       onTap: onAccept,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              // 類型圖標
+              // 类型图标
               Container(
                 width: 48,
                 height: 48,
@@ -520,7 +520,7 @@ class _PendingHelpCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: AccessibleText(
-                              '緊急',
+                              '紧急',
                               style: TextStyle(
                                 color: AppTheme.stageDanger,
                                 fontSize: AppTheme.fontSizeSmall,
@@ -559,7 +559,7 @@ class _PendingHelpCard extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: onAccept,
                   icon: const Icon(Icons.phone_in_talk_outlined, size: 18),
-                  label: const Text('響應求助'),
+                  label: const Text('响应求助'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: isEmergency
                         ? AppTheme.stageDanger
@@ -601,20 +601,20 @@ class _PendingHelpCard extends StatelessWidget {
   String _getTypeLabel(String type) {
     switch (type) {
       case 'ocr':
-        return '文字識別';
+        return '文字识别';
       case 'scene':
-        return '場景描述';
+        return '场景描述';
       case 'sos':
-        return '緊急求助';
+        return '紧急求助';
       case 'money':
-        return '鈔票識別';
+        return '钞票识别';
       default:
         return '求助';
     }
   }
 }
 
-/// 待幫助請求數據模型
+/// 待帮助请求数据模型
 class _PendingHelpItem {
   const _PendingHelpItem({
     required this.id,

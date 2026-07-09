@@ -38,7 +38,7 @@ interface EmergencySMSParams {
 }
 
 /**
- * 主入口函數
+ * 主入口函数
  */
 export async function pushNotifier(req: Request): Promise<Response> {
   // Handle CORS preflight
@@ -49,7 +49,7 @@ export async function pushNotifier(req: Request): Promise<Response> {
   try {
     const body = await req.json();
 
-    // 根據類型分發處理
+    // 根据类型分发处理
     switch (body.type) {
       case 'matching_request':
         return await handleMatchingRequest(body);
@@ -76,7 +76,7 @@ export async function pushNotifier(req: Request): Promise<Response> {
 }
 
 /**
- * 處理匹配請求推送
+ * 处理匹配请求推送
  */
 async function handleMatchingRequest(body: any): Promise<Response> {
   const { userId, title, body: messageBody, data } = body;
@@ -88,7 +88,7 @@ async function handleMatchingRequest(body: any): Promise<Response> {
     );
   }
 
-  // 獲取用戶的FCM Token
+  // 获取用户的FCM Token
   const tokens = await getUserFCMTokens(userId);
 
   if (tokens.length === 0) {
@@ -98,7 +98,7 @@ async function handleMatchingRequest(body: any): Promise<Response> {
     );
   }
 
-  // 發送高優先級推送
+  // 发送高优先级推送
   const result = await sendFCMMessage({
     tokens,
     notification: {
@@ -143,7 +143,7 @@ async function handleMatchingRequest(body: any): Promise<Response> {
 }
 
 /**
- * 處理匹配確認推送
+ * 处理匹配确认推送
  */
 async function handleMatchingConfirmed(body: any): Promise<Response> {
   const { userId, title, body: messageBody, data } = body;
@@ -198,15 +198,15 @@ async function handleMatchingConfirmed(body: any): Promise<Response> {
 }
 
 /**
- * 處理SOS廣播
+ * 处理SOS广播
  */
 async function handleSOSBroadcast(params: SOSBroadcastParams): Promise<Response> {
   const { sosId, location, radius, priority } = params;
 
-  // 獲取範圍內的在線志願者
+  // 获取范围内的在线志愿者
   const supabase = createServiceClient();
 
-  // 使用PostGIS查詢範圍內的志願者
+  // 使用PostGIS查询范围内的志愿者
   const { data: volunteers, error } = await supabase.rpc('get_volunteers_in_radius', {
     lat: location.lat,
     lng: location.lng,
@@ -228,7 +228,7 @@ async function handleSOSBroadcast(params: SOSBroadcastParams): Promise<Response>
     );
   }
 
-  // 獲取所有志願者的FCM Token
+  // 获取所有志愿者的FCM Token
   const userIds = volunteers.map((v: any) => v.user_id);
   const tokens = await getUsersFCMTokens(userIds);
 
@@ -239,12 +239,12 @@ async function handleSOSBroadcast(params: SOSBroadcastParams): Promise<Response>
     );
   }
 
-  // 發送SOS廣播推送
+  // 发送SOS广播推送
   const result = await sendFCMMessage({
     tokens,
     notification: {
-      title: '🆘 緊急SOS求助！',
-      body: `距離您 ${radius}km 範圍內有人觸發緊急求助，請儘快響應！`,
+      title: '🆘 紧急SOS求助！',
+      body: `距离您 ${radius}km 范围内有人触发紧急求助，请尽快响应！`,
     },
     data: {
       sosId,
@@ -270,8 +270,8 @@ async function handleSOSBroadcast(params: SOSBroadcastParams): Promise<Response>
       payload: {
         aps: {
           alert: {
-            title: '🆘 緊急SOS求助！',
-            body: `距離您 ${radius}km 範圍內有人觸發緊急求助，請儘快響應！`,
+            title: '🆘 紧急SOS求助！',
+            body: `距离您 ${radius}km 范围内有人触发紧急求助，请尽快响应！`,
           },
           sound: 'sos_alarm.wav',
           badge: 1,
@@ -281,7 +281,7 @@ async function handleSOSBroadcast(params: SOSBroadcastParams): Promise<Response>
     },
   });
 
-  // 記錄SOS廣播日誌
+  // 记录SOS广播日志
   await supabase.from('sos_broadcast_logs').insert({
     sos_request_id: sosId,
     radius_km: radius,
@@ -303,18 +303,18 @@ async function handleSOSBroadcast(params: SOSBroadcastParams): Promise<Response>
 }
 
 /**
- * 處理緊急短信
+ * 处理紧急短信
  */
 async function handleEmergencySMS(params: EmergencySMSParams): Promise<Response> {
   const { contacts, message } = params;
 
-  // 這裏集成短信服務商API（如阿里雲短信、Twilio等）
-  // 示例使用模擬實現
+  // 这里集成短信服务商API（如阿里云短信、Twilio等）
+  // 示例使用模拟实现
   const results = [];
 
   for (const phone of contacts) {
     try {
-      // 實際實現中調用短信API
+      // 实际实现中调用短信API
       // const result = await sendSMS(phone, message);
       results.push({ phone, status: 'sent', timestamp: new Date().toISOString() });
     } catch (error) {
@@ -332,13 +332,13 @@ async function handleEmergencySMS(params: EmergencySMSParams): Promise<Response>
 }
 
 /**
- * 處理緊急電話通知
+ * 处理紧急电话通知
  */
 async function handleEmergencyCall(body: any): Promise<Response> {
   const { message } = body;
 
-  // 這裏可以集成語音電話API（如Twilio Voice等）
-  // 實際實現中調用語音API
+  // 这里可以集成语音电话API（如Twilio Voice等）
+  // 实际实现中调用语音API
 
   return new Response(
     JSON.stringify({
@@ -350,15 +350,15 @@ async function handleEmergencyCall(body: any): Promise<Response> {
 }
 
 /**
- * 處理SOS升級
+ * 处理SOS升级
  */
 async function handleSOSEscalation(body: any): Promise<Response> {
   const { sosId, level, message } = body;
 
-  // 根據升級級別採取不同措施
+  // 根据升级级别采取不同措施
   switch (level) {
-    case 1: // 擴大至全城
-      // 獲取全城在線志願者
+    case 1: // 扩大至全城
+      // 获取全城在线志愿者
       const supabase = createServiceClient();
       const { data: allVolunteers } = await supabase
         .from('volunteer_profiles')
@@ -372,8 +372,8 @@ async function handleSOSEscalation(body: any): Promise<Response> {
         await sendFCMMessage({
           tokens,
           notification: {
-            title: '🆘 SOS求助升級 - 全城廣播',
-            body: message || '有SOS求助5分鐘無響應，擴大至全城志願者',
+            title: '🆘 SOS求助升级 - 全城广播',
+            body: message || '有SOS求助5分钟无响应，扩大至全城志愿者',
           },
           data: {
             sosId,
@@ -392,8 +392,8 @@ async function handleSOSEscalation(body: any): Promise<Response> {
             payload: {
               aps: {
                 alert: {
-                  title: '🆘 SOS求助升級 - 全城廣播',
-                  body: message || '有SOS求助5分鐘無響應，擴大至全城志願者',
+                  title: '🆘 SOS求助升级 - 全城广播',
+                  body: message || '有SOS求助5分钟无响应，扩大至全城志愿者',
                 },
                 'interruption-level': 'critical',
               },
@@ -403,8 +403,8 @@ async function handleSOSEscalation(body: any): Promise<Response> {
       }
       break;
 
-    case 2: // 強制通知緊急聯繫人
-      // 已在handleEmergencySMS中處理
+    case 2: // 强制通知紧急联系人
+      // 已在handleEmergencySMS中处理
       break;
   }
 
@@ -440,7 +440,7 @@ async function sendPushNotification(body: PushNotification): Promise<Response> {
 }
 
 /**
- * 發送FCM消息
+ * 发送FCM消息
  */
 async function sendFCMMessage(params: {
   tokens: string[];
@@ -451,7 +451,7 @@ async function sendFCMMessage(params: {
 }): Promise<any> {
   const { tokens, notification, data, android, apns } = params;
 
-  // 獲取OAuth2訪問令牌
+  // 获取OAuth2访问令牌
   const accessToken = await getFCMAccessToken();
 
   const results = {
@@ -460,10 +460,10 @@ async function sendFCMMessage(params: {
     errors: [] as any[],
   };
 
-  // FCM HTTP v1 API批量發送
+  // FCM HTTP v1 API批量发送
   const fcmUrl = `https://fcm.googleapis.com/v1/projects/${FCM_CONFIG.projectId}/messages:batchSend`;
 
-  // 分批發送（每次最多500個）
+  // 分批发送（每次最多500个）
   const batchSize = 500;
   for (let i = 0; i < tokens.length; i += batchSize) {
     const batch = tokens.slice(i, i + batchSize);
@@ -503,7 +503,7 @@ async function sendFCMMessage(params: {
               error: resp.error?.message || 'Unknown error',
             });
 
-            // 如果token無效，從數據庫中刪除
+            // 如果token无效，从数据库中删除
             if (resp.error?.code === 'registration-token-not-registered') {
               removeInvalidToken(batch[idx]);
             }
@@ -520,7 +520,7 @@ async function sendFCMMessage(params: {
 }
 
 /**
- * 獲取FCM OAuth2訪問令牌
+ * 获取FCM OAuth2访问令牌
  */
 async function getFCMAccessToken(): Promise<string> {
   const jwtClient = new JWT({
@@ -534,7 +534,7 @@ async function getFCMAccessToken(): Promise<string> {
 }
 
 /**
- * 獲取用戶的FCM Token
+ * 获取用户的FCM Token
  */
 async function getUserFCMTokens(userId: string): Promise<string[]> {
   const supabase = createServiceClient();
@@ -554,7 +554,7 @@ async function getUserFCMTokens(userId: string): Promise<string[]> {
 }
 
 /**
- * 獲取多個用戶的FCM Token
+ * 获取多个用户的FCM Token
  */
 async function getUsersFCMTokens(userIds: string[]): Promise<string[]> {
   const supabase = createServiceClient();
@@ -574,7 +574,7 @@ async function getUsersFCMTokens(userIds: string[]): Promise<string[]> {
 }
 
 /**
- * 刪除無效的FCM Token
+ * 删除无效的FCM Token
  */
 async function removeInvalidToken(token: string): Promise<void> {
   const supabase = createServiceClient();
@@ -586,7 +586,7 @@ async function removeInvalidToken(token: string): Promise<void> {
 }
 
 /**
- * 創建服務客戶端
+ * 创建服务客户端
  */
 function createServiceClient() {
   return createClient(

@@ -214,7 +214,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         userType: event.userType,
       ));
     } catch (e) {
-      emit(UserError('加載用戶失敗: ${e.toString()}'));
+      emit(UserError('加载用户失败: ${e.toString()}'));
     }
   }
 
@@ -259,7 +259,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     final previousState = state;
     try {
       await _supabaseService.updateUserStatus(event.userId, UserStatus.banned);
-      emit(const UserActionSuccess('用戶已封禁'));
+      emit(const UserActionSuccess('用户已封禁'));
 
       if (previousState is UserLoaded) {
         add(UserLoadRequested(
@@ -272,7 +272,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         ));
       }
     } catch (e) {
-      emit(UserError('封禁用戶失敗: ${e.toString()}'));
+      emit(UserError('封禁用户失败: ${e.toString()}'));
     }
   }
 
@@ -283,7 +283,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     final previousState = state;
     try {
       await _supabaseService.updateUserStatus(event.userId, UserStatus.active);
-      emit(const UserActionSuccess('用戶已解封'));
+      emit(const UserActionSuccess('用户已解封'));
 
       if (previousState is UserLoaded) {
         add(UserLoadRequested(
@@ -296,7 +296,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         ));
       }
     } catch (e) {
-      emit(UserError('解封用戶失敗: ${e.toString()}'));
+      emit(UserError('解封用户失败: ${e.toString()}'));
     }
   }
 
@@ -311,7 +311,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         event.status,
         reason: event.reason,
       );
-      emit(const UserActionSuccess('認證審覈已更新'));
+      emit(const UserActionSuccess('认证审核已更新'));
 
       if (previousState is UserLoaded) {
         add(UserLoadRequested(
@@ -324,7 +324,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         ));
       }
     } catch (e) {
-      emit(UserError('審覈失敗: ${e.toString()}'));
+      emit(UserError('审核失败: ${e.toString()}'));
     }
   }
 }

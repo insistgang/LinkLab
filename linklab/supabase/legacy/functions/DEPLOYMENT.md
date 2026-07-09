@@ -2,40 +2,40 @@
 
 ## 概述
 
-本文檔說明如何部署志願者匹配引擎相關的Supabase Edge Functions。
+本文档说明如何部署志愿者匹配引擎相关的Supabase Edge Functions。
 
 ## 包含的Edge Functions
 
-1. **matching-engine** - 志願者匹配引擎
-   - 路徑: `/functions/v1/matching-engine`
-   - 功能: 計算匹配分數、推送通知、超時處理
+1. **matching-engine** - 志愿者匹配引擎
+   - 路径: `/functions/v1/matching-engine`
+   - 功能: 计算匹配分数、推送通知、超时处理
 
-2. **push-notifier** - 推送通知服務
-   - 路徑: `/functions/v1/push-notifier`
-   - 功能: FCM推送、SOS廣播、緊急短信
+2. **push-notifier** - 推送通知服务
+   - 路径: `/functions/v1/push-notifier`
+   - 功能: FCM推送、SOS广播、紧急短信
 
-## 前置條件
+## 前置条件
 
-1. 安裝Supabase CLI
+1. 安装Supabase CLI
 ```bash
 npm install -g supabase
 ```
 
-2. 登錄Supabase
+2. 登录Supabase
 ```bash
 supabase login
 ```
 
-3. 鏈接項目
+3. 链接项目
 ```bash
 supabase link --project-ref your-project-ref
 ```
 
-## 環境變量配置
+## 环境变量配置
 
-在Supabase Dashboard中設置以下環境變量:
+在Supabase Dashboard中设置以下环境变量:
 
-### 必需變量
+### 必需变量
 
 ```bash
 # Supabase配置
@@ -43,54 +43,54 @@ SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
-# FCM配置（用於推送通知）
+# FCM配置（用于推送通知）
 FCM_PROJECT_ID=your-firebase-project-id
 FCM_CLIENT_EMAIL=firebase-adminsdk-xxxxx@your-project.iam.gserviceaccount.com
 FCM_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----
 ```
 
-### 可選變量
+### 可选变量
 
 ```bash
-# 短信服務商配置（用於SOS緊急短信）
+# 短信服务商配置（用于SOS紧急短信）
 SMS_PROVIDER=aliyun  # 或 twilio
 SMS_ACCESS_KEY=your-access-key
 SMS_SECRET_KEY=your-secret-key
 
-# 語音電話配置（用於SOS升級）
+# 语音电话配置（用于SOS升级）
 VOICE_PROVIDER=twilio
 VOICE_ACCOUNT_SID=your-account-sid
 VOICE_AUTH_TOKEN=your-auth-token
 ```
 
-## 部署步驟
+## 部署步骤
 
-### 1. 部署數據庫遷移
+### 1. 部署数据库迁移
 
 ```bash
-# 在Supabase Dashboard的SQL Editor中執行
-# 或運行:
+# 在Supabase Dashboard的SQL Editor中执行
+# 或运行:
 supabase db push
 ```
 
 ### 2. 部署Edge Functions
 
 ```bash
-# 部署所有函數
+# 部署所有函数
 supabase functions deploy
 
-# 或單獨部署
+# 或单独部署
 supabase functions deploy matching-engine
 supabase functions deploy push-notifier
 ```
 
-### 3. 驗證部署
+### 3. 验证部署
 
 ```bash
-# 獲取JWT令牌
+# 获取JWT令牌
 supabase tokens create
 
-# 測試匹配引擎
+# 测试匹配引擎
 curl -X POST https://your-project.supabase.co/functions/v1/matching-engine \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H "Content-Type: application/json" \
@@ -98,20 +98,20 @@ curl -X POST https://your-project.supabase.co/functions/v1/matching-engine \
     "seekerId": "test-user-id",
     "urgency": "urgent",
     "location": {"lat": 31.2304, "lng": 121.4737},
-    "skills": ["醫療輔助"],
-    "helpType": "測試求助"
+    "skills": ["医疗辅助"],
+    "helpType": "测试求助"
   }'
 ```
 
-## API文檔
+## API文档
 
 ### matching-engine
 
 #### POST /matching-engine
 
-創建匹配請求。
+创建匹配请求。
 
-**請求體:**
+**请求体:**
 ```json
 {
   "seekerId": "string",
@@ -122,7 +122,7 @@ curl -X POST https://your-project.supabase.co/functions/v1/matching-engine \
 }
 ```
 
-**響應:**
+**响应:**
 ```json
 {
   "success": true,
@@ -133,7 +133,7 @@ curl -X POST https://your-project.supabase.co/functions/v1/matching-engine \
       "userId": "uuid",
       "score": 0.85,
       "distance": 1.2,
-      "skills": ["醫療輔助"]
+      "skills": ["医疗辅助"]
     }
   ],
   "timeoutAt": "2025-04-11T12:00:00Z"
@@ -142,9 +142,9 @@ curl -X POST https://your-project.supabase.co/functions/v1/matching-engine \
 
 #### POST /matching-engine/timeout
 
-處理匹配超時。
+处理匹配超时。
 
-**請求體:**
+**请求体:**
 ```json
 {
   "helpRequestId": "uuid",
@@ -154,9 +154,9 @@ curl -X POST https://your-project.supabase.co/functions/v1/matching-engine \
 
 #### POST /matching-engine/accept
 
-志願者接受匹配。
+志愿者接受匹配。
 
-**請求體:**
+**请求体:**
 ```json
 {
   "helpRequestId": "uuid",
@@ -166,9 +166,9 @@ curl -X POST https://your-project.supabase.co/functions/v1/matching-engine \
 
 #### POST /matching-engine/reject
 
-志願者拒絕匹配。
+志愿者拒绝匹配。
 
-**請求體:**
+**请求体:**
 ```json
 {
   "helpRequestId": "uuid",
@@ -180,20 +180,20 @@ curl -X POST https://your-project.supabase.co/functions/v1/matching-engine \
 
 #### POST /push-notifier
 
-發送推送通知。
+发送推送通知。
 
-**請求體 - 匹配請求:**
+**请求体 - 匹配请求:**
 ```json
 {
   "type": "matching_request",
   "userId": "uuid",
-  "title": "有新的求助需要您的幫助",
-  "body": "距離您 1.2km 有人需要幫助",
+  "title": "有新的求助需要您的帮助",
+  "body": "距离您 1.2km 有人需要帮助",
   "data": {"helpRequestId": "uuid", "type": "matching_request"}
 }
 ```
 
-**請求體 - SOS廣播:**
+**请求体 - SOS广播:**
 ```json
 {
   "type": "sos_broadcast",
@@ -204,115 +204,115 @@ curl -X POST https://your-project.supabase.co/functions/v1/matching-engine \
 }
 ```
 
-**請求體 - 緊急短信:**
+**请求体 - 紧急短信:**
 ```json
 {
   "type": "emergency_sms",
   "contacts": ["+86138xxxxxxxx"],
-  "message": "【共感LinkAble緊急求助】您的親友觸發了SOS求助..."
+  "message": "【共感LinkAble紧急求助】您的亲友触发了SOS求助..."
 }
 ```
 
-## 監控和日誌
+## 监控和日志
 
-### 查看函數日誌
+### 查看函数日志
 
 ```bash
-# 實時查看日誌
+# 实时查看日志
 supabase functions logs matching-engine --tail
 
-# 查看push-notifier日誌
+# 查看push-notifier日志
 supabase functions logs push-notifier --tail
 ```
 
 ### 在Dashboard中查看
 
-1. 進入Supabase Dashboard
-2. 選擇 Edge Functions
-3. 點擊函數名稱查看日誌和統計
+1. 进入Supabase Dashboard
+2. 选择 Edge Functions
+3. 点击函数名称查看日志和统计
 
 ## 故障排除
 
-### 1. 函數部署失敗
+### 1. 函数部署失败
 
-檢查:
-- 環境變量是否正確設置
-- 代碼語法錯誤
-- 依賴包版本兼容性
+检查:
+- 环境变量是否正确设置
+- 代码语法错误
+- 依赖包版本兼容性
 
-### 2. FCM推送失敗
+### 2. FCM推送失败
 
-檢查:
-- FCM_PROJECT_ID是否正確
+检查:
+- FCM_PROJECT_ID是否正确
 - FCM_CLIENT_EMAIL和FCM_PRIVATE_KEY是否匹配
-- Firebase項目是否啓用了Cloud Messaging API
+- Firebase项目是否启用了Cloud Messaging API
 
-### 3. 匹配引擎返回空結果
+### 3. 匹配引擎返回空结果
 
-檢查:
-- volunteer_profiles表是否有在線志願者
-- 志願者位置數據是否正確
-- PostGIS函數是否正確創建
+检查:
+- volunteer_profiles表是否有在线志愿者
+- 志愿者位置数据是否正确
+- PostGIS函数是否正确创建
 
-### 4. Realtime訂閱不工作
+### 4. Realtime订阅不工作
 
-檢查:
-- 數據庫表是否啓用了Realtime
-- RLS策略是否正確
-- 客戶端訂閱代碼是否正確
+检查:
+- 数据库表是否启用了Realtime
+- RLS策略是否正确
+- 客户端订阅代码是否正确
 
-## 性能優化
+## 性能优化
 
-### 1. 數據庫索引
+### 1. 数据库索引
 
-確保以下索引已創建:
+确保以下索引已创建:
 ```sql
 CREATE INDEX idx_volunteer_profiles_online ON volunteer_profiles(is_online, is_available);
 CREATE INDEX idx_volunteer_profiles_location ON volunteer_profiles(latitude, longitude);
 CREATE INDEX idx_help_request_matches_status ON help_request_matches(status);
 ```
 
-### 2. 函數配置
+### 2. 函数配置
 
-在`config.toml`中調整:
+在`config.toml`中调整:
 ```toml
 [functions.matching-engine]
 verify_jwt = true
-# 內存限制 (MB)
+# 内存限制 (MB)
 memory = 256
-# 超時時間 (秒)
+# 超时时间 (秒)
 timeout = 30
 ```
 
-## 更新和回滾
+## 更新和回滚
 
-### 更新函數
+### 更新函数
 
 ```bash
-# 修改代碼後重新部署
+# 修改代码后重新部署
 supabase functions deploy matching-engine
 ```
 
-### 回滾版本
+### 回滚版本
 
 ```bash
-# 查看歷史版本
+# 查看历史版本
 supabase functions list
 
-# 回滾到特定版本（需要手動操作）
-# 1. 從git歷史恢復代碼
+# 回滚到特定版本（需要手动操作）
+# 1. 从git历史恢复代码
 # 2. 重新部署
 ```
 
-## 安全注意事項
+## 安全注意事项
 
-1. **JWT驗證**: 生產環境必須啓用`verify_jwt = true`
-2. **服務角色密鑰**: 僅在Edge Function內部使用，不要暴露給客戶端
-3. **FCM私鑰**: 妥善保管，定期輪換
-4. **RLS策略**: 確保數據庫表有適當的訪問控制
+1. **JWT验证**: 生产环境必须启用`verify_jwt = true`
+2. **服务角色密钥**: 仅在Edge Function内部使用，不要暴露给客户端
+3. **FCM私钥**: 妥善保管，定期轮换
+4. **RLS策略**: 确保数据库表有适当的访问控制
 
-## 聯繫支持
+## 联系支持
 
-如有問題，請聯繫:
-- 技術負責人: [your-email]
-- Supabase文檔: https://supabase.com/docs
+如有问题，请联系:
+- 技术负责人: [your-email]
+- Supabase文档: https://supabase.com/docs

@@ -4,7 +4,7 @@ import '../models/admin_models.dart';
 import '../services/admin_auth_service.dart';
 import '../services/admin_data_service.dart';
 
-/// 用戶管理頁面
+/// 用户管理页面
 class UserManagementPage extends StatefulWidget {
   const UserManagementPage({super.key});
 
@@ -22,7 +22,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
   List<UserListItem> _users = [];
   bool _isLoading = false;
 
-  // 篩選條件
+  // 筛选条件
   final _searchController = TextEditingController();
   String? _selectedRole;
   String? _selectedStatus;
@@ -74,8 +74,8 @@ class _UserManagementPageState extends State<UserManagementPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('確認$action用戶'),
-        content: Text('確定要$action用戶 "${user.name ?? user.phone}" 嗎？'),
+        title: Text('确认$action用户'),
+        content: Text('确定要$action用户 "${user.name ?? user.phone}" 吗？'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -97,7 +97,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
       final success = await _dataService.toggleUserBan(user.id, user.status != 'banned');
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('已$action用戶')),
+          SnackBar(content: Text('已$action用户')),
         );
         _loadUsers();
       }
@@ -132,7 +132,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          user.name ?? '未設置暱稱',
+                          user.name ?? '未设置昵称',
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -144,7 +144,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                           style: TextStyle(color: Colors.grey[600]),
                         ),
                         Text(
-                          '手機號: ${user.phone}',
+                          '手机号: ${user.phone}',
                           style: TextStyle(color: Colors.grey[600]),
                         ),
                       ],
@@ -157,15 +157,15 @@ class _UserManagementPageState extends State<UserManagementPage> {
               const Divider(),
               const SizedBox(height: 16),
 
-              // 用戶信息詳情
+              // 用户信息详情
               _buildDetailRow('角色', _getRolesText(user.roles)),
-              _buildDetailRow('殘障類型', _getDisabilityText(user.disabilityTypes)),
-              _buildDetailRow('註冊時間', _formatDate(user.createdAt)),
-              _buildDetailRow('最後登錄', _formatDate(user.lastLoginAt)),
-              _buildDetailRow('求助次數', user.helpRequestCount.toString()),
-              _buildDetailRow('幫助次數', user.volunteerCount.toString()),
-              _buildDetailRow('殘障認證', user.isDisabilityVerified == true ? '已認證' : '未認證'),
-              _buildDetailRow('志願者認證', user.isVolunteerVerified == true ? '已認證' : '未認證'),
+              _buildDetailRow('残障类型', _getDisabilityText(user.disabilityTypes)),
+              _buildDetailRow('注册时间', _formatDate(user.createdAt)),
+              _buildDetailRow('最后登录', _formatDate(user.lastLoginAt)),
+              _buildDetailRow('求助次数', user.helpRequestCount.toString()),
+              _buildDetailRow('帮助次数', user.volunteerCount.toString()),
+              _buildDetailRow('残障认证', user.isDisabilityVerified == true ? '已认证' : '未认证'),
+              _buildDetailRow('志愿者认证', user.isVolunteerVerified == true ? '已认证' : '未认证'),
 
               const SizedBox(height: 24),
               Row(
@@ -173,7 +173,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                 children: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('關閉'),
+                    child: const Text('关闭'),
                   ),
                   if (_authService.hasPermission('users.ban')) ...[
                     const SizedBox(width: 8),
@@ -186,7 +186,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                         backgroundColor: user.status == 'banned' ? Colors.green : Colors.red,
                         foregroundColor: Colors.white,
                       ),
-                      child: Text(user.status == 'banned' ? '解封用戶' : '封禁用戶'),
+                      child: Text(user.status == 'banned' ? '解封用户' : '封禁用户'),
                     ),
                   ],
                 ],
@@ -239,7 +239,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
         break;
       case 'pending_verification':
         color = Colors.orange;
-        label = '待認證';
+        label = '待认证';
         break;
       default:
         color = Colors.grey;
@@ -260,7 +260,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
         case 'seeker':
           return '求助者';
         case 'volunteer':
-          return '志願者';
+          return '志愿者';
         default:
           return r;
       }
@@ -268,15 +268,15 @@ class _UserManagementPageState extends State<UserManagementPage> {
   }
 
   String _getDisabilityText(List<String> types) {
-    if (types.isEmpty) return '無';
+    if (types.isEmpty) return '无';
     return types.map((t) {
       switch (t) {
         case 'visual':
-          return '視障';
+          return '视障';
         case 'hearing':
-          return '聽障';
+          return '听障';
         case 'physical':
-          return '肢體障礙';
+          return '肢体障碍';
         default:
           return t;
       }
@@ -295,11 +295,11 @@ class _UserManagementPageState extends State<UserManagementPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 標題和篩選欄
+          // 标题和筛选栏
           Row(
             children: [
               const Text(
-                '用戶列表',
+                '用户列表',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -312,7 +312,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                 child: TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
-                    hintText: '搜索用戶...',
+                    hintText: '搜索用户...',
                     prefixIcon: const Icon(Icons.search),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -323,14 +323,14 @@ class _UserManagementPageState extends State<UserManagementPage> {
                 ),
               ),
               const SizedBox(width: 12),
-              // 角色篩選
+              // 角色筛选
               DropdownButton<String>(
                 value: _selectedRole,
                 hint: const Text('角色'),
                 items: [
                   const DropdownMenuItem(value: null, child: Text('全部角色')),
                   const DropdownMenuItem(value: 'seeker', child: Text('求助者')),
-                  const DropdownMenuItem(value: 'volunteer', child: Text('志願者')),
+                  const DropdownMenuItem(value: 'volunteer', child: Text('志愿者')),
                 ],
                 onChanged: (value) {
                   setState(() => _selectedRole = value);
@@ -338,15 +338,15 @@ class _UserManagementPageState extends State<UserManagementPage> {
                 },
               ),
               const SizedBox(width: 12),
-              // 狀態篩選
+              // 状态筛选
               DropdownButton<String>(
                 value: _selectedStatus,
-                hint: const Text('狀態'),
+                hint: const Text('状态'),
                 items: [
-                  const DropdownMenuItem(value: null, child: Text('全部狀態')),
+                  const DropdownMenuItem(value: null, child: Text('全部状态')),
                   const DropdownMenuItem(value: 'active', child: Text('正常')),
                   const DropdownMenuItem(value: 'banned', child: Text('已封禁')),
-                  const DropdownMenuItem(value: 'pending_verification', child: Text('待認證')),
+                  const DropdownMenuItem(value: 'pending_verification', child: Text('待认证')),
                 ],
                 onChanged: (value) {
                   setState(() => _selectedStatus = value);
@@ -354,7 +354,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                 },
               ),
               const SizedBox(width: 12),
-              // 重置按鈕
+              // 重置按钮
               TextButton.icon(
                 onPressed: _resetFilters,
                 icon: const Icon(Icons.refresh),
@@ -364,18 +364,18 @@ class _UserManagementPageState extends State<UserManagementPage> {
           ),
           const SizedBox(height: 16),
 
-          // 數據表格
+          // 数据表格
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : Card(
                     child: DataTable2(
                       columns: const [
-                        DataColumn2(label: Text('用戶'), size: ColumnSize.L),
+                        DataColumn2(label: Text('用户'), size: ColumnSize.L),
                         DataColumn2(label: Text('角色'), size: ColumnSize.M),
-                        DataColumn2(label: Text('狀態'), size: ColumnSize.S),
-                        DataColumn2(label: Text('註冊時間'), size: ColumnSize.M),
-                        DataColumn2(label: Text('最後登錄'), size: ColumnSize.M),
+                        DataColumn2(label: Text('状态'), size: ColumnSize.S),
+                        DataColumn2(label: Text('注册时间'), size: ColumnSize.M),
+                        DataColumn2(label: Text('最后登录'), size: ColumnSize.M),
                         DataColumn2(label: Text('操作'), size: ColumnSize.S),
                       ],
                       rows: _users.map((user) {
@@ -400,7 +400,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
                                         Text(
-                                          user.name ?? '未設置暱稱',
+                                          user.name ?? '未设置昵称',
                                           style: const TextStyle(fontWeight: FontWeight.w500),
                                         ),
                                         Text(
@@ -426,7 +426,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                 children: [
                                   IconButton(
                                     icon: const Icon(Icons.visibility, size: 20),
-                                    tooltip: '查看詳情',
+                                    tooltip: '查看详情',
                                     onPressed: () => _showUserDetail(user),
                                   ),
                                   if (_authService.hasPermission('users.ban'))
@@ -451,7 +451,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                   ),
           ),
 
-          // 分頁
+          // 分页
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -465,7 +465,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                       }
                     : null,
               ),
-              Text('第 $_currentPage / $_totalPages 頁'),
+              Text('第 $_currentPage / $_totalPages 页'),
               IconButton(
                 icon: const Icon(Icons.chevron_right),
                 onPressed: _currentPage < _totalPages

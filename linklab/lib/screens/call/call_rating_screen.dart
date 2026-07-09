@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../models/call_models.dart';
 
-/// 通話結束評價頁面
-/// 用戶可以對通話進行評分和反饋
+/// 通话结束评价页面
+/// 用户可以对通话进行评分和反馈
 class CallRatingScreen extends StatefulWidget {
   final String callId;
   final CallRole role;
@@ -26,23 +26,23 @@ class _CallRatingScreenState extends State<CallRatingScreen> {
   final TextEditingController _feedbackController = TextEditingController();
   bool _isSubmitting = false;
 
-  // 評價標籤
-  final List<String> _positiveTags = ['耐心細緻', '專業高效', '態度友好', '解決問題', '溝通順暢'];
+  // 评价标签
+  final List<String> _positiveTags = ['耐心细致', '专业高效', '态度友好', '解决问题', '沟通顺畅'];
 
-  final List<String> _negativeTags = ['溝通困難', '未能解決', '態度冷淡', '網絡卡頓', '聲音不清'];
+  final List<String> _negativeTags = ['沟通困难', '未能解决', '态度冷淡', '网络卡顿', '声音不清'];
 
   Future<void> _submitRating() async {
     if (_rating == 0) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('請給出評分')));
+      ).showSnackBar(const SnackBar(content: Text('请给出评分')));
       return;
     }
 
     setState(() => _isSubmitting = true);
 
     try {
-      // 提交評價到服務器
+      // 提交评价到服务器
       // await Supabase.instance.client.from('call_ratings').insert({
       //   'call_id': widget.callId,
       //   'rating': _rating,
@@ -54,14 +54,14 @@ class _CallRatingScreenState extends State<CallRatingScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('感謝您的評價！')));
+        ).showSnackBar(const SnackBar(content: Text('感谢您的评价！')));
         Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('提交失敗: $e')));
+        ).showSnackBar(SnackBar(content: Text('提交失败: $e')));
       }
     } finally {
       setState(() => _isSubmitting = false);
@@ -73,12 +73,12 @@ class _CallRatingScreenState extends State<CallRatingScreen> {
   }
 
   String get _title {
-    return widget.role == CallRole.seeker ? '評價志願者' : '評價求助者';
+    return widget.role == CallRole.seeker ? '评价志愿者' : '评价求助者';
   }
 
   String get _subtitle {
     final minutes = widget.duration.inMinutes;
-    return '通話時長: ${minutes > 0 ? '$minutes分' : ''}${widget.duration.inSeconds % 60}秒';
+    return '通话时长: ${minutes > 0 ? '$minutes分' : ''}${widget.duration.inSeconds % 60}秒';
   }
 
   @override
@@ -95,7 +95,7 @@ class _CallRatingScreenState extends State<CallRatingScreen> {
         actions: [
           TextButton(
             onPressed: _skipRating,
-            child: const Text('跳過', style: TextStyle(color: Colors.black54)),
+            child: const Text('跳过', style: TextStyle(color: Colors.black54)),
           ),
         ],
       ),
@@ -104,7 +104,7 @@ class _CallRatingScreenState extends State<CallRatingScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // 標題
+            // 标题
             Text(
               _title,
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
@@ -115,7 +115,7 @@ class _CallRatingScreenState extends State<CallRatingScreen> {
               style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             ),
             const SizedBox(height: 40),
-            // 星級評分
+            // 星级评分
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(5, (index) {
@@ -131,7 +131,7 @@ class _CallRatingScreenState extends State<CallRatingScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              _rating > 0 ? _getRatingText(_rating) : '點擊星星評分',
+              _rating > 0 ? _getRatingText(_rating) : '点击星星评分',
               style: TextStyle(
                 fontSize: 16,
                 color: _rating > 0 ? Colors.amber[700] : Colors.grey[500],
@@ -139,12 +139,12 @@ class _CallRatingScreenState extends State<CallRatingScreen> {
               ),
             ),
             const SizedBox(height: 32),
-            // 評價標籤
+            // 评价标签
             if (_rating > 0) ...[
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  '選擇標籤（可多選）',
+                  '选择标签（可多选）',
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey[600],
@@ -162,12 +162,12 @@ class _CallRatingScreenState extends State<CallRatingScreen> {
               ),
               const SizedBox(height: 24),
             ],
-            // 文字反饋
+            // 文字反馈
             TextField(
               controller: _feedbackController,
               maxLines: 4,
               decoration: InputDecoration(
-                hintText: '寫下您的具體反饋（可選）',
+                hintText: '写下您的具体反馈（可选）',
                 hintStyle: TextStyle(color: Colors.grey[400]),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -184,7 +184,7 @@ class _CallRatingScreenState extends State<CallRatingScreen> {
               ),
             ),
             const SizedBox(height: 40),
-            // 提交按鈕
+            // 提交按钮
             SizedBox(
               width: double.infinity,
               height: 56,
@@ -207,7 +207,7 @@ class _CallRatingScreenState extends State<CallRatingScreen> {
                         ),
                       )
                     : const Text(
-                        '提交評價',
+                        '提交评价',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -246,15 +246,15 @@ class _CallRatingScreenState extends State<CallRatingScreen> {
   String _getRatingText(int rating) {
     switch (rating) {
       case 1:
-        return '非常不滿意';
+        return '非常不满意';
       case 2:
-        return '不滿意';
+        return '不满意';
       case 3:
         return '一般';
       case 4:
-        return '滿意';
+        return '满意';
       case 5:
-        return '非常滿意';
+        return '非常满意';
       default:
         return '';
     }

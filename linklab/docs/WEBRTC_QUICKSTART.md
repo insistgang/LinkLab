@@ -1,10 +1,10 @@
-# WebRTC 快速開始指南
+# WebRTC 快速开始指南
 
-> 狀態提示：本文僅用於本地實驗真實 WebRTC，不適用於競賽 Demo 默認路徑。競賽和對外演示默認使用 Demo Call，不初始化真實 WebRTC、不要求真實 Supabase Realtime 或 TURN 服務。
+> 状态提示：本文仅用于本地实验真实 WebRTC，不适用于竞赛 Demo 默认路径。竞赛和对外演示默认使用 Demo Call，不初始化真实 WebRTC、不要求真实 Supabase Realtime 或 TURN 服务。
 
-## 1. 添加依賴
+## 1. 添加依赖
 
-確保 `pubspec.yaml` 中已包含以下依賴：
+确保 `pubspec.yaml` 中已包含以下依赖：
 
 ```yaml
 dependencies:
@@ -14,7 +14,7 @@ dependencies:
   flutter_sound: ^9.28.0
 ```
 
-## 2. 配置權限
+## 2. 配置权限
 
 ### Android
 
@@ -34,12 +34,12 @@ dependencies:
 
 ```xml
 <key>NSMicrophoneUsageDescription</key>
-<string>需要麥克風權限進行語音通話</string>
+<string>需要麦克风权限进行语音通话</string>
 ```
 
 ## 3. 初始化
 
-在 `main.dart` 中初始化通話管理器：
+在 `main.dart` 中初始化通话管理器：
 
 ```dart
 import 'package:linklab/services/webrtc/webrtc_exports.dart';
@@ -50,14 +50,14 @@ void main() async {
   // 初始化Supabase
   await Supabase.initialize(...);
   
-  // 初始化WebRTC通話管理器
+  // 初始化WebRTC通话管理器
   await WebRTCCallManager().initialize();
   
   runApp(MyApp());
 }
 ```
 
-## 4. 使用Provider管理狀態
+## 4. 使用Provider管理状态
 
 ```dart
 import 'package:linklab/providers/webrtc_call_provider.dart';
@@ -70,8 +70,8 @@ class CallPage extends ConsumerWidget {
     return Scaffold(
       body: Column(
         children: [
-          Text('狀態: ${callState.stateDescription}'),
-          Text('時長: ${callState.formattedDuration}'),
+          Text('状态: ${callState.stateDescription}'),
+          Text('时长: ${callState.formattedDuration}'),
           CallControls(),
         ],
       ),
@@ -80,20 +80,20 @@ class CallPage extends ConsumerWidget {
 }
 ```
 
-## 5. 發起通話
+## 5. 发起通话
 
-### 作爲求助者
+### 作为求助者
 
 ```dart
 await ref.read(webRTCCallProvider.notifier).startCallAsSeeker(
   seekerId: userId,
   helpRequestId: helpRequestId,
-  volunteerId: volunteerId,  // 可選
-  enableRecording: true,     // 可選：啓用錄音
+  volunteerId: volunteerId,  // 可选
+  enableRecording: true,     // 可选：启用录音
 );
 ```
 
-### 作爲志願者
+### 作为志愿者
 
 ```dart
 await ref.read(webRTCCallProvider.notifier).acceptCallAsVolunteer(
@@ -104,17 +104,17 @@ await ref.read(webRTCCallProvider.notifier).acceptCallAsVolunteer(
 );
 ```
 
-## 6. 導航到通話頁面
+## 6. 导航到通话页面
 
 ```dart
-// 作爲求助者發起通話
+// 作为求助者发起通话
 RealCallPageRoute.startAsSeeker(
   context,
   seekerId: userId,
   helpRequestId: helpRequestId,
 );
 
-// 作爲志願者接聽通話
+// 作为志愿者接听通话
 RealCallPageRoute.acceptAsVolunteer(
   context,
   volunteerId: userId,
@@ -124,72 +124,72 @@ RealCallPageRoute.acceptAsVolunteer(
 );
 ```
 
-## 7. 通話控制
+## 7. 通话控制
 
 ```dart
-// 靜音/取消靜音
+// 静音/取消静音
 await ref.read(webRTCCallProvider.notifier).toggleMute();
 
-// 切換揚聲器
+// 切换扬声器
 await ref.read(webRTCCallProvider.notifier).toggleSpeaker();
 
-// 開始錄音
+// 开始录音
 await ref.read(webRTCCallProvider.notifier).startRecording();
 
-// 停止錄音
+// 停止录音
 await ref.read(webRTCCallProvider.notifier).stopRecording();
 
-// 結束通話
+// 结束通话
 await ref.read(webRTCCallProvider.notifier).endCall(CallEndReason.userHangup);
 ```
 
-## 8. 監聽事件
+## 8. 监听事件
 
 ```dart
-// 監聽通話狀態
+// 监听通话状态
 ref.listen(callStateProvider, (previous, current) {
   if (current == CallState.connected) {
-    print('通話已連接');
+    print('通话已连接');
   } else if (current == CallState.ended) {
-    print('通話已結束');
+    print('通话已结束');
   }
 });
 
-// 監聽網絡質量
+// 监听网络质量
 ref.listen(networkQualityProvider, (previous, current) {
-  print('網絡質量: ${getNetworkQualityDescription(current)}');
+  print('网络质量: ${getNetworkQualityDescription(current)}');
 });
 
-// 監聽錯誤
+// 监听错误
 ref.listen(callErrorProvider, (previous, current) {
   if (current != null) {
-    print('通話錯誤: $current');
+    print('通话错误: $current');
   }
 });
 ```
 
-## 9. 雙模式切換
+## 9. 双模式切换
 
-應用支持演示模式和真實模式切換：
+应用支持演示模式和真实模式切换：
 
 ```dart
 import 'package:linklab/services/call_service_factory.dart';
 
-// 切換到真實模式（WebRTC P2P）
+// 切换到真实模式（WebRTC P2P）
 CallServiceFactory().useRealMode();
 
-// 切換到演示模式（模擬通話）
+// 切换到演示模式（模拟通话）
 CallServiceFactory().useDemoMode();
 
-// 初始化通話服務
+// 初始化通话服务
 await initializeCallService(mode: CallMode.real);
 ```
 
-## 10. 生產環境配置
+## 10. 生产环境配置
 
-### 配置TURN服務器
+### 配置TURN服务器
 
-編輯 `lib/services/webrtc/webrtc_config.dart`：
+编辑 `lib/services/webrtc/webrtc_config.dart`：
 
 ```dart
 static const List<Map<String, dynamic>> turnServers = [
@@ -201,26 +201,26 @@ static const List<Map<String, dynamic>> turnServers = [
 ];
 ```
 
-### 推薦的TURN服務
+### 推荐的TURN服务
 
-- **Coturn**: 開源自建
+- **Coturn**: 开源自建
 - **Twilio**: https://www.twilio.com/stun-turn
 - **Xirsys**: https://xirsys.com/
 - **Metered**: https://www.metered.ca/
 
-## 常見問題
+## 常见问题
 
-### Q: 無法建立連接
-A: 檢查STUN/TURN服務器配置，確保防火牆允許UDP端口
+### Q: 无法建立连接
+A: 检查STUN/TURN服务器配置，确保防火墙允许UDP端口
 
-### Q: 沒有聲音
-A: 檢查麥克風權限，確認音頻軌道已啓用
+### Q: 没有声音
+A: 检查麦克风权限，确认音频轨道已启用
 
-### Q: 連接不穩定
-A: 配置TURN服務器處理對稱NAT，啓用ICE候選池
+### Q: 连接不稳定
+A: 配置TURN服务器处理对称NAT，启用ICE候选池
 
-## 參考
+## 参考
 
-- [完整實現文檔](./WEBRTC_IMPLEMENTATION.md)
-- [WebRTC官方文檔](https://webrtc.org/getting-started/overview)
+- [完整实现文档](./WEBRTC_IMPLEMENTATION.md)
+- [WebRTC官方文档](https://webrtc.org/getting-started/overview)
 - [flutter_webrtc](https://pub.dev/packages/flutter_webrtc)

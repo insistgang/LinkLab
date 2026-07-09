@@ -29,7 +29,7 @@ class _AsyncHelpRequestScreenState extends ConsumerState<AsyncHelpRequestScreen>
 
   late final TextEditingController _descriptionController;
 
-  String _selectedScenario = '讀信件';
+  String _selectedScenario = '读信件';
   String _contentMode = 'text';
   String? _selectedAttachment;
   double _voiceDurationSeconds = 30;
@@ -40,27 +40,27 @@ class _AsyncHelpRequestScreenState extends ConsumerState<AsyncHelpRequestScreen>
 
   static const List<_ScenarioOption> _scenarios = [
     _ScenarioOption(
-      title: '讀信件',
-      subtitle: '適合物業通知、快遞單、賬單等非緊急閱讀需求',
+      title: '读信件',
+      subtitle: '适合物业通知、快递单、账单等非紧急阅读需求',
     ),
     _ScenarioOption(
-      title: '菜單翻譯',
-      subtitle: '把餐廳菜單、商品說明等內容留給志願者稍後回覆',
+      title: '菜单翻译',
+      subtitle: '把餐厅菜单、商品说明等内容留给志愿者稍后回覆',
     ),
     _ScenarioOption(
-      title: '藥盒確認',
-      subtitle: '適合讓志願者二次確認藥品名稱、劑量或服用提醒',
+      title: '药盒确认',
+      subtitle: '适合让志愿者二次确认药品名称、剂量或服用提醒',
     ),
     _ScenarioOption(
-      title: '照片辨認',
-      subtitle: '請志願者稍後幫你辨認圖片裏的物品、文字或場景',
+      title: '照片辨认',
+      subtitle: '请志愿者稍后帮你辨认图片里的物品、文字或场景',
     ),
   ];
 
   static const List<_AttachmentOption> _attachments = [
     _AttachmentOption(label: '信件照片', icon: Icons.mail_outline),
-    _AttachmentOption(label: '藥盒照片', icon: Icons.medication_outlined),
-    _AttachmentOption(label: '菜單截圖', icon: Icons.restaurant_menu_outlined),
+    _AttachmentOption(label: '药盒照片', icon: Icons.medication_outlined),
+    _AttachmentOption(label: '菜单截图', icon: Icons.restaurant_menu_outlined),
     _AttachmentOption(label: '物品照片', icon: Icons.photo_outlined),
   ];
 
@@ -98,13 +98,13 @@ class _AsyncHelpRequestScreenState extends ConsumerState<AsyncHelpRequestScreen>
 
     if (task == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('提交失敗，請稍後重試')),
+        const SnackBar(content: Text('提交失败，请稍后重试')),
       );
       return;
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('留言已提交，可在求助者中心查看進度')),
+      const SnackBar(content: Text('留言已提交，可在求助者中心查看进度')),
     );
 
     if (widget.replaceWithSeekerCenterOnSubmit) {
@@ -122,17 +122,17 @@ class _AsyncHelpRequestScreenState extends ConsumerState<AsyncHelpRequestScreen>
   String _buildRequestDescription() {
     final description = _descriptionController.text.trim();
     if (_contentMode == 'voice') {
-      return '$description\n\n語音留言時長：約 ${_voiceDurationSeconds.toInt()} 秒';
+      return '$description\n\n语音留言时长：约 ${_voiceDurationSeconds.toInt()} 秒';
     }
     return description;
   }
 
   String? _buildAttachmentLabel() {
     if (_contentMode == 'image') {
-      return _selectedAttachment ?? '未選擇附件';
+      return _selectedAttachment ?? '未选择附件';
     }
     if (_contentMode == 'voice') {
-      return '語音留言';
+      return '语音留言';
     }
     return null;
   }
@@ -140,7 +140,7 @@ class _AsyncHelpRequestScreenState extends ConsumerState<AsyncHelpRequestScreen>
   @override
   Widget build(BuildContext context) {
     return AccessibleScaffold(
-      title: '異步留言求助',
+      title: '异步留言求助',
       body: SafeArea(
         child: Form(
           key: _formKey,
@@ -150,7 +150,7 @@ class _AsyncHelpRequestScreenState extends ConsumerState<AsyncHelpRequestScreen>
               _IntroBanner(contentMode: _contentMode),
               const SizedBox(height: AppTheme.spacingL),
               const AccessibleText(
-                '選擇需求場景',
+                '选择需求场景',
                 style: TextStyle(
                   fontSize: AppTheme.fontSizeLarge,
                   fontWeight: FontWeight.bold,
@@ -186,24 +186,24 @@ class _AsyncHelpRequestScreenState extends ConsumerState<AsyncHelpRequestScreen>
                   AccessibleRadioOption(
                     value: 'text',
                     label: '文字留言',
-                    description: '適合清晰描述需要志願者完成的內容',
+                    description: '适合清晰描述需要志愿者完成的内容',
                   ),
                   AccessibleRadioOption(
                     value: 'voice',
-                    label: '語音留言',
-                    description: '用語音補充情況，演示中會保存爲語音時長摘要',
+                    label: '语音留言',
+                    description: '用语音补充情况，演示中会保存为语音时长摘要',
                   ),
                   AccessibleRadioOption(
                     value: 'image',
-                    label: '圖片留言',
-                    description: '選擇演示附件標籤，方便後續志願者識別',
+                    label: '图片留言',
+                    description: '选择演示附件标签，方便后续志愿者识别',
                   ),
                 ],
               ),
               const SizedBox(height: AppTheme.spacingL),
               if (_contentMode == 'image') ...[
                 const AccessibleText(
-                  '選擇演示附件',
+                  '选择演示附件',
                   style: TextStyle(
                     fontSize: AppTheme.fontSizeNormal,
                     fontWeight: FontWeight.w700,
@@ -240,7 +240,7 @@ class _AsyncHelpRequestScreenState extends ConsumerState<AsyncHelpRequestScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const AccessibleText(
-                        '語音留言時長',
+                        '语音留言时长',
                         style: TextStyle(
                           fontSize: AppTheme.fontSizeNormal,
                           fontWeight: FontWeight.w700,
@@ -248,7 +248,7 @@ class _AsyncHelpRequestScreenState extends ConsumerState<AsyncHelpRequestScreen>
                       ),
                       const SizedBox(height: AppTheme.spacingXS),
                       AccessibleText(
-                        '演示版會把語音記錄爲時長摘要，便於在 Web 端穩定展示。',
+                        '演示版会把语音记录为时长摘要，便于在 Web 端稳定展示。',
                         style: const TextStyle(
                           fontSize: AppTheme.fontSizeSmall,
                           color: AppTheme.textSecondary,
@@ -265,7 +265,7 @@ class _AsyncHelpRequestScreenState extends ConsumerState<AsyncHelpRequestScreen>
                         },
                       ),
                       AccessibleText(
-                        '當前：約 ${_voiceDurationSeconds.toInt()} 秒',
+                        '当前：约 ${_voiceDurationSeconds.toInt()} 秒',
                         style: const TextStyle(
                           fontSize: AppTheme.fontSizeSmall,
                           fontWeight: FontWeight.w600,
@@ -278,8 +278,8 @@ class _AsyncHelpRequestScreenState extends ConsumerState<AsyncHelpRequestScreen>
               ],
               AccessibleTextField(
                 controller: _descriptionController,
-                label: '詳細說明',
-                hint: '例如：幫我讀一下這封物業通知裏說了什麼，是否需要我明天去繳費。',
+                label: '详细说明',
+                hint: '例如：帮我读一下这封物业通知里说了什么，是否需要我明天去缴费。',
                 maxLines: 6,
                 minLines: 4,
                 maxLength: 240,
@@ -287,10 +287,10 @@ class _AsyncHelpRequestScreenState extends ConsumerState<AsyncHelpRequestScreen>
                 prefixIcon: const Icon(Icons.edit_note_outlined),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return '請先描述你希望志願者幫你完成什麼';
+                    return '请先描述你希望志愿者帮你完成什么';
                   }
                   if (_contentMode == 'image' && _selectedAttachment == null) {
-                    return '請選擇一個演示附件';
+                    return '请选择一个演示附件';
                   }
                   return null;
                 },
@@ -302,23 +302,23 @@ class _AsyncHelpRequestScreenState extends ConsumerState<AsyncHelpRequestScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const AccessibleText(
-                      '提交後會發生什麼',
+                      '提交后会发生什么',
                       style: TextStyle(
                         fontSize: AppTheme.fontSizeNormal,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     const SizedBox(height: AppTheme.spacingS),
-                    const _StepText('1. 留言會進入異步任務隊列，狀態顯示爲"待志願者領取"。'),
-                    const _StepText('2. 同時在幫助檔案裏生成一條異步求助記錄。'),
-                    const _StepText('3. 志願者回覆後，你可以在求助者中心回看結果。'),
+                    const _StepText('1. 留言会进入异步任务队列，状态显示为"待志愿者领取"。'),
+                    const _StepText('2. 同时在帮助档案里生成一条异步求助记录。'),
+                    const _StepText('3. 志愿者回覆后，你可以在求助者中心回看结果。'),
                   ],
                 ),
               ),
               const SizedBox(height: AppTheme.spacingXL),
               AccessibleButton(
-                label: '提交異步留言',
-                semanticLabel: '提交異步留言求助',
+                label: '提交异步留言',
+                semanticLabel: '提交异步留言求助',
                 icon: Icons.send_outlined,
                 isLoading: _isSubmitting,
                 onPressed: _submit,
@@ -341,9 +341,9 @@ class _IntroBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final detail = switch (contentMode) {
-      'voice' => '當前將以語音留言形式記錄，並保留時長摘要。',
-      'image' => '當前將附帶演示附件標籤，方便後續在任務列表中識別。',
-      _ => '當前將以文字留言形式進入隊列，適合不緊急的問題。',
+      'voice' => '当前将以语音留言形式记录，并保留时长摘要。',
+      'image' => '当前将附带演示附件标签，方便后续在任务列表中识别。',
+      _ => '当前将以文字留言形式进入队列，适合不紧急的问题。',
     };
 
     return Container(
@@ -360,7 +360,7 @@ class _IntroBanner extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const AccessibleText(
-            '適合非緊急問題',
+            '适合非紧急问题',
             style: TextStyle(
               fontSize: AppTheme.fontSizeXLarge,
               fontWeight: FontWeight.bold,
@@ -369,7 +369,7 @@ class _IntroBanner extends StatelessWidget {
           ),
           const SizedBox(height: AppTheme.spacingS),
           const AccessibleText(
-            '如果你現在不需要立即連線志願者，可以先把問題留在這裏，稍後由合適的志願者處理。',
+            '如果你现在不需要立即连线志愿者，可以先把问题留在这里，稍后由合适的志愿者处理。',
             style: TextStyle(
               fontSize: AppTheme.fontSizeNormal,
               color: AppTheme.textOnPrimary,

@@ -5,9 +5,9 @@ import 'package:http/http.dart' as http;
 import '../../config/api_config.dart';
 import 'ai_service.dart';
 
-/// 通義千問VL服務
-/// F3 物體/場景識別與描述 + F7 環境描述的核心實現
-/// 集成通義千問VL多模態大模型
+/// 通义千问VL服务
+/// F3 物体/场景识别与描述 + F7 环境描述的核心实现
+/// 集成通义千问VL多模态大模型
 class QwenVLService implements AIService {
   final _client = http.Client();
 
@@ -26,18 +26,18 @@ class QwenVLService implements AIService {
     DialogContext? context,
   }) async {
     if (imageUrl == null) {
-      return AIResponse.error('場景描述需要圖片輸入');
+      return AIResponse.error('场景描述需要图片输入');
     }
 
     if (!APIConfig.isQwenConfigured) {
-      return AIResponse.error('通義千問API密鑰未配置，請在APIConfig中設置');
+      return AIResponse.error('通义千问API密钥未配置，请在APIConfig中设置');
     }
 
     try {
       final result = await describeScene(File(imageUrl), customPrompt: input);
 
       if (!result.isSuccess) {
-        return AIResponse.error(result.error?.message ?? '場景描述失敗');
+        return AIResponse.error(result.error?.message ?? '场景描述失败');
       }
 
       final description = result.data!;
@@ -57,13 +57,13 @@ class QwenVLService implements AIService {
         },
       );
     } catch (e) {
-      return AIResponse.error('場景描述失敗: $e');
+      return AIResponse.error('场景描述失败: $e');
     }
   }
 
-  /// 描述場景
-  /// [image] 圖片文件
-  /// [customPrompt] 自定義提示詞（可選）
+  /// 描述场景
+  /// [image] 图片文件
+  /// [customPrompt] 自定义提示词（可选）
   Future<APIResponse<SceneDescription>> describeScene(
     File image, {
     String? customPrompt,
@@ -75,9 +75,9 @@ class QwenVLService implements AIService {
     return await _callQwenVLWithRetry(image, prompt);
   }
 
-  /// 回答關於圖片的問題
-  /// [image] 圖片文件
-  /// [question] 用戶問題
+  /// 回答关于图片的问题
+  /// [image] 图片文件
+  /// [question] 用户问题
   Future<APIResponse<String>> answerQuestion(
     File image,
     String question,
@@ -91,9 +91,9 @@ class QwenVLService implements AIService {
     return APIResponse.failure(result.error!);
   }
 
-  /// 識別物體
-  /// [image] 圖片文件
-  /// [focusObject] 關注的物體類型（可選）
+  /// 识别物体
+  /// [image] 图片文件
+  /// [focusObject] 关注的物体类型（可选）
   Future<APIResponse<List<DetectedObject>>> detectObjects(
     File image, {
     String? focusObject,
@@ -107,8 +107,8 @@ class QwenVLService implements AIService {
     return APIResponse.failure(result.error!);
   }
 
-  /// 分析空間佈局
-  /// [image] 圖片文件
+  /// 分析空间布局
+  /// [image] 图片文件
   Future<APIResponse<SpatialLayout>> analyzeSpatialLayout(File image) async {
     final prompt = _buildSpatialLayoutPrompt();
     final result = await _callQwenVLWithRetry(image, prompt);
@@ -127,7 +127,7 @@ class QwenVLService implements AIService {
     return APIResponse.failure(result.error!);
   }
 
-  /// 帶重試機制的API調用
+  /// 带重试机制的API调用
   Future<APIResponse<SceneDescription>> _callQwenVLWithRetry(
     File image,
     String prompt, {
@@ -146,7 +146,7 @@ class QwenVLService implements AIService {
           }
           return APIResponse.failure(APIError(
             type: APIErrorType.unknown,
-            message: '場景描述失敗，已重試$maxRetries次',
+            message: '场景描述失败，已重试$maxRetries次',
             originalError: e.toString(),
           ));
         }
@@ -156,23 +156,23 @@ class QwenVLService implements AIService {
 
     return APIResponse.failure(APIError(
       type: APIErrorType.unknown,
-      message: '場景描述失敗',
+      message: '场景描述失败',
     ));
   }
 
-  /// 調用通義千問VL API
+  /// 调用通义千问VL API
   Future<APIResponse<SceneDescription>> _callQwenVL(
     File image,
     String prompt,
   ) async {
     final base64Image = base64Encode(await image.readAsBytes());
 
-    // 檢查圖片大小（限制5MB）
+    // 检查图片大小（限制5MB）
     final imageBytes = base64Decode(base64Image);
     if (imageBytes.length > 5 * 1024 * 1024) {
       return APIResponse.failure(APIError(
         type: APIErrorType.invalidParameter,
-        message: '圖片過大，請壓縮後重試（最大5MB）',
+        message: '图片过大，请压缩后重试（最大5MB）',
       ));
     }
 
@@ -214,10 +214,10 @@ class QwenVLService implements AIService {
     return _handleQwenResponse(response);
   }
 
-  /// 處理通義千問響應
+  /// 处理通义千问响应
   APIResponse<SceneDescription> _handleQwenResponse(http.Response response) {
     if (response.statusCode != 200) {
-      // 處理特定狀態碼
+      // 处理特定状态码
       if (response.statusCode == 401) {
         return APIResponse.failure(APIError.authentication(
           'Invalid API Key',
@@ -236,10 +236,10 @@ class QwenVLService implements AIService {
 
     final data = jsonDecode(response.body);
 
-    // 檢查業務錯誤碼
+    // 检查业务错误码
     final code = data['code'];
     if (code != null && code != '200') {
-      final message = data['message'] ?? '未知錯誤';
+      final message = data['message'] ?? '未知错误';
 
       if (code == 'InvalidApiKey') {
         return APIResponse.failure(APIError.authentication(message));
@@ -250,7 +250,7 @@ class QwenVLService implements AIService {
 
       return APIResponse.failure(APIError(
         type: APIErrorType.unknown,
-        message: 'API錯誤: $message',
+        message: 'API错误: $message',
         originalError: message,
       ));
     }
@@ -261,208 +261,208 @@ class QwenVLService implements AIService {
     if (choices == null || choices.isEmpty) {
       return APIResponse.failure(APIError(
         type: APIErrorType.unknown,
-        message: 'API返回結果爲空',
+        message: 'API返回结果为空',
       ));
     }
 
     final message = choices[0]['message'] as Map<String, dynamic>?;
     final content = message?['content'] as String? ?? '';
 
-    // 計算置信度
+    // 计算置信度
     final finishReason = choices[0]['finish_reason'] as String?;
     final confidence = finishReason == 'stop' ? 0.9 : 0.7;
 
-    // 解析結構化描述
+    // 解析结构化描述
     final description = _parseDescription(content, confidence);
 
     return APIResponse.success(description);
   }
 
-  /// 構建默認提示詞
+  /// 构建默认提示词
   String _buildDefaultPrompt() {
-    return '''請詳細描述這張圖片的內容，幫助視障人士理解周圍環境。請按以下格式輸出：
+    return '''请详细描述这张图片的内容，帮助视障人士理解周围环境。请按以下格式输出：
 
-1. 場景概述（室內/室外，環境類型）
-2. 主要物體及其位置（使用距離和方位描述，如"前方約2米處"、"右側約1米處"）
-3. 空間佈局和通道情況
-4. 安全提示（如有障礙物或危險）
+1. 场景概述（室内/室外，环境类型）
+2. 主要物体及其位置（使用距离和方位描述，如"前方约2米处"、"右侧约1米处"）
+3. 空间布局和通道情况
+4. 安全提示（如有障碍物或危险）
 
-請使用視障人士友好的描述方式：
-- 提供清晰的空間方位信息
-- 使用具體的距離描述
-- 指出可能的障礙物或危險
-- 給出行動建議
+请使用视障人士友好的描述方式：
+- 提供清晰的空间方位信息
+- 使用具体的距离描述
+- 指出可能的障碍物或危险
+- 给出行动建议
 
-輸出示例：
-這是一個室內客廳場景。前方約2米處有一張沙發，右側約1米處有一扇窗戶，左側有一扇門。中間有約1.5米寬的通道可以通行。地面平整，沒有明顯障礙物。'''
+输出示例：
+这是一个室内客厅场景。前方约2米处有一张沙发，右侧约1米处有一扇窗户，左侧有一扇门。中间有约1.5米宽的通道可以通行。地面平整，没有明显障碍物。'''
         ;
   }
 
-  /// 構建自定義提示詞
+  /// 构建自定义提示词
   String _buildCustomPrompt(String userInput) {
     final lowerInput = userInput.toLowerCase();
 
-    // 前方場景
+    // 前方场景
     if (lowerInput.contains('前面') ||
         lowerInput.contains('前方') ||
         lowerInput.contains('front') ||
         lowerInput.contains('ahead')) {
-      return '''請描述圖片中前方/正前方的場景。請按以下格式輸出：
+      return '''请描述图片中前方/正前方的场景。请按以下格式输出：
 
-1. 首先描述主要物體的名稱和類型
-2. 然後描述物體相對於觀察者的位置（距離和方位）
-3. 描述物體的特徵（顏色、大小、形狀等）
-4. 如有潛在障礙物或危險，請特別指出
-5. 給出是否可以通行的建議
+1. 首先描述主要物体的名称和类型
+2. 然后描述物体相对于观察者的位置（距离和方位）
+3. 描述物体的特征（颜色、大小、形状等）
+4. 如有潜在障碍物或危险，请特别指出
+5. 给出是否可以通行的建议
 
-請使用視障人士友好的描述方式，提供清晰的空間方位信息和具體距離。
+请使用视障人士友好的描述方式，提供清晰的空间方位信息和具体距离。
 
-輸出示例："前方約2米處有一張木質桌子，桌子左側約1米處有一扇門，地面平整，可以安全通行。"'''
+输出示例："前方约2米处有一张木质桌子，桌子左侧约1米处有一扇门，地面平整，可以安全通行。"'''
           ;
     }
 
-    // 周圍環境
-    if (lowerInput.contains('周圍') ||
-        lowerInput.contains('環境') ||
-        lowerInput.contains('場景') ||
+    // 周围环境
+    if (lowerInput.contains('周围') ||
+        lowerInput.contains('环境') ||
+        lowerInput.contains('场景') ||
         lowerInput.contains('around') ||
         lowerInput.contains('environment') ||
         lowerInput.contains('surrounding')) {
-      return '''請描述圖片中的整體環境佈局。請按以下格式輸出：
+      return '''请描述图片中的整体环境布局。请按以下格式输出：
 
-1. 描述場景類型（室內/室外，房間類型等）
-2. 描述主要物體的位置分佈（使用相對方位：前方、後方、左側、右側）
-3. 描述通道/行走空間
-4. 指出可能的障礙物或危險區域
-5. 給出行動建議
+1. 描述场景类型（室内/室外，房间类型等）
+2. 描述主要物体的位置分布（使用相对方位：前方、后方、左侧、右侧）
+3. 描述通道/行走空间
+4. 指出可能的障碍物或危险区域
+5. 给出行动建议
 
-請使用視障人士友好的描述方式，提供清晰的空間方位信息。
+请使用视障人士友好的描述方式，提供清晰的空间方位信息。
 
-輸出示例："這是一個室內走廊場景。前方約3米處有拐角，右側約1米處有椅子，左側牆壁平整，中間有約1.5米寬的通道可以通行。地面平整，沒有明顯障礙物。"'''
+输出示例："这是一个室内走廊场景。前方约3米处有拐角，右侧约1米处有椅子，左侧墙壁平整，中间有约1.5米宽的通道可以通行。地面平整，没有明显障碍物。"'''
           ;
     }
 
-    // 物體識別
-    if (lowerInput.contains('什麼') ||
-        lowerInput.contains('物體') ||
-        lowerInput.contains('東西') ||
+    // 物体识别
+    if (lowerInput.contains('什么') ||
+        lowerInput.contains('物体') ||
+        lowerInput.contains('东西') ||
         lowerInput.contains('object') ||
         lowerInput.contains('what')) {
-      return '''請識別圖片中的主要物體。請按以下格式輸出：
+      return '''请识别图片中的主要物体。请按以下格式输出：
 
-1. 描述物體的名稱和類別
-2. 描述物體的大致位置
-3. 描述物體的關鍵特徵（顏色、形狀、大小、材質等）
-4. 如有文字，請讀出文字內容
-5. 說明物體是否可能造成障礙
+1. 描述物体的名称和类别
+2. 描述物体的大致位置
+3. 描述物体的关键特征（颜色、形状、大小、材质等）
+4. 如有文字，请读出文字内容
+5. 说明物体是否可能造成障碍
 
-請使用視障人士友好的描述方式。
+请使用视障人士友好的描述方式。
 
-輸出示例："這是一張桌子，位於畫面中央，是深色木質的方形桌子，桌面上有一本打開的書。桌子高度約75釐米，不會阻擋通行。"'''
+输出示例："这是一张桌子，位于画面中央，是深色木质的方形桌子，桌面上有一本打开的书。桌子高度约75厘米，不会阻挡通行。"'''
           ;
     }
 
-    // 導航相關
-    if (lowerInput.contains('導航') ||
-        lowerInput.contains('怎麼走') ||
-        lowerInput.contains('路線') ||
+    // 导航相关
+    if (lowerInput.contains('导航') ||
+        lowerInput.contains('怎么走') ||
+        lowerInput.contains('路线') ||
         lowerInput.contains('navigate') ||
         lowerInput.contains('direction')) {
-      return '''請分析圖片中的環境，提供導航指引。請按以下格式輸出：
+      return '''请分析图片中的环境，提供导航指引。请按以下格式输出：
 
-1. 描述當前所在位置的環境特徵
+1. 描述当前所在位置的环境特征
 2. 指出可通行的方向
-3. 描述前方路徑情況
-4. 指出需要注意的障礙物或危險
-5. 給出具體的行走建議
+3. 描述前方路径情况
+4. 指出需要注意的障碍物或危险
+5. 给出具体的行走建议
 
-請使用視障人士友好的描述方式，提供清晰的方向指引。
+请使用视障人士友好的描述方式，提供清晰的方向指引。
 
-輸出示例："您當前在一個走廊中。前方約3米處有拐角，建議沿右側牆壁行走。中間通道寬約1.5米，地面平整，可以安全通行。到達拐角後請停下再次確認方向。"'''
+输出示例："您当前在一个走廊中。前方约3米处有拐角，建议沿右侧墙壁行走。中间通道宽约1.5米，地面平整，可以安全通行。到达拐角后请停下再次确认方向。"'''
           ;
     }
 
-    // 默認使用用戶輸入作爲提示詞
+    // 默认使用用户输入作为提示词
     return '''$userInput
 
-請使用視障人士友好的描述方式，提供清晰的空間方位信息和具體距離。如有障礙物或危險請特別指出。'''
+请使用视障人士友好的描述方式，提供清晰的空间方位信息和具体距离。如有障碍物或危险请特别指出。'''
         ;
   }
 
-  /// 構建問題提示詞
+  /// 构建问题提示词
   String _buildQuestionPrompt(String question) {
-    return '''用戶問：$question
+    return '''用户问：$question
 
-請基於圖片內容回答這個問題。回答要簡潔明瞭，適合語音播報。如果圖片中沒有相關信息，請明確說明。'''
+请基于图片内容回答这个问题。回答要简洁明了，适合语音播报。如果图片中没有相关信息，请明确说明。'''
         ;
   }
 
-  /// 構建物體檢測提示詞
+  /// 构建物体检测提示词
   String _buildObjectDetectionPrompt(String? focusObject) {
     final focus = focusObject?.isNotEmpty == true
-        ? '特別關注$focusObject類物體。'
+        ? '特别关注$focusObject类物体。'
         : '';
 
-    return '''請識別圖片中的所有主要物體。$focus
+    return '''请识别图片中的所有主要物体。$focus
 
-請按以下格式列出物體：
-1. 物體名稱 - 位置描述 - 特徵描述
+请按以下格式列出物体：
+1. 物体名称 - 位置描述 - 特征描述
 2. ...
 
-位置描述請使用：前方、後方、左側、右側、中央等方位詞，並儘可能提供距離信息。
-特徵描述包括：顏色、大小、形狀等。
+位置描述请使用：前方、后方、左侧、右侧、中央等方位词，并尽可能提供距离信息。
+特征描述包括：颜色、大小、形状等。
 
-最後總結是否有障礙物影響通行。'''
+最后总结是否有障碍物影响通行。'''
         ;
   }
 
-  /// 構建空間佈局提示詞
+  /// 构建空间布局提示词
   String _buildSpatialLayoutPrompt() {
-    return '''請詳細分析圖片中的空間佈局，幫助視障人士理解環境結構。
+    return '''请详细分析图片中的空间布局，帮助视障人士理解环境结构。
 
-請按以下格式輸出：
+请按以下格式输出：
 
-【場景類型】
-室內/室外，具體場所類型
+【场景类型】
+室内/室外，具体场所类型
 
-【主要物體分佈】
+【主要物体分布】
 - 前方：...
-- 後方：...
-- 左側：...
-- 右側：...
+- 后方：...
+- 左侧：...
+- 右侧：...
 
-【可通行區域】
-描述可以安全行走的空間
+【可通行区域】
+描述可以安全行走的空间
 
-【障礙物/危險】
-列出需要注意的障礙物
+【障碍物/危险】
+列出需要注意的障碍物
 
-【行動建議】
-給出具體的移動建議'''
+【行动建议】
+给出具体的移动建议'''
         ;
   }
 
   /// 解析描述
   SceneDescription _parseDescription(String text, double confidence) {
-    // 提取物體信息
+    // 提取物体信息
     final objects = _extractObjects(text);
 
-    // 提取空間關係
+    // 提取空间关系
     final spatialRelations = _extractSpatialRelations(text);
 
     // 提取安全警告
     final safetyWarnings = _extractSafetyWarnings(text);
 
-    // 檢測場景類型
+    // 检测场景类型
     final sceneType = _detectSceneType(text);
 
-    // 提取可通行區域
+    // 提取可通行区域
     final passableAreas = _extractPassableAreas(text);
 
-    // 提取障礙物
+    // 提取障碍物
     final obstacles = _extractObstacles(text);
 
-    // 格式化輸出
+    // 格式化输出
     final formattedText = _formatDescription(text, safetyWarnings);
 
     return SceneDescription(
@@ -478,12 +478,12 @@ class QwenVLService implements AIService {
     );
   }
 
-  /// 提取物體信息
+  /// 提取物体信息
   List<DetectedObject> _extractObjects(String text) {
     final objects = <DetectedObject>[];
 
     // 匹配 "前方X米有/是Y" 格式
-    final pattern1 = RegExp(r'([前後左右])方(?:約)?(\d+)米(?:處)?[有是]([\u4e00-\u9fa5]+)');
+    final pattern1 = RegExp(r'([前后左右])方(?:约)?(\d+)米(?:处)?[有是]([\u4e00-\u9fa5]+)');
     for (final match in pattern1.allMatches(text)) {
       objects.add(DetectedObject(
         name: match.group(3) ?? '',
@@ -492,8 +492,8 @@ class QwenVLService implements AIService {
       ));
     }
 
-    // 匹配 "X側有Y" 格式
-    final pattern2 = RegExp(r'([左右])側(?:約)?(\d+)?米?(?:處)?[有是]([\u4e00-\u9fa5]+)');
+    // 匹配 "X侧有Y" 格式
+    final pattern2 = RegExp(r'([左右])侧(?:约)?(\d+)?米?(?:处)?[有是]([\u4e00-\u9fa5]+)');
     for (final match in pattern2.allMatches(text)) {
       objects.add(DetectedObject(
         name: match.group(3) ?? '',
@@ -503,7 +503,7 @@ class QwenVLService implements AIService {
     }
 
     // 匹配 "Y在X方" 格式
-    final pattern3 = RegExp(r'([\u4e00-\u9fa5]+)在([前後左右])方');
+    final pattern3 = RegExp(r'([\u4e00-\u9fa5]+)在([前后左右])方');
     for (final match in pattern3.allMatches(text)) {
       objects.add(DetectedObject(
         name: match.group(1) ?? '',
@@ -515,7 +515,7 @@ class QwenVLService implements AIService {
     return objects;
   }
 
-  /// 提取空間關係
+  /// 提取空间关系
   List<String> _extractSpatialRelations(String text) {
     final relations = <String>[];
     final sentences = text.split(RegExp(r'[。！\n]'));
@@ -524,11 +524,11 @@ class QwenVLService implements AIService {
       final trimmed = sentence.trim();
       if (trimmed.contains('米') ||
           trimmed.contains('前方') ||
-          trimmed.contains('後方') ||
-          trimmed.contains('左側') ||
-          trimmed.contains('右側') ||
+          trimmed.contains('后方') ||
+          trimmed.contains('左侧') ||
+          trimmed.contains('右侧') ||
           trimmed.contains('通道') ||
-          trimmed.contains('距離')) {
+          trimmed.contains('距离')) {
         relations.add(trimmed);
       }
     }
@@ -540,9 +540,9 @@ class QwenVLService implements AIService {
   List<String> _extractSafetyWarnings(String text) {
     final warnings = <String>[];
     final warningKeywords = [
-      '注意', '小心', '危險', '障礙', '臺階', '樓梯', '門檻',
-      '滑', '陡', '窄', '低', '碰撞', '絆倒', '摔倒',
-      '避讓', '繞行', '停止', '謹慎',
+      '注意', '小心', '危险', '障碍', '台阶', '楼梯', '门槛',
+      '滑', '陡', '窄', '低', '碰撞', '绊倒', '摔倒',
+      '避让', '绕行', '停止', '谨慎',
     ];
 
     final sentences = text.split('。');
@@ -558,10 +558,10 @@ class QwenVLService implements AIService {
     return warnings.toSet().toList(); // 去重
   }
 
-  /// 檢測場景類型
+  /// 检测场景类型
   String _detectSceneType(String text) {
-    final indoorKeywords = ['室內', '房間', '客廳', '臥室', '廚房', '走廊', '辦公室'];
-    final outdoorKeywords = ['室外', '街道', '馬路', '公園', '廣場', '戶外'];
+    final indoorKeywords = ['室内', '房间', '客厅', '卧室', '厨房', '走廊', '办公室'];
+    final outdoorKeywords = ['室外', '街道', '马路', '公园', '广场', '户外'];
 
     for (final keyword in indoorKeywords) {
       if (text.contains(keyword)) return 'indoor';
@@ -573,11 +573,11 @@ class QwenVLService implements AIService {
     return 'unknown';
   }
 
-  /// 提取可通行區域
+  /// 提取可通行区域
   List<String> _extractPassableAreas(String text) {
     final areas = <String>[];
     final patterns = [
-      RegExp(r'[有|中間|兩側]([^，。]+)通道'),
+      RegExp(r'[有|中间|两侧]([^，。]+)通道'),
       RegExp(r'可以([^，。]+)通行'),
       RegExp(r'([^，。]+)可以走'),
     ];
@@ -591,17 +591,17 @@ class QwenVLService implements AIService {
     return areas;
   }
 
-  /// 提取障礙物
+  /// 提取障碍物
   List<String> _extractObstacles(String text) {
     final obstacles = <String>[];
     final obstacleKeywords = [
-      '障礙物', '臺階', '門檻', '樓梯', '柱子', '牆壁', '欄杆',
-      '椅子', '桌子', '箱子', '雜物',
+      '障碍物', '台阶', '门槛', '楼梯', '柱子', '墙壁', '栏杆',
+      '椅子', '桌子', '箱子', '杂物',
     ];
 
     for (final keyword in obstacleKeywords) {
       if (text.contains(keyword)) {
-        // 提取包含該關鍵詞的句子
+        // 提取包含该关键词的句子
         final sentences = text.split('。');
         for (final sentence in sentences) {
           if (sentence.contains(keyword)) {
@@ -631,13 +631,13 @@ class QwenVLService implements AIService {
     return buffer.toString();
   }
 
-  /// 釋放資源
+  /// 释放资源
   void dispose() {
     _client.close();
   }
 }
 
-/// 場景描述
+/// 场景描述
 class SceneDescription {
   final String rawText;
   final String formattedText;
@@ -662,7 +662,7 @@ class SceneDescription {
   });
 }
 
-/// 檢測到的物體
+/// 检测到的物体
 class DetectedObject {
   final String name;
   final String direction;
@@ -676,11 +676,11 @@ class DetectedObject {
 
   @override
   String toString() => distance > 0
-      ? '$direction方約${distance.toInt()}米的$name'
+      ? '$direction方约${distance.toInt()}米的$name'
       : '$direction方的$name';
 }
 
-/// 空間佈局
+/// 空间布局
 class SpatialLayout {
   final String sceneType;
   final List<DetectedObject> objects;

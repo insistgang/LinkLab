@@ -8,7 +8,7 @@ import 'content_management_page.dart';
 import 'report_handling_page.dart';
 import 'statistics_page.dart';
 
-/// 管理後臺佈局
+/// 管理后台布局
 class AdminLayout extends StatefulWidget {
   const AdminLayout({super.key});
 
@@ -23,31 +23,31 @@ class _AdminLayoutState extends State<AdminLayout> {
   final List<_NavItem> _navItems = [
     _NavItem(
       icon: Icons.dashboard,
-      label: '數據看板',
+      label: '数据看板',
       page: const DashboardPage(),
       permissions: [],
     ),
     _NavItem(
       icon: Icons.people,
-      label: '用戶管理',
+      label: '用户管理',
       page: const UserManagementPage(),
       permissions: ['users.view'],
     ),
     _NavItem(
       icon: Icons.article,
-      label: '內容管理',
+      label: '内容管理',
       page: const ContentManagementPage(),
       permissions: ['content.view'],
     ),
     _NavItem(
       icon: Icons.report_problem,
-      label: '舉報處理',
+      label: '举报处理',
       page: const ReportHandlingPage(),
       permissions: ['reports.view'],
     ),
     _NavItem(
       icon: Icons.analytics,
-      label: '數據統計',
+      label: '数据统计',
       page: const StatisticsPage(),
       permissions: ['stats.view'],
     ),
@@ -77,8 +77,8 @@ class _AdminLayoutState extends State<AdminLayout> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('確認退出'),
-        content: const Text('確定要退出登錄嗎？'),
+        title: const Text('确认退出'),
+        content: const Text('确定要退出登录吗？'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -118,7 +118,7 @@ class _AdminLayoutState extends State<AdminLayout> {
     return Scaffold(
       body: Row(
         children: [
-          // 側邊導航欄
+          // 侧边导航栏
           NavigationRail(
             extended: MediaQuery.of(context).size.width > 1200,
             minExtendedWidth: 200,
@@ -147,7 +147,7 @@ class _AdminLayoutState extends State<AdminLayout> {
             trailing: IconButton(
               icon: const Icon(Icons.logout),
               onPressed: _logout,
-              tooltip: '退出登錄',
+              tooltip: '退出登录',
             ),
             destinations: visibleItems
                 .map(
@@ -159,17 +159,17 @@ class _AdminLayoutState extends State<AdminLayout> {
                 .toList(),
           ),
 
-          // 分隔線
+          // 分隔线
           const VerticalDivider(thickness: 1, width: 1),
 
-          // 主內容區
+          // 主内容区
           Expanded(
             child: Column(
               children: [
-                // 頂部欄
+                // 顶部栏
                 _buildAppBar(),
 
-                // 頁面內容
+                // 页面内容
                 Expanded(child: currentPage),
               ],
             ),
@@ -198,7 +198,7 @@ class _AdminLayoutState extends State<AdminLayout> {
             ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
           const Spacer(),
-          // 管理員信息
+          // 管理员信息
           Row(
             children: [
               CircleAvatar(
@@ -217,7 +217,7 @@ class _AdminLayoutState extends State<AdminLayout> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    _authService.currentUser?.username ?? '管理員',
+                    _authService.currentUser?.username ?? '管理员',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   Text(
@@ -236,15 +236,15 @@ class _AdminLayoutState extends State<AdminLayout> {
   String _getRoleName(String? role) {
     switch (role) {
       case 'super_admin':
-        return '超級管理員';
+        return '超级管理员';
       case 'admin':
-        return '管理員';
+        return '管理员';
       case 'operator':
-        return '操作員';
+        return '操作员';
       case 'viewer':
         return '查看者';
       default:
-        return '管理員';
+        return '管理员';
     }
   }
 }

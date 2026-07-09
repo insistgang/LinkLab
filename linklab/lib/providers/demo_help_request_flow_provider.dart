@@ -94,7 +94,7 @@ class DemoHelpRequestFlowController extends Notifier<DemoHelpRequestFlowState> {
       intent: intent,
       urgency: urgency,
       type: 'ai_auto',
-      message: '已創建求助請求',
+      message: '已创建求助请求',
     );
 
     await DemoHelpRequestTracker.markAIProcessing(
@@ -109,7 +109,7 @@ class DemoHelpRequestFlowController extends Notifier<DemoHelpRequestFlowState> {
     await DemoHelpRequestTracker.markAIResolved(summary: summary);
     _transitionTo(
       HelpRequestStatus.aiResolved,
-      message: 'AI 已解決',
+      message: 'AI 已解决',
       summary: summary,
     );
   }
@@ -131,7 +131,7 @@ class DemoHelpRequestFlowController extends Notifier<DemoHelpRequestFlowState> {
         intent: intent,
         type: type,
         urgency: urgency,
-        message: '已創建求助請求',
+        message: '已创建求助请求',
       );
     } else {
       state = state.copyWith(intent: intent, type: type, urgency: urgency);
@@ -159,12 +159,12 @@ class DemoHelpRequestFlowController extends Notifier<DemoHelpRequestFlowState> {
     );
     _transitionTo(
       HelpRequestStatus.matching,
-      message: '正在匹配志願者',
+      message: '正在匹配志愿者',
       clearVolunteer: true,
     );
   }
 
-  Future<void> startSOSUndoWindow({String intent = 'SOS緊急求助'}) async {
+  Future<void> startSOSUndoWindow({String intent = 'SOS紧急求助'}) async {
     final requestId = await DemoHelpRequestTracker.startSOSUndoWindow(
       intent: intent,
     );
@@ -174,7 +174,7 @@ class DemoHelpRequestFlowController extends Notifier<DemoHelpRequestFlowState> {
       intent: intent,
       urgency: 'emergency',
       type: 'sos',
-      message: '已進入 SOS 誤觸撤銷窗口',
+      message: '已进入 SOS 误触撤销窗口',
     );
   }
 
@@ -191,7 +191,7 @@ class DemoHelpRequestFlowController extends Notifier<DemoHelpRequestFlowState> {
     );
     _transitionTo(
       HelpRequestStatus.connected,
-      message: '志願者已接通',
+      message: '志愿者已接通',
       volunteerId: volunteerId,
       volunteerName: volunteerName,
     );
@@ -200,7 +200,7 @@ class DemoHelpRequestFlowController extends Notifier<DemoHelpRequestFlowState> {
   Future<void> markExpired() async {
     _ensureCanTransitionTo(HelpRequestStatus.expired);
     await DemoHelpRequestTracker.markExpired();
-    _transitionTo(HelpRequestStatus.expired, message: '無人接單，可重新發起');
+    _transitionTo(HelpRequestStatus.expired, message: '无人接单，可重新发起');
   }
 
   Future<void> markCancelled({String? reason}) async {
@@ -222,19 +222,19 @@ class DemoHelpRequestFlowController extends Notifier<DemoHelpRequestFlowState> {
       feedback: feedback,
       ratingTags: ratingTags,
     );
-    _transitionTo(HelpRequestStatus.completed, message: '幫助已完成');
+    _transitionTo(HelpRequestStatus.completed, message: '帮助已完成');
   }
 
   Future<void> returnToMatchingAfterDisconnect() async {
     _ensureCanTransitionTo(HelpRequestStatus.matching);
     await DemoHelpRequestTracker.ensureMatchingRequest(
-      intent: state.intent ?? '通話掉線後重新匹配',
+      intent: state.intent ?? '通话掉线后重新匹配',
       type: state.type,
       urgency: state.urgency,
     );
     _transitionTo(
       HelpRequestStatus.matching,
-      message: '通話掉線，已重新進入匹配',
+      message: '通话掉线，已重新进入匹配',
       clearVolunteer: true,
     );
   }
@@ -269,7 +269,7 @@ class DemoHelpRequestFlowController extends Notifier<DemoHelpRequestFlowState> {
       return;
     }
     final message =
-        '非法 help_request 狀態轉移：${state.status.wireName} -> ${next.wireName}';
+        '非法 help_request 状态转移：${state.status.wireName} -> ${next.wireName}';
     AppLogger.warning(message);
     throw StateError(message);
   }

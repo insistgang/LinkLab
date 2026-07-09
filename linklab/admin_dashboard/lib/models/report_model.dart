@@ -1,6 +1,6 @@
 import '../constants/app_constants.dart';
 
-// 舉報模型
+// 举报模型
 class ReportModel {
   final String id;
   final ReportType type;
@@ -8,7 +8,7 @@ class ReportModel {
   final String? description;
   final String reporterId;
   final String reporterName;
-  final String targetId; // 被舉報內容/用戶ID
+  final String targetId; // 被举报内容/用户ID
   final String targetType; // 'user', 'story', 'comment', 'community'
   final String? targetContent;
   final String? targetUserId;
@@ -101,11 +101,11 @@ class ReportModel {
       case ReportType.spam:
         return '垃圾信息';
       case ReportType.harassment:
-        return '騷擾行爲';
+        return '骚扰行为';
       case ReportType.inappropriate:
-        return '不當內容';
+        return '不当内容';
       case ReportType.fraud:
-        return '欺詐行爲';
+        return '欺诈行为';
       case ReportType.other:
         return '其他';
     }
@@ -114,40 +114,40 @@ class ReportModel {
   String get statusText {
     switch (status) {
       case ReportStatus.pending:
-        return '待處理';
+        return '待处理';
       case ReportStatus.processing:
-        return '處理中';
+        return '处理中';
       case ReportStatus.resolved:
-        return '已解決';
+        return '已解决';
       case ReportStatus.dismissed:
-        return '已駁回';
+        return '已驳回';
     }
   }
 
   String get targetTypeText {
     switch (targetType) {
       case 'user':
-        return '用戶';
+        return '用户';
       case 'story':
         return '故事';
       case 'comment':
-        return '評論';
+        return '评论';
       case 'community':
-        return '社羣內容';
+        return '社群内容';
       default:
         return '未知';
     }
   }
 }
 
-// 舉報統計
+// 举报统计
 class ReportStatistics {
   final int totalReports;
   final int pendingReports;
   final int processingReports;
   final int resolvedReports;
   final int dismissedReports;
-  final double avgProcessTime; // 平均處理時間（小時）
+  final double avgProcessTime; // 平均处理时间（小时）
   final List<ReportTypeCount> typeDistribution;
 
   ReportStatistics({

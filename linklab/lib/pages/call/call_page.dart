@@ -1,5 +1,5 @@
-// 統一通話頁面入口
-// 根據配置自動選擇演示版或真實版通話頁面
+// 统一通话页面入口
+// 根据配置自动选择演示版或真实版通话页面
 
 import 'package:flutter/material.dart';
 
@@ -7,7 +7,7 @@ import '../../models/call_models.dart';
 import '../../services/call_service_factory.dart';
 import 'real_call_page.dart';
 
-/// 通話頁面參數
+/// 通话页面参数
 class CallPageArgs {
   final String helpRequestId;
   final String? roomId;
@@ -26,8 +26,8 @@ class CallPageArgs {
   });
 }
 
-/// 統一通話頁面
-/// 根據當前通話模式自動選擇演示版或真實版
+/// 统一通话页面
+/// 根据当前通话模式自动选择演示版或真实版
 class CallPage extends StatelessWidget {
   final CallPageArgs args;
 
@@ -42,7 +42,7 @@ class CallPage extends StatelessWidget {
 
     switch (mode) {
       case CallMode.real:
-        // 真實模式：使用WebRTC P2P通話
+        // 真实模式：使用WebRTC P2P通话
         return RealCallPage(
           args: RealCallPageArgs(
             helpRequestId: args.helpRequestId,
@@ -55,19 +55,19 @@ class CallPage extends StatelessWidget {
         );
 
       case CallMode.demo:
-        // 演示模式：導航到演示版通話頁面
-        // 注意：演示版頁面在screens目錄中
+        // 演示模式：导航到演示版通话页面
+        // 注意：演示版页面在screens目录中
         return _DemoCallPageWrapper();
     }
   }
 }
 
-/// 演示版通話頁面包裝器
+/// 演示版通话页面包装器
 class _DemoCallPageWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // 演示版頁面在screens/call/demo_call_screen.dart
-    // 這裏返回一個佔位頁面，實際使用時需要導入演示版頁面
+    // 演示版页面在screens/call/demo_call_screen.dart
+    // 这里返回一个占位页面，实际使用时需要导入演示版页面
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),
       body: SafeArea(
@@ -91,7 +91,7 @@ class _DemoCallPageWrapper extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               const Text(
-                '請使用 DemoCallScreen',
+                '请使用 DemoCallScreen',
                 style: TextStyle(
                   color: Colors.white54,
                   fontSize: 14,
@@ -110,9 +110,9 @@ class _DemoCallPageWrapper extends StatelessWidget {
   }
 }
 
-/// 通話頁面路由
+/// 通话页面路由
 class CallPageRoute {
-  /// 導航到通話頁面（作爲求助者）
+  /// 导航到通话页面（作为求助者）
   static Future<bool?> startAsSeeker(
     BuildContext context, {
     required String seekerId,
@@ -131,8 +131,8 @@ class CallPageRoute {
         enableRecording: enableRecording,
       );
     } else {
-      // 演示模式：導航到演示版頁面
-      // 實際使用時替換爲演示版頁面路由
+      // 演示模式：导航到演示版页面
+      // 实际使用时替换为演示版页面路由
       return Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => CallPage(
@@ -149,7 +149,7 @@ class CallPageRoute {
     }
   }
 
-  /// 導航到通話頁面（作爲志願者）
+  /// 导航到通话页面（作为志愿者）
   static Future<bool?> acceptAsVolunteer(
     BuildContext context, {
     required String volunteerId,
@@ -170,7 +170,7 @@ class CallPageRoute {
         enableRecording: enableRecording,
       );
     } else {
-      // 演示模式：導航到演示版頁面
+      // 演示模式：导航到演示版页面
       return Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => CallPage(

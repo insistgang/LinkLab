@@ -7,11 +7,11 @@ import 'screens/auth/login_screen.dart';
 import 'screens/auth/onboarding_screen.dart';
 import 'screens/home/main_screen.dart';
 
-/// 應用根組件
-/// 說明：
-/// - 入口必須由 ProviderScope 包裹，滿足全局 Riverpod 狀態容器要求
-/// - 競賽版當前仍保留 Demo-first 主線，會話狀態通過 Riverpod 包裝舊會話服務
-/// - 本類只負責組裝 MaterialApp，不在此處重新創建狀態容器
+/// 应用根组件
+/// 说明：
+/// - 入口必须由 ProviderScope 包裹，满足全局 Riverpod 状态容器要求
+/// - 竞赛版当前仍保留 Demo-first 主线，会话状态通过 Riverpod 包装旧会话服务
+/// - 本类只负责组装 MaterialApp，不在此处重新创建状态容器
 class LinkLabApp extends ConsumerWidget {
   const LinkLabApp({super.key});
 
@@ -19,7 +19,7 @@ class LinkLabApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     assert(
       !AppConfig.isCompetitionDemoOnly || AppConfig.demoMode,
-      'AGENTS.md §4.2：競賽版默認啓動必須鎖定 Demo 主線',
+      'AGENTS.md §4.2：竞赛版默认启动必须锁定 Demo 主线',
     );
 
     final session = ref.watch(appSessionProvider);
@@ -49,8 +49,8 @@ class LinkLabApp extends ConsumerWidget {
   }
 
   Widget _buildInitialScreen(AppSessionState session) {
-    // AGENTS.md §1 / §4.2：默認啓動只允許進入登錄、引導或 Demo 主線殼層，
-    // 實驗性真實頁面與非 MVP 頁面不得成爲默認路由。
+    // AGENTS.md §1 / §4.2：默认启动只允许进入登录、引导或 Demo 主线壳层，
+    // 实验性真实页面与非 MVP 页面不得成为默认路由。
     if (!session.isInitialized) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }

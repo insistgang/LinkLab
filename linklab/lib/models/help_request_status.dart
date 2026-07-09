@@ -1,10 +1,10 @@
 enum HelpRequestStatus {
   created('created', '等待中'),
   aiProcessing('ai_processing', 'AI正在分析'),
-  aiResolved('ai_resolved', 'AI已解決'),
+  aiResolved('ai_resolved', 'AI已解决'),
   matching('matching', '匹配中'),
-  connected('connected', '志願者已接通'),
-  expired('expired', '已超時'),
+  connected('connected', '志愿者已接通'),
+  expired('expired', '已超时'),
   cancelled('cancelled', '已取消'),
   completed('completed', '已完成');
 

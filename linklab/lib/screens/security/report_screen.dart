@@ -4,7 +4,7 @@ import '../../services/security/report_service.dart';
 import '../../widgets/accessible/accessible_scaffold.dart';
 import '../../widgets/accessible/accessible_button.dart';
 
-/// 舉報頁面
+/// 举报页面
 class ReportScreen extends StatefulWidget {
   final String reporterId;
   final String reportedId;
@@ -74,7 +74,7 @@ class _ReportScreenState extends State<ReportScreen> {
   Future<void> _submitReport() async {
     if (_selectedReason == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('請選擇舉報原因')),
+        const SnackBar(content: Text('请选择举报原因')),
       );
       return;
     }
@@ -99,7 +99,7 @@ class _ReportScreenState extends State<ReportScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('舉報失敗: $e')),
+          SnackBar(content: Text('举报失败: $e')),
         );
       }
     } finally {
@@ -114,7 +114,7 @@ class _ReportScreenState extends State<ReportScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text('舉報已提交'),
+        title: const Text('举报已提交'),
         content: const Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -125,12 +125,12 @@ class _ReportScreenState extends State<ReportScreen> {
             ),
             SizedBox(height: 16),
             Text(
-              '感謝您的舉報，我們會在48小時內進行審覈處理。',
+              '感谢您的举报，我们会在48小时内进行审核处理。',
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 8),
             Text(
-              '在審覈期間，雙方將暫時無法進行匹配。',
+              '在审核期间，双方将暂时无法进行匹配。',
               style: TextStyle(
                 fontSize: 12,
                 color: Colors.grey,
@@ -145,7 +145,7 @@ class _ReportScreenState extends State<ReportScreen> {
               Navigator.pop(context);
               Navigator.pop(context, true);
             },
-            child: const Text('確定'),
+            child: const Text('确定'),
           ),
         ],
       ),
@@ -155,7 +155,7 @@ class _ReportScreenState extends State<ReportScreen> {
   @override
   Widget build(BuildContext context) {
     return AccessibleScaffold(
-      title: '舉報',
+      title: '举报',
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -196,7 +196,7 @@ class _ReportScreenState extends State<ReportScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  '舉報用戶',
+                  '举报用户',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -223,7 +223,7 @@ class _ReportScreenState extends State<ReportScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          '舉報原因',
+          '举报原因',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -278,7 +278,7 @@ class _ReportScreenState extends State<ReportScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          '詳細描述（可選）',
+          '详细描述（可选）',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -286,7 +286,7 @@ class _ReportScreenState extends State<ReportScreen> {
         ),
         const SizedBox(height: 8),
         const Text(
-          '請簡要描述您遇到的問題，有助於我們更快處理',
+          '请简要描述您遇到的问题，有助于我们更快处理',
           style: TextStyle(
             fontSize: 12,
             color: Colors.grey,
@@ -298,7 +298,7 @@ class _ReportScreenState extends State<ReportScreen> {
           maxLines: 4,
           maxLength: 200,
           decoration: InputDecoration(
-            hintText: '請輸入詳細描述...',
+            hintText: '请输入详细描述...',
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -325,7 +325,7 @@ class _ReportScreenState extends State<ReportScreen> {
               Icon(Icons.info, color: Colors.amber, size: 20),
               SizedBox(width: 8),
               Text(
-                '溫馨提示',
+                '温馨提示',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.amber,
@@ -335,9 +335,9 @@ class _ReportScreenState extends State<ReportScreen> {
           ),
           SizedBox(height: 8),
           Text(
-            '1. 我們會嚴格保護您的隱私，被舉報人不會知道您的身份\n'
-            '2. 惡意舉報會被記錄並影響您的信用分\n'
-            '3. 舉報後雙方將在24小時內無法進行匹配',
+            '1. 我们会严格保护您的隐私，被举报人不会知道您的身份\n'
+            '2. 恶意举报会被记录并影响您的信用分\n'
+            '3. 举报后双方将在24小时内无法进行匹配',
             style: TextStyle(
               fontSize: 12,
               color: Colors.grey,
@@ -354,7 +354,7 @@ class _ReportScreenState extends State<ReportScreen> {
       width: double.infinity,
       child: AccessibleButton(
         onPressed: _isSubmitting ? null : _submitReport,
-        label: _isSubmitting ? '提交中...' : '提交舉報',
+        label: _isSubmitting ? '提交中...' : '提交举报',
         icon: Icons.send,
         backgroundColor: Colors.red,
       ),
@@ -362,7 +362,7 @@ class _ReportScreenState extends State<ReportScreen> {
   }
 }
 
-/// 舉報記錄頁面
+/// 举报记录页面
 class ReportHistoryScreen extends StatefulWidget {
   final String userId;
 
@@ -399,7 +399,7 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return AccessibleScaffold(
-      title: '舉報記錄',
+      title: '举报记录',
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _reports.isEmpty
@@ -429,7 +429,7 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            '暫無舉報記錄',
+            '暂无举报记录',
             style: TextStyle(
               fontSize: 18,
               color: Colors.grey[600],
@@ -447,20 +447,20 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
     switch (report.status) {
       case ReportStatus.pending:
         statusColor = Colors.orange;
-        statusText = '待處理';
+        statusText = '待处理';
       case ReportStatus.processing:
         statusColor = Colors.blue;
-        statusText = '處理中';
+        statusText = '处理中';
       case ReportStatus.resolved:
         if (report.decision == ReportDecision.valid) {
           statusColor = Colors.green;
-          statusText = '舉報成立';
+          statusText = '举报成立';
         } else if (report.decision == ReportDecision.invalid) {
           statusColor = Colors.red;
-          statusText = '舉報不成立';
+          statusText = '举报不成立';
         } else {
           statusColor = Colors.grey;
-          statusText = '無法確定';
+          statusText = '无法确定';
         }
     }
 
@@ -557,7 +557,7 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        '處理反饋: ${report.reviewNote}',
+                        '处理反馈: ${report.reviewNote}',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey[600],

@@ -25,8 +25,8 @@ String _resolveCurrentUserId() =>
 
 const int _mvpSeekerTabCount = 2;
 
-/// 求助者中心頁面
-/// 當前默認只暴露 MVP 允許的檔案與狀態回看兩項能力。
+/// 求助者中心页面
+/// 当前默认只暴露 MVP 允许的档案与状态回看两项能力。
 class SeekerCenterScreen extends StatefulWidget {
   const SeekerCenterScreen({super.key, this.initialTabIndex = 0});
 
@@ -70,8 +70,8 @@ class _SeekerCenterScreenState extends State<SeekerCenterScreen>
           controller: _tabController,
           isScrollable: true,
           tabs: const [
-            Tab(icon: Icon(Icons.history), text: '幫助檔案'),
-            Tab(icon: Icon(Icons.assignment_turned_in_outlined), text: '求助狀態'),
+            Tab(icon: Icon(Icons.history), text: '帮助档案'),
+            Tab(icon: Icon(Icons.assignment_turned_in_outlined), text: '求助状态'),
           ],
         ),
       ),
@@ -164,7 +164,7 @@ class _AsyncRequestsTabState extends State<AsyncRequestsTab> {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      '還沒有異步留言',
+                      '还没有异步留言',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -173,7 +173,7 @@ class _AsyncRequestsTabState extends State<AsyncRequestsTab> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '適合非緊急問題，例如讀信件、看菜單、辨認照片。',
+                      '适合非紧急问题，例如读信件、看菜单、辨认照片。',
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.grey[600]),
                     ),
@@ -181,7 +181,7 @@ class _AsyncRequestsTabState extends State<AsyncRequestsTab> {
                     ElevatedButton.icon(
                       onPressed: _openComposer,
                       icon: const Icon(Icons.add),
-                      label: const Text('創建第一條留言'),
+                      label: const Text('创建第一条留言'),
                     ),
                   ],
                 ),
@@ -249,29 +249,29 @@ class _AsyncRequestsTabState extends State<AsyncRequestsTab> {
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 16),
-            _DetailRow(label: '當前狀態', value: task.statusLabel),
+            _DetailRow(label: '当前状态', value: task.statusLabel),
             _DetailRow(
-              label: '提交時間',
+              label: '提交时间',
               value: task.createdAt?.formatDateTime() ?? '未知',
             ),
             if (task.assignedAt != null)
               _DetailRow(
-                label: '領取時間',
+                label: '领取时间',
                 value: task.assignedAt!.formatDateTime(),
               ),
             if (task.completedAt != null)
               _DetailRow(
-                label: '回覆時間',
+                label: '回覆时间',
                 value: task.completedAt!.formatDateTime(),
               ),
             const SizedBox(height: 8),
-            const Text('留言內容', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text('留言内容', style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Text(task.description),
             if (task.result != null && task.result!.trim().isNotEmpty) ...[
               const SizedBox(height: 16),
               const Text(
-                '志願者回覆',
+                '志愿者回覆',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
@@ -284,7 +284,7 @@ class _AsyncRequestsTabState extends State<AsyncRequestsTab> {
                   child: OutlinedButton.icon(
                     onPressed: () => Navigator.pop(context),
                     icon: const Icon(Icons.close),
-                    label: const Text('關閉'),
+                    label: const Text('关闭'),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -295,7 +295,7 @@ class _AsyncRequestsTabState extends State<AsyncRequestsTab> {
                       _openComposer();
                     },
                     icon: const Icon(Icons.add_comment_outlined),
-                    label: const Text('再提一個'),
+                    label: const Text('再提一个'),
                   ),
                 ),
               ],
@@ -342,7 +342,7 @@ class _MyHelpRequestsTabState extends State<MyHelpRequestsTab> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('取消求助'),
-        content: Text('確定取消“${request.title}”嗎？'),
+        content: Text('确定取消“${request.title}”吗？'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -350,7 +350,7 @@ class _MyHelpRequestsTabState extends State<MyHelpRequestsTab> {
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('確認取消'),
+            child: const Text('确认取消'),
           ),
         ],
       ),
@@ -366,7 +366,7 @@ class _MyHelpRequestsTabState extends State<MyHelpRequestsTab> {
     if (!mounted) return;
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(success ? '求助已取消' : '取消失敗，請稍後重試')));
+    ).showSnackBar(SnackBar(content: Text(success ? '求助已取消' : '取消失败，请稍后重试')));
     if (success) {
       await _loadData();
     }
@@ -393,7 +393,7 @@ class _MyHelpRequestsTabState extends State<MyHelpRequestsTab> {
             ),
             const SizedBox(height: 16),
             Text(
-              '還沒有我的求助',
+              '还没有我的求助',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.grey[700],
@@ -403,7 +403,7 @@ class _MyHelpRequestsTabState extends State<MyHelpRequestsTab> {
             ),
             const SizedBox(height: 8),
             Text(
-              '先去看看志願者詳情，再發起一次本地演示求助。',
+              '先去看看志愿者详情，再发起一次本地演示求助。',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey[600]),
             ),
@@ -421,7 +421,7 @@ class _MyHelpRequestsTabState extends State<MyHelpRequestsTab> {
                 );
               },
               icon: const Icon(Icons.person_search_outlined),
-              label: const Text('查看演示志願者'),
+              label: const Text('查看演示志愿者'),
             ),
           ],
         ),
@@ -478,14 +478,14 @@ class _MyHelpRequestsTabState extends State<MyHelpRequestsTab> {
                   ),
                   const SizedBox(height: 12),
                   _DetailRow(
-                    label: '提交時間',
+                    label: '提交时间',
                     value: request.createdAt.formatDateTime(),
                   ),
                   _DetailRow(
-                    label: '對應志願者',
-                    value: request.volunteerName ?? '待平臺匹配',
+                    label: '对应志愿者',
+                    value: request.volunteerName ?? '待平台匹配',
                   ),
-                  _DetailRow(label: '時間偏好', value: request.schedulePreference),
+                  _DetailRow(label: '时间偏好', value: request.schedulePreference),
                   if (canCancel) ...[
                     const SizedBox(height: 12),
                     Align(
@@ -507,7 +507,7 @@ class _MyHelpRequestsTabState extends State<MyHelpRequestsTab> {
   }
 }
 
-/// F14: 幫助檔案標籤頁
+/// F14: 帮助档案标签页
 class HelpArchiveTab extends StatefulWidget {
   final HelpArchiveService service;
 
@@ -559,21 +559,21 @@ class _HelpArchiveTabState extends State<HelpArchiveTab> {
       onRefresh: _loadData,
       child: CustomScrollView(
         slivers: [
-          // 統計卡片
+          // 统计卡片
           SliverToBoxAdapter(child: _buildStatisticsCards()),
 
-          // 歷史記錄標題
+          // 历史记录标题
           const SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.all(16),
               child: Text(
-                '歷史記錄',
+                '历史记录',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
           ),
 
-          // 歷史記錄列表
+          // 历史记录列表
           SliverList(
             delegate: SliverChildBuilderDelegate((context, index) {
               if (index >= _history.length) {
@@ -595,12 +595,12 @@ class _HelpArchiveTabState extends State<HelpArchiveTab> {
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          // 總求助次數和AI解決率
+          // 总求助次数和AI解决率
           Row(
             children: [
               Expanded(
                 child: _StatCard(
-                  title: '總求助次數',
+                  title: '总求助次数',
                   value: stats.totalRequests.toString(),
                   icon: Icons.help_outline,
                   color: Colors.blue,
@@ -609,7 +609,7 @@ class _HelpArchiveTabState extends State<HelpArchiveTab> {
               const SizedBox(width: 12),
               Expanded(
                 child: _StatCard(
-                  title: 'AI解決率',
+                  title: 'AI解决率',
                   value: stats.aiResolutionRateText,
                   icon: Icons.smart_toy,
                   color: Colors.green,
@@ -618,12 +618,12 @@ class _HelpArchiveTabState extends State<HelpArchiveTab> {
             ],
           ),
           const SizedBox(height: 12),
-          // 志願者幫助次數和總時長
+          // 志愿者帮助次数和总时长
           Row(
             children: [
               Expanded(
                 child: _StatCard(
-                  title: '志願者幫助',
+                  title: '志愿者帮助',
                   value: stats.volunteerHelpCount.toString(),
                   icon: Icons.volunteer_activism,
                   color: Colors.orange,
@@ -632,7 +632,7 @@ class _HelpArchiveTabState extends State<HelpArchiveTab> {
               const SizedBox(width: 12),
               Expanded(
                 child: _StatCard(
-                  title: '總時長(分鐘)',
+                  title: '总时长(分钟)',
                   value: stats.totalDurationMinutes.toString(),
                   icon: Icons.timer,
                   color: Colors.purple,
@@ -641,9 +641,9 @@ class _HelpArchiveTabState extends State<HelpArchiveTab> {
             ],
           ),
           const SizedBox(height: 12),
-          // 平均評分
+          // 平均评分
           _StatCard(
-            title: '平均評分',
+            title: '平均评分',
             value: '${stats.averageRating.toStringAsFixed(1)} ⭐',
             icon: Icons.star,
             color: Colors.amber,
@@ -731,7 +731,7 @@ class _HelpArchiveTabState extends State<HelpArchiveTab> {
           );
           setState(() => _history.addAll(moreHistory));
         },
-        child: const Text('加載更多'),
+        child: const Text('加载更多'),
       ),
     );
   }
@@ -745,24 +745,24 @@ class _HelpArchiveTabState extends State<HelpArchiveTab> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('求助詳情', style: Theme.of(context).textTheme.headlineSmall),
+            Text('求助详情', style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 16),
-            _DetailRow(label: '求助內容', value: request.intent ?? '無'),
-            _DetailRow(label: '求助類型', value: request.type ?? '未知'),
-            _DetailRow(label: '緊急程度', value: request.urgencyLabel),
-            _DetailRow(label: '當前狀態', value: request.statusLabel),
+            _DetailRow(label: '求助内容', value: request.intent ?? '无'),
+            _DetailRow(label: '求助类型', value: request.type ?? '未知'),
+            _DetailRow(label: '紧急程度', value: request.urgencyLabel),
+            _DetailRow(label: '当前状态', value: request.statusLabel),
             _DetailRow(
-              label: '創建時間',
+              label: '创建时间',
               value: request.createdAt?.formatDateTime() ?? '未知',
             ),
             if (request.completedAt != null)
               _DetailRow(
-                label: '完成時間',
+                label: '完成时间',
                 value: request.completedAt!.formatDateTime(),
               ),
             if (request.durationSeconds != null)
               _DetailRow(
-                label: '通話時長',
+                label: '通话时长',
                 value:
                     '${request.durationSeconds! ~/ 60}分${request.durationSeconds! % 60}秒',
               ),
@@ -771,7 +771,7 @@ class _HelpArchiveTabState extends State<HelpArchiveTab> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('關閉'),
+                child: const Text('关闭'),
               ),
             ),
           ],
@@ -781,10 +781,10 @@ class _HelpArchiveTabState extends State<HelpArchiveTab> {
   }
 }
 
-// MVP: F15 安心積分標籤頁已砍
-// class PointsTab ... 整個類及相關組件已移除
+// MVP: F15 安心积分标签页已砍
+// class PointsTab ... 整个类及相关组件已移除
 
-/// F16: 常用志願者標籤頁
+/// F16: 常用志愿者标签页
 class FavoriteVolunteersTab extends StatefulWidget {
   final FavoriteVolunteerService service;
 
@@ -826,7 +826,7 @@ class _FavoriteVolunteersTabState extends State<FavoriteVolunteersTab> {
     if (success && mounted) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('已移除常用志願者')));
+      ).showSnackBar(const SnackBar(content: Text('已移除常用志愿者')));
       _loadData();
     }
   }
@@ -864,13 +864,13 @@ class _FavoriteVolunteersTabState extends State<FavoriteVolunteersTab> {
             Icon(Icons.favorite_border, size: 64, color: Colors.grey[300]),
             const SizedBox(height: 16),
             Text(
-              '暫無常用志願者',
+              '暂无常用志愿者',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey[600]),
             ),
             const SizedBox(height: 8),
             Text(
-              '與志願者合作後會自動添加到這裏，也可以先打開一個演示志願者開始體驗。',
+              '与志愿者合作后会自动添加到这里，也可以先打开一个演示志愿者开始体验。',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey[400], fontSize: 12),
             ),
@@ -882,7 +882,7 @@ class _FavoriteVolunteersTabState extends State<FavoriteVolunteersTab> {
                 volunteerAvatar: defaultMatchedVolunteer.avatar,
               ),
               icon: const Icon(Icons.person_search_outlined),
-              label: const Text('查看演示志願者'),
+              label: const Text('查看演示志愿者'),
             ),
           ],
         ),
@@ -915,10 +915,10 @@ class _FavoriteVolunteersTabState extends State<FavoriteVolunteersTab> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _StatColumn(value: stats.totalFavorites.toString(), label: '常用志願者'),
+            _StatColumn(value: stats.totalFavorites.toString(), label: '常用志愿者'),
             _StatColumn(
               value: stats.totalCooperations.toString(),
-              label: '總合作次數',
+              label: '总合作次数',
             ),
           ],
         ),
@@ -938,7 +938,7 @@ class _FavoriteVolunteersTabState extends State<FavoriteVolunteersTab> {
               ? Text(volunteer.volunteerName?.substring(0, 1) ?? '?')
               : null,
         ),
-        title: Text(volunteer.volunteerName ?? '未知志願者'),
+        title: Text(volunteer.volunteerName ?? '未知志愿者'),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -983,7 +983,7 @@ class _FavoriteVolunteersTabState extends State<FavoriteVolunteersTab> {
   }
 }
 
-/// F17: 無障礙偏好設置標籤頁
+/// F17: 无障碍偏好设置标签页
 class AccessibilityPreferencesTab extends StatefulWidget {
   const AccessibilityPreferencesTab({super.key});
 
@@ -1027,18 +1027,18 @@ class _AccessibilityPreferencesTabState
           AppTheme.spacingXXL,
         ),
         children: [
-          _buildSectionTitle('顯示設置'),
+          _buildSectionTitle('显示设置'),
           _buildSettingsCard(
             children: [
               _buildSwitchTile(
-                title: '高對比度模式',
-                subtitle: '增強界面元素對比度',
+                title: '高对比度模式',
+                subtitle: '增强界面元素对比度',
                 value: _highContrast,
                 onChanged: (value) => setState(() => _highContrast = value),
               ),
               _buildStageDivider(),
               _buildSliderTile(
-                title: '字體大小',
+                title: '字体大小',
                 value: _fontScale,
                 min: 0.8,
                 max: 2.0,
@@ -1048,25 +1048,25 @@ class _AccessibilityPreferencesTabState
             ],
           ),
           const SizedBox(height: AppTheme.spacingL),
-          _buildSectionTitle('語音設置'),
+          _buildSectionTitle('语音设置'),
           _buildSettingsCard(
             children: [
               _buildSwitchTile(
-                title: '語音引導',
-                subtitle: '自動朗讀界面內容',
+                title: '语音引导',
+                subtitle: '自动朗读界面内容',
                 value: _voiceGuidance,
                 onChanged: (value) => setState(() => _voiceGuidance = value),
               ),
               _buildStageDivider(),
               _buildSwitchTile(
-                title: '自動朗讀結果',
-                subtitle: 'AI 識別後自動朗讀',
+                title: '自动朗读结果',
+                subtitle: 'AI 识别后自动朗读',
                 value: _autoReadResults,
                 onChanged: (value) => setState(() => _autoReadResults = value),
               ),
               _buildStageDivider(),
               _buildSliderTile(
-                title: '語音速度',
+                title: '语音速度',
                 value: _voiceSpeed,
                 min: 0.5,
                 max: 2.0,
@@ -1077,7 +1077,7 @@ class _AccessibilityPreferencesTabState
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(
-                  '語音性別',
+                  '语音性别',
                   style: TextStyle(
                     color: AppTheme.stageTextPrimary,
                     fontSize: AppTheme.fontSizeNormal,
@@ -1103,8 +1103,8 @@ class _AccessibilityPreferencesTabState
                       }
                     },
                     items: const [
-                      DropdownMenuItem(value: 'female', child: Text('女聲')),
-                      DropdownMenuItem(value: 'male', child: Text('男聲')),
+                      DropdownMenuItem(value: 'female', child: Text('女声')),
+                      DropdownMenuItem(value: 'male', child: Text('男声')),
                     ],
                   ),
                 ),
@@ -1112,12 +1112,12 @@ class _AccessibilityPreferencesTabState
             ],
           ),
           const SizedBox(height: AppTheme.spacingL),
-          _buildSectionTitle('觸覺反饋'),
+          _buildSectionTitle('触觉反馈'),
           _buildSettingsCard(
             children: [
               _buildSwitchTile(
-                title: '啓用觸覺反饋',
-                subtitle: '操作時使用振動反饋',
+                title: '启用触觉反馈',
+                subtitle: '操作时使用振动反馈',
                 value: _hapticFeedback,
                 onChanged: (value) => setState(() => _hapticFeedback = value),
               ),
@@ -1129,7 +1129,7 @@ class _AccessibilityPreferencesTabState
             child: ElevatedButton.icon(
               onPressed: _savePreferences,
               icon: const Icon(Icons.save_outlined),
-              label: const Text('保存設置'),
+              label: const Text('保存设置'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.stageAccent,
                 foregroundColor: AppTheme.stageBackground,
@@ -1300,7 +1300,7 @@ class _AccessibilityPreferencesTabState
     if (mounted) {
       showDemoStageSnackBar(
         context,
-        message: '設置已保存',
+        message: '设置已保存',
         icon: Icons.check_circle_outline,
         accentColor: AppTheme.stageAccent,
       );
@@ -1308,7 +1308,7 @@ class _AccessibilityPreferencesTabState
   }
 }
 
-// ==================== 輔助組件 ====================
+// ==================== 辅助组件 ====================
 
 class _AsyncSummaryCard extends StatelessWidget {
   const _AsyncSummaryCard({
@@ -1341,7 +1341,7 @@ class _AsyncSummaryCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              '異步留言狀態',
+              '异步留言状态',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 22,
@@ -1350,7 +1350,7 @@ class _AsyncSummaryCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             const Text(
-              '適合非緊急需求，留言會進入志願者異步任務隊列。',
+              '适合非紧急需求，留言会进入志愿者异步任务队列。',
               style: TextStyle(color: Colors.white70),
             ),
             const SizedBox(height: 16),
@@ -1359,7 +1359,7 @@ class _AsyncSummaryCard extends StatelessWidget {
                 Expanded(
                   child: _StatColumn(
                     value: pendingCount.toString(),
-                    label: '待領取',
+                    label: '待领取',
                     valueColor: Colors.white,
                     labelColor: Colors.white70,
                   ),
@@ -1367,7 +1367,7 @@ class _AsyncSummaryCard extends StatelessWidget {
                 Expanded(
                   child: _StatColumn(
                     value: processingCount.toString(),
-                    label: '處理中',
+                    label: '处理中',
                     valueColor: Colors.white,
                     labelColor: Colors.white70,
                   ),
@@ -1386,7 +1386,7 @@ class _AsyncSummaryCard extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: onCreate,
               icon: const Icon(Icons.add_comment_outlined),
-              label: const Text('新建異步留言'),
+              label: const Text('新建异步留言'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: Colors.blue[700],
@@ -1475,7 +1475,7 @@ class _DetailRow extends StatelessWidget {
   }
 }
 
-// MVP: F15 安心積分相關組件已砍
+// MVP: F15 安心积分相关组件已砍
 // class _PointsCard extends StatelessWidget { ... }
 // class _RuleItem extends StatelessWidget { ... }
 

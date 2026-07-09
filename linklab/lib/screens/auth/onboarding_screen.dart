@@ -8,7 +8,7 @@ import '../../widgets/demo/demo_routes.dart';
 import '../../widgets/demo/demo_stage.dart';
 import 'phone_login_screen.dart';
 
-/// 首次引導頁面
+/// 首次引导页面
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -22,28 +22,28 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final List<_OnboardingPage> _pages = const [
     _OnboardingPage(
-      title: '歡迎來到共感LinkAble',
-      description: 'AI 驅動的無障礙互助平臺，讓標準化需求先被快速解決。',
+      title: '欢迎来到共感LinkAble',
+      description: 'AI 驱动的无障碍互助平台，让标准化需求先被快速解决。',
       icon: Icons.accessibility_new_rounded,
-      highlights: ['AI 先響應', '真人可兜底'],
+      highlights: ['AI 先响应', '真人可兜底'],
     ),
     _OnboardingPage(
       title: 'AI智能助手',
-      description: '文字識別、場景描述、顏色識別等高頻場景，都可以在手機端快速完成。',
+      description: '文字识别、场景描述、颜色识别等高频场景，都可以在手机端快速完成。',
       icon: Icons.smart_toy_outlined,
-      highlights: ['OCR', '場景描述', '顏色識別'],
+      highlights: ['OCR', '场景描述', '颜色识别'],
     ),
     _OnboardingPage(
-      title: '志願者互助',
-      description: '遇到複雜問題時，一鍵轉接志願者，保持狀態清晰、流程可回看。',
+      title: '志愿者互助',
+      description: '遇到复杂问题时，一键转接志愿者，保持状态清晰、流程可回看。',
       icon: Icons.volunteer_activism_outlined,
-      highlights: ['30 秒內嘗試匹配', '語音協助'],
+      highlights: ['30 秒内尝试匹配', '语音协助'],
     ),
     _OnboardingPage(
-      title: '緊急求助',
-      description: 'SOS 支持 10 秒誤觸撤銷窗口，並展示廣播、聯繫人通知與演示響應。',
+      title: '紧急求助',
+      description: 'SOS 支持 10 秒误触撤销窗口，并展示广播、联系人通知与演示响应。',
       icon: Icons.emergency_outlined,
-      highlights: ['10 秒撤銷', 'Mock 廣播'],
+      highlights: ['10 秒撤销', 'Mock 广播'],
     ),
   ];
 
@@ -73,14 +73,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     return DemoStageLiveBuilder(
       builder: (context) {
         return DemoStageScaffold(
-          title: '產品引導',
-          subtitle: '用 4 頁解釋清楚競賽版真正能做什麼',
+          title: '产品引导',
+          subtitle: '用 4 页解释清楚竞赛版真正能做什么',
           showBackButton: false,
           actions: [
             TextButton(
               onPressed: _onSkip,
               child: Text(
-                '跳過',
+                '跳过',
                 style: TextStyle(color: AppTheme.stageTextSecondary),
               ),
             ),
@@ -178,7 +178,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   children: List.generate(
                     _pages.length,
                     (index) => Semantics(
-                      label: '第${index + 1}頁，共${_pages.length}頁',
+                      label: '第${index + 1}页，共${_pages.length}页',
                       selected: index == _currentPage,
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 240),
@@ -205,8 +205,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ],
           ),
           bottomBar: AccessibleButton(
-            label: _currentPage == _pages.length - 1 ? '開始使用' : '下一步',
-            semanticLabel: _currentPage == _pages.length - 1 ? '開始使用' : '下一頁',
+            label: _currentPage == _pages.length - 1 ? '开始使用' : '下一步',
+            semanticLabel: _currentPage == _pages.length - 1 ? '开始使用' : '下一页',
             backgroundColor: AppTheme.stageAccent,
             foregroundColor: AppTheme.stageBackground,
             onPressed: _onNext,

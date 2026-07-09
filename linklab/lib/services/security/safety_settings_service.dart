@@ -22,10 +22,10 @@ class SafetySettings {
 
   String get locationModeLabel {
     if (!autoShareLocation) {
-      return '位置共享已關閉';
+      return '位置共享已关闭';
     }
 
-    return usePreciseLocation ? '精確位置' : '大致位置';
+    return usePreciseLocation ? '精确位置' : '大致位置';
   }
 
   SafetySettings copyWith({
@@ -96,7 +96,7 @@ class SafetySettingsService {
         Map<String, dynamic>.from(jsonDecode(raw) as Map),
       );
     } catch (e) {
-      AppLogger.error('讀取安全設置失敗', e);
+      AppLogger.error('读取安全设置失败', e);
       return const SafetySettings();
     }
   }
@@ -112,7 +112,7 @@ class SafetySettingsService {
       StorageKeys.safetySettings(userId),
       jsonEncode(normalized.toJson()),
     );
-    AppLogger.info('安全設置已保存: $userId');
+    AppLogger.info('安全设置已保存: $userId');
     return normalized;
   }
 }

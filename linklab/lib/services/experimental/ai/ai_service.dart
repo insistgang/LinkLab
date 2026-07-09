@@ -1,44 +1,44 @@
-/// AI服務統一接口
-/// 定義所有AI能力的基礎契約
+/// AI服务统一接口
+/// 定义所有AI能力的基础契约
 abstract class AIService {
-  /// 處理用戶輸入，返回AI響應
-  /// [input] - 用戶輸入文本
-  /// [imageUrl] - 可選的圖片URL（用於多模態輸入）
-  /// [context] - 可選的對話上下文
+  /// 处理用户输入，返回AI响应
+  /// [input] - 用户输入文本
+  /// [imageUrl] - 可选的图片URL（用于多模态输入）
+  /// [context] - 可选的对话上下文
   Future<AIResponse> process(
     String input, {
     String? imageUrl,
     DialogContext? context,
   });
 
-  /// 檢查服務是否可用
+  /// 检查服务是否可用
   Future<bool> isAvailable();
 
-  /// 獲取服務名稱
+  /// 获取服务名称
   String get serviceName;
 }
 
-/// AI響應數據模型
+/// AI响应数据模型
 class AIResponse {
-  /// 響應文本內容
+  /// 响应文本内容
   final String text;
 
-  /// 識別到的意圖類型
+  /// 识别到的意图类型
   final IntentType intent;
 
-  /// 緊急度級別
+  /// 紧急度级别
   final UrgencyLevel urgency;
 
-  /// 是否需要轉人工
+  /// 是否需要转人工
   final bool needsHuman;
 
   /// 置信度 (0.0 - 1.0)
   final double confidence;
 
-  /// 附加數據
+  /// 附加数据
   final Map<String, dynamic>? extraData;
 
-  /// 錯誤信息（如有）
+  /// 错误信息（如有）
   final String? errorMessage;
 
   /// 是否成功
@@ -55,10 +55,10 @@ class AIResponse {
     this.isSuccess = true,
   });
 
-  /// 創建錯誤響應
+  /// 创建错误响应
   factory AIResponse.error(String message) {
     return AIResponse(
-      text: '服務暫時不可用，請稍後重試',
+      text: '服务暂时不可用，请稍后重试',
       intent: IntentType.unknown,
       urgency: UrgencyLevel.normal,
       needsHuman: true,
@@ -67,7 +67,7 @@ class AIResponse {
     );
   }
 
-  /// 創建需要轉人工的響應
+  /// 创建需要转人工的响应
   factory AIResponse.handoff(String text, {IntentType intent = IntentType.unknown}) {
     return AIResponse(
       text: text,
@@ -78,49 +78,49 @@ class AIResponse {
   }
 }
 
-/// 意圖類型枚舉
+/// 意图类型枚举
 enum IntentType {
-  /// 文字識別
+  /// 文字识别
   textRecognition,
 
-  /// 物體識別
+  /// 物体识别
   objectRecognition,
 
-  /// 顏色識別
+  /// 颜色识别
   colorRecognition,
 
-  /// 鈔票識別
+  /// 钞票识别
   currencyRecognition,
 
-  /// 翻譯
+  /// 翻译
   translation,
 
-  /// 導航
+  /// 导航
   navigation,
 
-  /// 環境描述
+  /// 环境描述
   sceneDescription,
 
-  /// 藥品確認
+  /// 药品确认
   medicineConfirmation,
 
-  /// 醫療問診
+  /// 医疗问诊
   medicalConsultation,
 
   /// 情感陪伴
   emotionalSupport,
 
-  /// 緊急求助
+  /// 紧急求助
   emergency,
 
-  /// 通用對話
+  /// 通用对话
   generalChat,
 
-  /// 未知意圖
+  /// 未知意图
   unknown,
 }
 
-/// 緊急度級別枚舉
+/// 紧急度级别枚举
 enum UrgencyLevel {
   /// 普通
   normal,
@@ -128,28 +128,28 @@ enum UrgencyLevel {
   /// 重要
   important,
 
-  /// 緊急
+  /// 紧急
   urgent,
 
   /// 危急
   emergency,
 }
 
-/// 對話上下文
+/// 对话上下文
 class DialogContext {
-  /// 會話ID
+  /// 会话ID
   final String sessionId;
 
-  /// 歷史消息列表
+  /// 历史消息列表
   final List<DialogMessage> history;
 
-  /// 當前輪數
+  /// 当前轮数
   final int turnCount;
 
-  /// 用戶ID
+  /// 用户ID
   final String? userId;
 
-  /// 創建時間
+  /// 创建时间
   final DateTime createdAt;
 
   const DialogContext({
@@ -171,13 +171,13 @@ class DialogContext {
     );
   }
 
-  /// 獲取最近N條消息
+  /// 获取最近N条消息
   List<DialogMessage> getRecentMessages(int count) {
     if (history.length <= count) return history;
     return history.sublist(history.length - count);
   }
 
-  /// 創建新會話
+  /// 创建新会话
   factory DialogContext.create({String? userId}) {
     return DialogContext(
       sessionId: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -187,18 +187,18 @@ class DialogContext {
   }
 }
 
-/// 對話消息
+/// 对话消息
 class DialogMessage {
   /// 消息角色
   final MessageRole role;
 
-  /// 消息內容
+  /// 消息内容
   final String content;
 
-  /// 消息時間
+  /// 消息时间
   final DateTime timestamp;
 
-  /// 關聯圖片URL
+  /// 关联图片URL
   final String? imageUrl;
 
   const DialogMessage({
@@ -225,7 +225,7 @@ enum MessageRole {
   system,
 }
 
-/// AI服務配置
+/// AI服务配置
 class AIServiceConfig {
   /// 百度OCR API Key
   final String? baiduOcrApiKey;
@@ -233,22 +233,22 @@ class AIServiceConfig {
   /// 百度OCR Secret Key
   final String? baiduOcrSecretKey;
 
-  /// 通義千問API Key
+  /// 通义千问API Key
   final String? qwenApiKey;
 
-  /// 科大訊飛APP ID
+  /// 科大讯飞APP ID
   final String? xfyunAppId;
 
-  /// 科大訊飛API Key
+  /// 科大讯飞API Key
   final String? xfyunApiKey;
 
-  /// 請求超時時間（秒）
+  /// 请求超时时间（秒）
   final int timeoutSeconds;
 
-  /// 是否啓用離線模式
+  /// 是否启用离线模式
   final bool enableOfflineMode;
 
-  /// 最大重試次數
+  /// 最大重试次数
   final int maxRetries;
 
   const AIServiceConfig({

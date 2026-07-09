@@ -3,30 +3,30 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-/// WebRTC權限處理結果
+/// WebRTC权限处理结果
 enum PermissionResult {
-  granted,      // 已授權
-  denied,       // 被拒絕
-  permanentlyDenied, // 永久拒絕
-  restricted,   // 受限（iOS家長控制等）
+  granted,      // 已授权
+  denied,       // 被拒绝
+  permanentlyDenied, // 永久拒绝
+  restricted,   // 受限（iOS家长控制等）
 }
 
-/// WebRTC權限處理器
-/// 處理WebRTC所需的各種權限申請
+/// WebRTC权限处理器
+/// 处理WebRTC所需的各种权限申请
 class WebRTCPermissionHandler {
-  /// 檢查麥克風權限
+  /// 检查麦克风权限
   static Future<PermissionResult> checkMicrophonePermission() async {
     final status = await Permission.microphone.status;
     return _convertStatus(status);
   }
 
-  /// 請求麥克風權限
+  /// 请求麦克风权限
   static Future<PermissionResult> requestMicrophonePermission() async {
     final status = await Permission.microphone.request();
     return _convertStatus(status);
   }
 
-  /// 檢查並請求麥克風權限
+  /// 检查并请求麦克风权限
   static Future<PermissionResult> ensureMicrophonePermission() async {
     var result = await checkMicrophonePermission();
     if (result == PermissionResult.denied) {
@@ -35,10 +35,10 @@ class WebRTCPermissionHandler {
     return result;
   }
 
-  /// 檢查存儲權限（用於錄音保存）
+  /// 检查存储权限（用于录音保存）
   static Future<PermissionResult> checkStoragePermission() async {
     if (Platform.isAndroid) {
-      // Android 13+ 使用新的權限模型
+      // Android 13+ 使用新的权限模型
       if (await _isAndroid13OrHigher()) {
         final audioStatus = await Permission.audio.status;
         return _convertStatus(audioStatus);
@@ -47,11 +47,11 @@ class WebRTCPermissionHandler {
         return _convertStatus(storageStatus);
       }
     }
-    // iOS不需要顯式存儲權限
+    // iOS不需要显式存储权限
     return PermissionResult.granted;
   }
 
-  /// 請求存儲權限
+  /// 请求存储权限
   static Future<PermissionResult> requestStoragePermission() async {
     if (Platform.isAndroid) {
       if (await _isAndroid13OrHigher()) {
@@ -65,7 +65,7 @@ class WebRTCPermissionHandler {
     return PermissionResult.granted;
   }
 
-  /// 檢查並請求存儲權限
+  /// 检查并请求存储权限
   static Future<PermissionResult> ensureStoragePermission() async {
     var result = await checkStoragePermission();
     if (result == PermissionResult.denied) {
@@ -74,7 +74,7 @@ class WebRTCPermissionHandler {
     return result;
   }
 
-  /// 檢查所有WebRTC所需權限
+  /// 检查所有WebRTC所需权限
   static Future<Map<String, PermissionResult>> checkAllPermissions() async {
     return {
       'microphone': await checkMicrophonePermission(),
@@ -82,7 +82,7 @@ class WebRTCPermissionHandler {
     };
   }
 
-  /// 請求所有WebRTC所需權限
+  /// 请求所有WebRTC所需权限
   static Future<Map<String, PermissionResult>> requestAllPermissions() async {
     return {
       'microphone': await requestMicrophonePermission(),
@@ -90,21 +90,21 @@ class WebRTCPermissionHandler {
     };
   }
 
-  /// 確保所有權限已獲取
+  /// 确保所有权限已获取
   static Future<bool> ensureAllPermissions() async {
     final results = await requestAllPermissions();
     return results.values.every((result) =>
         result == PermissionResult.granted || result == PermissionResult.restricted);
   }
 
-  /// 檢查是否爲Android 13或更高版本
+  /// 检查是否为Android 13或更高版本
   static Future<bool> _isAndroid13OrHigher() async {
     if (!Platform.isAndroid) return false;
-    // 簡化檢查，實際應該使用device_info_plus獲取SDK版本
+    // 简化检查，实际应该使用device_info_plus获取SDK版本
     return false;
   }
 
-  /// 轉換PermissionStatus爲PermissionResult
+  /// 转换PermissionStatus为PermissionResult
   static PermissionResult _convertStatus(PermissionStatus status) {
     switch (status) {
       case PermissionStatus.granted:
@@ -116,7 +116,7 @@ class WebRTCPermissionHandler {
       case PermissionStatus.restricted:
         return PermissionResult.restricted;
       case PermissionStatus.limited:
-        return PermissionResult.granted; // 有限權限也算已授權
+        return PermissionResult.granted; // 有限权限也算已授权
       case PermissionStatus.provisional:
         return PermissionResult.granted;
       default:
@@ -124,12 +124,12 @@ class WebRTCPermissionHandler {
     }
   }
 
-  /// 打開應用設置頁面
+  /// 打开应用设置页面
   static Future<bool> openAppSettings() async {
     return await openAppSettings();
   }
 
-  /// 顯示權限被拒絕的對話框
+  /// 显示权限被拒绝的对话框
   static Future<void> showPermissionDeniedDialog(
     BuildContext context, {
     required String permissionName,
@@ -139,9 +139,9 @@ class WebRTCPermissionHandler {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: Text('需要$permissionName權限'),
+        title: Text('需要$permissionName权限'),
         content: Text(
-          '共感LinkAble需要$permissionName權限才能進行語音通話。請在設置中開啓權限。',
+          '共感LinkAble需要$permissionName权限才能进行语音通话。请在设置中开启权限。',
         ),
         actions: [
           TextButton(
@@ -153,14 +153,14 @@ class WebRTCPermissionHandler {
               Navigator.of(context).pop();
               onOpenSettings();
             },
-            child: const Text('去設置'),
+            child: const Text('去设置'),
           ),
         ],
       ),
     );
   }
 
-  /// 顯示權限說明對話框（首次請求前）
+  /// 显示权限说明对话框（首次请求前）
   static Future<bool> showPermissionRationaleDialog(
     BuildContext context, {
     required String permissionName,
@@ -170,12 +170,12 @@ class WebRTCPermissionHandler {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: Text('申請$permissionName權限'),
+        title: Text('申请$permissionName权限'),
         content: Text(rationale),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('拒絕'),
+            child: const Text('拒绝'),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
@@ -188,9 +188,9 @@ class WebRTCPermissionHandler {
   }
 }
 
-/// 權限檢查工具類
+/// 权限检查工具类
 class PermissionChecker {
-  /// 檢查麥克風權限並處理
+  /// 检查麦克风权限并处理
   static Future<bool> checkMicrophone(BuildContext context) async {
     final result = await WebRTCPermissionHandler.ensureMicrophonePermission();
 
@@ -203,8 +203,8 @@ class PermissionChecker {
         if (context.mounted) {
           final shouldRequest = await WebRTCPermissionHandler.showPermissionRationaleDialog(
             context,
-            permissionName: '麥克風',
-            rationale: '共感LinkAble需要麥克風權限來進行語音通話，幫助視障人士與志願者進行實時交流。',
+            permissionName: '麦克风',
+            rationale: '共感LinkAble需要麦克风权限来进行语音通话，帮助视障人士与志愿者进行实时交流。',
           );
           if (shouldRequest) {
             final newResult = await WebRTCPermissionHandler.requestMicrophonePermission();
@@ -217,7 +217,7 @@ class PermissionChecker {
         if (context.mounted) {
           await WebRTCPermissionHandler.showPermissionDeniedDialog(
             context,
-            permissionName: '麥克風',
+            permissionName: '麦克风',
             onOpenSettings: () => WebRTCPermissionHandler.openAppSettings(),
           );
         }

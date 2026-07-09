@@ -10,15 +10,13 @@ void main() {
       multiLine: true,
     ).hasMatch(pubspec);
 
-    expect(
-      packagesDotEnv,
-      isFalse,
-      reason: '客户端 APK 不能包含真实 API 密钥文件',
-    );
+    expect(packagesDotEnv, isFalse, reason: '客户端 APK 不能包含真实 API 密钥文件');
   });
 
-  test('可提交的 API 配置不得包含客户端密钥', () {
-    final config = File('lib/config/api_config.dart').readAsStringSync();
+  test('可提交的 API 配置模板不得包含客户端密钥', () {
+    final config = File(
+      'lib/config/api_config.example.dart',
+    ).readAsStringSync();
     final secretAssignments = RegExp(
       r"static String \w*(?:ApiKey|SecretKey|ApiSecret|AppId|Secret) = '([^']*)';",
     ).allMatches(config);

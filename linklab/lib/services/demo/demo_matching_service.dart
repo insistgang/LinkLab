@@ -5,14 +5,14 @@ import '../../models/demo_match_result.dart';
 import '../../models/demo_volunteer.dart';
 import 'demo_data_loader.dart';
 
-const demoSkillHospitalGuide = '醫院導診';
-const demoSkillVisualAssistance = '視障協助';
-const demoSkillHearingCommunication = '手語 / 聽障溝通';
+const demoSkillHospitalGuide = '医院导诊';
+const demoSkillVisualAssistance = '视障协助';
+const demoSkillHearingCommunication = '手语 / 听障沟通';
 const demoSkillElderlyCompanion = '老人陪同';
-const demoSkillGeneralDirections = '普通問路';
-const demoSkillMedicationHelp = '藥品說明協助';
-const demoSkillDeliveryCommunication = '外賣 / 快遞溝通';
-const demoSkillEmergencyCompanion = '緊急陪伴';
+const demoSkillGeneralDirections = '普通问路';
+const demoSkillMedicationHelp = '药品说明协助';
+const demoSkillDeliveryCommunication = '外卖 / 快递沟通';
+const demoSkillEmergencyCompanion = '紧急陪伴';
 
 class DemoMatchActionResult {
   const DemoMatchActionResult({
@@ -26,9 +26,9 @@ class DemoMatchActionResult {
   final String? activeVolunteerId;
 }
 
-/// F9-A 本地 Top 5 志願者匹配引擎。
+/// F9-A 本地 Top 5 志愿者匹配引擎。
 ///
-/// 僅服務競賽 Demo，不接真實定位、Supabase、Realtime、推送或 WebRTC。
+/// 仅服务竞赛 Demo，不接真实定位、Supabase、Realtime、推送或 WebRTC。
 class DemoMatchingEngineService {
   final Set<String> _rejectedOrTimedOutVolunteerIds = <String>{};
   String? _activeVolunteerId;
@@ -53,7 +53,7 @@ class DemoMatchingEngineService {
     }
 
     if (rawVolunteers.isEmpty) {
-      AppLogger.warning('F9 demo 志願者數據爲空，使用內置匹配降級數據');
+      AppLogger.warning('F9 demo 志愿者数据为空，使用内置匹配降级数据');
       return _fallbackVolunteers;
     }
 
@@ -62,12 +62,12 @@ class DemoMatchingEngineService {
       try {
         volunteers.add(DemoVolunteer.fromJson(item));
       } catch (error, stackTrace) {
-        AppLogger.warning('單條 F9 demo 志願者數據解析失敗，已跳過', error, stackTrace);
+        AppLogger.warning('单条 F9 demo 志愿者数据解析失败，已跳过', error, stackTrace);
       }
     }
 
     if (volunteers.isEmpty) {
-      AppLogger.warning('F9 demo 志願者解析結果爲空，使用內置匹配降級數據');
+      AppLogger.warning('F9 demo 志愿者解析结果为空，使用内置匹配降级数据');
       return _fallbackVolunteers;
     }
 
@@ -88,7 +88,7 @@ class DemoMatchingEngineService {
     if (!AppConfig.shouldUseDemoFallback(
       feature: 'DemoMatchingEngineService.matchTopVolunteers',
     )) {
-      return DemoMatchResponse.empty('競賽 Demo 匹配當前未啓用，無法進入真實匹配。');
+      return DemoMatchResponse.empty('竞赛 Demo 匹配当前未启用，无法进入真实匹配。');
     }
 
     final volunteers = volunteerPool ?? await loadVolunteers();
@@ -97,8 +97,8 @@ class DemoMatchingEngineService {
         .toList(growable: false);
 
     if (onlineVolunteers.isEmpty) {
-      AppLogger.warning('F9 demo 匹配沒有在線志願者');
-      return DemoMatchResponse.empty('當前沒有在線 demo 志願者，請稍後重試或重新發起求助。');
+      AppLogger.warning('F9 demo 匹配没有在线志愿者');
+      return DemoMatchResponse.empty('当前没有在线 demo 志愿者，请稍后重试或重新发起求助。');
     }
 
     final preferredSkills = inferPreferredSkills(request);
@@ -165,21 +165,21 @@ class DemoMatchingEngineService {
     if (_cancelled) {
       return const DemoMatchActionResult(
         success: false,
-        message: '用戶已取消本次匹配，不能繼續接單。',
+        message: '用户已取消本次匹配，不能继续接单。',
       );
     }
 
     if (_expired) {
       return const DemoMatchActionResult(
         success: false,
-        message: '本次匹配已過期，不能繼續接單。',
+        message: '本次匹配已过期，不能继续接单。',
       );
     }
 
     if (_rejectedOrTimedOutVolunteerIds.contains(volunteerId)) {
       return DemoMatchActionResult(
         success: false,
-        message: '志願者 $volunteerId 已拒接或超時，不能再次接單。',
+        message: '志愿者 $volunteerId 已拒接或超时，不能再次接单。',
         activeVolunteerId: _activeVolunteerId,
       );
     }
@@ -188,7 +188,7 @@ class DemoMatchingEngineService {
     if (activeVolunteerId != null) {
       return DemoMatchActionResult(
         success: false,
-        message: '已有志願者 $activeVolunteerId 成功接單，本次競爭已結束。',
+        message: '已有志愿者 $activeVolunteerId 成功接单，本次竞争已结束。',
         activeVolunteerId: activeVolunteerId,
       );
     }
@@ -197,7 +197,7 @@ class DemoMatchingEngineService {
     AppLogger.info('F9 demo volunteer accepted request');
     return DemoMatchActionResult(
       success: true,
-      message: '志願者已接單。',
+      message: '志愿者已接单。',
       activeVolunteerId: volunteerId,
     );
   }
@@ -206,7 +206,7 @@ class DemoMatchingEngineService {
     if (_activeVolunteerId == volunteerId) {
       return DemoMatchActionResult(
         success: false,
-        message: '志願者 $volunteerId 已經接單，不能再標記爲拒接或超時。',
+        message: '志愿者 $volunteerId 已经接单，不能再标记为拒接或超时。',
         activeVolunteerId: _activeVolunteerId,
       );
     }
@@ -215,7 +215,7 @@ class DemoMatchingEngineService {
     AppLogger.info('F9 demo volunteer rejected or timed out');
     return DemoMatchActionResult(
       success: true,
-      message: '已記錄拒接或超時，可繼續嘗試下一位候選人。',
+      message: '已记录拒接或超时，可继续尝试下一位候选人。',
       activeVolunteerId: _activeVolunteerId,
     );
   }
@@ -224,28 +224,28 @@ class DemoMatchingEngineService {
     if (_activeVolunteerId != null) {
       return DemoMatchActionResult(
         success: false,
-        message: '已有志願者接單，不能將本次匹配標記爲過期。',
+        message: '已有志愿者接单，不能将本次匹配标记为过期。',
         activeVolunteerId: _activeVolunteerId,
       );
     }
 
     _expired = true;
     AppLogger.info('F9 demo matching expired');
-    return const DemoMatchActionResult(success: true, message: '無人接單，本次匹配已過期。');
+    return const DemoMatchActionResult(success: true, message: '无人接单，本次匹配已过期。');
   }
 
   DemoMatchActionResult cancel() {
     if (_activeVolunteerId != null) {
       return DemoMatchActionResult(
         success: false,
-        message: '已接通志願者，不能取消匹配階段。',
+        message: '已接通志愿者，不能取消匹配阶段。',
         activeVolunteerId: _activeVolunteerId,
       );
     }
 
     _cancelled = true;
     AppLogger.info('F9 demo matching cancelled');
-    return const DemoMatchActionResult(success: true, message: '用戶已取消本次匹配。');
+    return const DemoMatchActionResult(success: true, message: '用户已取消本次匹配。');
   }
 
   void resetCompetition() {
@@ -264,7 +264,7 @@ class DemoMatchingEngineService {
         .where(preferredSkills.contains)
         .toList(growable: false);
 
-    // AGENTS.md §7.1 權重：availability 0.30, distance 0.25, skill 0.20, trust 0.15, reputation 0.10
+    // AGENTS.md §7.1 权重：availability 0.30, distance 0.25, skill 0.20, trust 0.15, reputation 0.10
     final availabilityScore = _availabilityScore(volunteer);
     final distanceScore = _distanceScore(volunteer.distanceMeters);
     final skillScore = _skillScore(matchedSkills, preferredSkills);
@@ -316,16 +316,16 @@ class DemoMatchingEngineService {
   }
 
   double _availabilityScore(DemoVolunteer volunteer) {
-    // AGENTS.md §7.1: 是否在線、是否願意接單、是否正在服務中
+    // AGENTS.md §7.1: 是否在线、是否愿意接单、是否正在服务中
     if (!volunteer.isOnline) return 0.0;
-    // 在線志願者基礎分 0.7，幫助次數越多說明越活躍
+    // 在线志愿者基础分 0.7，帮助次数越多说明越活跃
     final activityBoost = (volunteer.helpCount / 100).clamp(0.0, 0.3);
     return _clampScore(0.7 + activityBoost);
   }
 
   double _trustHistoryScore(int helpCount) {
-    // AGENTS.md §7.1: 優先連接曾經成功協助過的志願者
-    // 幫助次數越多，歷史信任分越高
+    // AGENTS.md §7.1: 优先连接曾经成功协助过的志愿者
+    // 帮助次数越多，历史信任分越高
     return _clampScore(helpCount / 100);
   }
 
@@ -351,14 +351,14 @@ class DemoMatchingEngineService {
 
   String _buildReason(DemoVolunteer volunteer, List<String> matchedSkills) {
     final skillText = matchedSkills.isEmpty
-        ? '在線且可提供基礎協助'
+        ? '在线且可提供基础协助'
         : '匹配 ${matchedSkills.join('、')}';
     final distanceText = volunteer.distanceMeters < 1000
         ? '${volunteer.distanceMeters} 米'
         : '${(volunteer.distanceMeters / 1000).toStringAsFixed(1)} 公里';
     final reputationText = (volunteer.reputationScore * 100).round();
 
-    return '$skillText；距離約 $distanceText，信譽 $reputationText 分，預計 ${volunteer.estimatedResponseSeconds} 秒響應。';
+    return '$skillText；距离约 $distanceText，信誉 $reputationText 分，预计 ${volunteer.estimatedResponseSeconds} 秒响应。';
   }
 
   String _normalize(String input) {
@@ -372,72 +372,72 @@ class DemoMatchingEngineService {
 
 const _hospitalKeywords = [
   'hospital',
-  '醫院',
+  '医院',
   '科室',
-  '掛號',
-  '取藥',
-  '門診',
-  '急診',
-  '繳費',
+  '挂号',
+  '取药',
+  '门诊',
+  '急诊',
+  '缴费',
 ];
 
 const _medicationKeywords = [
   'medication',
   'medicine',
-  '藥品',
-  '藥盒',
-  '藥品盒',
-  '說明書',
-  '怎麼喫',
-  '一次幾片',
-  '劑量',
+  '药品',
+  '药盒',
+  '药品盒',
+  '说明书',
+  '怎么吃',
+  '一次几片',
+  '剂量',
   '用法',
   '禁忌',
-  '藥名',
+  '药名',
 ];
 
 const _hearingKeywords = [
   'hearing',
-  '聽障',
-  '聽不清',
-  '電話',
-  '外賣',
-  '快遞',
-  '幫我說',
-  '轉譯',
-  '手語',
+  '听障',
+  '听不清',
+  '电话',
+  '外卖',
+  '快递',
+  '帮我说',
+  '转译',
+  '手语',
 ];
 
 const _visualKeywords = [
   'visual',
-  '視障',
-  '看不見',
+  '视障',
+  '看不见',
   '看不清',
-  '路況',
-  '障礙物',
-  '過路口',
-  '前面有什麼',
+  '路况',
+  '障碍物',
+  '过路口',
+  '前面有什么',
 ];
 
-const _elderlyKeywords = ['elderly', '老人', '陪同', '慢慢走', '腿腳', '扶一下'];
+const _elderlyKeywords = ['elderly', '老人', '陪同', '慢慢走', '腿脚', '扶一下'];
 
 const _fallbackVolunteers = [
   DemoVolunteer(
     id: 'fallback_volunteer_001',
-    nickname: '演示導診員',
-    avatarLabel: '導',
+    nickname: '演示导诊员',
+    avatarLabel: '导',
     distanceMeters: 400,
     skills: [demoSkillHospitalGuide, demoSkillMedicationHelp],
     reputationScore: 0.95,
     isOnline: true,
     helpCount: 80,
     estimatedResponseSeconds: 10,
-    preferredScenarios: ['醫院', '藥品說明'],
-    languageTags: ['普通話'],
+    preferredScenarios: ['医院', '药品说明'],
+    languageTags: ['普通话'],
   ),
   DemoVolunteer(
     id: 'fallback_volunteer_002',
-    nickname: '演示問路員',
+    nickname: '演示问路员',
     avatarLabel: '路',
     distanceMeters: 500,
     skills: [demoSkillVisualAssistance, demoSkillGeneralDirections],
@@ -445,25 +445,25 @@ const _fallbackVolunteers = [
     isOnline: true,
     helpCount: 70,
     estimatedResponseSeconds: 9,
-    preferredScenarios: ['路況', '障礙物'],
-    languageTags: ['普通話'],
+    preferredScenarios: ['路况', '障碍物'],
+    languageTags: ['普通话'],
   ),
   DemoVolunteer(
     id: 'fallback_volunteer_003',
-    nickname: '演示轉譯員',
-    avatarLabel: '譯',
+    nickname: '演示转译员',
+    avatarLabel: '译',
     distanceMeters: 900,
     skills: [demoSkillHearingCommunication, demoSkillDeliveryCommunication],
     reputationScore: 0.9,
     isOnline: true,
     helpCount: 55,
     estimatedResponseSeconds: 12,
-    preferredScenarios: ['聽障溝通', '外賣電話'],
-    languageTags: ['普通話', '手語'],
+    preferredScenarios: ['听障沟通', '外卖电话'],
+    languageTags: ['普通话', '手语'],
   ),
   DemoVolunteer(
     id: 'fallback_volunteer_004',
-    nickname: '演示陪同員',
+    nickname: '演示陪同员',
     avatarLabel: '陪',
     distanceMeters: 650,
     skills: [demoSkillElderlyCompanion, demoSkillGeneralDirections],
@@ -472,11 +472,11 @@ const _fallbackVolunteers = [
     helpCount: 60,
     estimatedResponseSeconds: 13,
     preferredScenarios: ['老人陪同'],
-    languageTags: ['普通話'],
+    languageTags: ['普通话'],
   ),
   DemoVolunteer(
     id: 'fallback_volunteer_005',
-    nickname: '演示緊急陪伴員',
+    nickname: '演示紧急陪伴员',
     avatarLabel: '急',
     distanceMeters: 1200,
     skills: [demoSkillEmergencyCompanion, demoSkillVisualAssistance],
@@ -484,7 +484,7 @@ const _fallbackVolunteers = [
     isOnline: true,
     helpCount: 90,
     estimatedResponseSeconds: 8,
-    preferredScenarios: ['緊急陪伴'],
-    languageTags: ['普通話'],
+    preferredScenarios: ['紧急陪伴'],
+    languageTags: ['普通话'],
   ),
 ];

@@ -1,15 +1,15 @@
 enum DemoAiIntent {
-  ocrText('ocr_text', 'OCR / 讀文字'),
-  sceneDescription('scene_description', '場景描述'),
-  objectIdentify('object_identify', '物體識別'),
-  colorRecognition('color_recognition', '顏色識別'),
-  moneyRecognition('money_recognition', '鈔票 / 面額識別'),
-  translation('translation', '翻譯 / 轉譯'),
-  environmentDescription('environment_description', '環境描述'),
-  navigation('navigation', '導航 / 找路'),
-  medicationCheck('medication_check', '藥品確認'),
-  emergency('emergency', '緊急詞檢測'),
-  needHuman('need_human', '轉人工'),
+  ocrText('ocr_text', 'OCR / 读文字'),
+  sceneDescription('scene_description', '场景描述'),
+  objectIdentify('object_identify', '物体识别'),
+  colorRecognition('color_recognition', '颜色识别'),
+  moneyRecognition('money_recognition', '钞票 / 面额识别'),
+  translation('translation', '翻译 / 转译'),
+  environmentDescription('environment_description', '环境描述'),
+  navigation('navigation', '导航 / 找路'),
+  medicationCheck('medication_check', '药品确认'),
+  emergency('emergency', '紧急词检测'),
+  needHuman('need_human', '转人工'),
   fallback('fallback', '兜底回答');
 
   const DemoAiIntent(this.wireName, this.label);

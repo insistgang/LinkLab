@@ -1,32 +1,32 @@
 import 'package:flutter/material.dart';
 
-/// BuildContext擴展
+/// BuildContext扩展
 extension BuildContextExtension on BuildContext {
-  /// 獲取主題
+  /// 获取主题
   ThemeData get theme => Theme.of(this);
 
-  /// 獲取顏色方案
+  /// 获取颜色方案
   ColorScheme get colorScheme => Theme.of(this).colorScheme;
 
-  /// 獲取文本主題
+  /// 获取文本主题
   TextTheme get textTheme => Theme.of(this).textTheme;
 
-  /// 獲取屏幕尺寸
+  /// 获取屏幕尺寸
   Size get screenSize => MediaQuery.of(this).size;
 
-  /// 獲取屏幕寬度
+  /// 获取屏幕宽度
   double get screenWidth => MediaQuery.of(this).size.width;
 
-  /// 獲取屏幕高度
+  /// 获取屏幕高度
   double get screenHeight => MediaQuery.of(this).size.height;
 
-  /// 獲取安全區域padding
+  /// 获取安全区域padding
   EdgeInsets get safePadding => MediaQuery.of(this).padding;
 
-  /// 是否爲暗色模式
+  /// 是否为暗色模式
   bool get isDarkMode => Theme.of(this).brightness == Brightness.dark;
 
-  /// 顯示SnackBar
+  /// 显示SnackBar
   void showSnackBar(String message, {bool isError = false}) {
     ScaffoldMessenger.of(this).showSnackBar(
       SnackBar(
@@ -37,41 +37,41 @@ extension BuildContextExtension on BuildContext {
     );
   }
 
-  /// 隱藏鍵盤
+  /// 隐藏键盘
   void hideKeyboard() {
     FocusScope.of(this).unfocus();
   }
 }
 
-/// String擴展
+/// String扩展
 extension StringExtension on String {
-  /// 限制字符串長度
+  /// 限制字符串长度
   String truncate(int maxLength, {String suffix = '...'}) {
     if (length <= maxLength) return this;
     return '${substring(0, maxLength)}$suffix';
   }
 
-  /// 是否爲手機號
+  /// 是否为手机号
   bool get isPhoneNumber {
     final regex = RegExp(r'^1[3-9]\d{9}$');
     return regex.hasMatch(this);
   }
 
-  /// 是否爲驗證碼
+  /// 是否为验证码
   bool get isVerificationCode {
     final regex = RegExp(r'^\d{6}$');
     return regex.hasMatch(this);
   }
 
-  /// 隱藏手機號中間4位
+  /// 隐藏手机号中间4位
   String get maskedPhone {
     if (length != 11) return this;
     return '${substring(0, 3)}****${substring(7)}';
   }
 
-  /// 轉換爲語義化標籤（用於屏幕閱讀器）
+  /// 转换为语义化标签（用于屏幕阅读器）
   String get semanticLabel {
-    // 爲數字添加停頓
+    // 为数字添加停顿
     return replaceAllMapped(
       RegExp(r'(\d)'),
       (match) => '${match.group(0)} ',
@@ -79,9 +79,9 @@ extension StringExtension on String {
   }
 }
 
-/// DateTime擴展
+/// DateTime扩展
 extension DateTimeExtension on DateTime {
-  /// 格式化爲友好時間
+  /// 格式化为友好时间
   String toFriendlyString() {
     final now = DateTime.now();
     final diff = now.difference(this);
@@ -89,56 +89,56 @@ extension DateTimeExtension on DateTime {
     if (diff.inDays > 365) {
       return '${diff.inDays ~/ 365}年前';
     } else if (diff.inDays > 30) {
-      return '${diff.inDays ~/ 30}個月前';
+      return '${diff.inDays ~/ 30}个月前';
     } else if (diff.inDays > 0) {
       return '${diff.inDays}天前';
     } else if (diff.inHours > 0) {
-      return '${diff.inHours}小時前';
+      return '${diff.inHours}小时前';
     } else if (diff.inMinutes > 0) {
-      return '${diff.inMinutes}分鐘前';
+      return '${diff.inMinutes}分钟前';
     } else {
-      return '剛剛';
+      return '刚刚';
     }
   }
 
-  /// 格式化爲日期字符串
+  /// 格式化为日期字符串
   String toDateString() {
     return '$year年$month月$day日';
   }
 
-  /// 格式化爲時間字符串
+  /// 格式化为时间字符串
   String toTimeString() {
     final hourStr = hour.toString().padLeft(2, '0');
     final minuteStr = minute.toString().padLeft(2, '0');
     return '$hourStr:$minuteStr';
   }
 
-  /// 格式化爲相對時間（如：3天前）
+  /// 格式化为相对时间（如：3天前）
   String formatRelative() {
     return toFriendlyString();
   }
 
-  /// 格式化爲完整日期時間
+  /// 格式化为完整日期时间
   String formatDateTime() {
     return '$year年$month月$day日 ${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
   }
 
-  /// 格式化爲日期
+  /// 格式化为日期
   String formatDate() {
     return toDateString();
   }
 }
 
-/// Duration擴展
+/// Duration扩展
 extension DurationExtension on Duration {
-  /// 格式化爲分鐘:秒
+  /// 格式化为分钟:秒
   String toMinutesSeconds() {
     final minutes = inMinutes.remainder(60).toString().padLeft(2, '0');
     final seconds = inSeconds.remainder(60).toString().padLeft(2, '0');
     return '$minutes:$seconds';
   }
 
-  /// 格式化爲小時:分鐘:秒
+  /// 格式化为小时:分钟:秒
   String toHoursMinutesSeconds() {
     final hours = inHours.toString().padLeft(2, '0');
     final minutes = inMinutes.remainder(60).toString().padLeft(2, '0');
@@ -147,9 +147,9 @@ extension DurationExtension on Duration {
   }
 }
 
-/// List擴展
+/// List扩展
 extension ListExtension<T> on List<T> {
-  /// 安全獲取元素
+  /// 安全获取元素
   T? getOrNull(int index) {
     if (index < 0 || index >= length) return null;
     return this[index];
@@ -165,9 +165,9 @@ extension ListExtension<T> on List<T> {
   }
 }
 
-/// Widget擴展
+/// Widget扩展
 extension WidgetExtension on Widget {
-  /// 添加語義標籤
+  /// 添加语义标签
   Widget withSemantics({
     required String label,
     String? hint,
@@ -187,7 +187,7 @@ extension WidgetExtension on Widget {
     );
   }
 
-  /// 添加點擊效果
+  /// 添加点击效果
   Widget withTap(VoidCallback onTap, {String? semanticLabel}) {
     final gestureDetector = GestureDetector(
       onTap: onTap,
@@ -215,7 +215,7 @@ extension WidgetExtension on Widget {
     return Center(child: this);
   }
 
-  /// 展開
+  /// 展开
   Widget get expanded {
     return Expanded(child: this);
   }

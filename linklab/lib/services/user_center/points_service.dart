@@ -6,8 +6,8 @@ import '../../core/utils/logger.dart';
 import '../../models/point_transaction_model.dart';
 import '../local_storage.dart' as app_storage;
 
-/// 安心積分服務 (F15)
-/// 管理求助者的積分獲取和使用
+/// 安心积分服务 (F15)
+/// 管理求助者的积分获取和使用
 class PointsService {
   PointsService({
     SupabaseClient? supabase,
@@ -53,7 +53,7 @@ class PointsService {
         userId: userId,
         points: 1,
         type: PointTransactionType.dailyCheckIn,
-        description: '每日簽到',
+        description: '每日签到',
         isPositive: true,
         createdAt: now.subtract(const Duration(days: 1)),
       ),
@@ -62,7 +62,7 @@ class PointsService {
         userId: userId,
         points: 10,
         type: PointTransactionType.weeklyBonus,
-        description: '連續7天簽到獎勵',
+        description: '连续7天签到奖励',
         isPositive: true,
         createdAt: now.subtract(const Duration(days: 3)),
       ),
@@ -71,7 +71,7 @@ class PointsService {
         userId: userId,
         points: 7,
         type: PointTransactionType.other,
-        description: '完成新手引導',
+        description: '完成新手引导',
         isPositive: true,
         createdAt: now.subtract(const Duration(days: 8)),
       ),
@@ -119,7 +119,7 @@ class PointsService {
           return bTime.compareTo(aTime);
         });
     } catch (e) {
-      AppLogger.error('讀取本地積分流水失敗', e);
+      AppLogger.error('读取本地积分流水失败', e);
       return [];
     }
   }
@@ -151,7 +151,7 @@ class PointsService {
           .toList()
         ..sort((a, b) => '${b['checkin_date']}'.compareTo('${a['checkin_date']}'));
     } catch (e) {
-      AppLogger.error('讀取本地簽到記錄失敗', e);
+      AppLogger.error('读取本地签到记录失败', e);
       return [];
     }
   }
@@ -164,7 +164,7 @@ class PointsService {
     await _storage.setString(_checkinsKey(userId), jsonEncode(checkins));
   }
 
-  /// 獲取用戶當前積分
+  /// 获取用户当前积分
   Future<int> getCurrentPoints(String userId) async {
     if (!_hasSupabase) {
       await _ensureLocalStorage();
@@ -182,12 +182,12 @@ class PointsService {
       final responseMap = Map<String, dynamic>.from(response as Map);
       return (responseMap['points'] as num?)?.toInt() ?? 0;
     } catch (e) {
-      AppLogger.error('獲取用戶積分失敗', e);
+      AppLogger.error('获取用户积分失败', e);
       return 0;
     }
   }
 
-  /// 獲取積分交易記錄
+  /// 获取积分交易记录
   Future<List<PointTransactionModel>> getTransactions(
     String userId, {
     int limit = 20,
@@ -216,16 +216,16 @@ class PointsService {
           )
           .toList();
     } catch (e) {
-      AppLogger.error('獲取積分交易記錄失敗', e);
+      AppLogger.error('获取积分交易记录失败', e);
       return [];
     }
   }
 
-  /// 計算每日簽到積分
-  /// 連續簽到規則：
-  /// - 連續1天: +1
-  /// - 連續7天: +10（額外獎勵）
-  /// - 連續30天: +50（月度獎勵）
+  /// 计算每日签到积分
+  /// 连续签到规则：
+  /// - 连续1天: +1
+  /// - 连续7天: +10（额外奖励）
+  /// - 连续30天: +50（月度奖励）
   Future<int> calculateDailyPoints(String userId) async {
     if (!_hasSupabase) {
       final checkins = await _getLocalCheckins(userId);
@@ -281,12 +281,12 @@ class PointsService {
 
       return points;
     } catch (e) {
-      AppLogger.error('計算每日積分失敗', e);
+      AppLogger.error('计算每日积分失败', e);
       return PointRules.dailyCheckIn;
     }
   }
 
-  /// 執行每日簽到
+  /// 执行每日签到
   Future<DailyCheckInResult> performDailyCheckIn(String userId) async {
     if (!_hasSupabase) {
       try {
@@ -294,7 +294,7 @@ class PointsService {
         if (points == 0) {
           return const DailyCheckInResult(
             success: false,
-            message: '今天已經簽到過了',
+            message: '今天已经签到过了',
           );
         }
 
@@ -319,25 +319,25 @@ class PointsService {
           userId,
           points,
           PointTransactionType.dailyCheckIn,
-          description: '每日簽到',
+          description: '每日签到',
         );
 
         String? bonusMessage;
         if (newConsecutiveDays % 30 == 0) {
-          bonusMessage = '連續簽到30天，獲得額外獎勵';
+          bonusMessage = '连续签到30天，获得额外奖励';
         } else if (newConsecutiveDays % 7 == 0) {
-          bonusMessage = '連續簽到7天，獲得額外獎勵';
+          bonusMessage = '连续签到7天，获得额外奖励';
         }
 
         return DailyCheckInResult(
           success: true,
           points: points,
           consecutiveDays: newConsecutiveDays,
-          message: bonusMessage ?? '簽到成功，獲得$points積分',
+          message: bonusMessage ?? '签到成功，获得$points积分',
         );
       } catch (e) {
-        AppLogger.error('本地每日簽到失敗', e);
-        return DailyCheckInResult(success: false, message: '簽到失敗：$e');
+        AppLogger.error('本地每日签到失败', e);
+        return DailyCheckInResult(success: false, message: '签到失败：$e');
       }
     }
 
@@ -347,7 +347,7 @@ class PointsService {
       if (points == 0) {
         return const DailyCheckInResult(
           success: false,
-          message: '今天已經簽到過了',
+          message: '今天已经签到过了',
         );
       }
 
@@ -369,32 +369,32 @@ class PointsService {
         userId,
         points,
         PointTransactionType.dailyCheckIn,
-        description: '每日簽到',
+        description: '每日签到',
       );
 
       String? bonusMessage;
       if (newConsecutiveDays % 30 == 0) {
-        bonusMessage = '🎉 恭喜！連續簽到30天，獲得額外獎勵！';
+        bonusMessage = '🎉 恭喜！连续签到30天，获得额外奖励！';
       } else if (newConsecutiveDays % 7 == 0) {
-        bonusMessage = '🎊 連續簽到7天，獲得額外獎勵！';
+        bonusMessage = '🎊 连续签到7天，获得额外奖励！';
       }
 
       return DailyCheckInResult(
         success: true,
         points: points,
         consecutiveDays: newConsecutiveDays,
-        message: bonusMessage ?? '簽到成功，獲得$points積分',
+        message: bonusMessage ?? '签到成功，获得$points积分',
       );
     } catch (e) {
-      AppLogger.error('每日簽到失敗', e);
+      AppLogger.error('每日签到失败', e);
       return DailyCheckInResult(
         success: false,
-        message: '簽到失敗：$e',
+        message: '签到失败：$e',
       );
     }
   }
 
-  /// 領取連續簽到獎勵（手動觸發）
+  /// 领取连续签到奖励（手动触发）
   Future<void> claimContinuousBonus(String userId) async {
     if (!_hasSupabase) {
       return;
@@ -410,11 +410,11 @@ class PointsService {
           .order('created_at', ascending: false)
           .limit(1);
     } catch (e) {
-      AppLogger.error('領取連續獎勵失敗', e);
+      AppLogger.error('领取连续奖励失败', e);
     }
   }
 
-  /// 獲取連續簽到天數
+  /// 获取连续签到天数
   Future<int> _getConsecutiveDays(String userId) async {
     if (!_hasSupabase) {
       final checkins = await _getLocalCheckins(userId);
@@ -468,12 +468,12 @@ class PointsService {
 
       return 0;
     } catch (e) {
-      AppLogger.error('獲取連續簽到天數失敗', e);
+      AppLogger.error('获取连续签到天数失败', e);
       return 0;
     }
   }
 
-  /// 添加積分
+  /// 添加积分
   Future<void> _addPoints(
     String userId,
     int points,
@@ -515,7 +515,7 @@ class PointsService {
         'p_related_id': relatedId,
       });
     } catch (e) {
-      AppLogger.error('添加積分失敗', e);
+      AppLogger.error('添加积分失败', e);
       await _supabase.rpc('increment_user_points', params: {
         'user_id': userId,
         'points': points,
@@ -523,7 +523,7 @@ class PointsService {
     }
   }
 
-  /// 使用積分（兌換）
+  /// 使用积分（兑换）
   Future<bool> usePoints(
     String userId,
     int points, {
@@ -572,12 +572,12 @@ class PointsService {
 
       return true;
     } catch (e) {
-      AppLogger.error('使用積分失敗', e);
+      AppLogger.error('使用积分失败', e);
       return false;
     }
   }
 
-  /// 獲取簽到狀態
+  /// 获取签到状态
   Future<CheckInStatus> getCheckInStatus(String userId) async {
     if (!_hasSupabase) {
       try {
@@ -605,7 +605,7 @@ class PointsService {
           nextMilestone: _getNextMilestone(tomorrowConsecutive + 1),
         );
       } catch (e) {
-        AppLogger.error('獲取本地簽到狀態失敗', e);
+        AppLogger.error('获取本地签到状态失败', e);
         return const CheckInStatus();
       }
     }
@@ -639,25 +639,25 @@ class PointsService {
         nextMilestone: _getNextMilestone(tomorrowConsecutive + 1),
       );
     } catch (e) {
-      AppLogger.error('獲取簽到狀態失敗', e);
+      AppLogger.error('获取签到状态失败', e);
       return const CheckInStatus();
     }
   }
 
-  /// 獲取下一個里程碑
+  /// 获取下一个里程碑
   String _getNextMilestone(int consecutiveDays) {
     if (consecutiveDays < 7) {
-      return '連續7天 (+${PointRules.weeklyBonus})';
+      return '连续7天 (+${PointRules.weeklyBonus})';
     } else if (consecutiveDays < 30) {
-      return '連續30天 (+${PointRules.monthlyBonus})';
+      return '连续30天 (+${PointRules.monthlyBonus})';
     } else {
       final next30 = ((consecutiveDays ~/ 30) + 1) * 30;
-      return '連續$next30天 (+${PointRules.monthlyBonus})';
+      return '连续$next30天 (+${PointRules.monthlyBonus})';
     }
   }
 }
 
-/// 每日簽到結果
+/// 每日签到结果
 class DailyCheckInResult {
   final bool success;
   final int? points;
@@ -672,7 +672,7 @@ class DailyCheckInResult {
   });
 }
 
-/// 簽到狀態
+/// 签到状态
 class CheckInStatus {
   final bool hasCheckedInToday;
   final int consecutiveDays;

@@ -19,7 +19,7 @@ class EmailAuthOutcome {
 
 /// Supabase Auth facade.
 ///
-/// Phase-2 只使用 Supabase anon/publishable key 接入登錄態，不查詢業務表。
+/// Phase-2 只使用 Supabase anon/publishable key 接入登录态，不查询业务表。
 class AuthService {
   AuthService({SupabaseClient? supabase}) : _supabaseClient = supabase;
 
@@ -29,20 +29,20 @@ class AuthService {
 
   SupabaseClient get _supabase {
     if (!isAvailable) {
-      throw const AuthException('當前未連接真實認證服務');
+      throw const AuthException('当前未连接真实认证服务');
     }
     _supabaseClient ??= Supabase.instance.client;
     return _supabaseClient!;
   }
 
-  /// 獲取當前用戶
+  /// 获取当前用户
   User? get currentUser => isAvailable ? _supabase.auth.currentUser : null;
 
-  /// 獲取當前會話
+  /// 获取当前会话
   Session? get currentSession =>
       isAvailable ? _supabase.auth.currentSession : null;
 
-  /// 是否已登錄
+  /// 是否已登录
   bool get isAuthenticated => currentUser != null;
 
   Stream<AuthState> get onAuthStateChange {
@@ -61,19 +61,19 @@ class AuthService {
         email: email.trim(),
         password: password,
       );
-      AppLogger.info('Supabase Auth 郵箱登錄成功');
+      AppLogger.info('Supabase Auth 邮箱登录成功');
       return EmailAuthOutcome(
         signedIn: response.session != null,
-        message: '登錄成功',
+        message: '登录成功',
         user: response.user,
         session: response.session,
       );
     } on AuthException catch (error) {
-      AppLogger.warning('Supabase Auth 郵箱登錄失敗', error);
+      AppLogger.warning('Supabase Auth 邮箱登录失败', error);
       throw AuthException(_readableAuthError(error));
     } catch (error, stackTrace) {
-      AppLogger.error('Supabase Auth 郵箱登錄異常', error, stackTrace);
-      throw const AuthException('登錄失敗，請稍後再試');
+      AppLogger.error('Supabase Auth 邮箱登录异常', error, stackTrace);
+      throw const AuthException('登录失败，请稍后再试');
     }
   }
 
@@ -88,61 +88,61 @@ class AuthService {
       );
 
       if (response.session == null) {
-        AppLogger.info('Supabase Auth 註冊已提交，等待郵箱確認');
+        AppLogger.info('Supabase Auth 注册已提交，等待邮箱确认');
         return EmailAuthOutcome(
           signedIn: false,
-          message: '註冊郵件已發送，請先完成郵箱確認，再回到應用登錄。',
+          message: '注册邮件已发送，请先完成邮箱确认，再回到应用登录。',
           user: response.user,
           session: response.session,
         );
       }
 
-      AppLogger.info('Supabase Auth 郵箱註冊並登錄成功');
+      AppLogger.info('Supabase Auth 邮箱注册并登录成功');
       return EmailAuthOutcome(
         signedIn: true,
-        message: '註冊成功，已登錄',
+        message: '注册成功，已登录',
         user: response.user,
         session: response.session,
       );
     } on AuthException catch (error) {
-      AppLogger.warning('Supabase Auth 郵箱註冊失敗', error);
+      AppLogger.warning('Supabase Auth 邮箱注册失败', error);
       throw AuthException(_readableAuthError(error));
     } catch (error, stackTrace) {
-      AppLogger.error('Supabase Auth 郵箱註冊異常', error, stackTrace);
-      throw const AuthException('註冊失敗，請稍後再試');
+      AppLogger.error('Supabase Auth 邮箱注册异常', error, stackTrace);
+      throw const AuthException('注册失败，请稍后再试');
     }
   }
 
-  /// 發送郵箱登錄鏈接。Phase-2 先作爲輔助能力保留，不依賴業務表。
+  /// 发送邮箱登录链接。Phase-2 先作为辅助能力保留，不依赖业务表。
   Future<void> sendEmailLoginLink(String email) async {
     try {
       await _supabase.auth.signInWithOtp(
         email: email.trim(),
         shouldCreateUser: true,
       );
-      AppLogger.info('Supabase Auth 郵箱登錄鏈接已發送');
+      AppLogger.info('Supabase Auth 邮箱登录链接已发送');
     } on AuthException catch (error) {
-      AppLogger.warning('Supabase Auth 郵箱登錄鏈接發送失敗', error);
+      AppLogger.warning('Supabase Auth 邮箱登录链接发送失败', error);
       throw AuthException(_readableAuthError(error));
     } catch (error, stackTrace) {
-      AppLogger.error('Supabase Auth 郵箱登錄鏈接發送異常', error, stackTrace);
-      throw const AuthException('發送登錄郵件失敗，請稍後再試');
+      AppLogger.error('Supabase Auth 邮箱登录链接发送异常', error, stackTrace);
+      throw const AuthException('发送登录邮件失败，请稍后再试');
     }
   }
 
-  /// 手機短信不屬於 Phase-2，真實模式不接入。
+  /// 手机短信不属于 Phase-2，真实模式不接入。
   Future<void> sendPhoneOTP(String phone) async {
     if (AppConfig.isRealMode) {
-      throw const AuthException('本階段暫未接入真實短信登錄，請使用郵箱登錄。');
+      throw const AuthException('本阶段暂未接入真实短信登录，请使用邮箱登录。');
     }
-    AppLogger.info('Demo 手機驗證碼流程保持本地模擬');
+    AppLogger.info('Demo 手机验证码流程保持本地模拟');
   }
 
   Future<AuthResponse> verifyPhoneOTP(String phone, String token) async {
-    throw const AuthException('本階段暫未接入真實短信驗證。');
+    throw const AuthException('本阶段暂未接入真实短信验证。');
   }
 
-  /// 退出登錄
+  /// 退出登录
   Future<void> signOut() async {
     if (!isAvailable) {
       return;
@@ -150,31 +150,31 @@ class AuthService {
 
     try {
       await _supabase.auth.signOut();
-      AppLogger.info('Supabase Auth 已退出登錄');
+      AppLogger.info('Supabase Auth 已退出登录');
     } catch (error, stackTrace) {
-      AppLogger.error('Supabase Auth 退出登錄失敗', error, stackTrace);
-      throw const AuthException('退出登錄失敗，請稍後再試');
+      AppLogger.error('Supabase Auth 退出登录失败', error, stackTrace);
+      throw const AuthException('退出登录失败，请稍后再试');
     }
   }
 
   String _readableAuthError(AuthException error) {
     final message = error.message.toLowerCase();
     if (message.contains('invalid login credentials')) {
-      return '郵箱或密碼不正確，請檢查後重試。';
+      return '邮箱或密码不正确，请检查后重试。';
     }
     if (message.contains('email not confirmed')) {
-      return '郵箱還沒有完成確認，請先打開郵件中的確認鏈接。';
+      return '邮箱还没有完成确认，请先打开邮件中的确认链接。';
     }
     if (message.contains('user already registered') ||
         message.contains('already registered')) {
-      return '這個郵箱已經註冊，請直接登錄。';
+      return '这个邮箱已经注册，请直接登录。';
     }
     if (message.contains('password')) {
-      return '密碼不符合要求，請至少輸入 6 位。';
+      return '密码不符合要求，请至少输入 6 位。';
     }
     if (message.contains('rate limit') || message.contains('too many')) {
-      return '請求過於頻繁，請稍後再試。';
+      return '请求过于频繁，请稍后再试。';
     }
-    return error.message.isEmpty ? '認證失敗，請稍後再試。' : error.message;
+    return error.message.isEmpty ? '认证失败，请稍后再试。' : error.message;
   }
 }

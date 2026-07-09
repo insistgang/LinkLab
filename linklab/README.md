@@ -1,92 +1,92 @@
-# 共感LinkAble - AI無障礙互助平臺
+# 共感LinkAble - AI无障碍互助平台
 
 [![Flutter Version](https://img.shields.io/badge/Flutter-3.11+-blue.svg)](https://flutter.dev)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-> 一個專爲視障人士設計的智能互助平臺，結合AI識別與志願者實時協助，讓科技更有溫度。
-> 當前狀態：Demo-first MVP。Web / Chrome 是首選演示路徑；真實 WebRTC、真實 Supabase、真實推送和生產級 SOS 仍是實驗或後續能力，不作爲當前生產完成項。
+> 一个专为视障人士设计的智能互助平台，结合AI识别与志愿者实时协助，让科技更有温度。
+> 当前状态：Demo-first MVP。Web / Chrome 是首选演示路径；真实 WebRTC、真实 Supabase、真实推送和生产级 SOS 仍是实验或后续能力，不作为当前生产完成项。
 
-## 項目簡介
+## 项目简介
 
-共感LinkAble是一款面向視障人士的AI無障礙互助應用。當前倉庫優先服務競賽 Demo：通過本地 AI 場景、Demo 通話狀態機和志願者兜底流程，幫助視障用戶完成可演示的求助閉環。當AI無法準確識別或用戶需要進一步幫助時，可進入志願者匹配和 Demo Call 演示。
+共感LinkAble是一款面向视障人士的AI无障碍互助应用。当前仓库优先服务竞赛 Demo：通过本地 AI 场景、Demo 通话状态机和志愿者兜底流程，帮助视障用户完成可演示的求助闭环。当AI无法准确识别或用户需要进一步帮助时，可进入志愿者匹配和 Demo Call 演示。
 
-## 當前 Demo 與 PRD 對齊範圍
+## 当前 Demo 与 PRD 对齐范围
 
-當前倉庫中的 `linklab` 主前端已經打通以下演示閉環：
+当前仓库中的 `linklab` 主前端已经打通以下演示闭环：
 
-- 首次啓動、登錄、onboarding 與本地會話恢復
-- 無障礙偏好設置的保存、再次編輯與全局生效
-- 首頁主求助入口、最近幫助記錄、精選故事內容展示
-- AI 助手 Tab：文字識別、場景描述、顏色識別、緊急識別的預設場景與對話演示
-- 演示版實時通話結束後可提交評價，並回流到幫助檔案與常用志願者
-- 個人中心與求助者中心的數據聯動
-- 緊急聯繫人、位置共享設置與 SOS 演示階段狀態
-- 異步留言求助：提交留言、寫入幫助檔案、在求助者中心回看進度
-- 在未初始化 Supabase 時，幫助檔案、精選故事、異步留言與安全設置的本地降級展示
+- 首次启动、登录、onboarding 与本地会话恢复
+- 无障碍偏好设置的保存、再次编辑与全局生效
+- 首页主求助入口、最近帮助记录、精选故事内容展示
+- AI 助手 Tab：文字识别、场景描述、颜色识别、紧急识别的预设场景与对话演示
+- 演示版实时通话结束后可提交评价，并回流到帮助档案与常用志愿者
+- 个人中心与求助者中心的数据联动
+- 紧急联系人、位置共享设置与 SOS 演示阶段状态
+- 异步留言求助：提交留言、写入帮助档案、在求助者中心回看进度
+- 在未初始化 Supabase 时，帮助档案、精选故事、异步留言与安全设置的本地降级展示
 
-當前仍未完成、但在 PRD 中明確存在的能力包括：
+当前仍未完成、但在 PRD 中明确存在的能力包括：
 
-- 真實手機號認證與正式用戶體系
-- 穩定的實時匹配、WebRTC 通話與生產級狀態同步
-- 真實定位權限、短信/Push 通知、生產級 SOS 升級鏈路
-- 推送通知、內容審覈後臺與更完整的志願者運營能力
+- 真实手机号认证与正式用户体系
+- 稳定的实时匹配、WebRTC 通话与生产级状态同步
+- 真实定位权限、短信/Push 通知、生产级 SOS 升级链路
+- 推送通知、内容审核后台与更完整的志愿者运营能力
 
-因此，當前版本更適合做 Web / Chrome 主前端產品演示，而不是生產環境部署。
+因此，当前版本更适合做 Web / Chrome 主前端产品演示，而不是生产环境部署。
 
 ## 功能特性
 
-### AI智能識別
-- **OCR文字識別** - 識別藥品說明書、菜單、路牌等文字信息
-- **場景描述** - 拍照描述周圍環境，輔助導航
-- **顏色識別** - 識別衣物、物品顏色
-- **智能對話** - 語音交互，自然語言理解
+### AI智能识别
+- **OCR文字识别** - 识别药品说明书、菜单、路牌等文字信息
+- **场景描述** - 拍照描述周围环境，辅助导航
+- **颜色识别** - 识别衣物、物品颜色
+- **智能对话** - 语音交互，自然语言理解
 
-### 志願者匹配
-- **智能匹配** - 根據用戶需求匹配最合適的志願者
-- **Demo通話** - 基於本地狀態機展示連接、接通、結束與評價；真實 WebRTC 仍是實驗鏈路
-- **異步留言** - 非緊急問題先留言，稍後由志願者回覆
-- **志願者等級** - 燈塔、星辰、暖陽、微光、燭光五級認證體系
+### 志愿者匹配
+- **智能匹配** - 根据用户需求匹配最合适的志愿者
+- **Demo通话** - 基于本地状态机展示连接、接通、结束与评价；真实 WebRTC 仍是实验链路
+- **异步留言** - 非紧急问题先留言，稍后由志愿者回覆
+- **志愿者等级** - 灯塔、星辰、暖阳、微光、烛光五级认证体系
 
-### SOS緊急求助
-- **快速觸發** - 長按3秒啓動緊急求助
-- **Mock SOS展示** - 競賽 Demo 展示誤觸撤銷、模擬廣播和聯繫人通知狀態
-- **階段狀態反饋** - 展示位置同步、聯繫人通知、志願者廣播與響應進度；真實短信、真實推送、系統級觸發和報警聯通未生產化
+### SOS紧急求助
+- **快速触发** - 长按3秒启动紧急求助
+- **Mock SOS展示** - 竞赛 Demo 展示误触撤销、模拟广播和联系人通知状态
+- **阶段状态反馈** - 展示位置同步、联系人通知、志愿者广播与响应进度；真实短信、真实推送、系统级触发和报警联通未生产化
 
-### 無障礙設計
-- **WCAG 2.1 AAA標準** - 高對比度配色，對比度>=7:1
-- **全語音交互** - 支持語音輸入和TTS語音播報
-- **大觸摸目標** - 最小48dp觸摸區域
-- **動態字體縮放** - 支持0.8x-2.0x字體縮放
+### 无障碍设计
+- **WCAG 2.1 AAA标准** - 高对比度配色，对比度>=7:1
+- **全语音交互** - 支持语音输入和TTS语音播报
+- **大触摸目标** - 最小48dp触摸区域
+- **动态字体缩放** - 支持0.8x-2.0x字体缩放
 
-## 安裝說明
+## 安装说明
 
-### 環境要求
+### 环境要求
 - Flutter SDK >= 3.11.4
 - Dart SDK >= 3.0.0
-- Chrome（首選演示路徑）
-- Android SDK 或 Xcode (iOS) 可用於移動端驗證
-- Windows 桌面端需要 Visual Studio C++ 桌面開發工具鏈，非首選演示路徑
+- Chrome（首选演示路径）
+- Android SDK 或 Xcode (iOS) 可用于移动端验证
+- Windows 桌面端需要 Visual Studio C++ 桌面开发工具链，非首选演示路径
 
-### 安裝步驟
+### 安装步骤
 
 ```bash
-# 1. 克隆項目
+# 1. 克隆项目
 git clone <repository-url>
 cd linklab
 
-# 2. 安裝依賴
+# 2. 安装依赖
 flutter pub get
 
-# 3. 運行代碼生成 (用於生成freezed模型)
+# 3. 运行代码生成 (用于生成freezed模型)
 flutter pub run build_runner build --delete-conflicting-outputs
 
-# 4. 運行應用（首選 Web / Chrome）
+# 4. 运行应用（首选 Web / Chrome）
 flutter run -d chrome
 ```
 
-### 配置Supabase（實驗真實鏈路，非 Demo 必需）
+### 配置Supabase（实验真实链路，非 Demo 必需）
 
-競賽 Demo 默認不需要真實 Supabase。只有在本地實驗真實鏈路時，才配置以下信息。
+竞赛 Demo 默认不需要真实 Supabase。只有在本地实验真实链路时，才配置以下信息。
 
 1. 在 `lib/config/app_config.dart` 中配置Supabase信息：
 ```dart
@@ -94,177 +94,177 @@ static const String supabaseUrl = 'YOUR_SUPABASE_URL';
 static const String supabaseAnonKey = 'YOUR_SUPABASE_ANON_KEY';
 ```
 
-2. 如需實驗推送通知，配置Firebase並下載 `google-services.json` (Android) 或 `GoogleService-Info.plist` (iOS)。真實推送不屬於當前 Demo 驗收依賴。
+2. 如需实验推送通知，配置Firebase并下载 `google-services.json` (Android) 或 `GoogleService-Info.plist` (iOS)。真实推送不属于当前 Demo 验收依赖。
 
-## 項目結構
+## 项目结构
 
 ```
 lib/
-├── app.dart                    # 應用根組件
-├── main.dart                   # 應用入口
+├── app.dart                    # 应用根组件
+├── main.dart                   # 应用入口
 ├── config/
-│   └── app_config.dart         # 應用配置（模式切換、網絡配置）
+│   └── app_config.dart         # 应用配置（模式切换、网络配置）
 ├── core/
-│   ├── constants/              # 常量定義
+│   ├── constants/              # 常量定义
 │   ├── theme/
-│   │   └── app_theme.dart      # 主題配置（WCAG AAA標準）
-│   └── utils/                  # 工具類
-├── models/                     # 數據模型（User、HelpRequest等）
-├── screens/                    # 頁面
-│   ├── auth/                   # 認證相關（登錄、註冊、 onboarding）
-│   ├── home/                   # 首頁、AI對話、社區、個人中心
-│   └── call/                   # 通話相關（匹配、通話、評價、SOS）
-├── services/                   # 服務層
-│   ├── ai/                     # AI相關服務（OCR、場景識別、語音）
-│   ├── demo/                   # 演示模式服務
-│   ├── auth_service.dart       # 認證服務
-│   ├── matching_service.dart   # 志願者匹配服務
-│   ├── webrtc_service.dart     # WebRTC通話服務
-│   └── sos_service.dart        # SOS緊急求助服務
+│   │   └── app_theme.dart      # 主题配置（WCAG AAA标准）
+│   └── utils/                  # 工具类
+├── models/                     # 数据模型（User、HelpRequest等）
+├── screens/                    # 页面
+│   ├── auth/                   # 认证相关（登录、注册、 onboarding）
+│   ├── home/                   # 首页、AI对话、社区、个人中心
+│   └── call/                   # 通话相关（匹配、通话、评价、SOS）
+├── services/                   # 服务层
+│   ├── ai/                     # AI相关服务（OCR、场景识别、语音）
+│   ├── demo/                   # 演示模式服务
+│   ├── auth_service.dart       # 认证服务
+│   ├── matching_service.dart   # 志愿者匹配服务
+│   ├── webrtc_service.dart     # WebRTC通话服务
+│   └── sos_service.dart        # SOS紧急求助服务
 ├── widgets/
-│   └── accessible/             # 無障礙組件庫
-├── demo_data/                  # 演示數據
+│   └── accessible/             # 无障碍组件库
+├── demo_data/                  # 演示数据
 └── demo_flow/                  # 演示流程控制
 ```
 
 ## 演示模式
 
-應用默認運行在演示模式，使用模擬數據，無需後端服務即可體驗完整功能。
+应用默认运行在演示模式，使用模拟数据，无需后端服务即可体验完整功能。
 
-### 切換模式
+### 切换模式
 
-真實模式僅用於本地實驗，不用於競賽 Demo。當前 Demo-first 口徑下，不建議現場切換到真實模式。
+真实模式仅用于本地实验，不用于竞赛 Demo。当前 Demo-first 口径下，不建议现场切换到真实模式。
 
 在 `lib/config/app_config.dart` 中修改：
 
 ```dart
-// 切換到真實模式
+// 切换到真实模式
 AppConfig.setRealMode();
 
-// 切換到演示模式
+// 切换到演示模式
 AppConfig.setDemoMode();
 ```
 
 或在 `lib/demo_config.dart` 中修改：
 
 ```dart
-static bool isDemoMode = false;  // 關閉演示模式
+static bool isDemoMode = false;  // 关闭演示模式
 ```
 
-### 演示場景
+### 演示场景
 
-演示模式包含以下預設場景：
+演示模式包含以下预设场景：
 
-| 場景 | 描述 | 需要匹配 |
+| 场景 | 描述 | 需要匹配 |
 |------|------|----------|
-| 藥品識別 | 拍照識別藥品說明書，AI建議轉人工確認 | 是 |
-| 菜單識別 | 識別餐廳菜單，AI直接讀出菜品 | 否 |
-| 場景描述 | 描述周圍環境輔助導航 | 否 |
-| 顏色識別 | 識別物體顏色 | 否 |
-| SOS緊急求助 | 緊急情況下快速求助 | 是 |
+| 药品识别 | 拍照识别药品说明书，AI建议转人工确认 | 是 |
+| 菜单识别 | 识别餐厅菜单，AI直接读出菜品 | 否 |
+| 场景描述 | 描述周围环境辅助导航 | 否 |
+| 颜色识别 | 识别物体颜色 | 否 |
+| SOS紧急求助 | 紧急情况下快速求助 | 是 |
 
 ### 演示配置
 
 ```dart
 // lib/demo_config.dart
 
-// 模擬延遲時間（秒）
+// 模拟延迟时间（秒）
 static int mockDelaySeconds = 2;
 
-// 匹配等待時間（秒）
+// 匹配等待时间（秒）
 static int matchingWaitSeconds = 4;
 
-// 通話自動結束時間（秒）
+// 通话自动结束时间（秒）
 static int callAutoEndSeconds = 30;
 
-// 是否顯示演示模式指示器
+// 是否显示演示模式指示器
 static bool showDemoIndicator = true;
 ```
 
-## 無障礙特性
+## 无障碍特性
 
-### WCAG 2.1 AAA 合規
+### WCAG 2.1 AAA 合规
 
-- **色彩對比度** - 文字與背景對比度 >= 7:1
-- **觸摸目標** - 最小48dp，重要按鈕56dp-120dp
-- **字體大小** - 支持14sp-48sp，可動態縮放
+- **色彩对比度** - 文字与背景对比度 >= 7:1
+- **触摸目标** - 最小48dp，重要按钮56dp-120dp
+- **字体大小** - 支持14sp-48sp，可动态缩放
 
 ### Semantics支持
 
-所有自定義組件均實現了Semantics：
+所有自定义组件均实现了Semantics：
 
 ```dart
 Semantics(
   button: true,
-  label: '連接志願者按鈕，雙擊開始匹配',
+  label: '连接志愿者按钮，双击开始匹配',
   child: AccessibleButton(
     onTap: _startMatching,
-    child: Text('連接志願者'),
+    child: Text('连接志愿者'),
   ),
 )
 ```
 
-### 語音與震動反饋
+### 语音与震动反馈
 
-- **TTS語音播報** - 所有操作均有語音提示
-- **震動反饋** - 按鈕點擊、匹配成功、通話狀態變化
-- **音效提示** - 匹配成功、通話連接等關鍵節點
+- **TTS语音播报** - 所有操作均有语音提示
+- **震动反馈** - 按钮点击、匹配成功、通话状态变化
+- **音效提示** - 匹配成功、通话连接等关键节点
 
-## 技術棧
+## 技术栈
 
-| 技術 | 用途 |
+| 技术 | 用途 |
 |------|------|
-| **Flutter** | 跨平臺UI框架 |
-| **Riverpod** | 狀態管理 |
-| **Supabase** | 後端服務（數據庫、認證、實時通信） |
-| **WebRTC** | 實驗性真實通話；競賽默認使用 Demo Call |
-| **Firebase** | 實驗性推送通知；競賽默認不依賴 |
-| **flutter_tts** | 文字轉語音 |
-| **speech_to_text** | 語音識別 |
-| **camera** | 相機訪問 |
-| **image_picker** | 圖片選擇 |
+| **Flutter** | 跨平台UI框架 |
+| **Riverpod** | 状态管理 |
+| **Supabase** | 后端服务（数据库、认证、实时通信） |
+| **WebRTC** | 实验性真实通话；竞赛默认使用 Demo Call |
+| **Firebase** | 实验性推送通知；竞赛默认不依赖 |
+| **flutter_tts** | 文字转语音 |
+| **speech_to_text** | 语音识别 |
+| **camera** | 相机访问 |
+| **image_picker** | 图片选择 |
 
-## 開發指南
+## 开发指南
 
-### 代碼生成
+### 代码生成
 
-項目使用 `freezed` 和 `json_serializable` 進行模型代碼生成：
+项目使用 `freezed` 和 `json_serializable` 进行模型代码生成：
 
 ```bash
-# 生成代碼
+# 生成代码
 flutter pub run build_runner build
 
-# 持續監聽生成
+# 持续监听生成
 flutter pub run build_runner watch
 
-# 刪除衝突輸出
+# 删除冲突输出
 flutter pub run build_runner build --delete-conflicting-outputs
 ```
 
-### 無障礙測試
+### 无障碍测试
 
-1. 開啓設備屏幕閱讀器（TalkBack/VoiceOver）
-2. 使用無障礙掃描工具檢查對比度
-3. 驗證所有交互元素都有語義標籤
+1. 开启设备屏幕阅读器（TalkBack/VoiceOver）
+2. 使用无障碍扫描工具检查对比度
+3. 验证所有交互元素都有语义标签
 
-## 截圖
+## 截图
 
-> TODO: 添加應用截圖
+> TODO: 添加应用截图
 
-## 貢獻指南
+## 贡献指南
 
-歡迎提交Issue和Pull Request！
+欢迎提交Issue和Pull Request！
 
-1. Fork 本倉庫
-2. 創建特性分支 (`git checkout -b feature/AmazingFeature`)
+1. Fork 本仓库
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
 3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
 4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 打開 Pull Request
+5. 打开 Pull Request
 
-## 許可證
+## 许可证
 
 [MIT](LICENSE) License
 
 ---
 
-**共感LinkAble** - 讓科技溫暖每一雙眼睛
+**共感LinkAble** - 让科技温暖每一双眼睛

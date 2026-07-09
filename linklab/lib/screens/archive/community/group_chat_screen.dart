@@ -6,7 +6,7 @@ import '../../services/app_session_service.dart';
 import '../../services/community/interest_group_service.dart';
 import '../../widgets/accessible/index.dart';
 
-/// 小組聊天頁面
+/// 小组聊天页面
 class GroupChatScreen extends StatefulWidget {
   const GroupChatScreen({
     super.key,
@@ -83,7 +83,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('發送失敗: $e')),
+          SnackBar(content: Text('发送失败: $e')),
         );
       }
     }
@@ -102,7 +102,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                 : _messages.isEmpty
                     ? const Center(
                         child: AccessibleText(
-                          '暫無消息，來發第一條吧！',
+                          '暂无消息，来发第一条吧！',
                           style: TextStyle(color: AppTheme.textSecondary),
                         ),
                       )
@@ -122,7 +122,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                         },
                       ),
           ),
-          // 輸入框
+          // 输入框
           Container(
             padding: const EdgeInsets.all(AppTheme.spacingM),
             decoration: BoxDecoration(
@@ -141,7 +141,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                   Expanded(
                     child: AccessibleInput(
                       controller: _messageController,
-                      hint: '輸入消息...',
+                      hint: '输入消息...',
                       maxLines: 3,
                       minLines: 1,
                     ),
@@ -161,7 +161,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
   }
 }
 
-/// 消息氣泡
+/// 消息气泡
 class _MessageBubble extends StatelessWidget {
   const _MessageBubble({
     required this.message,
@@ -203,7 +203,7 @@ class _MessageBubble extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 4),
                     child: AccessibleText(
-                      message.userName ?? '匿名用戶',
+                      message.userName ?? '匿名用户',
                       style: const TextStyle(
                         fontSize: AppTheme.fontSizeSmall,
                         color: AppTheme.textSecondary,
@@ -240,7 +240,7 @@ class _MessageBubble extends StatelessWidget {
                     const SizedBox(width: AppTheme.spacingS),
                     IconButton(
                       onPressed: () {
-                        // TODO: 點贊
+                        // TODO: 点赞
                       },
                       icon: Icon(
                         message.isLiked

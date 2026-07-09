@@ -5,7 +5,7 @@ import 'help_request_status.dart';
 part 'help_request_model.freezed.dart';
 part 'help_request_model.g.dart';
 
-/// 幫助請求模型
+/// 帮助请求模型
 @freezed
 class HelpRequestModel with _$HelpRequestModel {
   const factory HelpRequestModel({
@@ -35,23 +35,23 @@ class HelpRequestModel with _$HelpRequestModel {
 
   const HelpRequestModel._();
 
-  /// 是否爲緊急請求
+  /// 是否为紧急请求
   bool get isEmergency => urgency == 'emergency' || type == 'sos';
 
   /// 是否已完成
   bool get isCompleted => requestStatus == HelpRequestStatus.completed;
 
-  /// 是否進行中
+  /// 是否进行中
   bool get isActive => requestStatus.isActive;
 
-  /// AGENTS.md 唯一允許的主狀態。
+  /// AGENTS.md 唯一允许的主状态。
   HelpRequestStatus get requestStatus => HelpRequestStatus.fromWireName(status);
 
-  /// 緊急程度標籤
+  /// 紧急程度标签
   String get urgencyLabel {
     switch (urgency) {
       case 'emergency':
-        return '緊急';
+        return '紧急';
       case 'urgent':
         return '急迫';
       case 'important':
@@ -61,13 +61,13 @@ class HelpRequestModel with _$HelpRequestModel {
     }
   }
 
-  /// 狀態標籤
+  /// 状态标签
   String get statusLabel {
     return requestStatus.label;
   }
 }
 
-/// 異步任務模型
+/// 异步任务模型
 @freezed
 class AsyncTaskModel with _$AsyncTaskModel {
   const factory AsyncTaskModel({
@@ -91,32 +91,32 @@ class AsyncTaskModel with _$AsyncTaskModel {
 
   const AsyncTaskModel._();
 
-  /// 是否待處理
+  /// 是否待处理
   bool get isPending => status == 'pending';
 
-  /// 是否已領取
+  /// 是否已领取
   bool get isAssigned => status == 'assigned' || status == 'processing';
 
   /// 是否已完成
   bool get isCompleted => status == 'completed';
 
-  /// 狀態標籤
+  /// 状态标签
   String get statusLabel {
     switch (status) {
       case 'pending':
-        return '待志願者領取';
+        return '待志愿者领取';
       case 'assigned':
-        return '已被領取';
+        return '已被领取';
       case 'processing':
-        return '處理中';
+        return '处理中';
       case 'completed':
         return '已回覆';
       case 'expired':
-        return '已超時';
+        return '已超时';
       case 'cancelled':
         return '已取消';
       default:
-        return '狀態未知';
+        return '状态未知';
     }
   }
 }

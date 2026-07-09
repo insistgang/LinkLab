@@ -1,11 +1,11 @@
 {
-    "name": "共感LinkAble 運營後臺",
-    "short_name": "LinkAble後臺",
+    "name": "共感LinkAble 运营后台",
+    "short_name": "LinkAble后台",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#C8FE53",
     "theme_color": "#C8FE53",
-    "description": "共感LinkAble 運營後臺。",
+    "description": "共感LinkAble 运营后台。",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

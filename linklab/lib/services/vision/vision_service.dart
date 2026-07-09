@@ -14,7 +14,7 @@ class VisionService {
       imagePath: imagePath,
       intent: 'scene_describe',
       action: (path) => _zhipuService.describeScene(path),
-      fallbackText: '這是一個場景圖片。當前AI視覺服務不可用，請轉人工協助描述環境。',
+      fallbackText: '这是一个场景图片。当前AI视觉服务不可用，请转人工协助描述环境。',
     );
   }
 
@@ -23,7 +23,7 @@ class VisionService {
       imagePath: imagePath,
       intent: 'color_identify',
       action: (path) => _zhipuService.recognizeColor(path),
-      fallbackText: '當前AI顏色識別服務不可用，請轉人工協助識別顏色。',
+      fallbackText: '当前AI颜色识别服务不可用，请转人工协助识别颜色。',
     );
   }
 
@@ -32,7 +32,7 @@ class VisionService {
       imagePath: imagePath,
       intent: 'object_identify',
       action: (path) => _zhipuService.identifyObject(path),
-      fallbackText: '當前AI物體識別服務不可用，請轉人工協助識別物體。',
+      fallbackText: '当前AI物体识别服务不可用，请转人工协助识别物体。',
     );
   }
 
@@ -41,7 +41,7 @@ class VisionService {
       imagePath: imagePath,
       intent: 'money_identify',
       action: (path) => _zhipuService.recognizeMoney(path),
-      fallbackText: '當前AI鈔票識別服務不可用，請轉人工協助識別面額。',
+      fallbackText: '当前AI钞票识别服务不可用，请转人工协助识别面额。',
     );
   }
 
@@ -50,7 +50,7 @@ class VisionService {
       imagePath: imagePath,
       intent: 'medicine_check',
       action: (path) => _zhipuService.checkMedicine(path),
-      fallbackText: '當前AI藥品識別服務不可用，請轉人工確認藥品信息。',
+      fallbackText: '当前AI药品识别服务不可用，请转人工确认药品信息。',
     );
   }
 
@@ -61,14 +61,14 @@ class VisionService {
     required String fallbackText,
   }) async {
     if (!_zhipuService.isConfigured) {
-      AppLogger.warning('智譜AI未配置，使用Demo fallback: $intent');
+      AppLogger.warning('智谱AI未配置，使用Demo fallback: $intent');
       return VisionResult(
         success: false,
         text: fallbackText,
         intent: intent,
         confidence: 0.0,
         isFromRealApi: false,
-        error: '智譜AI未配置',
+        error: '智谱AI未配置',
       );
     }
 
@@ -82,7 +82,7 @@ class VisionService {
         isFromRealApi: true,
       );
     } on ZhipuVlException catch (e) {
-      AppLogger.warning('智譜AI調用失敗，降級到Demo: ${e.message}');
+      AppLogger.warning('智谱AI调用失败，降级到Demo: ${e.message}');
       return VisionResult(
         success: false,
         text: fallbackText,
@@ -92,7 +92,7 @@ class VisionService {
         error: e.message,
       );
     } catch (e) {
-      AppLogger.error('視覺識別異常', e);
+      AppLogger.error('视觉识别异常', e);
       return VisionResult(
         success: false,
         text: fallbackText,

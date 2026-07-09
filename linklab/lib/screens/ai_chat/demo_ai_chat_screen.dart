@@ -472,22 +472,29 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
   }
 
   Future<void> _pickImage(ImageSource source) async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: source);
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(source: source);
 
-    if (pickedFile == null) return;
+      if (!mounted || pickedFile == null) return;
 
-    final bytes = await pickedFile.readAsBytes();
+      final bytes = await pickedFile.readAsBytes();
+      if (!mounted) return;
 
-    setState(() {
-      _selectedImageBytes = bytes;
-      _selectedImagePath = pickedFile.path.isEmpty ? null : pickedFile.path;
-      _selectedImageName = pickedFile.name.isEmpty
-          ? 'selected-image'
-          : pickedFile.name;
-    });
+      setState(() {
+        _selectedImageBytes = bytes;
+        _selectedImagePath = pickedFile.path.isEmpty ? null : pickedFile.path;
+        _selectedImageName = pickedFile.name.isEmpty
+            ? 'selected-image'
+            : pickedFile.name;
+      });
 
-    await _sendMessage();
+      await _sendMessage();
+    } catch (error, stackTrace) {
+      AppLogger.warning('[DemoAIChat] 图片选择失败', error, stackTrace);
+      if (!mounted) return;
+      _addBotMessage('暂时无法读取图片。请检查相机或相册权限后重试。');
+    }
   }
 
   void _showImagePickerOptions() {

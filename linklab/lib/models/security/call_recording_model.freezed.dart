@@ -28,7 +28,7 @@ mixin _$CallRecording {
   String? get fileUrl => throw _privateConstructorUsedError;
   String? get filePath => throw _privateConstructorUsedError;
   int? get fileSize => throw _privateConstructorUsedError;
-  int? get duration => throw _privateConstructorUsedError; // 錄音時長（秒）
+  int? get duration => throw _privateConstructorUsedError; // 录音时长（秒）
   bool get isUploaded => throw _privateConstructorUsedError;
   bool get isDeleted => throw _privateConstructorUsedError;
   List<DetectionResult> get detectionResults =>
@@ -37,7 +37,7 @@ mixin _$CallRecording {
   DateTime? get endedAt => throw _privateConstructorUsedError;
   DateTime? get uploadedAt => throw _privateConstructorUsedError;
   DateTime? get deletedAt => throw _privateConstructorUsedError;
-  DateTime? get expiresAt => throw _privateConstructorUsedError; // 7天后自動刪除
+  DateTime? get expiresAt => throw _privateConstructorUsedError; // 7天后自动删除
   DateTime? get createdAt => throw _privateConstructorUsedError;
 
   /// Serializes this CallRecording to a JSON map.
@@ -367,7 +367,7 @@ class _$CallRecordingImpl extends _CallRecording {
   final int? fileSize;
   @override
   final int? duration;
-  // 錄音時長（秒）
+  // 录音时长（秒）
   @override
   @JsonKey()
   final bool isUploaded;
@@ -394,7 +394,7 @@ class _$CallRecordingImpl extends _CallRecording {
   final DateTime? deletedAt;
   @override
   final DateTime? expiresAt;
-  // 7天后自動刪除
+  // 7天后自动删除
   @override
   final DateTime? createdAt;
 
@@ -519,7 +519,7 @@ abstract class _CallRecording extends CallRecording {
   @override
   int? get fileSize;
   @override
-  int? get duration; // 錄音時長（秒）
+  int? get duration; // 录音时长（秒）
   @override
   bool get isUploaded;
   @override
@@ -535,7 +535,7 @@ abstract class _CallRecording extends CallRecording {
   @override
   DateTime? get deletedAt;
   @override
-  DateTime? get expiresAt; // 7天后自動刪除
+  DateTime? get expiresAt; // 7天后自动删除
   @override
   DateTime? get createdAt;
 
@@ -560,7 +560,7 @@ mixin _$DetectionResult {
   ViolationLevel? get violationLevel => throw _privateConstructorUsedError;
   String? get detectedText => throw _privateConstructorUsedError;
   String? get matchedKeywords => throw _privateConstructorUsedError;
-  int? get timestamp => throw _privateConstructorUsedError; // 在錄音中的時間點（毫秒）
+  int? get timestamp => throw _privateConstructorUsedError; // 在录音中的时间点（毫秒）
   DateTime? get createdAt => throw _privateConstructorUsedError;
 
   /// Serializes this DetectionResult to a JSON map.
@@ -787,7 +787,7 @@ class _$DetectionResultImpl implements _DetectionResult {
   final String? matchedKeywords;
   @override
   final int? timestamp;
-  // 在錄音中的時間點（毫秒）
+  // 在录音中的时间点（毫秒）
   @override
   final DateTime? createdAt;
 
@@ -882,7 +882,7 @@ abstract class _DetectionResult implements DetectionResult {
   @override
   String? get matchedKeywords;
   @override
-  int? get timestamp; // 在錄音中的時間點（毫秒）
+  int? get timestamp; // 在录音中的时间点（毫秒）
   @override
   DateTime? get createdAt;
 

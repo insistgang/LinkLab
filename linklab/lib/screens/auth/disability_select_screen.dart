@@ -9,7 +9,7 @@ import '../../widgets/demo/demo_stage.dart';
 import '../../widgets/demo/linkable_icon.dart';
 import 'preference_screen.dart';
 
-/// 障礙類型選擇頁面
+/// 障碍类型选择页面
 class DisabilitySelectScreen extends StatefulWidget {
   const DisabilitySelectScreen({
     super.key,
@@ -30,36 +30,36 @@ class _DisabilitySelectScreenState extends State<DisabilitySelectScreen> {
   final List<_DisabilityOption> _options = const [
     _DisabilityOption(
       value: 'visual',
-      label: '視力障礙',
-      description: '包括全盲、低視力、色盲等',
+      label: '视力障碍',
+      description: '包括全盲、低视力、色盲等',
       icon: Icons.visibility_off_outlined,
       svgIcon: LinkableIconName.visualImpairment,
     ),
     _DisabilityOption(
       value: 'hearing',
-      label: '聽力障礙',
-      description: '包括聾人、聽力減退等',
+      label: '听力障碍',
+      description: '包括聋人、听力减退等',
       icon: Icons.hearing_disabled_outlined,
       svgIcon: LinkableIconName.hearingImpairment,
     ),
     _DisabilityOption(
       value: 'physical',
-      label: '肢體障礙',
-      description: '行動不便、輪椅使用者等',
+      label: '肢体障碍',
+      description: '行动不便、轮椅使用者等',
       icon: Icons.accessible_outlined,
       svgIcon: LinkableIconName.mobilityImpairment,
     ),
     _DisabilityOption(
       value: 'elderly',
       label: '老年人',
-      description: '需要額外幫助的老年用戶',
+      description: '需要额外帮助的老年用户',
       icon: Icons.elderly_outlined,
       svgIcon: LinkableIconName.elderly,
     ),
     _DisabilityOption(
       value: 'temporary',
-      label: '臨時需要幫助',
-      description: '受傷、生病等臨時情況',
+      label: '临时需要帮助',
+      description: '受伤、生病等临时情况',
       icon: Icons.medical_services_outlined,
       svgIcon: LinkableIconName.tempHelp,
     ),
@@ -88,8 +88,8 @@ class _DisabilitySelectScreenState extends State<DisabilitySelectScreen> {
     return DemoStageLiveBuilder(
       builder: (context) {
         return DemoStageScaffold(
-          title: '障礙類型',
-          subtitle: '這一步只用於改善默認體驗，不會阻塞你進入主流程',
+          title: '障碍类型',
+          subtitle: '这一步只用于改善默认体验，不会阻塞你进入主流程',
           body: ListView(
             padding: const EdgeInsets.fromLTRB(
               AppTheme.spacingL,
@@ -100,13 +100,13 @@ class _DisabilitySelectScreenState extends State<DisabilitySelectScreen> {
             children: [
               DemoReveal(
                 child: DemoAuthBanner(
-                  title: '請選擇您的障礙類型',
-                  subtitle: '這將幫助我們爲您提供更好的服務。您可以多選，也可以稍後再補充。',
+                  title: '请选择您的障碍类型',
+                  subtitle: '这将帮助我们为您提供更好的服务。您可以多选，也可以稍后再补充。',
                   icon: Icons.tune_rounded,
                   svgIcon: LinkableIconName.selectDisability,
                   chips: [
-                    DemoPill(label: '支持多選', color: AppTheme.stageAccent),
-                    DemoPill(label: '可稍後補充', color: AppTheme.stageInfo),
+                    DemoPill(label: '支持多选', color: AppTheme.stageAccent),
+                    DemoPill(label: '可稍后补充', color: AppTheme.stageInfo),
                   ],
                 ),
               ),
@@ -116,15 +116,15 @@ class _DisabilitySelectScreenState extends State<DisabilitySelectScreen> {
                 child: DemoMetricStrip(
                   items: [
                     DemoMetricItem(
-                      label: '已選類型',
-                      value: '${_selectedTypes.length} 項',
+                      label: '已选类型',
+                      value: '${_selectedTypes.length} 项',
                       color: _selectedTypes.isEmpty
                           ? AppTheme.stageTextHint
                           : AppTheme.stageAccent,
                     ),
                     DemoMetricItem(
                       label: '流程策略',
-                      value: '可稍後補充',
+                      value: '可稍后补充',
                       color: AppTheme.stageInfo,
                     ),
                   ],
@@ -158,7 +158,7 @@ class _DisabilitySelectScreenState extends State<DisabilitySelectScreen> {
                   child: DemoSurfaceCard(
                     color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.96),
                     child: AccessibleText(
-                      '已選擇 ${_selectedTypes.length} 項。後續會基於這些信息給出更合適的默認字體、朗讀和提示方式，但不會限制你進入主流程。',
+                      '已选择 ${_selectedTypes.length} 项。后续会基于这些信息给出更合适的默认字体、朗读和提示方式，但不会限制你进入主流程。',
                       style: TextStyle(
                         color: AppTheme.stageTextSecondary,
                         fontSize: AppTheme.fontSizeSmall,
@@ -173,7 +173,7 @@ class _DisabilitySelectScreenState extends State<DisabilitySelectScreen> {
                 child: TextButton(
                   onPressed: _onSkip,
                   child: Text(
-                    '跳過此步驟',
+                    '跳过此步骤',
                     style: TextStyle(color: AppTheme.stageAccent),
                   ),
                 ),
@@ -181,9 +181,9 @@ class _DisabilitySelectScreenState extends State<DisabilitySelectScreen> {
             ],
           ),
           bottomBar: AccessibleButton(
-            label: '繼續',
-            semanticLabel: '繼續下一步',
-            hint: '雙擊繼續設置無障礙偏好',
+            label: '继续',
+            semanticLabel: '继续下一步',
+            hint: '双击继续设置无障碍偏好',
             backgroundColor: AppTheme.stageAccent,
             foregroundColor: AppTheme.stageBackground,
             onPressed: _onContinue,
@@ -217,7 +217,7 @@ class _DisabilitySelectionCard extends StatelessWidget {
       trailing: isSelected
           ? Icon(Icons.check_circle_rounded, color: AppTheme.stageAccent)
           : DemoPill(
-              label: '點擊選擇',
+              label: '点击选择',
               color: AppTheme.stageTextHint,
               backgroundColor: AppTheme.stageSurface,
             ),

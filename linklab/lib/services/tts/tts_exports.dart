@@ -1,6 +1,6 @@
-/// TTS 服務導出文件
+/// TTS 服务导出文件
 ///
-/// 統一導出所有 TTS 相關服務。
+/// 统一导出所有 TTS 相关服务。
 library;
 
 export 'minimax_tts_service.dart';

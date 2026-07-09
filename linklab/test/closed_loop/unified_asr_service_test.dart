@@ -15,8 +15,8 @@ void main() {
 
     test('keeps partial recognition text usable as final input', () {
       expect(
-        UnifiedAsrService.normalizeRecognizedText('  幫我   讀藥品盒  '),
-        '幫我 讀藥品盒',
+        UnifiedAsrService.normalizeRecognizedText('  帮我   读药品盒  '),
+        '帮我 读药品盒',
       );
     });
   });

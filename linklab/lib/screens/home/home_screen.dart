@@ -14,10 +14,10 @@ import '../../screens/real/real_volunteer_profile_screen.dart';
 import '../../widgets/demo/demo_routes.dart';
 import 'pending_help_screen.dart';
 
-/// 登錄後的首頁。
+/// 登录后的首页。
 ///
-/// 競賽 Demo 默認只保留兩個首屏選擇：求助者進入 AI 第一響應，
-/// 志願者進入待響應求助演示列表。
+/// 竞赛 Demo 默认只保留两个首屏选择：求助者进入 AI 第一响应，
+/// 志愿者进入待响应求助演示列表。
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({
     super.key,
@@ -51,7 +51,7 @@ class HomeScreen extends ConsumerWidget {
           scopesRoute: true,
           namesRoute: true,
           explicitChildNodes: true,
-          label: 'LinkAble 首頁，選擇求助者或志願者入口',
+          label: 'LinkAble 首页，选择求助者或志愿者入口',
           child: Stack(
             fit: StackFit.expand,
             children: [
@@ -106,7 +106,7 @@ class HomeScreen extends ConsumerWidget {
                                     maxWidth: 320,
                                   ),
                                   child: const Text(
-                                    '讓幫助真實發生\n連接每一次需要',
+                                    '让帮助真实发生\n连接每一次需要',
                                     textAlign: TextAlign.left,
                                     style: TextStyle(
                                       color: Color(0xFF050A03),
@@ -128,7 +128,7 @@ class HomeScreen extends ConsumerWidget {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     _RoleLabel(label: '求助者'),
-                                    _RoleLabel(label: '志願者'),
+                                    _RoleLabel(label: '志愿者'),
                                   ],
                                 ),
                               ),
@@ -141,14 +141,14 @@ class HomeScreen extends ConsumerWidget {
                               else
                                 const Spacer(),
                               _LandingActionButton(
-                                title: '我需要出行幫助',
-                                subtitle: '呼叫企業或志願者',
+                                title: '我需要出行帮助',
+                                subtitle: '呼叫企业或志愿者',
                                 semanticLabel: realDatabaseEnabled
-                                    ? '我需要出行幫助，創建真實求助記錄'
-                                    : '我需要出行幫助，進入 AI 求助主線',
+                                    ? '我需要出行帮助，创建真实求助记录'
+                                    : '我需要出行帮助，进入 AI 求助主线',
                                 hint: realDatabaseEnabled
-                                    ? '雙擊後寫入當前賬號自己的 help_requests 記錄'
-                                    : '雙擊後由 AI 先判斷需求，必要時轉接志願者',
+                                    ? '双击后写入当前账号自己的 help_requests 记录'
+                                    : '双击后由 AI 先判断需求，必要时转接志愿者',
                                 onTap: () {
                                   HapticFeedback.mediumImpact();
                                   if (onSeekerSelected != null) {
@@ -177,14 +177,14 @@ class HomeScreen extends ConsumerWidget {
                               ),
                               const SizedBox(height: 18),
                               _LandingActionButton(
-                                title: '我想成爲志願者',
+                                title: '我想成为志愿者',
                                 subtitle: '分享我的成就',
                                 semanticLabel: realDatabaseEnabled
-                                    ? '我想成爲志願者，創建真實志願者資料'
-                                    : '我想成爲志願者，查看待幫助列表',
+                                    ? '我想成为志愿者，创建真实志愿者资料'
+                                    : '我想成为志愿者，查看待帮助列表',
                                 hint: realDatabaseEnabled
-                                    ? '雙擊後寫入當前賬號自己的 volunteer_profiles 記錄'
-                                    : '雙擊進入志願者待響應求助演示',
+                                    ? '双击后写入当前账号自己的 volunteer_profiles 记录'
+                                    : '双击进入志愿者待响应求助演示',
                                 onTap: () {
                                   HapticFeedback.mediumImpact();
                                   if (onVolunteerSelected != null) {
@@ -229,7 +229,7 @@ class _RealHomeSummaryCard extends ConsumerWidget {
     return summary.when(
       data: (data) => _RealHomeSummaryDataCard(summary: data),
       loading: () => const _RealHomeCardShell(
-        semanticLabel: '正在讀取 Supabase 當前用戶數據',
+        semanticLabel: '正在读取 Supabase 当前用户数据',
         child: Row(
           children: [
             SizedBox(
@@ -238,18 +238,18 @@ class _RealHomeSummaryCard extends ConsumerWidget {
               child: CircularProgressIndicator(strokeWidth: 2),
             ),
             SizedBox(width: 12),
-            Expanded(child: Text('正在讀取真實數據')),
+            Expanded(child: Text('正在读取真实数据')),
           ],
         ),
       ),
       error: (_, _) => const _RealHomeCardShell(
-        semanticLabel: '真實數據讀取失敗',
+        semanticLabel: '真实数据读取失败',
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(Icons.error_outline_rounded, color: Color(0xFFC82432)),
             SizedBox(width: 10),
-            Expanded(child: Text('真實數據讀取失敗，請確認 Phase-3 SQL 已執行')),
+            Expanded(child: Text('真实数据读取失败，请确认 Phase-3 SQL 已执行')),
           ],
         ),
       ),
@@ -264,17 +264,17 @@ class _RealHomeSummaryDataCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final profileName = summary.profile?.effectiveDisplayName ?? '未創建資料';
-    final volunteerStatus = summary.hasVolunteerProfile ? '已創建' : '未創建';
+    final profileName = summary.profile?.effectiveDisplayName ?? '未创建资料';
+    final volunteerStatus = summary.hasVolunteerProfile ? '已创建' : '未创建';
 
     return _RealHomeCardShell(
       semanticLabel:
-          '已讀取 Supabase 當前用戶數據，資料 $profileName，求助記錄 ${summary.helpRequestCount} 條，志願者資料 $volunteerStatus',
+          '已读取 Supabase 当前用户数据，资料 $profileName，求助记录 ${summary.helpRequestCount} 条，志愿者资料 $volunteerStatus',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'RealMode 數據',
+            'RealMode 数据',
             style: TextStyle(
               color: Color(0xFF050A03),
               fontSize: 15,
@@ -284,7 +284,7 @@ class _RealHomeSummaryDataCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            '資料：$profileName\n求助記錄：${summary.helpRequestCount} 條\n志願者資料：$volunteerStatus',
+            '资料：$profileName\n求助记录：${summary.helpRequestCount} 条\n志愿者资料：$volunteerStatus',
             style: const TextStyle(
               color: Color(0xFF050A03),
               fontSize: 14,
@@ -344,7 +344,7 @@ class _BrandPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'LinkAble 品牌標識',
+      label: 'LinkAble 品牌标识',
       image: true,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
@@ -386,7 +386,7 @@ class _HandMark extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       image: true,
-      label: 'LinkAble 白色手形標誌，象徵連接每一次需要',
+      label: 'LinkAble 白色手形标志，象征连接每一次需要',
       child: SvgPicture.asset(
         _assetPath,
         width: size,
@@ -460,7 +460,7 @@ class _LandingActionButton extends StatelessWidget {
       button: true,
       excludeSemantics: true,
       label: semanticLabel,
-      hint: onLongPress == null ? hint : '$hint；長按可進入緊急求助',
+      hint: onLongPress == null ? hint : '$hint；长按可进入紧急求助',
       child: ClipRRect(
         borderRadius: borderRadius,
         child: Material(

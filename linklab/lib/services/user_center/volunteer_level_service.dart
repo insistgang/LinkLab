@@ -5,8 +5,8 @@ import '../../models/point_transaction_model.dart';
 import '../../models/volunteer_level_model.dart';
 import 'volunteer_demo_store.dart';
 
-/// 志願者等級服務 (F18)
-/// 7級體系：青苗→嫩芽→新葉→綠蔭→暖陽→星辰→燈塔
+/// 志愿者等级服务 (F18)
+/// 7级体系：青苗→嫩芽→新叶→绿荫→暖阳→星辰→灯塔
 class VolunteerLevelService {
   VolunteerLevelService({
     SupabaseClient? supabase,
@@ -27,7 +27,7 @@ class VolunteerLevelService {
     return _supabaseClient!;
   }
 
-  /// 獲取志願者等級信息
+  /// 获取志愿者等级信息
   Future<VolunteerLevelInfo> getLevelInfo(String volunteerId) async {
     if (!_hasSupabase) {
       try {
@@ -38,7 +38,7 @@ class VolunteerLevelService {
         }
         return _buildLevelInfo(currentLevel, profile.points);
       } catch (e) {
-        AppLogger.error('獲取本地志願者等級信息失敗', e);
+        AppLogger.error('获取本地志愿者等级信息失败', e);
         return _buildLevelInfo(1, 0);
       }
     }
@@ -55,12 +55,12 @@ class VolunteerLevelService {
 
       return _buildLevelInfo(currentLevel, currentPoints);
     } catch (e) {
-      AppLogger.error('獲取志願者等級信息失敗', e);
+      AppLogger.error('获取志愿者等级信息失败', e);
       return _buildLevelInfo(1, 0);
     }
   }
 
-  /// 計算等級信息
+  /// 计算等级信息
   VolunteerLevelInfo _buildLevelInfo(int currentLevel, int currentPoints) {
     final currentLevelDef = LevelDefinitions.getByLevel(currentLevel);
     final pointsToNext = LevelDefinitions.getPointsToNextLevel(currentPoints);
@@ -81,7 +81,7 @@ class VolunteerLevelService {
     );
   }
 
-  /// 計算等級（根據積分）
+  /// 计算等级（根据积分）
   Future<LevelInfo> calculateLevel(String volunteerId) async {
     if (!_hasSupabase) {
       try {
@@ -98,7 +98,7 @@ class VolunteerLevelService {
           maxPoints: levelDef.maxPoints,
         );
       } catch (e) {
-        AppLogger.error('計算本地等級失敗', e);
+        AppLogger.error('计算本地等级失败', e);
       }
     }
 
@@ -122,7 +122,7 @@ class VolunteerLevelService {
         maxPoints: levelDef.maxPoints,
       );
     } catch (e) {
-      AppLogger.error('計算等級失敗', e);
+      AppLogger.error('计算等级失败', e);
       return const LevelInfo(
         level: 1,
         name: '青苗',
@@ -134,8 +134,8 @@ class VolunteerLevelService {
     }
   }
 
-  /// 檢查並升級等級
-  /// 返回升級結果，如果沒有升級返回null
+  /// 检查并升级等级
+  /// 返回升级结果，如果没有升级返回null
   Future<LevelUpResult?> checkAndUpgrade(String volunteerId) async {
     if (!_hasSupabase) {
       try {
@@ -163,13 +163,13 @@ class VolunteerLevelService {
           newPrivileges: newPrivileges,
         );
       } catch (e) {
-        AppLogger.error('檢查本地升級失敗', e);
+        AppLogger.error('检查本地升级失败', e);
         return null;
       }
     }
 
     try {
-      // 獲取當前等級和積分
+      // 获取当前等级和积分
       final response = await _supabase
           .from('volunteer_profiles')
           .select('level, points')
@@ -179,27 +179,27 @@ class VolunteerLevelService {
       final currentLevel = (response['level'] as num?)?.toInt() ?? 1;
       final currentPoints = (response['points'] as num?)?.toInt() ?? 0;
 
-      // 計算應達到的等級
+      // 计算应达到的等级
       final expectedLevel = LevelDefinitions.calculateLevel(currentPoints);
 
-      // 如果應達等級高於當前等級，執行升級
+      // 如果应达等级高于当前等级，执行升级
       if (expectedLevel > currentLevel) {
-        // 更新等級
+        // 更新等级
         await _supabase
             .from('volunteer_profiles')
             .update({'level': expectedLevel})
             .eq('user_id', volunteerId);
 
-        // 獲取新舊等級定義
+        // 获取新旧等级定义
         final oldLevelDef = LevelDefinitions.getByLevel(currentLevel);
         final newLevelDef = LevelDefinitions.getByLevel(expectedLevel);
 
-        // 獲取新解鎖的權益
+        // 获取新解锁的权益
         final newPrivileges = newLevelDef.privileges
             .where((p) => !oldLevelDef.privileges.contains(p))
             .toList();
 
-        AppLogger.info('志願者升級: $volunteerId Lv$currentLevel -> Lv$expectedLevel');
+        AppLogger.info('志愿者升级: $volunteerId Lv$currentLevel -> Lv$expectedLevel');
 
         return LevelUpResult(
           oldLevel: currentLevel,
@@ -211,15 +211,15 @@ class VolunteerLevelService {
         );
       }
 
-      return null; // 沒有升級
+      return null; // 没有升级
     } catch (e) {
-      AppLogger.error('檢查升級失敗', e);
+      AppLogger.error('检查升级失败', e);
       return null;
     }
   }
 
-  /// 添加積分
-  /// 在幫助完成後調用
+  /// 添加积分
+  /// 在帮助完成后调用
   Future<void> addPoints(
     String volunteerId,
     int points,
@@ -256,13 +256,13 @@ class VolunteerLevelService {
         await checkAndUpgrade(volunteerId);
         return;
       } catch (e) {
-        AppLogger.error('本地添加積分失敗', e);
+        AppLogger.error('本地添加积分失败', e);
         return;
       }
     }
 
     try {
-      // 使用RPC添加積分（原子操作）
+      // 使用RPC添加积分（原子操作）
       await _supabase.rpc('add_volunteer_points', params: {
         'p_volunteer_id': volunteerId,
         'p_points': points,
@@ -271,11 +271,11 @@ class VolunteerLevelService {
         'p_related_id': relatedId,
       });
 
-      // 檢查是否需要升級
+      // 检查是否需要升级
       await checkAndUpgrade(volunteerId);
     } catch (e) {
-      AppLogger.error('添加積分失敗', e);
-      // 降級方案
+      AppLogger.error('添加积分失败', e);
+      // 降级方案
       await _supabase.rpc('increment_volunteer_points', params: {
         'volunteer_id': volunteerId,
         'points': points,
@@ -283,7 +283,7 @@ class VolunteerLevelService {
     }
   }
 
-  /// 完成實時幫助後添加積分
+  /// 完成实时帮助后添加积分
   Future<void> onRealtimeHelpCompleted(
     String volunteerId,
     String helpRequestId, {
@@ -296,7 +296,7 @@ class VolunteerLevelService {
           id: helpRequestId,
           volunteerId: volunteerId,
           seekerId: 'seeker_realtime',
-          seekerName: '實時求助者',
+          seekerName: '实时求助者',
           type: 'realtime_voice',
           durationMinutes: 16,
           rating: seekerRating,
@@ -305,31 +305,31 @@ class VolunteerLevelService {
       );
     }
 
-    // 基礎積分
+    // 基础积分
     await addPoints(
       volunteerId,
       PointRules.realtimeHelp,
       PointTransactionType.realtimeHelp,
-      description: '完成實時幫助',
+      description: '完成实时帮助',
       relatedId: helpRequestId,
     );
 
-    // 五星好評額外積分
+    // 五星好评额外积分
     if (seekerRating == 5) {
       await addPoints(
         volunteerId,
         PointRules.fiveStarRating,
         PointTransactionType.fiveStarRating,
-        description: '獲得五星好評',
+        description: '获得五星好评',
         relatedId: helpRequestId,
       );
     }
 
-    // 檢查連續幫助獎勵
+    // 检查连续帮助奖励
     await _checkContinuousHelpBonus(volunteerId);
   }
 
-  /// 完成異步幫助後添加積分
+  /// 完成异步帮助后添加积分
   Future<void> onAsyncHelpCompleted(
     String volunteerId,
     String taskId, {
@@ -342,7 +342,7 @@ class VolunteerLevelService {
           id: taskId,
           volunteerId: volunteerId,
           seekerId: 'seeker_async',
-          seekerName: '異步求助用戶',
+          seekerName: '异步求助用户',
           type: 'async',
           durationMinutes: 12,
           rating: seekerRating,
@@ -355,7 +355,7 @@ class VolunteerLevelService {
       volunteerId,
       PointRules.asyncHelp,
       PointTransactionType.asyncHelp,
-      description: '完成異步幫助',
+      description: '完成异步帮助',
       relatedId: taskId,
     );
 
@@ -364,7 +364,7 @@ class VolunteerLevelService {
         volunteerId,
         PointRules.fiveStarRating,
         PointTransactionType.fiveStarRating,
-        description: '獲得五星好評',
+        description: '获得五星好评',
         relatedId: taskId,
       );
     }
@@ -372,7 +372,7 @@ class VolunteerLevelService {
     await _checkContinuousHelpBonus(volunteerId);
   }
 
-  /// 檢查連續幫助獎勵
+  /// 检查连续帮助奖励
   Future<void> _checkContinuousHelpBonus(String volunteerId) async {
     if (!_hasSupabase) {
       try {
@@ -398,17 +398,17 @@ class VolunteerLevelService {
             volunteerId,
             PointRules.continuousHelpBonus,
             PointTransactionType.continuousHelpBonus,
-            description: '連續7天幫助獎勵',
+            description: '连续7天帮助奖励',
           );
         }
       } catch (e) {
-        AppLogger.error('檢查本地連續幫助獎勵失敗', e);
+        AppLogger.error('检查本地连续帮助奖励失败', e);
       }
       return;
     }
 
     try {
-      // 獲取最近7天的幫助記錄
+      // 获取最近7天的帮助记录
       final sevenDaysAgo = DateTime.now().subtract(const Duration(days: 7));
 
       final response = await _supabase
@@ -421,7 +421,7 @@ class VolunteerLevelService {
 
       final helps = response as List;
 
-      // 檢查是否有連續7天的幫助
+      // 检查是否有连续7天的帮助
       final helpDates = helps
           .map((h) {
             final item = Map<String, dynamic>.from(h as Map);
@@ -431,13 +431,13 @@ class VolunteerLevelService {
           .toSet()
           .toList();
 
-      // 檢查今天是否有幫助
+      // 检查今天是否有帮助
       final today = DateTime.now();
       final todayStr =
           '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
 
       if (helpDates.contains(todayStr) && helpDates.length >= 7) {
-        // 檢查是否已領取本週獎勵
+        // 检查是否已领取本周奖励
         final lastBonus = await _supabase
             .from('point_transactions')
             .select()
@@ -447,21 +447,21 @@ class VolunteerLevelService {
             .maybeSingle();
 
         if (lastBonus == null) {
-          // 發放連續幫助獎勵
+          // 发放连续帮助奖励
           await addPoints(
             volunteerId,
             PointRules.continuousHelpBonus,
             PointTransactionType.continuousHelpBonus,
-            description: '連續7天幫助獎勵',
+            description: '连续7天帮助奖励',
           );
         }
       }
     } catch (e) {
-      AppLogger.error('檢查連續幫助獎勵失敗', e);
+      AppLogger.error('检查连续帮助奖励失败', e);
     }
   }
 
-  /// 獲取積分流水
+  /// 获取积分流水
   Future<List<PointTransactionModel>> getPointTransactions(
     String volunteerId, {
     int limit = 20,
@@ -474,7 +474,7 @@ class VolunteerLevelService {
         final end = (offset + limit).clamp(start, transactions.length);
         return transactions.sublist(start, end);
       } catch (e) {
-        AppLogger.error('獲取本地積分流水失敗', e);
+        AppLogger.error('获取本地积分流水失败', e);
         return [];
       }
     }
@@ -491,12 +491,12 @@ class VolunteerLevelService {
           .map((json) => PointTransactionModel.fromJson(Map<String, dynamic>.from(json as Map)))
           .toList();
     } catch (e) {
-      AppLogger.error('獲取積分流水失敗', e);
+      AppLogger.error('获取积分流水失败', e);
       return [];
     }
   }
 
-  /// 懲罰扣分
+  /// 惩罚扣分
   Future<void> applyPenalty(
     String volunteerId,
     String reason, {
@@ -507,7 +507,7 @@ class VolunteerLevelService {
         volunteerId,
         PointRules.penalty,
         PointTransactionType.penalty,
-        description: '違規處罰: $reason',
+        description: '违规处罚: $reason',
         relatedId: relatedId,
       );
       return;
@@ -518,18 +518,18 @@ class VolunteerLevelService {
         'p_volunteer_id': volunteerId,
         'p_points': PointRules.penalty,
         'p_type': PointTransactionType.penalty.name,
-        'p_description': '違規處罰: $reason',
+        'p_description': '违规处罚: $reason',
         'p_related_id': relatedId,
       });
 
-      AppLogger.warning('志願者被處罰: $volunteerId, 原因: $reason');
+      AppLogger.warning('志愿者被处罚: $volunteerId, 原因: $reason');
     } catch (e) {
-      AppLogger.error('應用懲罰失敗', e);
+      AppLogger.error('应用惩罚失败', e);
     }
   }
 }
 
-/// 等級信息（簡化版）
+/// 等级信息（简化版）
 class LevelInfo {
   final int level;
   final String name;
@@ -547,17 +547,17 @@ class LevelInfo {
     required this.maxPoints,
   });
 
-  /// 進度百分比
+  /// 进度百分比
   double get progressPercent {
     if (maxPoints <= minPoints) return 1.0;
     return (points - minPoints) / (maxPoints - minPoints);
   }
 
-  /// 到下一級所需積分
+  /// 到下一级所需积分
   int get pointsToNext => maxPoints - points;
 }
 
-/// 升級結果
+/// 升级结果
 class LevelUpResult {
   final int oldLevel;
   final int newLevel;
@@ -575,10 +575,10 @@ class LevelUpResult {
     required this.newPrivileges,
   });
 
-  /// 升級提示消息
+  /// 升级提示消息
   String get message =>
-      '🎉 恭喜升級！$oldLevelName → $emoji $newLevelName';
+      '🎉 恭喜升级！$oldLevelName → $emoji $newLevelName';
 
-  /// 是否解鎖新權益
+  /// 是否解锁新权益
   bool get hasNewPrivileges => newPrivileges.isNotEmpty;
 }

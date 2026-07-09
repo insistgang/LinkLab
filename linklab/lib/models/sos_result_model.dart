@@ -1,6 +1,6 @@
-/// SosFacade 統一輸出模型
+/// SosFacade 统一输出模型
 ///
-/// AGENTS.md §6.1：SOS 流程標準化結果。
+/// AGENTS.md §6.1：SOS 流程标准化结果。
 class SOSResultModel {
   final bool success;
   final String? error;

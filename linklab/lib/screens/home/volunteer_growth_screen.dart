@@ -86,7 +86,7 @@ class _VolunteerGrowthScreenState extends ConsumerState<VolunteerGrowthScreen> {
         completedCount: completedCount,
       );
     } catch (e, st) {
-      AppLogger.error('成長值數據加載失敗', e, st);
+      AppLogger.error('成长值数据加载失败', e, st);
       return _VolunteerGrowthData.fallback();
     }
   }
@@ -139,11 +139,11 @@ class _VolunteerGrowthScreenState extends ConsumerState<VolunteerGrowthScreen> {
   @override
   Widget build(BuildContext context) {
     final session = ref.watch(appSessionProvider);
-    final name = session.userProfile?.displayName ?? '志願者';
+    final name = session.userProfile?.displayName ?? '志愿者';
 
     return DemoStageScaffold(
-      title: '成長值',
-      subtitle: '志願者服務記錄、演示貢獻值和技能覆蓋',
+      title: '成长值',
+      subtitle: '志愿者服务记录、演示贡献值和技能覆盖',
       showBackButton: true,
       body: FutureBuilder<_VolunteerGrowthData>(
         future: _future,
@@ -160,13 +160,13 @@ class _VolunteerGrowthScreenState extends ConsumerState<VolunteerGrowthScreen> {
                   ),
                   const SizedBox(height: AppTheme.spacingM),
                   AccessibleText(
-                    '加載失敗，請稍後重試',
+                    '加载失败，请稍后重试',
                     style: TextStyle(color: AppTheme.stageTextPrimary),
                   ),
                   const SizedBox(height: AppTheme.spacingM),
                   AccessibleIconButton(
                     icon: Icons.refresh,
-                    semanticLabel: '重試',
+                    semanticLabel: '重试',
                     onPressed: _refresh,
                   ),
                 ],
@@ -175,7 +175,7 @@ class _VolunteerGrowthScreenState extends ConsumerState<VolunteerGrowthScreen> {
           }
           if (!snapshot.hasData) {
             return Semantics(
-              label: '正在加載志願者成長值',
+              label: '正在加载志愿者成长值',
               liveRegion: true,
               child: const Center(child: CircularProgressIndicator()),
             );
@@ -220,7 +220,7 @@ class _VolunteerGrowthScreenState extends ConsumerState<VolunteerGrowthScreen> {
                       const SizedBox(width: AppTheme.spacingM),
                       Expanded(
                         child: _MetricCard(
-                          label: '好評率',
+                          label: '好评率',
                           value: '98%',
                           icon: LinkableIconName.like,
                           color: AppTheme.stageAccent,
@@ -229,7 +229,7 @@ class _VolunteerGrowthScreenState extends ConsumerState<VolunteerGrowthScreen> {
                       const SizedBox(width: AppTheme.spacingM),
                       Expanded(
                         child: _MetricCard(
-                          label: '響應',
+                          label: '响应',
                           value: '42秒',
                           icon: LinkableIconName.answer,
                           color: AppTheme.stageInfo,
@@ -242,8 +242,8 @@ class _VolunteerGrowthScreenState extends ConsumerState<VolunteerGrowthScreen> {
                 const DemoReveal(
                   delay: Duration(milliseconds: 120),
                   child: DemoSectionTitle(
-                    title: '服務技能',
-                    subtitle: '用於匹配用戶問題，不開放複雜認證流程',
+                    title: '服务技能',
+                    subtitle: '用于匹配用户问题，不开放复杂认证流程',
                   ),
                 ),
                 const SizedBox(height: AppTheme.spacingM),
@@ -255,8 +255,8 @@ class _VolunteerGrowthScreenState extends ConsumerState<VolunteerGrowthScreen> {
                 const DemoReveal(
                   delay: Duration(milliseconds: 180),
                   child: DemoSectionTitle(
-                    title: '最近貢獻記錄',
-                    subtitle: '下方記錄合計等於當前貢獻值，不接積分商城',
+                    title: '最近贡献记录',
+                    subtitle: '下方记录合计等于当前贡献值，不接积分商城',
                   ),
                 ),
                 const SizedBox(height: AppTheme.spacingM),
@@ -294,7 +294,7 @@ class _GrowthHero extends StatelessWidget {
 
     return DemoSurfaceCard(
       semanticLabel:
-          '$name 的志願者成長值，當前 ${level.currentPoints} 點，等級 ${current.name}',
+          '$name 的志愿者成长值，当前 ${level.currentPoints} 点，等级 ${current.name}',
       color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.96),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -312,7 +312,7 @@ class _GrowthHero extends StatelessWidget {
                 child: const LinkableSvgIcon(
                   icon: LinkableIconName.points,
                   size: 46,
-                  semanticLabel: '成長值',
+                  semanticLabel: '成长值',
                 ),
               ),
               const SizedBox(width: AppTheme.spacingM),
@@ -330,7 +330,7 @@ class _GrowthHero extends StatelessWidget {
                     ),
                     const SizedBox(height: AppTheme.spacingXS),
                     AccessibleText(
-                      'Lv${level.currentLevel} ${current.name} · ${current.description ?? '志願服務中'}',
+                      'Lv${level.currentLevel} ${current.name} · ${current.description ?? '志愿服务中'}',
                       style: TextStyle(
                         color: AppTheme.stageTextSecondary,
                         fontSize: AppTheme.fontSizeSmall,
@@ -354,7 +354,7 @@ class _GrowthHero extends StatelessWidget {
           ),
           const SizedBox(height: AppTheme.spacingXS),
           AccessibleText(
-            '演示貢獻值',
+            '演示贡献值',
             style: TextStyle(
               color: AppTheme.stageTextSecondary,
               fontSize: AppTheme.fontSizeSmall,
@@ -374,8 +374,8 @@ class _GrowthHero extends StatelessWidget {
           const SizedBox(height: AppTheme.spacingS),
           AccessibleText(
             next == null
-                ? '已達到當前演示最高等級'
-                : '距離 ${next.name} 還需 ${level.pointsToNextLevel} 點',
+                ? '已达到当前演示最高等级'
+                : '距离 ${next.name} 还需 ${level.pointsToNextLevel} 点',
             style: TextStyle(
               color: AppTheme.stageTextSecondary,
               fontSize: AppTheme.fontSizeSmall,
@@ -402,7 +402,7 @@ class _ContributionLevelCard extends StatelessWidget {
 
     return DemoSurfaceCard(
       semanticLabel:
-          '貢獻等級說明，當前貢獻等級 Lv${level.currentLevel} ${current.name}，最近貢獻記錄合計 $contributionTotal 點',
+          '贡献等级说明，当前贡献等级 Lv${level.currentLevel} ${current.name}，最近贡献记录合计 $contributionTotal 点',
       color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.9),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -431,7 +431,7 @@ class _ContributionLevelCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     AccessibleText(
-                      '貢獻等級說明',
+                      '贡献等级说明',
                       style: TextStyle(
                         color: AppTheme.stageTextPrimary,
                         fontSize: AppTheme.fontSizeLarge,
@@ -440,7 +440,7 @@ class _ContributionLevelCard extends StatelessWidget {
                     ),
                     const SizedBox(height: AppTheme.spacingXS),
                     AccessibleText(
-                      '當前 Lv${level.currentLevel} ${current.name}，由最近貢獻記錄合計 $contributionTotal 點計算。',
+                      '当前 Lv${level.currentLevel} ${current.name}，由最近贡献记录合计 $contributionTotal 点计算。',
                       style: TextStyle(
                         color: AppTheme.stageTextSecondary,
                         fontSize: AppTheme.fontSizeSmall,
@@ -455,12 +455,12 @@ class _ContributionLevelCard extends StatelessWidget {
           const SizedBox(height: AppTheme.spacingM),
           const _RuleLine(
             icon: Icons.manage_search_outlined,
-            text: '貢獻等級會展示在匹配和志願者信息中，幫助求助者理解你的服務經驗。',
+            text: '贡献等级会展示在匹配和志愿者信息中，帮助求助者理解你的服务经验。',
           ),
           const SizedBox(height: AppTheme.spacingS),
           const _RuleLine(
             icon: Icons.verified_user_outlined,
-            text: '等級只作爲信任提示和匹配參考，不代表平臺認證、排行或兌換權益。',
+            text: '等级只作为信任提示和匹配参考，不代表平台认证、排行或兑换权益。',
           ),
         ],
       ),
@@ -526,7 +526,7 @@ class _SkillPanel extends StatelessWidget {
         children: [
           if (skills.isEmpty)
             DemoPill(
-              label: '實時語音協助',
+              label: '实时语音协助',
               icon: Icons.record_voice_over_outlined,
               color: AppTheme.stageAccentLight,
             )
@@ -555,14 +555,14 @@ class _ContributionList extends StatelessWidget {
   Widget build(BuildContext context) {
     if (items.isEmpty) {
       return const DemoSurfaceCard(
-        child: AccessibleText('暫無貢獻記錄，完成一次用戶問題後會顯示在這裏。'),
+        child: AccessibleText('暂无贡献记录，完成一次用户问题后会显示在这里。'),
       );
     }
 
     return Column(
       children: [
         DemoSurfaceCard(
-          semanticLabel: '最近貢獻記錄合計 $total 點，與頂部貢獻值一致',
+          semanticLabel: '最近贡献记录合计 $total 点，与顶部贡献值一致',
           padding: const EdgeInsets.all(AppTheme.spacingM),
           child: Row(
             children: [
@@ -574,7 +574,7 @@ class _ContributionList extends StatelessWidget {
               const SizedBox(width: AppTheme.spacingM),
               Expanded(
                 child: AccessibleText(
-                  '最近記錄合計',
+                  '最近记录合计',
                   style: TextStyle(
                     color: AppTheme.stageTextPrimary,
                     fontSize: AppTheme.fontSizeNormal,
@@ -617,7 +617,7 @@ class _ContributionRow extends StatelessWidget {
 
     return DemoSurfaceCard(
       semanticLabel:
-          '${item.description}，貢獻值 $sign${item.points}，${item.createdAt?.formatRelative() ?? '剛剛'}',
+          '${item.description}，贡献值 $sign${item.points}，${item.createdAt?.formatRelative() ?? '刚刚'}',
       padding: const EdgeInsets.all(AppTheme.spacingM),
       child: Row(
         children: [
@@ -639,7 +639,7 @@ class _ContributionRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 AccessibleText(
-                  item.description ?? '完成一次志願服務',
+                  item.description ?? '完成一次志愿服务',
                   style: TextStyle(
                     color: AppTheme.stageTextPrimary,
                     fontSize: AppTheme.fontSizeNormal,
@@ -648,7 +648,7 @@ class _ContributionRow extends StatelessWidget {
                 ),
                 const SizedBox(height: AppTheme.spacingXS),
                 AccessibleText(
-                  item.createdAt?.formatRelative() ?? '剛剛',
+                  item.createdAt?.formatRelative() ?? '刚刚',
                   style: TextStyle(
                     color: AppTheme.stageTextSecondary,
                     fontSize: AppTheme.fontSizeSmall,
@@ -683,7 +683,7 @@ class _VolunteerRulesCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AccessibleText(
-            '志願者側規則',
+            '志愿者侧规则',
             style: TextStyle(
               color: AppTheme.stageTextPrimary,
               fontSize: AppTheme.fontSizeLarge,
@@ -693,17 +693,17 @@ class _VolunteerRulesCard extends StatelessWidget {
           const SizedBox(height: AppTheme.spacingM),
           const _RuleLine(
             icon: Icons.health_and_safety_outlined,
-            text: '緊急問題優先響應，普通問題按技能匹配。',
+            text: '紧急问题优先响应，普通问题按技能匹配。',
           ),
           const SizedBox(height: AppTheme.spacingS),
           const _RuleLine(
             icon: Icons.privacy_tip_outlined,
-            text: '不展示求助者真實姓名和精確地址。',
+            text: '不展示求助者真实姓名和精确地址。',
           ),
           const SizedBox(height: AppTheme.spacingS),
           const _RuleLine(
             icon: Icons.card_giftcard_outlined,
-            text: '當前貢獻值僅用於 Demo 反饋，不代表真實積分兌換。',
+            text: '当前贡献值仅用于 Demo 反馈，不代表真实积分兑换。',
           ),
         ],
       ),

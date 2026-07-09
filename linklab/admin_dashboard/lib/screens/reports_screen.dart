@@ -30,12 +30,12 @@ class _ReportsContent extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('舉報處理'),
+        title: const Text('举报处理'),
         actions: [
           // Filter
           PopupMenuButton<ReportStatus?>(
             icon: const Icon(Icons.filter_list),
-            tooltip: '篩選狀態',
+            tooltip: '筛选状态',
             itemBuilder: (context) => [
               const PopupMenuItem(value: null, child: Text('全部')),
               ...ReportStatus.values.map(
@@ -88,25 +88,25 @@ class _ReportsContent extends StatelessWidget {
   Widget _buildStatisticsCards(ReportStatistics stats, bool isMobile) {
     final cards = [
       _StatCard(
-        title: '待處理',
+        title: '待处理',
         value: stats.pendingReports.toString(),
         color: AppTheme.warningColor,
         icon: Icons.pending_actions,
       ),
       _StatCard(
-        title: '處理中',
+        title: '处理中',
         value: stats.processingReports.toString(),
         color: AppTheme.infoColor,
         icon: Icons.sync,
       ),
       _StatCard(
-        title: '已解決',
+        title: '已解决',
         value: stats.resolvedReports.toString(),
         color: AppTheme.successColor,
         icon: Icons.check_circle,
       ),
       _StatCard(
-        title: '平均處理時間',
+        title: '平均处理时间',
         value: '${stats.avgProcessTime.toStringAsFixed(1)}h',
         color: AppTheme.primaryColor,
         icon: Icons.timer,
@@ -157,7 +157,7 @@ class _ReportsContent extends StatelessWidget {
 
     if (state is ReportLoaded) {
       if (state.reports.isEmpty) {
-        return const Center(child: Text('暫無舉報數據'));
+        return const Center(child: Text('暂无举报数据'));
       }
 
       if (isMobile) {
@@ -178,13 +178,13 @@ class _ReportsContent extends StatelessWidget {
         padding: const EdgeInsets.all(24),
         child: Card(
           child: PaginatedDataTable2(
-            header: Text('共 ${state.reports.length} 條舉報'),
+            header: Text('共 ${state.reports.length} 条举报'),
             columns: const [
-              DataColumn2(label: Text('舉報類型'), size: ColumnSize.S),
-              DataColumn2(label: Text('舉報內容'), size: ColumnSize.L),
-              DataColumn2(label: Text('被舉報對象'), size: ColumnSize.M),
-              DataColumn2(label: Text('狀態'), size: ColumnSize.S),
-              DataColumn2(label: Text('舉報時間'), size: ColumnSize.M),
+              DataColumn2(label: Text('举报类型'), size: ColumnSize.S),
+              DataColumn2(label: Text('举报内容'), size: ColumnSize.L),
+              DataColumn2(label: Text('被举报对象'), size: ColumnSize.M),
+              DataColumn2(label: Text('状态'), size: ColumnSize.S),
+              DataColumn2(label: Text('举报时间'), size: ColumnSize.M),
               DataColumn2(label: Text('操作'), size: ColumnSize.S),
             ],
             source: _ReportDataSource(
@@ -212,7 +212,7 @@ class _ReportsContent extends StatelessWidget {
                   ..add(const ReportLoadRequested())
                   ..add(ReportLoadStatistics());
               },
-              child: const Text('重試'),
+              child: const Text('重试'),
             ),
           ],
         ),
@@ -229,7 +229,7 @@ class _ReportsContent extends StatelessWidget {
     showDialog(
       context: parentContext,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('處理舉報'),
+        title: const Text('处理举报'),
         content: SizedBox(
           width: 500,
           child: SingleChildScrollView(
@@ -238,20 +238,20 @@ class _ReportsContent extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Report Info
-                _buildInfoRow('舉報類型', report.typeText),
-                _buildInfoRow('舉報原因', report.reason),
+                _buildInfoRow('举报类型', report.typeText),
+                _buildInfoRow('举报原因', report.reason),
                 if (report.description != null)
-                  _buildInfoRow('詳細描述', report.description!),
+                  _buildInfoRow('详细描述', report.description!),
                 _buildInfoRow(
-                  '被舉報對象',
+                  '被举报对象',
                   '${report.targetTypeText}: ${report.targetUserName ?? '未知'}',
                 ),
                 if (report.targetContent != null)
-                  _buildInfoRow('舉報內容', report.targetContent!),
+                  _buildInfoRow('举报内容', report.targetContent!),
                 const Divider(height: 32),
                 // Action Selection
                 const Text(
-                  '處理操作：',
+                  '处理操作：',
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 8),
@@ -263,19 +263,19 @@ class _ReportsContent extends StatelessWidget {
                     child: const Column(
                       children: [
                         RadioListTile<String>(
-                          title: Text('警告用戶'),
+                          title: Text('警告用户'),
                           value: 'warn',
                         ),
                         RadioListTile<String>(
-                          title: Text('封禁用戶'),
+                          title: Text('封禁用户'),
                           value: 'ban',
                         ),
                         RadioListTile<String>(
-                          title: Text('刪除內容'),
+                          title: Text('删除内容'),
                           value: 'delete',
                         ),
                         RadioListTile<String>(
-                          title: Text('駁回舉報'),
+                          title: Text('驳回举报'),
                           value: 'dismiss',
                         ),
                       ],
@@ -287,8 +287,8 @@ class _ReportsContent extends StatelessWidget {
                 TextField(
                   controller: resultController,
                   decoration: const InputDecoration(
-                    labelText: '處理結果說明',
-                    hintText: '請輸入處理結果說明',
+                    labelText: '处理结果说明',
+                    hintText: '请输入处理结果说明',
                   ),
                   maxLines: 3,
                 ),
@@ -318,7 +318,7 @@ class _ReportsContent extends StatelessWidget {
                       ),
                     );
                   },
-            child: const Text('確認處理'),
+            child: const Text('确认处理'),
           ),
         ],
       ),
@@ -355,13 +355,13 @@ class _ReportsContent extends StatelessWidget {
   String _getStatusText(ReportStatus status) {
     switch (status) {
       case ReportStatus.pending:
-        return '待處理';
+        return '待处理';
       case ReportStatus.processing:
-        return '處理中';
+        return '处理中';
       case ReportStatus.resolved:
-        return '已解決';
+        return '已解决';
       case ReportStatus.dismissed:
-        return '已駁回';
+        return '已驳回';
     }
   }
 }
@@ -454,7 +454,7 @@ class _ReportCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              '舉報原因: ${report.reason}',
+              '举报原因: ${report.reason}',
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
             if (report.description != null) ...[
@@ -466,7 +466,7 @@ class _ReportCard extends StatelessWidget {
             ],
             const SizedBox(height: 8),
             Text(
-              '被舉報對象: ${report.targetTypeText} - ${report.targetUserName ?? '未知'}',
+              '被举报对象: ${report.targetTypeText} - ${report.targetUserName ?? '未知'}',
               style: TextStyle(fontSize: 12, color: Colors.grey[600]),
             ),
             if (report.targetContent != null) ...[
@@ -491,7 +491,7 @@ class _ReportCard extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: onProcess,
-                  child: const Text('處理舉報'),
+                  child: const Text('处理举报'),
                 ),
               ),
           ],
@@ -611,9 +611,9 @@ class _ReportDataSource extends DataTableSource {
           report.status == ReportStatus.pending
               ? TextButton(
                   onPressed: () => onProcess(report),
-                  child: const Text('處理'),
+                  child: const Text('处理'),
                 )
-              : const Text('已處理'),
+              : const Text('已处理'),
         ),
       ],
     );

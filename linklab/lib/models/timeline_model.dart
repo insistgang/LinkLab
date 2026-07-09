@@ -3,7 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'timeline_model.freezed.dart';
 part 'timeline_model.g.dart';
 
-/// 善意時間線數據模型
+/// 善意时间线数据模型
 @freezed
 class TimelineModel with _$TimelineModel {
   const factory TimelineModel({
@@ -20,7 +20,7 @@ class TimelineModel with _$TimelineModel {
       _$TimelineModelFromJson(json);
 }
 
-/// 時間線單日數據
+/// 时间线单日数据
 @freezed
 class TimelineDay with _$TimelineDay {
   const factory TimelineDay({
@@ -35,7 +35,7 @@ class TimelineDay with _$TimelineDay {
 
   const TimelineDay._();
 
-  /// 活躍度級別（用於熱力圖顏色）
+  /// 活跃度级别（用于热力图颜色）
   int get activityLevel {
     if (helpCount == 0) return 0;
     if (helpCount == 1) return 1;
@@ -45,7 +45,7 @@ class TimelineDay with _$TimelineDay {
   }
 }
 
-/// 時間線事件
+/// 时间线事件
 @freezed
 class TimelineEvent with _$TimelineEvent {
   const factory TimelineEvent({
@@ -62,7 +62,7 @@ class TimelineEvent with _$TimelineEvent {
       _$TimelineEventFromJson(json);
 }
 
-/// 時間線統計
+/// 时间线统计
 @freezed
 class TimelineStats with _$TimelineStats {
   const factory TimelineStats({
@@ -80,7 +80,7 @@ class TimelineStats with _$TimelineStats {
       _$TimelineStatsFromJson(json);
 }
 
-/// 年度報告模型
+/// 年度报告模型
 @freezed
 class AnnualReport with _$AnnualReport {
   const factory AnnualReport({
@@ -95,7 +95,7 @@ class AnnualReport with _$AnnualReport {
       _$AnnualReportFromJson(json);
 }
 
-/// 報告章節
+/// 报告章节
 @freezed
 class ReportSection with _$ReportSection {
   const factory ReportSection({
@@ -109,14 +109,14 @@ class ReportSection with _$ReportSection {
       _$ReportSectionFromJson(json);
 }
 
-/// 年度報告生成器
+/// 年度报告生成器
 class AnnualReportGenerator {
   static AnnualReport generate(String volunteerId, int year, TimelineModel timeline) {
     final sections = <ReportSection>[
       ReportSection(
         type: 'summary',
-        title: '年度總結',
-        subtitle: '這一年，你幫助了${timeline.totalHelps}位求助者',
+        title: '年度总结',
+        subtitle: '这一年，你帮助了${timeline.totalHelps}位求助者',
         data: {
           'totalHelps': timeline.totalHelps,
           'totalMinutes': timeline.totalMinutes,
@@ -125,13 +125,13 @@ class AnnualReportGenerator {
       ),
       ReportSection(
         type: 'heatmap',
-        title: '幫助熱力圖',
-        subtitle: '每一天的善意都被記錄',
+        title: '帮助热力图',
+        subtitle: '每一天的善意都被记录',
       ),
       ReportSection(
         type: 'highlights',
-        title: '高光時刻',
-        subtitle: '你的最佳表現',
+        title: '高光时刻',
+        subtitle: '你的最佳表现',
         data: {
           'mostActiveDay': _findMostActiveDay(timeline),
           'averageRating': timeline.stats?.averageRating ?? 0,
@@ -140,15 +140,15 @@ class AnnualReportGenerator {
       ),
       ReportSection(
         type: 'skills',
-        title: '技能分佈',
-        subtitle: '你最擅長的領域',
+        title: '技能分布',
+        subtitle: '你最擅长的领域',
         data: {
           'topSkills': timeline.stats?.topSkills ?? [],
         },
       ),
       ReportSection(
         type: 'quote',
-        title: '年度寄語',
+        title: '年度寄语',
         subtitle: _generateQuote(timeline),
       ),
     ];
@@ -156,7 +156,7 @@ class AnnualReportGenerator {
     return AnnualReport(
       volunteerId: volunteerId,
       year: year,
-      title: '$year年度善意報告',
+      title: '$year年度善意报告',
       sections: sections,
       generatedAt: DateTime.now(),
     );
@@ -174,13 +174,13 @@ class AnnualReportGenerator {
 
   static String _generateQuote(TimelineModel timeline) {
     if (timeline.totalHelps >= 100) {
-      return '你是真正的志願之星，用善意點亮了100+個生命';
+      return '你是真正的志愿之星，用善意点亮了100+个生命';
     } else if (timeline.totalHelps >= 50) {
-      return '你的堅持讓這個世界變得更美好';
+      return '你的坚持让这个世界变得更美好';
     } else if (timeline.totalHelps >= 10) {
-      return '每一次幫助都是一顆種子，終將開花結果';
+      return '每一次帮助都是一颗种子，终将开花结果';
     } else {
-      return '志願之路纔剛剛開始，未來可期';
+      return '志愿之路才刚刚开始，未来可期';
     }
   }
 }

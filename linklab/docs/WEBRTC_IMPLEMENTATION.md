@@ -1,75 +1,75 @@
-# WebRTC P2P語音通話實現文檔
+# WebRTC P2P语音通话实现文档
 
-> 狀態提示：本文描述的是實驗性真實 WebRTC 設計與接入思路，不是競賽 Demo 或生產上線證明。當前默認演示走 Demo Call 狀態機；真實 WebRTC 依賴 Supabase Realtime、設備權限、ICE/TURN 和弱網驗證，需單獨驗收。
+> 状态提示：本文描述的是实验性真实 WebRTC 设计与接入思路，不是竞赛 Demo 或生产上线证明。当前默认演示走 Demo Call 状态机；真实 WebRTC 依赖 Supabase Realtime、设备权限、ICE/TURN 和弱网验证，需单独验收。
 
 ## 概述
 
-本文檔描述了共感LinkAble應用中真實WebRTC P2P語音通話功能的實驗實現。
+本文档描述了共感LinkAble应用中真实WebRTC P2P语音通话功能的实验实现。
 
-## 架構設計
+## 架构设计
 
-### 核心組件
+### 核心组件
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    WebRTCCallManager                        │
-│                   (通話管理器 - 統一入口)                     │
+│                   (通话管理器 - 统一入口)                     │
 └──────────────┬──────────────────────────────┬───────────────┘
                │                              │
     ┌──────────▼──────────┐      ┌───────────▼────────────┐
     │ RealWebRTCService   │      │   SignalingService     │
-    │  (WebRTC核心服務)    │      │   (信令服務)            │
+    │  (WebRTC核心服务)    │      │   (信令服务)            │
     └──────────┬──────────┘      └───────────┬────────────┘
                │                              │
     ┌──────────▼──────────┐      ┌───────────▼────────────┐
     │ flutter_webrtc      │      │  Supabase Realtime     │
-    │  (WebRTC插件)       │      │   (實時通信)            │
+    │  (WebRTC插件)       │      │   (实时通信)            │
     └─────────────────────┘      └────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────┐
 │              CallRecordingService                           │
-│               (通話錄音服務 - 可選)                          │
+│               (通话录音服务 - 可选)                          │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## 文件結構
+## 文件结构
 
 ```
 lib/
 ├── services/
 │   └── webrtc/
 │       ├── webrtc_config.dart           # WebRTC配置
-│       ├── real_webrtc_service.dart     # 真實WebRTC服務
-│       ├── signaling_service.dart       # 信令服務
-│       ├── call_recording_service.dart  # 錄音服務
-│       ├── webrtc_call_manager.dart     # 通話管理器
-│       └── webrtc_exports.dart          # 導出文件
+│       ├── real_webrtc_service.dart     # 真实WebRTC服务
+│       ├── signaling_service.dart       # 信令服务
+│       ├── call_recording_service.dart  # 录音服务
+│       ├── webrtc_call_manager.dart     # 通话管理器
+│       └── webrtc_exports.dart          # 导出文件
 ├── providers/
-│   └── webrtc_call_provider.dart        # Riverpod狀態管理
+│   └── webrtc_call_provider.dart        # Riverpod状态管理
 ├── widgets/
 │   └── call/
-│       └── call_controls.dart           # 通話控制組件
+│       └── call_controls.dart           # 通话控制组件
 ├── pages/
 │   └── call/
-│       └── real_call_page.dart          # 真實通話頁面
+│       └── real_call_page.dart          # 真实通话页面
 └── models/
-    └── call_models.dart                 # 通話數據模型
+    └── call_models.dart                 # 通话数据模型
 ```
 
-## 核心功能實現
+## 核心功能实现
 
 ### 1. WebRTC配置 (webrtc_config.dart)
 
 ```dart
 class WebRTCConfig {
-  // STUN服務器配置
+  // STUN服务器配置
   static const List<Map<String, dynamic>> stunServers = [
     {'urls': 'stun:stun.l.google.com:19302'},
     {'urls': 'stun:stun1.l.google.com:19302'},
     // ...
   ];
 
-  // TURN服務器配置（生產環境需要）
+  // TURN服务器配置（生产环境需要）
   static const List<Map<String, dynamic>> turnServers = [
     // {
     //   'urls': 'turn:your-turn-server.com:3478',
@@ -78,12 +78,12 @@ class WebRTCConfig {
     // },
   ];
 
-  // 音頻約束配置
+  // 音频约束配置
   static Map<String, dynamic> get audioConstraints => {
     'audio': {
-      'echoCancellation': true,      // 回聲消除
-      'noiseSuppression': true,      // 噪聲抑制
-      'autoGainControl': true,       // 自動增益控制
+      'echoCancellation': true,      // 回声消除
+      'noiseSuppression': true,      // 噪声抑制
+      'autoGainControl': true,       // 自动增益控制
       'sampleRate': 48000,
       'channelCount': 2,
     },
@@ -92,15 +92,15 @@ class WebRTCConfig {
 }
 ```
 
-### 2. WebRTC服務 (real_webrtc_service.dart)
+### 2. WebRTC服务 (real_webrtc_service.dart)
 
 核心功能：
 - PeerConnection管理
-- Offer/Answer處理
-- ICE候選處理
-- 媒體流管理
-- 通話狀態監聽
-- 統計信息收集
+- Offer/Answer处理
+- ICE候选处理
+- 媒体流管理
+- 通话状态监听
+- 统计信息收集
 
 ```dart
 class RealWebRTCService {
@@ -108,34 +108,34 @@ class RealWebRTCService {
   MediaStream? _localStream;
   MediaStream? _remoteStream;
 
-  // 初始化通話
+  // 初始化通话
   Future<CallInfo> initializeCallAsSeeker({...});
   Future<CallInfo> initializeCallAsVolunteer({...});
 
-  // 信令處理
+  // 信令处理
   Future<void> createOffer();
   Future<void> handleOffer(String sdp, String type);
   Future<void> handleAnswer(String sdp, String type);
   Future<void> addIceCandidate(String candidate, String? sdpMid, int? sdpMLineIndex);
 
-  // 通話控制
+  // 通话控制
   Future<void> endCall(CallEndReason reason);
   Future<bool> toggleMute();
   Future<bool> toggleSpeaker();
 }
 ```
 
-### 3. 信令服務 (signaling_service.dart)
+### 3. 信令服务 (signaling_service.dart)
 
-使用Supabase Realtime進行信令交換：
+使用Supabase Realtime进行信令交换：
 
 ```dart
 class SignalingService {
-  // 加入/離開房間
+  // 加入/离开房间
   Future<void> joinRoom(String roomId, {CallRole? role});
   Future<void> leaveRoom();
 
-  // 發送信令消息
+  // 发送信令消息
   Future<void> sendOffer(String roomId, String sdp, String type);
   Future<void> sendAnswer(String roomId, String sdp, String type);
   Future<void> sendIceCandidate(String roomId, String candidate, {...});
@@ -144,14 +144,14 @@ class SignalingService {
 ```
 
 信令流程：
-1. 求助者創建房間並加入
-2. 志願者加入房間
-3. 求助者創建併發送Offer
-4. 志願者接收Offer，創建併發送Answer
-5. 雙方交換ICE候選
-6. 建立P2P連接
+1. 求助者创建房间并加入
+2. 志愿者加入房间
+3. 求助者创建并发送Offer
+4. 志愿者接收Offer，创建并发送Answer
+5. 双方交换ICE候选
+6. 建立P2P连接
 
-### 4. 通話錄音服務 (call_recording_service.dart)
+### 4. 通话录音服务 (call_recording_service.dart)
 
 ```dart
 class CallRecordingService {
@@ -160,34 +160,34 @@ class CallRecordingService {
   Future<void> pauseRecording();
   Future<void> resumeRecording();
 
-  // 錄音狀態流
+  // 录音状态流
   Stream<RecordingState> get stateStream;
   Stream<Duration> get durationStream;
-  Stream<double> get levelStream;  // 音量電平
+  Stream<double> get levelStream;  // 音量电平
 }
 ```
 
-### 5. 通話管理器 (webrtc_call_manager.dart)
+### 5. 通话管理器 (webrtc_call_manager.dart)
 
-整合所有服務的統一入口：
+整合所有服务的统一入口：
 
 ```dart
 class WebRTCCallManager {
   // 初始化
   Future<void> initialize();
 
-  // 發起/接聽通話
+  // 发起/接听通话
   Future<CallInfo> startCallAsSeeker({...});
   Future<CallInfo> acceptCallAsVolunteer({...});
 
-  // 結束通話
+  // 结束通话
   Future<void> endCall(CallEndReason reason);
 
-  // 媒體控制
+  // 媒体控制
   Future<bool> toggleMute();
   Future<bool> toggleSpeaker();
 
-  // 錄音控制
+  // 录音控制
   Future<RecordingInfo?> startRecording();
   Future<RecordingInfo?> stopRecording();
 
@@ -209,14 +209,14 @@ void main() async {
   // 初始化Supabase
   await Supabase.initialize(...);
 
-  // 初始化通話管理器
+  // 初始化通话管理器
   await WebRTCCallManager().initialize();
 
   runApp(MyApp());
 }
 ```
 
-### 2. 使用Provider管理狀態
+### 2. 使用Provider管理状态
 
 ```dart
 class CallPage extends ConsumerWidget {
@@ -227,11 +227,11 @@ class CallPage extends ConsumerWidget {
     return Scaffold(
       body: Column(
         children: [
-          // 顯示通話狀態
+          // 显示通话状态
           Text(callState.stateDescription),
           Text(callState.formattedDuration),
 
-          // 控制按鈕
+          // 控制按钮
           CallControls(),
         ],
       ),
@@ -240,18 +240,18 @@ class CallPage extends ConsumerWidget {
 }
 ```
 
-### 3. 發起通話（求助者）
+### 3. 发起通话（求助者）
 
 ```dart
 await ref.read(webRTCCallProvider.notifier).startCallAsSeeker(
   seekerId: userId,
   helpRequestId: helpRequestId,
   volunteerId: volunteerId,
-  enableRecording: true,  // 可選：啓用錄音
+  enableRecording: true,  // 可选：启用录音
 );
 ```
 
-### 4. 接聽通話（志願者）
+### 4. 接听通话（志愿者）
 
 ```dart
 await ref.read(webRTCCallProvider.notifier).acceptCallAsVolunteer(
@@ -263,17 +263,17 @@ await ref.read(webRTCCallProvider.notifier).acceptCallAsVolunteer(
 );
 ```
 
-### 5. 導航到通話頁面
+### 5. 导航到通话页面
 
 ```dart
-// 作爲求助者
+// 作为求助者
 RealCallPageRoute.startAsSeeker(
   context,
   seekerId: userId,
   helpRequestId: helpRequestId,
 );
 
-// 作爲志願者
+// 作为志愿者
 RealCallPageRoute.acceptAsVolunteer(
   context,
   volunteerId: userId,
@@ -283,24 +283,24 @@ RealCallPageRoute.acceptAsVolunteer(
 );
 ```
 
-## 權限配置
+## 权限配置
 
 ### Android (android/app/src/main/AndroidManifest.xml)
 
 ```xml
-<!-- 網絡權限 -->
+<!-- 网络权限 -->
 <uses-permission android:name="android.permission.INTERNET" />
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-<!-- 音頻權限 -->
+<!-- 音频权限 -->
 <uses-permission android:name="android.permission.RECORD_AUDIO" />
 <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
-<!-- 存儲權限（錄音） -->
+<!-- 存储权限（录音） -->
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
-<!-- 前臺服務（保持通話） -->
+<!-- 前台服务（保持通话） -->
 <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
 ```
@@ -309,17 +309,17 @@ RealCallPageRoute.acceptAsVolunteer(
 
 ```xml
 <key>NSMicrophoneUsageDescription</key>
-<string>需要麥克風權限進行語音通話</string>
+<string>需要麦克风权限进行语音通话</string>
 
 <key>NSCameraUsageDescription</key>
-<string>需要相機權限（僅語音通話不需要）</string>
+<string>需要相机权限（仅语音通话不需要）</string>
 ```
 
-## 生產環境配置
+## 生产环境配置
 
-### 1. 配置TURN服務器
+### 1. 配置TURN服务器
 
-在 `webrtc_config.dart` 中配置自己的TURN服務器：
+在 `webrtc_config.dart` 中配置自己的TURN服务器：
 
 ```dart
 static const List<Map<String, dynamic>> turnServers = [
@@ -336,120 +336,120 @@ static const List<Map<String, dynamic>> turnServers = [
 ];
 ```
 
-推薦的TURN服務器：
-- Coturn (開源自建)
+推荐的TURN服务器：
+- Coturn (开源自建)
 - Twilio STUN/TURN
 - Xirsys
 - Metered.ca
 
 ### 2. Supabase Realtime配置
 
-確保Supabase項目中啓用了Realtime功能：
+确保Supabase项目中启用了Realtime功能：
 
 ```sql
--- 啓用Realtime（在Supabase Dashboard中）
+-- 启用Realtime（在Supabase Dashboard中）
 -- Database -> Replication -> Realtime
 ```
 
-## 調試與監控
+## 调试与监控
 
-### 日誌輸出
+### 日志输出
 
-所有組件都會輸出詳細的日誌，格式爲：
+所有组件都会输出详细的日志，格式为：
 
 ```
-[WebRTC] 消息內容
-[Signaling] 消息內容
-[Recording] 消息內容
-[CallManager] 消息內容
+[WebRTC] 消息内容
+[Signaling] 消息内容
+[Recording] 消息内容
+[CallManager] 消息内容
 ```
 
-### 網絡質量監控
+### 网络质量监控
 
 ```dart
-// 監聽網絡質量
+// 监听网络质量
 ref.listen(networkQualityProvider, (previous, current) {
-  print('網絡質量: ${getNetworkQualityDescription(current)}');
+  print('网络质量: ${getNetworkQualityDescription(current)}');
 });
 
-// 監聽通話統計
+// 监听通话统计
 ref.listen(webRTCCallProvider.select((s) => s.duration), (previous, current) {
-  print('通話時長: $current');
+  print('通话时长: $current');
 });
 ```
 
-### 通話統計信息
+### 通话统计信息
 
 ```dart
 final stats = await WebRTCCallManager().getCurrentStats();
 print('接收: ${stats?.bytesReceived} bytes');
-print('發送: ${stats?.bytesSent} bytes');
-print('丟包率: ${stats?.packetLoss}%');
+print('发送: ${stats?.bytesSent} bytes');
+print('丢包率: ${stats?.packetLoss}%');
 ```
 
-## 常見問題
+## 常见问题
 
-### 1. 無法建立連接
+### 1. 无法建立连接
 
-- 檢查STUN/TURN服務器配置
-- 確認防火牆允許UDP端口
-- 檢查網絡類型（對稱NAT需要TURN）
+- 检查STUN/TURN服务器配置
+- 确认防火墙允许UDP端口
+- 检查网络类型（对称NAT需要TURN）
 
-### 2. 沒有聲音
+### 2. 没有声音
 
-- 檢查麥克風權限
-- 確認音頻軌道已啓用
-- 檢查靜音狀態
+- 检查麦克风权限
+- 确认音频轨道已启用
+- 检查静音状态
 
-### 3. 連接斷開
+### 3. 连接断开
 
-- 實現自動重連機制
-- 監控網絡狀態變化
-- 處理ICE連接失敗
+- 实现自动重连机制
+- 监控网络状态变化
+- 处理ICE连接失败
 
-### 4. 錄音失敗
+### 4. 录音失败
 
-- 檢查存儲權限
-- 確認錄音目錄存在
-- 檢查磁盤空間
+- 检查存储权限
+- 确认录音目录存在
+- 检查磁盘空间
 
-## 性能優化
+## 性能优化
 
-1. **音頻處理優化**
-   - 啓用回聲消除和噪聲抑制
-   - 使用合適的採樣率和比特率
-   - 根據網絡質量動態調整
+1. **音频处理优化**
+   - 启用回声消除和噪声抑制
+   - 使用合适的采样率和比特率
+   - 根据网络质量动态调整
 
-2. **連接優化**
-   - 配置多個STUN/TURN服務器
-   - 使用ICE候選池
-   - 設置合理的超時時間
+2. **连接优化**
+   - 配置多个STUN/TURN服务器
+   - 使用ICE候选池
+   - 设置合理的超时时间
 
-3. **資源管理**
-   - 及時釋放媒體流
-   - 關閉不再使用的PeerConnection
-   - 取消未完成的訂閱
+3. **资源管理**
+   - 及时释放媒体流
+   - 关闭不再使用的PeerConnection
+   - 取消未完成的订阅
 
-## 安全注意事項
+## 安全注意事项
 
 1. **信令安全**
-   - 使用Supabase RLS保護信令數據
-   - 驗證用戶身份
-   - 限制房間訪問權限
+   - 使用Supabase RLS保护信令数据
+   - 验证用户身份
+   - 限制房间访问权限
 
-2. **媒體安全**
-   - 使用DTLS-SRTP加密媒體
-   - 不存儲敏感通話內容
-   - 錄音文件加密存儲
+2. **媒体安全**
+   - 使用DTLS-SRTP加密媒体
+   - 不存储敏感通话内容
+   - 录音文件加密存储
 
-3. **隱私保護**
-   - 獲取用戶錄音同意
-   - 提供錄音刪除功能
-   - 遵守數據保護法規
+3. **隐私保护**
+   - 获取用户录音同意
+   - 提供录音删除功能
+   - 遵守数据保护法规
 
-## 參考文檔
+## 参考文档
 
-- [WebRTC官方文檔](https://webrtc.org/getting-started/overview)
+- [WebRTC官方文档](https://webrtc.org/getting-started/overview)
 - [flutter_webrtc插件](https://pub.dev/packages/flutter_webrtc)
 - [Supabase Realtime](https://supabase.com/docs/guides/realtime)
 - [WebRTC信令流程](https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Signaling_and_video_calling)

@@ -15,10 +15,10 @@ import '../../../ai/real_emergency_detector.dart';
 import '../../../ai/real_intent_classifier.dart';
 import '../../../ai/xfyun_voice_service.dart';
 
-/// 真實AI服務管理器
-/// 統一管理真實的AI API調用（百度OCR、通義千問VL、科大訊飛）
-/// 支持演示模式和真實模式切換，具備完整的降級策略
-/// AGENTS.md §4.2：競賽版僅走 Demo 主線，當前文件只保留爲實驗性真實鏈路實現。
+/// 真实AI服务管理器
+/// 统一管理真实的AI API调用（百度OCR、通义千问VL、科大讯飞）
+/// 支持演示模式和真实模式切换，具备完整的降级策略
+/// AGENTS.md §4.2：竞赛版仅走 Demo 主线，当前文件只保留为实验性真实链路实现。
 class RealAIServiceManager {
   static RealAIServiceManager? _instance;
   static RealAIServiceManager get instance =>
@@ -29,7 +29,7 @@ class RealAIServiceManager {
   // 配置
   AIServiceConfig _config = const AIServiceConfig();
 
-  // 真實服務實例
+  // 真实服务实例
   late final BaiduOCRService _baiduOcrService;
   late final QwenVLService _qwenVLService;
   late final XfyunVoiceService _xfyunVoiceService;
@@ -38,13 +38,13 @@ class RealAIServiceManager {
   late final DialogContextManager _dialogManager;
   late final CameraService _cameraService;
 
-  // 模擬服務（降級使用）
+  // 模拟服务（降级使用）
   late final MockAIService _mockService;
 
-  // 狀態
+  // 状态
   bool _isInitialized = false;
   bool _isOnline = true;
-  bool _useRealMode = false; // 默認使用演示模式
+  bool _useRealMode = false; // 默认使用演示模式
 
   // 流控制器
   final _responseController = StreamController<AIResponse>.broadcast();
@@ -58,7 +58,7 @@ class RealAIServiceManager {
 
     _config = config;
 
-    // 初始化真實服務
+    // 初始化真实服务
     _baiduOcrService = BaiduOCRService();
     _qwenVLService = QwenVLService();
     _xfyunVoiceService = XfyunVoiceService();
@@ -67,10 +67,10 @@ class RealAIServiceManager {
     _dialogManager = DialogContextManager();
     _cameraService = CameraService();
 
-    // 初始化模擬服務（降級使用）
+    // 初始化模拟服务（降级使用）
     _mockService = MockAIService(simulateDelay: true);
 
-    // 監聽網絡狀態
+    // 监听网络状态
     Connectivity().onConnectivityChanged.listen((result) {
       final wasOnline = _isOnline;
       _isOnline = !result.contains(ConnectivityResult.none);
@@ -82,23 +82,23 @@ class RealAIServiceManager {
     _isInitialized = true;
   }
 
-  /// 處理用戶請求（統一入口）
+  /// 处理用户请求（统一入口）
   Future<AIResponse> processRequest({
     required String input,
     String? imageUrl,
     String? sessionId,
   }) async {
     if (!_isInitialized) {
-      return AIResponse.error('AI服務未初始化');
+      return AIResponse.error('AI服务未初始化');
     }
 
     try {
-      // 1. 首先檢測緊急關鍵詞（本地檢測，優先級最高）
+      // 1. 首先检测紧急关键词（本地检测，优先级最高）
       final emergencyResult = _emergencyDetector.detect(input);
       if (emergencyResult.isEmergency &&
           emergencyResult.level == UrgencyLevel.emergency) {
         final response = AIResponse(
-          text: '檢測到緊急情況"${emergencyResult.triggerWord}"，正在立即啓動SOS流程！',
+          text: '检测到紧急情况"${emergencyResult.triggerWord}"，正在立即启动SOS流程！',
           intent: IntentType.emergency,
           urgency: UrgencyLevel.emergency,
           needsHuman: true,
@@ -113,11 +113,11 @@ class RealAIServiceManager {
         return response;
       }
 
-      // 2. 檢查是否需要確認（緊急但未達危急級別）
+      // 2. 检查是否需要确认（紧急但未达危急级别）
       if (emergencyResult.isEmergency && emergencyResult.requiresConfirmation) {
         final response = AIResponse(
           text:
-              '檢測到可能的緊急情況"${emergencyResult.triggerWord}"，${emergencyResult.confirmationSeconds}秒內未取消將自動觸發SOS。',
+              '检测到可能的紧急情况"${emergencyResult.triggerWord}"，${emergencyResult.confirmationSeconds}秒内未取消将自动触发SOS。',
           intent: IntentType.emergency,
           urgency: UrgencyLevel.urgent,
           needsHuman: true,
@@ -133,7 +133,7 @@ class RealAIServiceManager {
         return response;
       }
 
-      // 3. 根據模式選擇處理方式
+      // 3. 根据模式选择处理方式
       if (_useRealMode && _isOnline) {
         return await _processWithRealAPI(
           input: input,
@@ -148,8 +148,8 @@ class RealAIServiceManager {
         );
       }
     } catch (error, stackTrace) {
-      AppLogger.error('真實 AI 請求處理失敗，準備降級到 Demo 路徑', error, stackTrace);
-      // 發生錯誤時降級到模擬服務
+      AppLogger.error('真实 AI 请求处理失败，准备降级到 Demo 路径', error, stackTrace);
+      // 发生错误时降级到模拟服务
       final errorResponse = await _handleErrorAndFallback(
         error: error,
         input: input,
@@ -161,20 +161,20 @@ class RealAIServiceManager {
     }
   }
 
-  /// 使用真實API處理
+  /// 使用真实API处理
   Future<AIResponse> _processWithRealAPI({
     required String input,
     String? imageUrl,
     String? sessionId,
   }) async {
-    // 1. 意圖分類
+    // 1. 意图分类
     final classification = _intentClassifier.classify(
       input,
       sessionId: sessionId,
       imageUrl: imageUrl,
     );
 
-    // 2. 根據意圖路由到對應的真實服務
+    // 2. 根据意图路由到对应的真实服务
     AIResponse response;
 
     switch (classification.intent) {
@@ -194,7 +194,7 @@ class RealAIServiceManager {
 
       case IntentType.emergency:
         response = AIResponse(
-          text: '檢測到緊急情況，正在啓動SOS流程',
+          text: '检测到紧急情况，正在启动SOS流程',
           intent: IntentType.emergency,
           urgency: UrgencyLevel.emergency,
           needsHuman: true,
@@ -205,7 +205,7 @@ class RealAIServiceManager {
       case IntentType.medicineConfirmation:
       case IntentType.medicalConsultation:
       case IntentType.emotionalSupport:
-        // 醫療/情感場景強制轉人工
+        // 医疗/情感场景强制转人工
         response = AIResponse.handoff(
           _getHandoffMessage(classification.intent),
           intent: classification.intent,
@@ -213,7 +213,7 @@ class RealAIServiceManager {
         break;
 
       default:
-        // 通用對話 - 使用通義千問VL（如果有圖片）或模擬回覆
+        // 通用对话 - 使用通义千问VL（如果有图片）或模拟回覆
         if (imageUrl != null && APIConfig.isQwenConfigured) {
           response = await _handleRealSceneDescription(
             input,
@@ -225,18 +225,18 @@ class RealAIServiceManager {
         }
     }
 
-    // 3. 語音播報結果
+    // 3. 语音播报结果
     if (response.isSuccess) {
       await speak(response.text);
     }
 
-    // 4. 發送響應到流
+    // 4. 发送响应到流
     _responseController.add(response);
 
     return response;
   }
 
-  /// 使用模擬服務處理（降級）
+  /// 使用模拟服务处理（降级）
   Future<AIResponse> _processWithMock({
     required String input,
     String? imageUrl,
@@ -250,7 +250,7 @@ class RealAIServiceManager {
           : null,
     );
 
-    // 語音播報結果
+    // 语音播报结果
     if (response.isSuccess) {
       await speak(response.text);
     }
@@ -259,35 +259,35 @@ class RealAIServiceManager {
     return response;
   }
 
-  /// 處理真實OCR請求
+  /// 处理真实OCR请求
   Future<AIResponse> _handleRealOCR(
     String? imageUrl,
     IntentClassification classification,
   ) async {
     if (imageUrl == null) {
       return AIResponse(
-        text: '請拍照或選擇圖片，我來幫您識別文字。',
+        text: '请拍照或选择图片，我来帮您识别文字。',
         intent: IntentType.textRecognition,
         confidence: 1.0,
       );
     }
 
-    // 檢查百度OCR是否已配置
+    // 检查百度OCR是否已配置
     if (!APIConfig.isBaiduOcrConfigured) {
-      return AIResponse.error('百度OCR服務未配置，請在APIConfig中設置API密鑰，或使用演示模式。');
+      return AIResponse.error('百度OCR服务未配置，请在APIConfig中设置API密钥，或使用演示模式。');
     }
 
     try {
       final file = File(imageUrl);
       if (!await file.exists()) {
-        return AIResponse.error('圖片文件不存在');
+        return AIResponse.error('图片文件不存在');
       }
 
-      // 調用百度OCR服務
+      // 调用百度OCR服务
       final result = await _baiduOcrService.recognizeText(file);
 
       if (!result.isSuccess) {
-        // API錯誤時降級到模擬服務
+        // API错误时降级到模拟服务
         return await _handleAPIErrorAndFallback(
           error: result.error,
           intent: IntentType.textRecognition,
@@ -297,10 +297,10 @@ class RealAIServiceManager {
 
       final ocrResult = result.data!;
 
-      // 檢查是否是藥品標籤
+      // 检查是否是药品标签
       final isMedicineLabel = _isMedicineLabel(ocrResult.text);
 
-      // 構建響應文本
+      // 构建响应文本
       final responseText = _buildOCRResponseText(ocrResult, isMedicineLabel);
 
       return AIResponse(
@@ -318,11 +318,11 @@ class RealAIServiceManager {
         },
       );
     } catch (error, stackTrace) {
-      AppLogger.error('真實 OCR 處理失敗，準備降級', error, stackTrace);
+      AppLogger.error('真实 OCR 处理失败，准备降级', error, stackTrace);
       return await _handleAPIErrorAndFallback(
         error: APIError(
           type: APIErrorType.unknown,
-          message: 'OCR識別失敗',
+          message: 'OCR识别失败',
           originalError: error.toString(),
         ),
         intent: IntentType.textRecognition,
@@ -331,7 +331,7 @@ class RealAIServiceManager {
     }
   }
 
-  /// 處理真實場景描述請求
+  /// 处理真实场景描述请求
   Future<AIResponse> _handleRealSceneDescription(
     String input,
     String? imageUrl,
@@ -339,31 +339,31 @@ class RealAIServiceManager {
   ) async {
     if (imageUrl == null) {
       return AIResponse(
-        text: '請拍照，我來幫您描述周圍環境。',
+        text: '请拍照，我来帮您描述周围环境。',
         intent: classification.intent,
         confidence: 1.0,
       );
     }
 
-    // 檢查通義千問是否已配置
+    // 检查通义千问是否已配置
     if (!APIConfig.isQwenConfigured) {
-      return AIResponse.error('通義千問VL服務未配置，請在APIConfig中設置API密鑰，或使用演示模式。');
+      return AIResponse.error('通义千问VL服务未配置，请在APIConfig中设置API密钥，或使用演示模式。');
     }
 
     try {
       final file = File(imageUrl);
       if (!await file.exists()) {
-        return AIResponse.error('圖片文件不存在');
+        return AIResponse.error('图片文件不存在');
       }
 
-      // 調用通義千問VL服務
+      // 调用通义千问VL服务
       final result = await _qwenVLService.describeScene(
         file,
         customPrompt: input.isNotEmpty ? input : null,
       );
 
       if (!result.isSuccess) {
-        // API錯誤時降級到模擬服務
+        // API错误时降级到模拟服务
         return await _handleAPIErrorAndFallback(
           error: result.error,
           intent: classification.intent,
@@ -391,11 +391,11 @@ class RealAIServiceManager {
         },
       );
     } catch (error, stackTrace) {
-      AppLogger.error('真實場景描述失敗，準備降級', error, stackTrace);
+      AppLogger.error('真实场景描述失败，准备降级', error, stackTrace);
       return await _handleAPIErrorAndFallback(
         error: APIError(
           type: APIErrorType.unknown,
-          message: '場景描述失敗',
+          message: '场景描述失败',
           originalError: error.toString(),
         ),
         intent: classification.intent,
@@ -404,41 +404,41 @@ class RealAIServiceManager {
     }
   }
 
-  /// 處理API錯誤並降級
+  /// 处理API错误并降级
   Future<AIResponse> _handleAPIErrorAndFallback({
     APIError? error,
     required IntentType intent,
     String? imageUrl,
   }) async {
-    // 記錄錯誤日誌
+    // 记录错误日志
     AppLogger.warning(
-      '真實 AI API 返回錯誤，進入降級: ${error?.message ?? 'unknown'}',
+      '真实 AI API 返回错误，进入降级: ${error?.message ?? 'unknown'}',
       error,
     );
 
-    // 根據錯誤類型返回友好的降級提示
+    // 根据错误类型返回友好的降级提示
     String fallbackMessage;
     switch (error?.type) {
       case APIErrorType.networkError:
-        fallbackMessage = '網絡連接失敗，已切換到離線模式。請檢查網絡設置後重試。';
+        fallbackMessage = '网络连接失败，已切换到离线模式。请检查网络设置后重试。';
         break;
       case APIErrorType.authenticationError:
-        fallbackMessage = 'API認證失敗，請檢查API密鑰配置是否正確。';
+        fallbackMessage = 'API认证失败，请检查API密钥配置是否正确。';
         break;
       case APIErrorType.quotaExceeded:
-        fallbackMessage = 'API調用配額已用完，請聯繫管理員或稍後再試。';
+        fallbackMessage = 'API调用配额已用完，请联系管理员或稍后再试。';
         break;
       case APIErrorType.timeout:
-        fallbackMessage = '請求超時，已使用本地模式響應。';
+        fallbackMessage = '请求超时，已使用本地模式响应。';
         break;
       case APIErrorType.serviceUnavailable:
-        fallbackMessage = 'AI服務暫時不可用，已切換到演示模式。';
+        fallbackMessage = 'AI服务暂时不可用，已切换到演示模式。';
         break;
       default:
-        fallbackMessage = '服務暫時不可用，已使用演示模式響應。';
+        fallbackMessage = '服务暂时不可用，已使用演示模式响应。';
     }
 
-    // 返回降級響應
+    // 返回降级响应
     return AIResponse(
       text: fallbackMessage,
       intent: intent,
@@ -449,25 +449,25 @@ class RealAIServiceManager {
     );
   }
 
-  /// 處理一般錯誤並降級
+  /// 处理一般错误并降级
   Future<AIResponse> _handleErrorAndFallback({
     required dynamic error,
     required String input,
     String? imageUrl,
     String? sessionId,
   }) async {
-    AppLogger.error('真實 AI 請求發生異常，進入降級', error);
+    AppLogger.error('真实 AI 请求发生异常，进入降级', error);
 
-    // 嘗試使用模擬服務
+    // 尝试使用模拟服务
     try {
       final mockResponse = await _mockService.process(
         input,
         imageUrl: imageUrl,
       );
 
-      // 包裝爲降級響應
+      // 包装为降级响应
       return AIResponse(
-        text: '${mockResponse.text}\n\n[提示：當前使用演示模式，真實AI服務暫時不可用]',
+        text: '${mockResponse.text}\n\n[提示：当前使用演示模式，真实AI服务暂时不可用]',
         intent: mockResponse.intent,
         urgency: mockResponse.urgency,
         needsHuman: mockResponse.needsHuman,
@@ -480,35 +480,35 @@ class RealAIServiceManager {
       );
     } catch (fallbackError, fallbackStackTrace) {
       AppLogger.error(
-        '真實 AI 與 Demo fallback 均失敗',
+        '真实 AI 与 Demo fallback 均失败',
         fallbackError,
         fallbackStackTrace,
       );
-      // 模擬服務也失敗，返回錯誤
-      return AIResponse.error('服務暫時不可用，請稍後重試');
+      // 模拟服务也失败，返回错误
+      return AIResponse.error('服务暂时不可用，请稍后重试');
     }
   }
 
-  /// 判斷是否是藥品標籤
+  /// 判断是否是药品标签
   bool _isMedicineLabel(String text) {
     final medicineKeywords = [
-      '藥品',
-      '藥物',
-      '藥片',
-      '膠囊',
-      '顆粒',
+      '药品',
+      '药物',
+      '药片',
+      '胶囊',
+      '颗粒',
       '口服液',
       '用法用量',
-      '適應症',
+      '适应症',
       '禁忌',
-      '不良反應',
-      '國藥準字',
-      '處方藥',
+      '不良反应',
+      '国药准字',
+      '处方药',
       'OTC',
-      '非處方藥',
-      '生產日期',
+      '非处方药',
+      '生产日期',
       '有效期',
-      '批號',
+      '批号',
       'medication',
       'dosage',
       'prescription',
@@ -522,19 +522,19 @@ class RealAIServiceManager {
     return medicineKeywords.any((keyword) => lowerText.contains(keyword));
   }
 
-  /// 構建OCR響應文本
+  /// 构建OCR响应文本
   String _buildOCRResponseText(OCRResult result, bool isMedicineLabel) {
     if (result.text.isEmpty) {
-      return '未能識別到文字，請嘗試重新拍攝，確保光線充足、文字清晰可見。';
+      return '未能识别到文字，请尝试重新拍摄，确保光线充足、文字清晰可见。';
     }
 
     final buffer = StringBuffer();
 
     if (isMedicineLabel) {
-      buffer.writeln('檢測到藥品標籤，識別結果如下：');
+      buffer.writeln('检测到药品标签，识别结果如下：');
       buffer.writeln();
     } else {
-      buffer.writeln('識別到以下內容：');
+      buffer.writeln('识别到以下内容：');
       buffer.writeln();
     }
 
@@ -542,29 +542,29 @@ class RealAIServiceManager {
 
     if (isMedicineLabel) {
       buffer.writeln();
-      buffer.writeln('【重要提醒】這是藥品標籤，用藥前請務必向志願者或醫生確認用法用量，確保用藥安全。');
+      buffer.writeln('【重要提醒】这是药品标签，用药前请务必向志愿者或医生确认用法用量，确保用药安全。');
     }
 
     return buffer.toString();
   }
 
-  /// 獲取轉人工消息
+  /// 获取转人工消息
   String _getHandoffMessage(IntentType intent) {
     switch (intent) {
       case IntentType.medicalConsultation:
-        return '您諮詢的是醫療相關問題，爲了您的健康安全，我將爲您轉接專業醫療志願者。';
+        return '您谘询的是医疗相关问题，为了您的健康安全，我将为您转接专业医疗志愿者。';
       case IntentType.medicineConfirmation:
-        return '藥品使用需要謹慎確認，我將爲您轉接志願者協助覈對藥品信息。';
+        return '药品使用需要谨慎确认，我将为您转接志愿者协助核对药品信息。';
       case IntentType.emotionalSupport:
-        return '我理解您可能需要情感支持，讓我爲您轉接心理支持志願者。';
+        return '我理解您可能需要情感支持，让我为您转接心理支持志愿者。';
       default:
-        return '這個問題可能需要人工協助，正在爲您轉接志願者。';
+        return '这个问题可能需要人工协助，正在为您转接志愿者。';
     }
   }
 
   // ==================== 公共方法 ====================
 
-  /// 拍照並處理
+  /// 拍照并处理
   Future<AIResponse> takePhotoAndProcess({
     required String input,
     String? sessionId,
@@ -576,13 +576,13 @@ class RealAIServiceManager {
         return AIResponse.error('拍照已取消');
       }
 
-      // 2. 壓縮圖片
+      // 2. 压缩图片
       final compressedPath = await _cameraService.compressToSize(
         result.path,
         maxSizeKB: 500,
       );
 
-      // 3. 處理請求
+      // 3. 处理请求
       final response = await processRequest(
         input: input,
         imageUrl: compressedPath,
@@ -591,30 +591,30 @@ class RealAIServiceManager {
 
       return response;
     } catch (error, stackTrace) {
-      AppLogger.error('拍照後處理真實 AI 請求失敗', error, stackTrace);
-      return AIResponse.error('拍照處理失敗: $error');
+      AppLogger.error('拍照后处理真实 AI 请求失败', error, stackTrace);
+      return AIResponse.error('拍照处理失败: $error');
     }
   }
 
-  /// 選擇圖片並處理
+  /// 选择图片并处理
   Future<AIResponse> pickImageAndProcess({
     required String input,
     String? sessionId,
   }) async {
     try {
-      // 1. 選擇圖片
+      // 1. 选择图片
       final result = await _cameraService.pickFromGallery();
       if (result == null) {
-        return AIResponse.error('選擇圖片已取消');
+        return AIResponse.error('选择图片已取消');
       }
 
-      // 2. 壓縮圖片
+      // 2. 压缩图片
       final compressedPath = await _cameraService.compressToSize(
         result.path,
         maxSizeKB: 500,
       );
 
-      // 3. 處理請求
+      // 3. 处理请求
       final response = await processRequest(
         input: input,
         imageUrl: compressedPath,
@@ -623,39 +623,39 @@ class RealAIServiceManager {
 
       return response;
     } catch (error, stackTrace) {
-      AppLogger.error('相冊圖片處理真實 AI 請求失敗', error, stackTrace);
-      return AIResponse.error('圖片處理失敗: $error');
+      AppLogger.error('相册图片处理真实 AI 请求失败', error, stackTrace);
+      return AIResponse.error('图片处理失败: $error');
     }
   }
 
-  /// 語音播報（使用科大訊飛TTS）
+  /// 语音播报（使用科大讯飞TTS）
   Future<void> speak(String text) async {
     if (!APIConfig.isXfyunConfigured) {
-      // 未配置科大訊飛，使用系統TTS
-      AppLogger.info('科大訊飛未配置，使用系統TTS fallback');
+      // 未配置科大讯飞，使用系统TTS
+      AppLogger.info('科大讯飞未配置，使用系统TTS fallback');
       return;
     }
 
     try {
       final result = await _xfyunVoiceService.textToSpeech(text);
       if (result.isSuccess) {
-        // 播放音頻數據
-        // 實際項目中需要集成音頻播放器
+        // 播放音频数据
+        // 实际项目中需要集成音频播放器
         AppLogger.verbose(
-          'TTS成功，音頻數據大小: ${result.data?.length ?? 0} bytes',
+          'TTS成功，音频数据大小: ${result.data?.length ?? 0} bytes',
         );
       }
     } catch (error, stackTrace) {
-      AppLogger.error('真實 TTS 失敗', error, stackTrace);
+      AppLogger.error('真实 TTS 失败', error, stackTrace);
     }
   }
 
-  /// 停止播報
+  /// 停止播报
   Future<void> stopSpeaking() async {
-    // 實際項目中需要停止音頻播放器
+    // 实际项目中需要停止音频播放器
   }
 
-  /// 開始語音識別（使用科大訊飛ASR）
+  /// 开始语音识别（使用科大讯飞ASR）
   Future<bool> startVoiceRecognition({
     required Function(String) onResult,
     Function(String)? onPartialResult,
@@ -664,7 +664,7 @@ class RealAIServiceManager {
     Function(String)? onError,
   }) async {
     if (!APIConfig.isXfyunConfigured) {
-      onError?.call('科大訊飛ASR未配置');
+      onError?.call('科大讯飞ASR未配置');
       return false;
     }
 
@@ -679,12 +679,12 @@ class RealAIServiceManager {
     return await _xfyunVoiceService.startRealTimeAsr();
   }
 
-  /// 停止語音識別
+  /// 停止语音识别
   Future<void> stopVoiceRecognition() async {
     await _xfyunVoiceService.stopAsr();
   }
 
-  /// 設置緊急檢測回調
+  /// 设置紧急检测回调
   void setEmergencyCallbacks({
     EmergencyCallback? onEmergency,
     EmergencyCallback? onUrgent,
@@ -699,21 +699,21 @@ class RealAIServiceManager {
     );
   }
 
-  /// 確認緊急狀態（用戶主動確認）
+  /// 确认紧急状态（用户主动确认）
   void confirmEmergency() {
     _emergencyDetector.confirmEmergency();
   }
 
-  /// 取消緊急狀態
+  /// 取消紧急状态
   void cancelEmergency() {
     _emergencyDetector.cancelEmergency();
   }
 
-  /// 獲取確認狀態
+  /// 获取确认状态
   ConfirmationStatus? get confirmationStatus =>
       _emergencyDetector.confirmationStatus;
 
-  /// 獲取服務配置狀態
+  /// 获取服务配置状态
   Map<String, dynamic> getServiceStatus() {
     return {
       'isOnline': _isOnline,
@@ -725,28 +725,28 @@ class RealAIServiceManager {
     };
   }
 
-  /// 獲取API配置狀態
+  /// 获取API配置状态
   Map<String, bool> getApiConfigStatus() {
     return APIConfig.getConfigStatus();
   }
 
-  /// 是否在線
+  /// 是否在线
   bool get isOnline => _isOnline;
 
-  /// 是否使用真實模式
+  /// 是否使用真实模式
   bool get useRealMode => _useRealMode;
 
-  /// 設置真實模式
+  /// 设置真实模式
   void setRealMode(bool enabled) {
     _useRealMode = enabled;
   }
 
-  /// 切換模式
+  /// 切换模式
   void toggleMode() {
     _useRealMode = !_useRealMode;
   }
 
-  /// 清理資源
+  /// 清理资源
   void dispose() {
     _responseController.close();
     _connectionStatusController.close();

@@ -12,7 +12,7 @@ import 'package:linklab/services/app_session_service.dart';
 import 'package:linklab/services/local_storage.dart';
 
 void main() {
-  testWidgets('默認初始化鎖定 Demo 主線並啓用演示員會話', (tester) async {
+  testWidgets('默认初始化锁定 Demo 主线并启用演示员会话', (tester) async {
     TestWidgetsFlutterBinding.ensureInitialized();
     SharedPreferences.setMockInitialValues({});
     tester.view.physicalSize = const Size(1280, 2400);
@@ -24,7 +24,6 @@ void main() {
 
     await app_entry.initializeLinkLabApp(
       enableAuthAutoRefresh: false,
-      enableRealAIFromEnvironment: false,
     );
     await tester.pumpWidget(app_entry.buildLinkLabApp());
     await tester.pumpAndSettle();
@@ -48,13 +47,13 @@ void main() {
     expect(FeatureFlags.enableSchedule, isFalse);
     expect(FeatureFlags.enableAdminDashboard, isFalse);
     expect(FeatureFlags.enableCallRecording, isFalse);
-    expect(find.text('讓幫助真實發生\n連接每一次需要'), findsOneWidget);
-    expect(find.text('歡迎使用'), findsNothing);
-    expect(find.text('郵箱登錄'), findsNothing);
+    expect(find.text('让帮助真实发生\n连接每一次需要'), findsOneWidget);
+    expect(find.text('欢迎使用'), findsNothing);
+    expect(find.text('邮箱登录'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
-  test('缺少 Supabase 配置時 fallback 到 DemoMode', () {
+  test('缺少 Supabase 配置时 fallback 到 DemoMode', () {
     AppConfig.configureFromEnvironment(
       const {},
       enablePresenterSessionOnFallback: false,
@@ -70,7 +69,7 @@ void main() {
     expect(FeatureFlags.enableRealAI, isFalse);
   });
 
-  test('真實 AI 只有 .env 顯式開關時啓用，且不要求切出 DemoMode', () {
+  test('真实 AI 只有 .env 显式开关时启用，且不要求切出 DemoMode', () {
     AppConfig.configureFromEnvironment(const {
       'LINKABLE_ENABLE_REAL_AI': 'true',
     }, enablePresenterSessionOnFallback: false);
@@ -82,7 +81,7 @@ void main() {
     expect(FeatureFlags.enableRealAI, isFalse);
   });
 
-  testWidgets('DemoMode 登錄頁保留手機號主入口與郵箱入口', (tester) async {
+  testWidgets('DemoMode 登录页保留手机号主入口与邮箱入口', (tester) async {
     TestWidgetsFlutterBinding.ensureInitialized();
     SharedPreferences.setMockInitialValues({});
     AppConfig.configureCompetitionDemoDefaults(enablePresenterSession: false);
@@ -99,13 +98,13 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(AppConfig.demoMode, isTrue);
-    expect(find.text('手機號登錄'), findsOneWidget);
+    expect(find.text('手机号登录'), findsOneWidget);
     expect(find.text('首次使用'), findsOneWidget);
-    expect(find.text('郵箱登錄'), findsOneWidget);
+    expect(find.text('邮箱登录'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
-  test('DemoMode 郵箱登錄可走本地 fallback 建立會話', () async {
+  test('DemoMode 邮箱登录可走本地 fallback 建立会话', () async {
     TestWidgetsFlutterBinding.ensureInitialized();
     SharedPreferences.setMockInitialValues({});
     AppConfig.configureCompetitionDemoDefaults(enablePresenterSession: false);
@@ -118,14 +117,14 @@ void main() {
     );
 
     expect(outcome.signedIn, isTrue);
-    expect(outcome.message, contains('本地演示賬號'));
+    expect(outcome.message, contains('本地演示账号'));
     // ignore: deprecated_member_use
     expect(AppSessionService.instance.isLoggedIn, isTrue);
     // ignore: deprecated_member_use
     expect(AppSessionService.instance.currentUser?.phone, 'demo@example.com');
   });
 
-  testWidgets('登錄頁在窄屏和 200% 字體下不出現橫向溢出', (tester) async {
+  testWidgets('登录页在窄屏和 200% 字体下不出现横向溢出', (tester) async {
     TestWidgetsFlutterBinding.ensureInitialized();
     SharedPreferences.setMockInitialValues({});
     AppConfig.configureCompetitionDemoDefaults(enablePresenterSession: false);
@@ -148,13 +147,13 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('手機號登錄'), findsOneWidget);
-    expect(find.text('郵箱登錄'), findsOneWidget);
+    expect(find.text('手机号登录'), findsOneWidget);
+    expect(find.text('邮箱登录'), findsOneWidget);
     expect(find.text('首次使用'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('無障礙偏好編輯頁首屏直接顯示設置內容', (tester) async {
+  testWidgets('无障碍偏好编辑页首屏直接显示设置内容', (tester) async {
     TestWidgetsFlutterBinding.ensureInitialized();
     SharedPreferences.setMockInitialValues({});
     AppConfig.configureCompetitionDemoDefaults(enablePresenterSession: false);
@@ -177,15 +176,15 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('無障礙偏好'), findsOneWidget);
-    expect(find.text('編輯無障礙偏好'), findsOneWidget);
-    expect(find.text('觸覺反饋'), findsOneWidget);
-    expect(find.text('自動朗讀結果'), findsOneWidget);
-    expect(find.text('保存設置'), findsOneWidget);
+    expect(find.text('无障碍偏好'), findsOneWidget);
+    expect(find.text('编辑无障碍偏好'), findsOneWidget);
+    expect(find.text('触觉反馈'), findsOneWidget);
+    expect(find.text('自动朗读结果'), findsOneWidget);
+    expect(find.text('保存设置'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('登錄後首頁支持讀屏語義與 200% 字體縮放', (tester) async {
+  testWidgets('登录后首页支持读屏语义与 200% 字体缩放', (tester) async {
     TestWidgetsFlutterBinding.ensureInitialized();
     SharedPreferences.setMockInitialValues({});
     tester.view.physicalSize = const Size(475, 960);
@@ -209,13 +208,13 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('讓幫助真實發生\n連接每一次需要'), findsOneWidget);
+      expect(find.text('让帮助真实发生\n连接每一次需要'), findsOneWidget);
       expect(
-        find.bySemanticsLabel('LinkAble 白色手形標誌，象徵連接每一次需要'),
+        find.bySemanticsLabel('LinkAble 白色手形标志，象征连接每一次需要'),
         findsOneWidget,
       );
-      expect(find.bySemanticsLabel('我需要出行幫助，進入 AI 求助主線'), findsOneWidget);
-      expect(find.bySemanticsLabel('我想成爲志願者，查看待幫助列表'), findsOneWidget);
+      expect(find.bySemanticsLabel('我需要出行帮助，进入 AI 求助主线'), findsOneWidget);
+      expect(find.bySemanticsLabel('我想成为志愿者，查看待帮助列表'), findsOneWidget);
       expect(tester.takeException(), isNull);
     } finally {
       semantics.dispose();
