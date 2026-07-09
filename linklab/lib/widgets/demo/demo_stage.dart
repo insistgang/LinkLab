@@ -289,27 +289,12 @@ class DemoPill extends StatelessWidget {
               : effectiveColor.withValues(alpha: 0.32),
         ),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (svgIcon != null) ...[
-            LinkableSvgIcon(
-              icon: svgIcon!,
-              size: compactLayout ? 16 : 18,
-              semanticLabel: label,
-            ),
-            const SizedBox(width: AppTheme.spacingXS),
-          ] else if (icon != null) ...[
-            LinkableMaterialIcon(
-              icon: icon!,
-              size: compactLayout ? 16 : 18,
-              color: foregroundColor,
-              semanticLabel: label,
-            ),
-            const SizedBox(width: AppTheme.spacingXS),
-          ],
-          AccessibleText(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final labelWidget = AccessibleText(
             label,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: compactLayout
                   ? AppTheme.fontSizeXSmall
@@ -317,8 +302,34 @@ class DemoPill extends StatelessWidget {
               color: foregroundColor,
               fontWeight: FontWeight.w700,
             ),
-          ),
-        ],
+          );
+
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (svgIcon != null) ...[
+                LinkableSvgIcon(
+                  icon: svgIcon!,
+                  size: compactLayout ? 16 : 18,
+                  semanticLabel: label,
+                ),
+                const SizedBox(width: AppTheme.spacingXS),
+              ] else if (icon != null) ...[
+                LinkableMaterialIcon(
+                  icon: icon!,
+                  size: compactLayout ? 16 : 18,
+                  color: foregroundColor,
+                  semanticLabel: label,
+                ),
+                const SizedBox(width: AppTheme.spacingXS),
+              ],
+              if (constraints.hasBoundedWidth)
+                Flexible(child: labelWidget)
+              else
+                labelWidget,
+            ],
+          );
+        },
       ),
     );
   }

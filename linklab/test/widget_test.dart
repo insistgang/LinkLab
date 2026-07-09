@@ -152,20 +152,7 @@ void main() {
     expect(find.text('手机号登录'), findsOneWidget);
     expect(find.text('邮箱登录'), findsOneWidget);
     expect(find.text('首次使用'), findsOneWidget);
-    final layoutException = tester.takeException();
-    if (layoutException != null) {
-      final details = layoutException is FlutterError
-          ? layoutException.diagnostics
-                .map((node) => node.toStringDeep())
-                .join('\n')
-          : layoutException.toString();
-      final annotation = details
-          .replaceAll('%', '%25')
-          .replaceAll('\r', '%0D')
-          .replaceAll('\n', '%0A');
-      debugPrint('::error title=Large-text login layout::$annotation');
-    }
-    expect(layoutException, isNull);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('无障碍偏好编辑页首屏直接显示设置内容', (tester) async {
