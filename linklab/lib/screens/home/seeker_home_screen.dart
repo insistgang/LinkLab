@@ -348,7 +348,6 @@ class _SeekerHomeScreenState extends ConsumerState<SeekerHomeScreen> {
       page: const DemoAIChatScreen(
         title: 'AI文字识别',
         introMessage: '请告诉我需要读什么，或者直接上传一张图片。我会先尝试识别文字，再用更容易理解的方式读给您听。',
-        initialPrompt: '帮我读一下这个说明书',
         quickPrompts: ['帮我读一下这个说明书', '帮我看一下菜单写了什么', '读一下公交站牌内容'],
         toolMode: DemoAIChatToolMode.ocr,
       ),
@@ -361,7 +360,6 @@ class _SeekerHomeScreenState extends ConsumerState<SeekerHomeScreen> {
       page: const DemoAIChatScreen(
         title: 'AI颜色识别',
         introMessage: '如果您想确认衣服、包装或物品颜色，可以直接拍照。我会给出主要颜色和更容易理解的描述。',
-        initialPrompt: '这件衣服是什么颜色',
         quickPrompts: ['这件衣服是什么颜色', '帮我分辨这两个颜色', '这个物体的主色调是什么'],
         toolMode: DemoAIChatToolMode.color,
       ),

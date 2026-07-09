@@ -2,6 +2,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:linklab/screens/ai_chat/demo_ai_chat_screen.dart';
@@ -27,11 +28,12 @@ void main() {
     var screen = tester.widget<DemoAIChatScreen>(find.byType(DemoAIChatScreen));
     expect(screen.title, 'AI文字识别');
     expect(screen.introMessage, contains('上传一张图片'));
-    expect(screen.initialPrompt, '帮我读一下这个说明书');
+    expect(screen.initialPrompt, isNull);
     expect(screen.quickPrompts, isNotEmpty);
     expect(screen.toolMode, DemoAIChatToolMode.ocr);
     var input = tester.widget<EditableText>(find.byType(EditableText).first);
-    expect(input.controller.text, '帮我读一下这个说明书');
+    expect(input.controller.text, isEmpty);
+    expect(find.text('拍照识别文字'), findsOneWidget);
     Navigator.of(tester.element(find.byType(DemoAIChatScreen))).pop();
     await tester.pump(const Duration(milliseconds: 400));
 
@@ -42,11 +44,12 @@ void main() {
     screen = tester.widget<DemoAIChatScreen>(find.byType(DemoAIChatScreen));
     expect(screen.title, 'AI颜色识别');
     expect(screen.introMessage, contains('确认衣服、包装或物品颜色'));
-    expect(screen.initialPrompt, '这件衣服是什么颜色');
+    expect(screen.initialPrompt, isNull);
     expect(screen.quickPrompts, isNotEmpty);
     expect(screen.toolMode, DemoAIChatToolMode.color);
     input = tester.widget<EditableText>(find.byType(EditableText).first);
-    expect(input.controller.text, '这件衣服是什么颜色');
+    expect(input.controller.text, isEmpty);
+    expect(find.text('拍照识别颜色'), findsOneWidget);
     Navigator.of(tester.element(find.byType(DemoAIChatScreen))).pop();
     await tester.pump(const Duration(milliseconds: 400));
 
@@ -61,6 +64,34 @@ void main() {
     expect(screen.toolMode, DemoAIChatToolMode.chat);
     input = tester.widget<EditableText>(find.byType(EditableText).first);
     expect(input.controller.text, isEmpty);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('键盘弹出时快捷工具标题和主要内容仍保持可见', (tester) async {
+    tester.view.physicalSize = const Size(1164, 568);
+    tester.view.devicePixelRatio = 1;
+    tester.view.viewInsets = const FakeViewPadding(bottom: 220);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.view.resetViewInsets);
+
+    await tester.pumpWidget(
+      const ProviderScope(
+        child: MaterialApp(
+          home: DemoAIChatScreen(
+            title: 'AI文字识别',
+            introMessage: '请上传图片，我会读取其中的文字。',
+            toolMode: DemoAIChatToolMode.ocr,
+          ),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(find.text('AI文字识别').hitTestable(), findsOneWidget);
+    expect(find.text('拍照识别文字').hitTestable(), findsOneWidget);
+    final inputBottom = tester.getBottomRight(find.byType(TextField)).dy;
+    expect(inputBottom, lessThanOrEqualTo(568 - 220));
     expect(tester.takeException(), isNull);
   });
 }

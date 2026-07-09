@@ -109,6 +109,59 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
   String get _defaultIntroMessage =>
       '您好！我是 AI 助手“智动”。\n\n我可以帮您：\n• 读文字、说明书、路牌和通知单\n• 描述场景、环境和颜色\n• 模拟面额识别、翻译转译和找路提示\n• 检测紧急词并进入 SOS Mock\n\n不确定时，每个回答都可以转接志愿者。';
 
+  bool get _isRecognitionTool => widget.toolMode != DemoAIChatToolMode.chat;
+
+  IconData get _toolIcon {
+    switch (widget.toolMode) {
+      case DemoAIChatToolMode.ocr:
+        return Icons.document_scanner_outlined;
+      case DemoAIChatToolMode.color:
+        return Icons.color_lens_outlined;
+      case DemoAIChatToolMode.chat:
+        return Icons.multitrack_audio_rounded;
+    }
+  }
+
+  String get _toolStatusLabel {
+    switch (widget.toolMode) {
+      case DemoAIChatToolMode.ocr:
+        return '文字识别模式';
+      case DemoAIChatToolMode.color:
+        return '颜色识别模式';
+      case DemoAIChatToolMode.chat:
+        return 'AI 助手在线';
+    }
+  }
+
+  String get _toolDescription {
+    switch (widget.toolMode) {
+      case DemoAIChatToolMode.ocr:
+        return '拍下说明书、菜单或票据，我会提取文字并整理重点。';
+      case DemoAIChatToolMode.color:
+        return '拍下衣物或物品，我会识别主要颜色并给出易理解的描述。';
+      case DemoAIChatToolMode.chat:
+        return '先由 AI 快速完成 OCR、场景描述与颜色识别；不确定时再无缝转接志愿者。';
+    }
+  }
+
+  String get _cameraActionLabel => switch (widget.toolMode) {
+    DemoAIChatToolMode.ocr => '拍照识别文字',
+    DemoAIChatToolMode.color => '拍照识别颜色',
+    DemoAIChatToolMode.chat => '拍照',
+  };
+
+  String get _galleryActionLabel => switch (widget.toolMode) {
+    DemoAIChatToolMode.ocr => '从相册读取文字',
+    DemoAIChatToolMode.color => '从相册识别颜色',
+    DemoAIChatToolMode.chat => '从相册选择',
+  };
+
+  String get _inputHint => switch (widget.toolMode) {
+    DemoAIChatToolMode.ocr => '补充要读取的内容（可选）',
+    DemoAIChatToolMode.color => '补充要分辨的颜色（可选）',
+    DemoAIChatToolMode.chat => '输入消息...',
+  };
+
   void _addUserMessage(
     String text, {
     Uint8List? imageBytes,
@@ -592,7 +645,10 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
       builder: (context) {
         final mediaQuery = MediaQuery.of(context);
         final textScale = mediaQuery.textScaler.scale(1);
-        final compactLayout = mediaQuery.size.width < 430 || textScale > 1.15;
+        final compactLayout =
+            mediaQuery.size.width < 430 ||
+            mediaQuery.size.height < 700 ||
+            textScale > 1.15;
         final chatBody = _buildChatBody(compactLayout: compactLayout);
         final inputBar = _buildInputBar(compactLayout: compactLayout);
 
@@ -708,7 +764,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
   }
 
   Widget _buildAssistantContextCard({required bool compactLayout}) {
-    final showCapabilityPills = !widget.embeddedInTab || !compactLayout;
+    final showCapabilityPills = !compactLayout;
     return Padding(
       padding: EdgeInsets.fromLTRB(
         widget.embeddedInTab ? 0 : AppTheme.spacingL,
@@ -731,26 +787,74 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
                 runSpacing: AppTheme.spacingS,
                 children: [
                   DemoPill(
-                    icon: Icons.multitrack_audio_rounded,
-                    label: 'AI 助手在线',
+                    icon: _toolIcon,
+                    label: _toolStatusLabel,
                     color: AppTheme.stageAccentLight,
                   ),
                   DemoPill(
-                    icon: Icons.headset_mic_outlined,
-                    label: '可转真人',
+                    icon: _isRecognitionTool
+                        ? Icons.add_photo_alternate_outlined
+                        : Icons.headset_mic_outlined,
+                    label: _isRecognitionTool ? '拍照或相册' : '可转真人',
                     color: AppTheme.stageAccentLight,
                   ),
                 ],
               ),
-              if (!compactLayout) ...[
+              if (!compactLayout || _isRecognitionTool) ...[
                 const SizedBox(height: AppTheme.spacingM),
                 AccessibleText(
-                  '先由 AI 快速完成 OCR、场景描述与颜色识别；不确定时再无缝转接志愿者。',
+                  _toolDescription,
                   style: TextStyle(
                     color: AppTheme.stageTextSecondary,
                     fontSize: AppTheme.fontSizeSmall,
                     height: 1.5,
                   ),
+                ),
+              ],
+              if (_isRecognitionTool) ...[
+                const SizedBox(height: AppTheme.spacingM),
+                Row(
+                  children: [
+                    Expanded(
+                      child: FilledButton.icon(
+                        onPressed: _isProcessing
+                            ? null
+                            : () => _pickImage(ImageSource.camera),
+                        icon: const Icon(Icons.camera_alt_outlined),
+                        label: Text(_cameraActionLabel),
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size(0, AppTheme.minTouchTarget),
+                          backgroundColor: AppTheme.stageAccent,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.borderRadiusMedium,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: AppTheme.spacingS),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: _isProcessing
+                            ? null
+                            : () => _pickImage(ImageSource.gallery),
+                        icon: const Icon(Icons.photo_library_outlined),
+                        label: Text(_galleryActionLabel),
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(0, AppTheme.minTouchTarget),
+                          foregroundColor: AppTheme.stageTextPrimary,
+                          side: BorderSide(color: AppTheme.stageAccent),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.borderRadiusMedium,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
               if (showCapabilityPills) ...[
@@ -759,21 +863,45 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
                   spacing: AppTheme.spacingS,
                   runSpacing: AppTheme.spacingS,
                   children: [
-                    DemoPill(
-                      label: 'OCR',
-                      icon: Icons.document_scanner_outlined,
-                      color: AppTheme.stageAccentLight,
-                    ),
-                    DemoPill(
-                      label: '场景描述',
-                      icon: Icons.visibility_outlined,
-                      color: AppTheme.stageAccentLight,
-                    ),
-                    DemoPill(
-                      label: '紧急词检测',
-                      icon: Icons.warning_amber_rounded,
-                      color: AppTheme.stageAccentLight,
-                    ),
+                    if (widget.toolMode == DemoAIChatToolMode.ocr) ...[
+                      DemoPill(
+                        label: '说明书',
+                        icon: Icons.menu_book_outlined,
+                        color: AppTheme.stageAccentLight,
+                      ),
+                      DemoPill(
+                        label: '菜单票据',
+                        icon: Icons.receipt_long_outlined,
+                        color: AppTheme.stageAccentLight,
+                      ),
+                    ] else if (widget.toolMode == DemoAIChatToolMode.color) ...[
+                      DemoPill(
+                        label: '衣物颜色',
+                        icon: Icons.checkroom_outlined,
+                        color: AppTheme.stageAccentLight,
+                      ),
+                      DemoPill(
+                        label: '物品主色',
+                        icon: Icons.palette_outlined,
+                        color: AppTheme.stageAccentLight,
+                      ),
+                    ] else ...[
+                      DemoPill(
+                        label: 'OCR',
+                        icon: Icons.document_scanner_outlined,
+                        color: AppTheme.stageAccentLight,
+                      ),
+                      DemoPill(
+                        label: '场景描述',
+                        icon: Icons.visibility_outlined,
+                        color: AppTheme.stageAccentLight,
+                      ),
+                      DemoPill(
+                        label: '紧急词检测',
+                        icon: Icons.warning_amber_rounded,
+                        color: AppTheme.stageAccentLight,
+                      ),
+                    ],
                   ],
                 ),
               ],
@@ -935,7 +1063,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
             children: [
               AccessibleIconButton(
                 icon: Icons.camera_alt_outlined,
-                semanticLabel: '拍照',
+                semanticLabel: _cameraActionLabel,
                 backgroundColor: AppTheme.stageSurface,
                 iconColor: AppTheme.stageAccent,
                 iconSize: compactLayout ? 22 : AppTheme.fontSizeLarge,
@@ -984,7 +1112,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
                         : AppTheme.fontSizeNormal,
                   ),
                   decoration: InputDecoration(
-                    hintText: '输入消息...',
+                    hintText: _inputHint,
                     hintStyle: TextStyle(
                       color: AppTheme.stageTextHint,
                       fontSize: compactLayout
