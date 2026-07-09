@@ -154,8 +154,12 @@ void main() {
     expect(find.text('首次使用'), findsOneWidget);
     final layoutException = tester.takeException();
     if (layoutException != null) {
-      final annotation = layoutException
-          .toString()
+      final details = layoutException is FlutterError
+          ? layoutException.diagnostics
+                .map((node) => node.toStringDeep())
+                .join('\n')
+          : layoutException.toString();
+      final annotation = details
           .replaceAll('%', '%25')
           .replaceAll('\r', '%0D')
           .replaceAll('\n', '%0A');
