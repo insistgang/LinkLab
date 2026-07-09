@@ -46,7 +46,14 @@ class DemoStageScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final session = AppSessionService.instance;
     final mediaQuery = MediaQuery.of(context);
-    final compactPhone = _useCompactDemoLayout(context);
+    final compactPhone =
+        _useCompactDemoLayout(context) || mediaQuery.size.height < 700;
+    final availableHeight =
+        (mediaQuery.size.height - mediaQuery.viewInsets.bottom).clamp(
+          0.0,
+          double.infinity,
+        );
+    final maxBottomBarHeight = availableHeight * 0.6;
     final effectiveHeaderTopPadding = compactPhone
         ? headerTopPadding.clamp(0.0, AppTheme.spacingS)
         : headerTopPadding;
@@ -136,7 +143,10 @@ class DemoStageScaffold extends StatelessWidget {
                       child: Center(
                         heightFactor: 1,
                         child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 520),
+                          constraints: BoxConstraints(
+                            maxWidth: 520,
+                            maxHeight: maxBottomBarHeight,
+                          ),
                           child: Padding(
                             padding: EdgeInsets.fromLTRB(
                               bottomHorizontalPadding,
@@ -144,7 +154,11 @@ class DemoStageScaffold extends StatelessWidget {
                               bottomHorizontalPadding,
                               bottomVerticalPadding,
                             ),
-                            child: bottomBar,
+                            child: SingleChildScrollView(
+                              primary: false,
+                              physics: const ClampingScrollPhysics(),
+                              child: bottomBar,
+                            ),
                           ),
                         ),
                       ),
