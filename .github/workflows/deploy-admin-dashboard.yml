@@ -57,6 +57,16 @@ jobs:
         working-directory: linklab
         run: flutter analyze
 
+      - name: Test quick tool layouts
+        working-directory: linklab
+        run: flutter test test/closed_loop/seeker_quick_tools_navigation_test.dart
+
+      - name: Test large-text login layout
+        working-directory: linklab
+        run: >
+          flutter test test/widget_test.dart
+          --plain-name "登录页在窄屏和 200% 字体下不出现横向溢出"
+
       - name: Test
         working-directory: linklab
         run: flutter test
