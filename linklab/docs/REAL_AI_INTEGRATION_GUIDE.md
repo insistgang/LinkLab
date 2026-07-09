@@ -1,309 +1,85 @@
-# 真实AI服务集成指南
+# LinkAble 真实 AI 安全集成指南
 
-## 概述
+## 当前发布策略
 
-本文档介绍如何在LinkAble应用中集成真实的AI API服务，替换演示版的模拟数据。
+客户端发布包只运行安全的 Demo fallback，不保存、读取或打包第三方 AI 密钥。
+百度 OCR、通义千问、科大讯飞、MiniMax、智谱等服务如需接入，必须由受控服务端代理调用。
 
-## 已实现的AI服务
+禁止采用以下方式：
 
-### 1. 百度OCR服务 (F2)
+- 在 Dart、JavaScript、Android 或 iOS 源码中填写密钥。
+- 把 `.env`、`api_config.dart` 或其他密钥文件声明为 Flutter asset。
+- 从客户端安全存储读取第三方服务端密钥后直接调用供应商接口。
+- 在 Web 构建参数中注入可被浏览器下载的服务端密钥。
 
-**文件**: `lib/services/ai/baidu_ocr_service.dart`
+即使文件没有提交到 Git，写入客户端后仍会出现在 Web、APK 或 IPA 的编译产物中。
 
-**功能**:
-- 通用文字识别（标准版）
-- 高精度文字识别
-- 手写体识别
-- 身份证识别
-- 银行卡识别
-- 营业执照识别
+## 推荐架构
 
-**API配置**:
-```dart
-APIConfig.baiduOcrApiKey = '您的API Key';
-APIConfig.baiduOcrSecretKey = '您的Secret Key';
+```text
+LinkAble 客户端
+    │ 用户身份令牌、任务数据
+    ▼
+LinkAble 服务端代理 / Edge Function
+    │ 服务端保存的供应商密钥
+    ├── OCR 服务
+    ├── 视觉模型
+    ├── ASR / TTS
+    └── 翻译服务
 ```
 
-**使用方法**:
-```dart
-final ocrService = BaiduOCRService();
-final result = await ocrService.recognizeText(imageFile);
-if (result.isSuccess) {
-  print('识别结果: ${result.data!.text}');
+客户端只知道 LinkAble 自己的代理地址。服务端负责：
+
+- 安全保存和轮换供应商密钥。
+- 校验用户身份、请求大小和内容类型。
+- 限流、配额、超时、重试与审计。
+- 删除不必要的图片、音频和日志。
+- 将供应商响应转换为项目统一的数据结构。
+
+## 建议接口
+
+```http
+POST /v1/ai/vision
+Authorization: Bearer <用户短期令牌>
+Content-Type: multipart/form-data
+
+mode=ocr|color|scene
+image=<文件>
+```
+
+```json
+{
+  "success": true,
+  "text": "识别结果",
+  "confidence": 0.93,
+  "requestId": "..."
 }
 ```
 
-### 2. 通义千问VL服务 (F3/F7)
+语音能力可按相同方式拆分为 `/v1/ai/asr` 和 `/v1/ai/tts`。服务端不得把上游密钥、原始错误栈或供应商内部响应直接返回客户端。
 
-**文件**: `lib/services/ai/qwen_vl_service.dart`
+## 本地与 CI
 
-**功能**:
-- 场景描述
-- 物体识别
-- 问答功能
-- 空间布局分析
+`lib/config/api_config.dart` 是已跟踪的无密钥兼容配置，所有密钥字段保持为空且不可写。
+CI 会执行以下检查：
 
-**API配置**:
-```dart
-APIConfig.qwenApiKey = '您的API Key';
+```bash
+flutter analyze
+flutter test
+flutter build web --release --base-href /LinkLab/
 ```
 
-**使用方法**:
-```dart
-final qwenService = QwenVLService();
-final result = await qwenService.describeScene(imageFile);
-if (result.isSuccess) {
-  print('场景描述: ${result.data!.formattedText}');
-}
-```
+发布前还应确认：
 
-### 3. 科大讯飞语音服务
+1. `pubspec.yaml` 没有 `.env` 资源。
+2. Git 差异中没有真实令牌或私钥。
+3. Release 产物中没有供应商密钥。
+4. 未配置代理时稳定回退到 Demo 模式。
 
-**文件**: `lib/services/ai/xfyun_voice_service.dart`
+## 移动端权限
 
-**功能**:
-- ASR语音识别（实时/WebSocket）
-- TTS语音合成
-- 流式语音合成
+- 相机：拍照进行文字、颜色和环境识别，以及通话预览。
+- 相册：选择需要识别的图片。
+- 麦克风与语音识别：语音求助、语音转文字和通话协助。
 
-**API配置**:
-```dart
-APIConfig.xfyunAppId = '您的AppID';
-APIConfig.xfyunApiKey = '您的API Key';
-APIConfig.xfyunApiSecret = '您的API Secret';
-```
-
-**使用方法**:
-```dart
-final voiceService = XfyunVoiceService();
-
-// 语音识别
-final result = await voiceService.speechToText(audioFile);
-
-// 语音合成
-final ttsResult = await voiceService.textToSpeech('你好，世界');
-```
-
-### 4. 真实意图分类器 (F1)
-
-**文件**: `lib/services/ai/real_intent_classifier.dart`
-
-**功能**:
-- 支持12种意图分类
-- 上下文感知
-- 紧急度判断
-- 中英文关键词匹配
-
-**支持的意图类型**:
-1. 文字识别 (textRecognition)
-2. 物体识别 (objectRecognition)
-3. 颜色识别 (colorRecognition)
-4. 钞票识别 (currencyRecognition)
-5. 翻译 (translation)
-6. 导航 (navigation)
-7. 场景描述 (sceneDescription)
-8. 药品确认 (medicineConfirmation)
-9. 医疗问诊 (medicalConsultation)
-10. 情感陪伴 (emotionalSupport)
-11. 紧急求助 (emergency)
-12. 通用对话 (generalChat)
-
-**使用方法**:
-```dart
-final classifier = RealIntentClassifier();
-final result = classifier.classify('帮我识别这段文字');
-print('意图: ${result.intent}, 置信度: ${result.confidence}');
-```
-
-### 5. 紧急关键词检测 (F8)
-
-**文件**: `lib/services/ai/real_emergency_detector.dart`
-
-**功能**:
-- 本地关键词库
-- 语音情绪分析
-- 5秒倒计时确认
-- 三级紧急度判断
-
-**触发级别**:
-- **危急级别**: 立即触发SOS，无需确认
-- **紧急级别**: 5秒倒计时确认
-- **情绪危机**: 特别关注，转人工
-
-**使用方法**:
-```dart
-final detector = RealEmergencyDetector();
-
-detector.setCallbacks(
-  onEmergency: (event) => print('紧急情况: ${event.text}'),
-  onConfirmation: (event) => print('需要确认'),
-);
-
-final result = detector.detect('我摔倒了，爬不起来');
-if (result.isEmergency) {
-  print('触发词: ${result.triggerWord}');
-}
-```
-
-## 统一服务管理器
-
-**文件**: `lib/services/ai/real_ai_service_manager.dart`
-
-**功能**:
-- 统一管理所有AI服务
-- 演示/真实模式切换
-- 自动降级策略
-- API错误处理
-
-**使用方法**:
-```dart
-// 初始化
-final aiManager = RealAIServiceManager.instance;
-await aiManager.initialize(AIServiceConfig());
-
-// 配置API密钥
-APIConfig.baiduOcrApiKey = 'xxx';
-APIConfig.qwenApiKey = 'xxx';
-APIConfig.xfyunAppId = 'xxx';
-
-// 切换到真实模式
-aiManager.setRealMode(true);
-
-// 处理请求
-final response = await aiManager.processRequest(
-  input: '帮我识别这段文字',
-  imageUrl: '/path/to/image.jpg',
-);
-
-// 语音播报
-await aiManager.speak(response.text);
-```
-
-## API配置步骤
-
-### 1. 获取API密钥
-
-#### 百度OCR
-1. 访问 https://ai.baidu.com/tech/ocr
-2. 注册百度AI开放平台账号
-3. 创建应用，获取API Key和Secret Key
-
-#### 通义千问VL
-1. 访问 https://dashscope.aliyun.com/
-2. 注册阿里云账号
-3. 开通DashScope服务，获取API Key
-
-#### 科大讯飞
-1. 访问 https://www.xfyun.cn/
-2. 注册讯飞开放平台账号
-3. 创建应用，获取AppID、API Key和API Secret
-
-### 2. 配置API密钥
-
-**方式1: 直接配置**（开发环境）
-```dart
-import 'package:linklab/config/api_config.dart';
-
-void main() {
-  APIConfig.baiduOcrApiKey = 'your_key_here';
-  APIConfig.baiduOcrSecretKey = 'your_secret_here';
-  APIConfig.qwenApiKey = 'your_key_here';
-  APIConfig.xfyunAppId = 'your_app_id';
-  APIConfig.xfyunApiKey = 'your_key_here';
-  APIConfig.xfyunApiSecret = 'your_secret_here';
-}
-```
-
-**方式2: 使用initialize方法**
-```dart
-APIConfig.initialize(
-  baiduOcrKey: 'your_key',
-  baiduOcrSecret: 'your_secret',
-  qwenKey: 'your_key',
-  xfyunApp: 'your_app_id',
-  xfyunKey: 'your_key',
-  xfyunSecret: 'your_secret',
-);
-```
-
-**方式3: 从安全存储读取**（生产环境）
-```dart
-// 使用flutter_secure_storage或类似方案
-final storage = FlutterSecureStorage();
-APIConfig.baiduOcrApiKey = await storage.read(key: 'baidu_ocr_key') ?? '';
-```
-
-## 降级策略
-
-当API调用失败时，系统会自动降级到演示模式：
-
-1. **网络错误**: 提示用户检查网络，使用本地模式
-2. **认证错误**: 提示检查API密钥配置
-3. **配额不足**: 提示联系管理员或稍后再试
-4. **服务不可用**: 自动切换到演示模式
-
-## 错误处理
-
-所有API调用都返回`APIResponse<T>`包装类：
-
-```dart
-final result = await ocrService.recognizeText(image);
-
-if (result.isSuccess) {
-  // 处理成功结果
-  print(result.data!.text);
-} else {
-  // 处理错误
-  final error = result.error!;
-  print('错误类型: ${error.type}');
-  print('错误信息: ${error.message}');
-  
-  // 根据错误类型处理
-  switch (error.type) {
-    case APIErrorType.networkError:
-      // 提示检查网络
-      break;
-    case APIErrorType.authenticationError:
-      // 提示检查API密钥
-      break;
-    default:
-      // 其他错误处理
-  }
-}
-```
-
-## 文件清单
-
-### 核心服务文件
-- `lib/config/api_config.dart` - API配置
-- `lib/config/api_config.example.dart` - API配置示例
-- `lib/services/ai/ai_service.dart` - AI服务接口
-- `lib/services/ai/ai_module_export.dart` - 模块导出
-
-### 真实AI服务实现
-- `lib/services/ai/baidu_ocr_service.dart` - 百度OCR
-- `lib/services/ai/qwen_vl_service.dart` - 通义千问VL
-- `lib/services/ai/xfyun_voice_service.dart` - 科大讯飞语音
-- `lib/services/ai/real_intent_classifier.dart` - 真实意图分类器
-- `lib/services/ai/real_emergency_detector.dart` - 真实紧急检测器
-- `lib/services/ai/real_ai_service_manager.dart` - 真实AI服务管理器
-
-### 演示/降级服务
-- `lib/services/ai/mock_ai_service.dart` - 模拟AI服务
-- `lib/demo_data/ai_responses.dart` - 演示数据
-
-## 注意事项
-
-1. **API密钥安全**: 不要将真实API密钥提交到版本控制
-2. **配额管理**: 注意各API的调用配额限制
-3. **网络依赖**: 真实AI服务需要网络连接
-4. **错误处理**: 始终处理API调用可能的错误情况
-5. **降级策略**: 确保在API失败时有良好的用户体验
-
-## 测试建议
-
-1. 先使用演示模式验证功能流程
-2. 配置测试环境的API密钥
-3. 测试各种错误场景（网络断开、密钥错误等）
-4. 验证降级策略是否正常工作
-5. 测试紧急关键词检测的准确性
+权限被拒绝或插件不可用时，客户端必须显示可理解的错误提示，并允许用户继续使用文字输入。

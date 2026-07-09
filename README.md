@@ -1,55 +1,55 @@
 # 共感 LinkAble
 
-**AI + 志願者無障礙互助平臺**
+**AI + 志愿者无障碍互助平台**
 
-面向視障、聽障、老年人及肢體障礙者的「AI 先處理 + 真人兜底」互助 Demo。
+面向视障、听障、老年人及肢体障碍者的「AI 先处理 + 真人兜底」互助 Demo。
 
-> 2026 兩岸大學生創客大賽 · 逢甲賽區競賽交付版本  
-> 當前倉庫狀態：**Demo-first MVP** / **Web 與 Chrome 是主要演示路徑** / **真實 WebRTC、Supabase、推送、SOS 生產鏈路仍爲實驗或後續能力**
+> 2026 两岸大学生创客大赛 · 逢甲赛区竞赛交付版本
+> 当前仓库状态：**Demo-first MVP** / **Web 与 Chrome 是主要演示路径** / **真实 WebRTC、Supabase、推送、SOS 生产链路仍为实验或后续能力**
 
-> 最新狀態索引見 [DEMO_STATUS.md](./DEMO_STATUS.md)。本輪文檔整理不運行 Flutter，也不把歷史測試記錄重新聲明爲當前複驗結果。
+> 最新状态索引见 [DEMO_STATUS.md](./DEMO_STATUS.md)。本轮文档整理不运行 Flutter，也不把历史测试记录重新声明为当前复验结果。
 
-## 項目定位
+## 项目定位
 
-共感 LinkAble 的目標不是做“功能很多但都半成品”的助殘應用，而是把競賽版嚴格收口爲一條能穩定演示、可重複驗證、對無障礙用戶真正友好的 MVP 主線：
+共感 LinkAble 的目标不是做“功能很多但都半成品”的助残应用，而是把竞赛版严格收口为一条能稳定演示、可重复验证、对无障碍用户真正友好的 MVP 主线：
 
-- AI 優先處理標準化需求
-- 真人志願者兜底複雜和高風險需求
-- 所有主流程都具備可見狀態變化與結束落點
-- 所有演示鏈路默認不依賴外部不可控服務
+- AI 优先处理标准化需求
+- 真人志愿者兜底复杂和高风险需求
+- 所有主流程都具备可见状态变化与结束落点
+- 所有演示链路默认不依赖外部不可控服务
 
-當前版本嚴格遵循根目錄 [AGENTS.md](./AGENTS.md) 作爲唯一技術實施事實來源。
+当前版本严格遵循根目录 [AGENTS.md](./AGENTS.md) 作为唯一技术实施事实来源。
 
 ## MVP 6 大核心功能
 
-| 功能 | 描述 | 對應範圍 |
+| 功能 | 描述 | 对应范围 |
 |---|---|---|
-| **F1 AI Agent 智能對話** | 語音 / 文字 / 拍照統一入口，處理 OCR、場景描述、顏色識別、翻譯、緊急詞檢測等 | MVP 核心 |
-| **F9 志願者匹配** | AI 無法解決時，進入 Demo 匹配流程並展示明確的狀態變化 | MVP 核心 |
-| **F11 實時語音通話** | 匹配成功後進入語音通話閉環；競賽版默認走 Demo 通話 | MVP 核心 |
-| **F13 SOS 緊急呼救** | 一鍵觸發、10 秒誤觸撤銷窗口、Mock 廣播和聯繫人通知 | MVP 核心 |
-| **F33 登錄與無障礙偏好** | 手機號驗證碼登錄、首次引導、偏好恢復 | MVP 核心 |
-| **F36 全局無障礙** | `Semantics`、高對比度、48x48 觸摸目標、動態字體、錯誤三重表達 | 強制約束 |
+| **F1 AI Agent 智能对话** | 语音 / 文字 / 拍照统一入口，处理 OCR、场景描述、颜色识别、翻译、紧急词检测等 | MVP 核心 |
+| **F9 志愿者匹配** | AI 无法解决时，进入 Demo 匹配流程并展示明确的状态变化 | MVP 核心 |
+| **F11 实时语音通话** | 匹配成功后进入语音通话闭环；竞赛版默认走 Demo 通话 | MVP 核心 |
+| **F13 SOS 紧急呼救** | 一键触发、10 秒误触撤销窗口、Mock 广播和联系人通知 | MVP 核心 |
+| **F33 登录与无障碍偏好** | 手机号验证码登录、首次引导、偏好恢复 | MVP 核心 |
+| **F36 全局无障碍** | `Semantics`、高对比度、48x48 触摸目标、动态字体、错误三重表达 | 强制约束 |
 
-一句話總結：**AI 處理 80% 標準化需求，志願者兜底 20% 複雜 / 緊急需求。**
+一句话总结：**AI 处理 80% 标准化需求，志愿者兜底 20% 复杂 / 紧急需求。**
 
-## 當前交付狀態
+## 当前交付状态
 
-截至 `2026-04-17` 的歷史執行記錄顯示，倉庫曾完成 `P0 + P1 + P2` 收口工作；`2026-05-01` 文檔口徑整理後，統一將當前項目標註爲 Demo-first MVP：
+截至 `2026-04-17` 的历史执行记录显示，仓库曾完成 `P0 + P1 + P2` 收口工作；`2026-05-01` 文档口径整理后，统一将当前项目标注为 Demo-first MVP：
 
-- 競賽版入口已強制鎖定 `Demo Mode`
-- 全局已補齊 `ProviderScope`
-- 默認導航只保留 `Home / AIChat / Profile`
-- 社區 / 社羣 / 複雜後臺能力已降級或移出默認主鏈路
-- Supabase 以根目錄 `supabase/` 爲唯一 schema source of truth
-- `real_*` 真實鏈路已隔離到 `services/experimental/real/`
-- 5 條關鍵 Demo 閉環測試已補齊並通過
-- 日誌已統一收口到 `AppLogger`
-- `api_config.dart` 已停止 Git 追蹤，改爲本地實驗配置
+- 竞赛版入口已强制锁定 `Demo Mode`
+- 全局已补齐 `ProviderScope`
+- 默认导航只保留 `Home / AIChat / Profile`
+- 社区 / 社群 / 复杂后台能力已降级或移出默认主链路
+- Supabase 以根目录 `supabase/` 为唯一 schema source of truth
+- `real_*` 真实链路已隔离到 `services/experimental/real/`
+- 5 条关键 Demo 闭环测试已补齐并通过
+- 日志已统一收口到 `AppLogger`
+- `api_config.dart` 已改为可跟踪的无密钥兼容配置，真实 AI 只经服务端代理
 
-## 快速啓動
+## 快速启动
 
-### 1. 運行主應用 Demo（首選 Web / Chrome）
+### 1. 运行主应用 Demo（首选 Web / Chrome）
 
 ```bash
 cd linklab
@@ -57,30 +57,30 @@ flutter pub get
 flutter run -d chrome
 ```
 
-說明：
+说明：
 
-- 當前入口在 [`linklab/lib/main.dart`](./linklab/lib/main.dart) 中已強制執行 `AppConfig.demoMode = true`
-- 默認不需要真實 API Key、真實 Supabase、真實推送或真實 WebRTC
-- 競賽版默認只保證 Demo 主線
-- Windows 桌面端不是首選演示路徑；如需 `flutter run -d windows`，本機必須安裝 Visual Studio C++ 桌面開發工具鏈
+- 当前入口在 [`linklab/lib/main.dart`](./linklab/lib/main.dart) 中已强制执行 `AppConfig.demoMode = true`
+- 默认不需要真实 API Key、真实 Supabase、真实推送或真实 WebRTC
+- 竞赛版默认只保证 Demo 主线
+- Windows 桌面端不是首选演示路径；如需 `flutter run -d windows`，本机必须安装 Visual Studio C++ 桌面开发工具链
 
-### 2. Web 構建複驗
+### 2. Web 构建复验
 
 ```bash
 cd linklab
 flutter build web --release
 ```
 
-說明：Web build 是推薦交付複驗口徑之一。本輪文檔整理未運行該命令，交付前應重新執行並把結果補入 [`docs/rc_acceptance_evidence.md`](./docs/rc_acceptance_evidence.md)。
+说明：Web build 是推荐交付复验口径之一。本轮文档整理未运行该命令，交付前应重新执行并把结果补入 [`docs/rc_acceptance_evidence.md`](./docs/rc_acceptance_evidence.md)。
 
-### 3. 運行閉環測試
+### 3. 运行闭环测试
 
 ```bash
 cd linklab
 flutter test --tags demo
 ```
 
-### 4. 運行靜態檢查
+### 4. 运行静态检查
 
 ```bash
 cd linklab
@@ -92,67 +92,67 @@ cd linklab/admin_dashboard
 flutter analyze lib
 ```
 
-已有驗證記錄口徑：
+已有验证记录口径：
 
-- `README.md` / `TODO.md` 的 2026-04-17 歷史記錄曾寫明：主應用 `flutter analyze lib` 仍有 `70 issues found`，`admin_dashboard` 有 `9 issues found`，`flutter test --tags demo` 爲 **All tests passed**。
-- [`docs/rc_acceptance_evidence.md`](./docs/rc_acceptance_evidence.md) 的較新 RC 記錄曾寫明：`flutter analyze` 爲 `No issues found`，`flutter test --reporter compact` 爲 `All tests passed`（60 tests）。
-- [`docs/competition_mvp_delivery_plan.md`](./docs/competition_mvp_delivery_plan.md) 將 `flutter build web --debug` / `flutter build web --release` 納入 Web 演示驗收口徑。
-- 本輪僅整理文檔，沒有復跑 `flutter test`、`flutter analyze` 或 `flutter build web`；交付前以 Web / Chrome 路徑重新複驗爲準。
+- `README.md` / `TODO.md` 的 2026-04-17 历史记录曾写明：主应用 `flutter analyze lib` 仍有 `70 issues found`，`admin_dashboard` 有 `9 issues found`，`flutter test --tags demo` 为 **All tests passed**。
+- [`docs/rc_acceptance_evidence.md`](./docs/rc_acceptance_evidence.md) 的较新 RC 记录曾写明：`flutter analyze` 为 `No issues found`，`flutter test --reporter compact` 为 `All tests passed`（60 tests）。
+- [`docs/competition_mvp_delivery_plan.md`](./docs/competition_mvp_delivery_plan.md) 将 `flutter build web --debug` / `flutter build web --release` 纳入 Web 演示验收口径。
+- 本轮仅整理文档，没有复跑 `flutter test`、`flutter analyze` 或 `flutter build web`；交付前以 Web / Chrome 路径重新复验为准。
 
-## 3 分鐘競賽演示主線
+## 3 分钟竞赛演示主线
 
-當前默認演示閉環爲：
+当前默认演示闭环为：
 
-1. 打開 App，進入首頁大按鈕主界面
-2. 語音或文字發起 AI 求助
-3. AI 能處理時直接返回答案
-4. AI 無法處理時進入志願者匹配頁
-5. 匹配成功後進入 Demo 通話
-6. 通話結束後提交評價並回寫歷史
-7. 演示 SOS：廣播、聯繫人通知、10 秒撤銷窗口
+1. 打开 App，进入首页大按钮主界面
+2. 语音或文字发起 AI 求助
+3. AI 能处理时直接返回答案
+4. AI 无法处理时进入志愿者匹配页
+5. 匹配成功后进入 Demo 通话
+6. 通话结束后提交评价并回写历史
+7. 演示 SOS：广播、联系人通知、10 秒撤销窗口
 
-對應倉內文檔可參考：
+对应仓内文档可参考：
 
 - [DEMO_SCRIPT.md](./DEMO_SCRIPT.md)
 - [TODO.md](./TODO.md)
 - [AGENTS.md](./AGENTS.md)
 
-## 倉庫結構
+## 仓库结构
 
 ```text
 LinkLab/
-├─ linklab/                  # 主 Flutter 應用（競賽 MVP 主交付）
+├─ linklab/                  # 主 Flutter 应用（竞赛 MVP 主交付）
 │  ├─ lib/
-│  │  ├─ config/             # Demo / 網絡 / API 配置
-│  │  ├─ core/               # 主題、常量、日誌等基礎設施
-│  │  ├─ demo_data/          # 本地演示數據
-│  │  ├─ demo_flow/          # Demo 狀態流與閉環追蹤
-│  │  ├─ models/             # 核心數據模型
+│  │  ├─ config/             # Demo / 网络 / API 配置
+│  │  ├─ core/               # 主题、常量、日志等基础设施
+│  │  ├─ demo_data/          # 本地演示数据
+│  │  ├─ demo_flow/          # Demo 状态流与闭环追踪
+│  │  ├─ models/             # 核心数据模型
 │  │  ├─ providers/          # Riverpod provider
-│  │  ├─ screens/            # 頁面
-│  │  ├─ services/           # 業務服務與 unified facade
-│  │  └─ widgets/            # 無障礙組件與通用 UI
-│  └─ test/closed_loop/      # 5 條關鍵閉環測試
+│  │  ├─ screens/            # 页面
+│  │  ├─ services/           # 业务服务与 unified facade
+│  │  └─ widgets/            # 无障碍组件与通用 UI
+│  └─ test/closed_loop/      # 5 条关键闭环测试
 ├─ supabase/                 # 唯一 schema source of truth
 │  ├─ migrations/
 │  └─ functions/
-├─ docs/                     # 說明文檔
-├─ prd-analysis/             # PRD / 分析輔助材料
+├─ docs/                     # 说明文档
+├─ prd-analysis/             # PRD / 分析辅助材料
 ├─ 共感LinkAble_PRD_v1_2.md
-├─ 項目深度分析報告.md
+├─ 项目深度分析报告.md
 ├─ AGENTS.md
 └─ TODO.md
 ```
 
-補充說明：
+补充说明：
 
-- `linklab/admin_dashboard/` 保留爲歷史後臺工程，不屬於競賽 MVP 主交付
-- `linklab/lib/services/experimental/real/` 爲實驗性真實鏈路，默認不進入導航和演示腳本
-- `linklab/supabase/legacy/` 爲歷史歸檔，後續不得再作爲事實來源
+- `linklab/admin_dashboard/` 保留为历史后台工程，不属于竞赛 MVP 主交付
+- `linklab/lib/services/experimental/real/` 为实验性真实链路，默认不进入导航和演示脚本
+- `linklab/supabase/legacy/` 为历史归档，后续不得再作为事实来源
 
-## 技術棧
+## 技术栈
 
-### 主應用
+### 主应用
 
 - Flutter
 - Riverpod
@@ -164,54 +164,54 @@ LinkLab/
 - Flutter TTS / Speech To Text
 - Logger
 
-### 數據與後端
+### 数据与后端
 
 - Supabase Postgres
 - Supabase Edge Functions
-- 根目錄 `supabase/migrations/` 統一管理 schema
+- 根目录 `supabase/migrations/` 统一管理 schema
 
-### 工程質量
+### 工程质量
 
 - `flutter analyze`
 - `flutter test --tags demo`
-- `AppLogger` 統一日誌
+- `AppLogger` 统一日志
 - Demo-first fallback 策略
 
-## Demo / Real 邊界
+## Demo / Real 边界
 
-當前項目採用明確的雙軌策略，但**競賽版只保留 Demo 主線**：
+当前项目采用明确的双轨策略，但**竞赛版只保留 Demo 主线**：
 
-- 默認導航、默認首頁、默認測試只走 Demo 主線
-- `unified_*` 服務默認強制走 Demo 分支
-- 真實鏈路僅保留在 `services/experimental/real/`
-- 如果真實依賴未初始化、缺失或不穩定，必須自動回退到 Demo 數據
+- 默认导航、默认首页、默认测试只走 Demo 主线
+- `unified_*` 服务默认强制走 Demo 分支
+- 真实链路仅保留在 `services/experimental/real/`
+- 如果真实依赖未初始化、缺失或不稳定，必须自动回退到 Demo 数据
 
-這意味着：
+这意味着：
 
-- 你可以穩定演示 `F1 -> F9 -> F11 -> 評價 -> 歷史`
-- 你也可以穩定演示 `F13 SOS`
-- 但不應該把真實 WebRTC、真實 Supabase、真實推送、真實短信、真實報警或生產級 SOS 當作現場依賴
-- 真實鏈路只能作爲實驗能力或後續版本說明，不能在文檔、口播或驗收中冒充當前已生產完成
+- 你可以稳定演示 `F1 -> F9 -> F11 -> 评价 -> 历史`
+- 你也可以稳定演示 `F13 SOS`
+- 但不应该把真实 WebRTC、真实 Supabase、真实推送、真实短信、真实报警或生产级 SOS 当作现场依赖
+- 真实链路只能作为实验能力或后续版本说明，不能在文档、口播或验收中冒充当前已生产完成
 
-## 無障礙約束
+## 无障碍约束
 
-當前版本不是“先做功能、最後補無障礙”，而是將無障礙作爲強制實施基線：
+当前版本不是“先做功能、最后补无障碍”，而是将无障碍作为强制实施基线：
 
 - 交互元素需要 `Semantics`
-- 觸摸目標儘量接近或達到 `48x48dp`
-- 高對比度優先於視覺裝飾
-- 支持字體縮放和讀屏
-- 錯誤狀態必須使用顏色 + 圖標 + 文字三重表達
-- 圖片必須有可理解的替代文本或回退組件
+- 触摸目标尽量接近或达到 `48x48dp`
+- 高对比度优先于视觉装饰
+- 支持字体缩放和读屏
+- 错误状态必须使用颜色 + 图标 + 文字三重表达
+- 图片必须有可理解的替代文本或回退组件
 
-倉內可以關注這些實現：
+仓内可以关注这些实现：
 
 - [`linklab/lib/widgets/accessible/`](./linklab/lib/widgets/accessible)
 - [`linklab/lib/widgets/accessible/accessible_image.dart`](./linklab/lib/widgets/accessible/accessible_image.dart)
 
-## 測試覆蓋
+## 测试覆盖
 
-當前已補齊 5 條關鍵閉環測試，位於 [`linklab/test/closed_loop/`](./linklab/test/closed_loop)：
+当前已补齐 5 条关键闭环测试，位于 [`linklab/test/closed_loop/`](./linklab/test/closed_loop)：
 
 - `startup_login_closed_loop_test.dart`
 - `ai_to_human_closed_loop_test.dart`
@@ -219,55 +219,46 @@ LinkLab/
 - `sos_closed_loop_test.dart`
 - `demo_mainline_end_to_end_test.dart`
 
-這些測試覆蓋的核心目標包括：
+这些测试覆盖的核心目标包括：
 
-- `AppSessionService` 初始化與偏好恢復
-- AI 無法處理時轉人工
-- `help_request` 狀態機從 `ai_processing -> matching -> connected -> completed`
+- `AppSessionService` 初始化与偏好恢复
+- AI 无法处理时转人工
+- `help_request` 状态机从 `ai_processing -> matching -> connected -> completed`
 - SOS 的 `created -> cancelled / matching`
-- 首頁到歷史回看的完整 Demo 主線
+- 首页到历史回看的完整 Demo 主线
 
-## 配置與密鑰管理
+## 配置与密钥管理
 
-### Demo 運行
+### Demo 运行
 
-競賽版 Demo 運行默認**不需要**真實密鑰。
+竞赛版 Demo 运行默认**不需要**真实密钥。
 
-### 本地實驗真實鏈路
+### 真实 AI 链路
 
-如果你只是本地實驗真實 AI 配置：
+真实 AI 密钥不得写入客户端源码、`.env` 或 Flutter assets。客户端只调用受控服务端代理，供应商密钥由服务端保存、轮换和限流。具体要求见 [`linklab/docs/REAL_AI_INTEGRATION_GUIDE.md`](./linklab/docs/REAL_AI_INTEGRATION_GUIDE.md)。
 
-1. 參考 [`linklab/lib/config/api_config.example.dart`](./linklab/lib/config/api_config.example.dart)
-2. 複製生成本地 `linklab/lib/config/api_config.dart`
-3. 填入自己的實驗配置
-4. **不要提交該文件**
+### Supabase 规则
 
-倉庫已經通過 `.gitignore` 忽略：
+- 根目录 [`supabase/`](./supabase) 是唯一 schema source of truth
+- 任何字段 / 表结构调整都应先改 migration，再改客户端代码
+- 竞赛版主流程默认不依赖真实 Supabase 初始化
 
-- `linklab/lib/config/api_config.dart`
+## 非 MVP 范围说明
 
-### Supabase 規則
+以下内容当前不属于竞赛默认交付主线：
 
-- 根目錄 [`supabase/`](./supabase) 是唯一 schema source of truth
-- 任何字段 / 表結構調整都應先改 migration，再改客戶端代碼
-- 競賽版主流程默認不依賴真實 Supabase 初始化
+- 交互式社区 / 群聊 / 地区社群
+- 多级认证和复杂审核
+- 积分、徽章、排班、时间线
+- 录音 AI 检测
+- 独立运营后台能力
+- 真实 WebRTC / 真实推送 / 真实匹配的生产级可用性
 
-## 非 MVP 範圍說明
+这些代码可能仍保留在仓库中，但已经被隐藏、隔离或降级，不应进入默认演示流程。
 
-以下內容當前不屬於競賽默認交付主線：
+## 推荐阅读顺序
 
-- 交互式社區 / 羣聊 / 地區社羣
-- 多級認證和複雜審覈
-- 積分、徽章、排班、時間線
-- 錄音 AI 檢測
-- 獨立運營後臺能力
-- 真實 WebRTC / 真實推送 / 真實匹配的生產級可用性
-
-這些代碼可能仍保留在倉庫中，但已經被隱藏、隔離或降級，不應進入默認演示流程。
-
-## 推薦閱讀順序
-
-如果你第一次接手這個項目，建議按下面順序閱讀：
+如果你第一次接手这个项目，建议按下面顺序阅读：
 
 1. [DEMO_STATUS.md](./DEMO_STATUS.md)
 2. [AGENTS.md](./AGENTS.md)
@@ -277,6 +268,6 @@ LinkLab/
 6. [`linklab/lib/config/app_config.dart`](./linklab/lib/config/app_config.dart)
 7. [`supabase/migrations/005_unify_root_schema_source_of_truth.sql`](./supabase/migrations/005_unify_root_schema_source_of_truth.sql)
 
-## 一句話總結
+## 一句话总结
 
-**共感 LinkAble 當前不是“全功能平臺原型”，而是一條嚴格收口、無障礙優先、可穩定演示的 AI + 志願者協助 MVP 主線。**
+**共感 LinkAble 当前不是“全功能平台原型”，而是一条严格收口、无障碍优先、可稳定演示的 AI + 志愿者协助 MVP 主线。**

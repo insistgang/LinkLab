@@ -1,5 +1,1 @@
-# API配置文件包含敏感信息，不应提交到版本控制
-api_config.dart
-
-# 使用api_config.example.dart作为模板
-# 复制并重命名为api_config.dart，然后填入真实密钥
+# 客户端配置必须保持可提交、无密钥；真实凭据仅存放在服务端。

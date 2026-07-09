@@ -1,14 +1,15 @@
-/// 客户端 API 配置结构示例。
+/// 客户端只保留无密钥的兼容配置。
 ///
-/// 不要在此文件或 `api_config.dart` 中填写真实密钥；真实服务必须通过服务端代理。
+/// 所有真实 AI 服务必须通过服务端代理。此类故意不提供密钥写入入口，
+/// 避免密钥被编译进 Web、APK 或 IPA。
 class APIConfig {
   // ==================== 百度OCR API配置 ====================
   /// 百度OCR API Key
   /// 获取地址：https://ai.baidu.com/tech/ocr
-  static String baiduOcrApiKey = '';
+  static const String baiduOcrApiKey = '';
 
   /// 百度OCR Secret Key
-  static String baiduOcrSecretKey = '';
+  static const String baiduOcrSecretKey = '';
 
   /// 百度OCR Access Token（自动获取，无需手动设置）
   static String? _baiduOcrAccessToken;
@@ -45,7 +46,7 @@ class APIConfig {
   // ==================== 通义千问VL API配置 ====================
   /// 通义千问API Key
   /// 获取地址：https://dashscope.aliyun.com/
-  static String qwenApiKey = '';
+  static const String qwenApiKey = '';
 
   /// 通义千问VL服务端点
   static const String qwenBaseUrl = 'https://dashscope.aliyuncs.com/api/v1';
@@ -62,13 +63,13 @@ class APIConfig {
   // ==================== 科大讯飞语音API配置 ====================
   /// 科大讯飞APP ID
   /// 获取地址：https://www.xfyun.cn/
-  static String xfyunAppId = '';
+  static const String xfyunAppId = '';
 
   /// 科大讯飞API Key
-  static String xfyunApiKey = '';
+  static const String xfyunApiKey = '';
 
   /// 科大讯飞API Secret
-  static String xfyunApiSecret = '';
+  static const String xfyunApiSecret = '';
 
   /// 科大讯飞语音听写（ASR）WebSocket地址
   static const String xfyunAsrWsUrl = 'wss://iat-api.xfyun.cn/v2/iat';
@@ -85,7 +86,7 @@ class APIConfig {
   // ==================== MiniMax TTS API配置 ====================
   /// MiniMax API Key
   /// 获取地址：https://platform.minimaxi.com/
-  static String minimaxApiKey = '';
+  static const String minimaxApiKey = '';
 
   /// MiniMax API 服务端点
   static const String minimaxApiHost = 'https://api.minimaxi.com';
@@ -98,10 +99,10 @@ class APIConfig {
 
   // ==================== 百度翻译API配置（可选） ====================
   /// 百度翻译APP ID
-  static String baiduTranslateAppId = '';
+  static const String baiduTranslateAppId = '';
 
   /// 百度翻译密钥
-  static String baiduTranslateSecret = '';
+  static const String baiduTranslateSecret = '';
 
   /// 百度翻译API地址
   static const String baiduTranslateUrl =
@@ -110,7 +111,7 @@ class APIConfig {
   // ==================== 智谱AI视觉API配置 ====================
   /// 智谱AI API Key
   /// 获取地址：https://open.bigmodel.cn/
-  static String zhipuApiKey = '';
+  static const String zhipuApiKey = '';
 
   /// 智谱AI服务端点
   static const String zhipuBaseUrl = 'https://open.bigmodel.cn/api/paas/v4';
@@ -187,50 +188,6 @@ class APIConfig {
         isXfyunConfigured ||
         isMinimaxTtsConfigured ||
         isZhipuConfigured;
-  }
-
-  // ==================== 配置初始化方法 ====================
-
-  /// 从环境变量或配置文件初始化
-  /// 实际项目中可以从安全存储中读取
-  static void initialize({
-    String? baiduOcrKey,
-    String? baiduOcrSecret,
-    String? qwenKey,
-    String? xfyunApp,
-    String? xfyunKey,
-    String? xfyunSecret,
-    String? translateAppId,
-    String? translateSecret,
-    String? zhipuKey,
-    String? minimaxKey,
-  }) {
-    if (baiduOcrKey != null) baiduOcrApiKey = baiduOcrKey;
-    if (baiduOcrSecret != null) baiduOcrSecretKey = baiduOcrSecret;
-    if (qwenKey != null) qwenApiKey = qwenKey;
-    if (xfyunApp != null) xfyunAppId = xfyunApp;
-    if (xfyunKey != null) xfyunApiKey = xfyunKey;
-    if (xfyunSecret != null) xfyunApiSecret = xfyunSecret;
-    if (translateAppId != null) baiduTranslateAppId = translateAppId;
-    if (translateSecret != null) baiduTranslateSecret = translateSecret;
-    if (zhipuKey != null) zhipuApiKey = zhipuKey;
-    if (minimaxKey != null) minimaxApiKey = minimaxKey;
-  }
-
-  /// 重置所有配置（用于测试）
-  static void reset() {
-    baiduOcrApiKey = '';
-    baiduOcrSecretKey = '';
-    _baiduOcrAccessToken = null;
-    _baiduTokenExpireTime = null;
-    qwenApiKey = '';
-    xfyunAppId = '';
-    xfyunApiKey = '';
-    xfyunApiSecret = '';
-    minimaxApiKey = '';
-    baiduTranslateAppId = '';
-    baiduTranslateSecret = '';
-    zhipuApiKey = '';
   }
 }
 

@@ -27,7 +27,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>用于在通话协助中开启本机摄像头预览，帮助志愿者确认物品或环境。</string>
+	<string>用于拍照识别文字、颜色和环境，也可在通话协助中提供本机摄像头预览。</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>用于选择需要识别文字、颜色或环境的图片。</string>
 	<key>NSMicrophoneUsageDescription</key>

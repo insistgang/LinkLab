@@ -32,7 +32,6 @@ migrate_working_dir/
 .pub/
 /build/
 /coverage/
-lib/config/api_config.dart
 
 # Local runtime environment files. Keep Supabase keys out of git history.
 .env
