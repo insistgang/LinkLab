@@ -152,7 +152,16 @@ void main() {
     expect(find.text('手机号登录'), findsOneWidget);
     expect(find.text('邮箱登录'), findsOneWidget);
     expect(find.text('首次使用'), findsOneWidget);
-    expect(tester.takeException(), isNull);
+    final layoutException = tester.takeException();
+    if (layoutException != null) {
+      final annotation = layoutException
+          .toString()
+          .replaceAll('%', '%25')
+          .replaceAll('\r', '%0D')
+          .replaceAll('\n', '%0A');
+      debugPrint('::error title=Large-text login layout::$annotation');
+    }
+    expect(layoutException, isNull);
   });
 
   testWidgets('无障碍偏好编辑页首屏直接显示设置内容', (tester) async {
