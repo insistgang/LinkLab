@@ -48,11 +48,12 @@ class DemoStageScaffold extends StatelessWidget {
     final mediaQuery = MediaQuery.of(context);
     final compactPhone =
         _useCompactDemoLayout(context) || mediaQuery.size.height < 700;
-    final availableHeight =
-        (mediaQuery.size.height - mediaQuery.viewInsets.bottom).clamp(
-          0.0,
-          double.infinity,
-        );
+    final view = View.of(context);
+    final viewportHeight = mediaQuery.size.height > 0
+        ? mediaQuery.size.height
+        : view.physicalSize.height / view.devicePixelRatio;
+    final availableHeight = (viewportHeight - mediaQuery.viewInsets.bottom)
+        .clamp(0.0, double.infinity);
     final maxBottomBarHeight = availableHeight * 0.6;
     final effectiveHeaderTopPadding = compactPhone
         ? headerTopPadding.clamp(0.0, AppTheme.spacingS)
