@@ -136,11 +136,13 @@ void main() {
     });
 
     await tester.pumpWidget(
-      const ProviderScope(
+      ProviderScope(
         child: MaterialApp(
           home: MediaQuery(
-            data: MediaQueryData(textScaler: TextScaler.linear(2.0)),
-            child: LoginScreen(),
+            data: MediaQueryData.fromView(
+              tester.view,
+            ).copyWith(textScaler: const TextScaler.linear(2.0)),
+            child: const LoginScreen(),
           ),
         ),
       ),
