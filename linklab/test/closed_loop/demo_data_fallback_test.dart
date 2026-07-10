@@ -96,6 +96,16 @@ void main() {
     expect(response.answerText, isNot(contains('阿莫西林')));
   });
 
+  test('底层 OCR 直接收到空路径时也不会返回药品样例', () async {
+    await prepareEmptyDemoEnvironment();
+    final ai = DemoAIService();
+
+    final response = await ai.recognizeText('', prompt: '帮我读药品盒');
+
+    expect(response.text, anyOf(contains('拍照'), contains('相册')));
+    expect(response.text, isNot(contains('阿莫西林')));
+  });
+
   test('有效图片路径保留 OCR 演示结果并明确标注', () async {
     await prepareEmptyDemoEnvironment();
     final ai = DemoAIService();

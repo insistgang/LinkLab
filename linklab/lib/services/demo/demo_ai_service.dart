@@ -63,10 +63,11 @@ class DemoAIService {
     if (!_demoFallbackEnabled) return _demoModeDisabledResult;
     await _simulateDelay();
 
+    final effectiveHasImage = hasImage && imagePath.trim().isNotEmpty;
     final explicitDemoScenario = _explicitOcrDemoScenario(prompt);
     final preferredScenario =
         explicitDemoScenario ?? _preferredOcrScenario('$prompt $imagePath');
-    if (!hasImage && explicitDemoScenario == null) {
+    if (!effectiveHasImage && explicitDemoScenario == null) {
       return _fixedResult(
         DemoAiIntent.ocrText,
         '请先拍照，或从相册选择说明书、菜单、票据或站牌图片，'
@@ -75,7 +76,7 @@ class DemoAIService {
       );
     }
 
-    if (hasImage && preferredScenario == null) {
+    if (effectiveHasImage && preferredScenario == null) {
       return _fixedResult(
         DemoAiIntent.ocrText,
         '已收到图片，但当前演示模式无法可靠判断文字类型或读取实际内容。'
@@ -89,7 +90,7 @@ class DemoAIService {
       AppLogger.warning('OCR demo 数据为空，使用内置降级文案');
       return _fixedResult(
         DemoAiIntent.ocrText,
-        hasImage
+        effectiveHasImage
             ? '已收到图片，但文字识别演示资源暂时未加载。请稍后重试或转人工确认。'
             : '示例识别暂时不可用，没有图片时不会猜测具体内容。请拍照、从相册选择，或稍后重试。',
         extra: {'fallback': true},
@@ -105,7 +106,7 @@ class DemoAIService {
     final summary =
         scenario['summary'] as String? ?? '我识别到一段文字，但内容不完整。请复核图片，也可以转人工确认。';
     final scenarioName = scenario['scenario'] as String? ?? '';
-    final answerPrefix = hasImage ? '演示识别结果：' : '示例识别结果：';
+    final answerPrefix = effectiveHasImage ? '演示识别结果：' : '示例识别结果：';
 
     return _fixedResult(
       DemoAiIntent.ocrText,
@@ -114,7 +115,7 @@ class DemoAIService {
         'recognizedText': scenario['recognizedText'],
         'scenario': scenarioName,
         'confidence': 0.95,
-        if (!hasImage) 'demoSample': true,
+        if (!effectiveHasImage) 'demoSample': true,
       },
     );
   }
