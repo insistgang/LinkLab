@@ -3,7 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'volunteer_level_model.freezed.dart';
 part 'volunteer_level_model.g.dart';
 
-/// 志願者等級信息模型
+/// 志愿者等级信息模型
 @freezed
 class VolunteerLevelInfo with _$VolunteerLevelInfo {
   const factory VolunteerLevelInfo({
@@ -20,18 +20,18 @@ class VolunteerLevelInfo with _$VolunteerLevelInfo {
 
   const VolunteerLevelInfo._();
 
-  /// 當前等級定義
+  /// 当前等级定义
   LevelDefinition get currentLevelDef =>
       LevelDefinitions.getByLevel(currentLevel);
 
-  /// 是否已達到最高等級
+  /// 是否已达到最高等级
   bool get isMaxLevel => currentLevel >= 7;
 
-  /// 等級進度文本
+  /// 等级进度文本
   String get progressText => '$currentPoints / ${currentLevelDef.maxPoints}';
 }
 
-/// 等級定義
+/// 等级定义
 @freezed
 class LevelDefinition with _$LevelDefinition {
   const factory LevelDefinition({
@@ -48,8 +48,8 @@ class LevelDefinition with _$LevelDefinition {
       _$LevelDefinitionFromJson(json);
 }
 
-/// 7級志願者等級體系
-/// 青苗→嫩芽→新葉→綠蔭→暖陽→星辰→燈塔
+/// 7级志愿者等级体系
+/// 青苗→嫩芽→新叶→绿荫→暖阳→星辰→灯塔
 class LevelDefinitions {
   static const List<LevelDefinition> all = [
     LevelDefinition(
@@ -58,8 +58,8 @@ class LevelDefinitions {
       emoji: '🌱',
       minPoints: 0,
       maxPoints: 99,
-      privileges: ['基礎幫助功能'],
-      description: '剛剛萌芽的志願之心',
+      privileges: ['基础帮助功能'],
+      description: '刚刚萌芽的志愿之心',
     ),
     LevelDefinition(
       level: 2,
@@ -67,35 +67,35 @@ class LevelDefinitions {
       emoji: '🌿',
       minPoints: 100,
       maxPoints: 299,
-      privileges: ['基礎幫助功能', '異步任務領取'],
-      description: '正在成長的志願力量',
+      privileges: ['基础帮助功能', '异步任务领取'],
+      description: '正在成长的志愿力量',
     ),
     LevelDefinition(
       level: 3,
-      name: '新葉',
+      name: '新叶',
       emoji: '🍀',
       minPoints: 300,
       maxPoints: 799,
-      privileges: ['基礎幫助功能', '異步任務領取', '技能標籤展示'],
-      description: '開始展現專業技能的志願者',
+      privileges: ['基础帮助功能', '异步任务领取', '技能标签展示'],
+      description: '开始展现专业技能的志愿者',
     ),
     LevelDefinition(
       level: 4,
-      name: '綠蔭',
+      name: '绿荫',
       emoji: '🌳',
       minPoints: 800,
       maxPoints: 1999,
-      privileges: ['基礎幫助功能', '異步任務領取', '技能標籤展示', '專屬客服', '優先匹配'],
-      description: '能夠爲更多人遮風擋雨的資深志願者',
+      privileges: ['基础帮助功能', '异步任务领取', '技能标签展示', '专属客服', '优先匹配'],
+      description: '能够为更多人遮风挡雨的资深志愿者',
     ),
     LevelDefinition(
       level: 5,
-      name: '暖陽',
+      name: '暖阳',
       emoji: '☀️',
       minPoints: 2000,
       maxPoints: 4999,
-      privileges: ['基礎幫助功能', '異步任務領取', '技能標籤展示', '專屬客服', '優先匹配', '線下活動邀請'],
-      description: '溫暖他人的優秀志願者',
+      privileges: ['基础帮助功能', '异步任务领取', '技能标签展示', '专属客服', '优先匹配', '线下活动邀请'],
+      description: '温暖他人的优秀志愿者',
     ),
     LevelDefinition(
       level: 6,
@@ -103,21 +103,21 @@ class LevelDefinitions {
       emoji: '⭐',
       minPoints: 5000,
       maxPoints: 9999,
-      privileges: ['基礎幫助功能', '異步任務領取', '技能標籤展示', '專屬客服', '優先匹配', '線下活動邀請', '公益時數證書', '積分商城'],
-      description: '閃耀在志願星空的傑出志願者',
+      privileges: ['基础帮助功能', '异步任务领取', '技能标签展示', '专属客服', '优先匹配', '线下活动邀请', '公益时数证书', '积分商城'],
+      description: '闪耀在志愿星空的杰出志愿者',
     ),
     LevelDefinition(
       level: 7,
-      name: '燈塔',
+      name: '灯塔',
       emoji: '🏠',
       minPoints: 10000,
       maxPoints: 99999,
-      privileges: ['基礎幫助功能', '異步任務領取', '技能標籤展示', '專屬客服', '優先匹配', '線下活動邀請', '公益時數證書', '積分商城', '平臺認證', '簡歷背書', '年度善意報告'],
-      description: '指引方向的志願領袖',
+      privileges: ['基础帮助功能', '异步任务领取', '技能标签展示', '专属客服', '优先匹配', '线下活动邀请', '公益时数证书', '积分商城', '平台认证', '简历背书', '年度善意报告'],
+      description: '指引方向的志愿领袖',
     ),
   ];
 
-  /// 根據等級獲取定義
+  /// 根据等级获取定义
   static LevelDefinition getByLevel(int level) {
     return all.firstWhere(
       (l) => l.level == level,
@@ -125,7 +125,7 @@ class LevelDefinitions {
     );
   }
 
-  /// 根據積分計算等級
+  /// 根据积分计算等级
   static int calculateLevel(int points) {
     for (int i = all.length - 1; i >= 0; i--) {
       if (points >= all[i].minPoints) {
@@ -135,7 +135,7 @@ class LevelDefinitions {
     return 1;
   }
 
-  /// 獲取下一級所需積分
+  /// 获取下一级所需积分
   static int getPointsToNextLevel(int currentPoints) {
     final currentLevel = calculateLevel(currentPoints);
     if (currentLevel >= 7) return 0;
@@ -144,7 +144,7 @@ class LevelDefinitions {
     return nextLevelDef.minPoints - currentPoints;
   }
 
-  /// 獲取等級進度百分比
+  /// 获取等级进度百分比
   static double getProgressPercent(int currentPoints) {
     final currentLevel = calculateLevel(currentPoints);
     if (currentLevel >= 7) return 1.0;

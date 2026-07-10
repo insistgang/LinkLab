@@ -8,7 +8,7 @@ import '../../widgets/demo/demo_motion.dart';
 import '../../widgets/demo/demo_stage.dart';
 import '../../widgets/demo/linkable_icon.dart';
 
-/// 小組詳情頁 - 顯示小組信息和討論列表
+/// 小组详情页 - 显示小组信息和讨论列表
 class GroupDetailScreen extends StatefulWidget {
   const GroupDetailScreen({super.key, required this.group});
 
@@ -39,7 +39,7 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
             child: RefreshIndicator(
               color: AppTheme.stageAccent,
               onRefresh: () async {
-                // 模擬刷新
+                // 模拟刷新
                 await Future.delayed(const Duration(milliseconds: 500));
                 setState(() {
                   _discussions = CommunityGroupsData.getDiscussions(
@@ -60,8 +60,8 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                   DemoReveal(
                     delay: const Duration(milliseconds: 80),
                     child: _SectionHeader(
-                      title: '小組討論',
-                      subtitle: '共 ${_discussions.length} 條討論',
+                      title: '小组讨论',
+                      subtitle: '共 ${_discussions.length} 条讨论',
                     ),
                   ),
                   const SizedBox(height: AppTheme.spacingM),
@@ -85,7 +85,7 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
 
 }
 
-/// 小組信息卡片
+/// 小组信息卡片
 class _GroupInfoCard extends StatelessWidget {
   const _GroupInfoCard({required this.group});
 
@@ -94,7 +94,7 @@ class _GroupInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: '小組信息，${group.name}，${group.description}，${group.formattedMemberCount}人加入',
+      label: '小组信息，${group.name}，${group.description}，${group.formattedMemberCount}人加入',
       child: Container(
         padding: const EdgeInsets.all(AppTheme.spacingL),
         decoration: AppTheme.stageCardDecoration(
@@ -170,12 +170,12 @@ class _GroupInfoCard extends StatelessWidget {
                 _CategoryChip(category: group.category),
                 _ActionButton(
                   icon: LinkableIconName.group,
-                  label: '加入小組',
+                  label: '加入小组',
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
-                          '已申請加入（Demo模式）',
+                          '已申请加入（Demo模式）',
                           style: TextStyle(color: AppTheme.stageTextPrimary),
                         ),
                         backgroundColor: AppTheme.stageAccent,
@@ -192,7 +192,7 @@ class _GroupInfoCard extends StatelessWidget {
   }
 }
 
-/// 分類標籤
+/// 分类标签
 class _CategoryChip extends StatelessWidget {
   const _CategoryChip({required this.category});
 
@@ -201,7 +201,7 @@ class _CategoryChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: '分類：${CommunityGroupCategory.getLabel(category)}',
+      label: '分类：${CommunityGroupCategory.getLabel(category)}',
       child: Container(
         padding: const EdgeInsets.symmetric(
           horizontal: AppTheme.spacingM,
@@ -238,7 +238,7 @@ class _CategoryChip extends StatelessWidget {
   }
 }
 
-/// 操作按鈕
+/// 操作按钮
 class _ActionButton extends StatelessWidget {
   const _ActionButton({
     required this.icon,
@@ -291,7 +291,7 @@ class _ActionButton extends StatelessWidget {
   }
 }
 
-/// 元數據標籤
+/// 元数据标签
 class _MetaTag extends StatelessWidget {
   const _MetaTag({required this.icon, required this.label});
 
@@ -334,7 +334,7 @@ class _MetaTag extends StatelessWidget {
   }
 }
 
-/// 區域標題
+/// 区域标题
 class _SectionHeader extends StatelessWidget {
   const _SectionHeader({required this.title, required this.subtitle});
 
@@ -378,7 +378,7 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-/// 討論卡片
+/// 讨论卡片
 class _DiscussionCard extends StatelessWidget {
   const _DiscussionCard({required this.discussion});
 
@@ -387,13 +387,13 @@ class _DiscussionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AccessibleCard(
-      semanticLabel: '${discussion.userName}說：${discussion.content}',
-      hint: '雙擊查看詳情',
+      semanticLabel: '${discussion.userName}说：${discussion.content}',
+      hint: '双击查看详情',
       onTap: () {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              '查看討論詳情（Demo模式）',
+              '查看讨论详情（Demo模式）',
               style: TextStyle(color: AppTheme.stageTextPrimary),
             ),
             backgroundColor: AppTheme.stageAccent,
@@ -472,7 +472,7 @@ class _DiscussionCard extends StatelessWidget {
               children: [
                 _InteractionButton(
                   icon: LinkableIconName.like,
-                  label: '點贊 ${discussion.likeCount}',
+                  label: '点赞 ${discussion.likeCount}',
                   onTap: () {},
                 ),
                 const SizedBox(width: AppTheme.spacingL),
@@ -490,7 +490,7 @@ class _DiscussionCard extends StatelessWidget {
   }
 }
 
-/// 交互按鈕
+/// 交互按钮
 class _InteractionButton extends StatelessWidget {
   const _InteractionButton({
     required this.icon,

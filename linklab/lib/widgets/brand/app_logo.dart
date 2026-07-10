@@ -5,7 +5,7 @@ class AppLogo extends StatelessWidget {
   const AppLogo({
     super.key,
     this.size = 48,
-    this.semanticLabel = '共感 LinkAble 應用標誌',
+    this.semanticLabel = '共感 LinkAble 应用标志',
     this.borderRadius = 12,
   });
 

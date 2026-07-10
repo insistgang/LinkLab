@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../demo/linkable_icon.dart';
 
-/// 無障礙文本組件
-/// 支持動態字體縮放，確保屏幕閱讀器可以正確讀取
+/// 无障碍文本组件
+/// 支持动态字体缩放，确保屏幕阅读器可以正确读取
 class AccessibleText extends StatelessWidget {
   const AccessibleText(
     this.data, {
@@ -28,7 +28,7 @@ class AccessibleText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 合併樣式，確保字體大小不小於最小值
+    // 合并样式，确保字体大小不小于最小值
     final effectiveStyle = _mergeWithMinimumSize(context);
 
     return Semantics(
@@ -45,12 +45,12 @@ class AccessibleText extends StatelessWidget {
     );
   }
 
-  /// 合併樣式，確保最小字體大小
+  /// 合并样式，确保最小字体大小
   TextStyle _mergeWithMinimumSize(BuildContext context) {
     final baseStyle = style ?? Theme.of(context).textTheme.bodyMedium;
     final fontSize = baseStyle?.fontSize ?? AppTheme.fontSizeNormal;
 
-    // 確保字體不小於14sp（無障礙要求）
+    // 确保字体不小于14sp（无障碍要求）
     final effectiveFontSize = fontSize < AppTheme.fontSizeSmall
         ? AppTheme.fontSizeSmall
         : fontSize;
@@ -60,7 +60,7 @@ class AccessibleText extends StatelessWidget {
   }
 }
 
-/// 無障礙標題組件
+/// 无障碍标题组件
 class AccessibleHeading extends StatelessWidget {
   const AccessibleHeading(
     this.data, {
@@ -71,7 +71,7 @@ class AccessibleHeading extends StatelessWidget {
   });
 
   final String data;
-  final int level; // 1-3, 對應不同大小
+  final int level; // 1-3, 对应不同大小
   final String? semanticLabel;
   final TextAlign? textAlign;
 
@@ -79,7 +79,7 @@ class AccessibleHeading extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // 根據級別選擇樣式
+    // 根据级别选择样式
     TextStyle? style;
     switch (level) {
       case 1:
@@ -102,7 +102,7 @@ class AccessibleHeading extends StatelessWidget {
   }
 }
 
-/// 無障礙標籤組件（用於表單標籤）
+/// 无障碍标签组件（用于表单标签）
 class AccessibleLabel extends StatelessWidget {
   const AccessibleLabel(
     this.data, {
@@ -117,7 +117,7 @@ class AccessibleLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveLabel = semanticLabel ?? (required ? '$data，必填項' : data);
+    final effectiveLabel = semanticLabel ?? (required ? '$data，必填项' : data);
 
     return Semantics(
       label: effectiveLabel,
@@ -145,7 +145,7 @@ class AccessibleLabel extends StatelessWidget {
   }
 }
 
-/// 無障礙錯誤文本組件
+/// 无障碍错误文本组件
 class AccessibleErrorText extends StatelessWidget {
   const AccessibleErrorText(this.data, {super.key, this.semanticLabel});
 
@@ -155,8 +155,8 @@ class AccessibleErrorText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: semanticLabel ?? '錯誤：$data',
-      liveRegion: true, // 自動通知屏幕閱讀器
+      label: semanticLabel ?? '错误：$data',
+      liveRegion: true, // 自动通知屏幕阅读器
       child: Padding(
         padding: const EdgeInsets.only(top: AppTheme.spacingS),
         child: Row(
@@ -164,7 +164,7 @@ class AccessibleErrorText extends StatelessWidget {
             const LinkableSvgIcon(
               icon: LinkableIconName.emergency,
               size: AppTheme.fontSizeNormal,
-              semanticLabel: '錯誤',
+              semanticLabel: '错误',
             ),
             const SizedBox(width: AppTheme.spacingXS),
             AccessibleText(

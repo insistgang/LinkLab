@@ -4,7 +4,7 @@ import '../models/admin_models.dart';
 import '../services/admin_auth_service.dart';
 import '../services/admin_data_service.dart';
 
-/// 舉報處理頁面
+/// 举报处理页面
 class ReportHandlingPage extends StatefulWidget {
   const ReportHandlingPage({super.key});
 
@@ -59,7 +59,7 @@ class _ReportHandlingPageState extends State<ReportHandlingPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('舉報詳情'),
+        title: const Text('举报详情'),
         content: SizedBox(
           width: 500,
           child: SingleChildScrollView(
@@ -67,15 +67,15 @@ class _ReportHandlingPageState extends State<ReportHandlingPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                _buildDetailRow('舉報ID', report.id),
-                _buildDetailRow('舉報人', report.reporterName),
-                _buildDetailRow('被舉報對象', report.targetName),
-                _buildDetailRow('對象類型', _getTargetTypeText(report.targetType)),
-                _buildDetailRow('舉報原因', report.reason),
-                _buildDetailRow('狀態', _getStatusText(report.status)),
+                _buildDetailRow('举报ID', report.id),
+                _buildDetailRow('举报人', report.reporterName),
+                _buildDetailRow('被举报对象', report.targetName),
+                _buildDetailRow('对象类型', _getTargetTypeText(report.targetType)),
+                _buildDetailRow('举报原因', report.reason),
+                _buildDetailRow('状态', _getStatusText(report.status)),
                 const SizedBox(height: 16),
                 const Text(
-                  '詳細描述：',
+                  '详细描述：',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
@@ -86,12 +86,12 @@ class _ReportHandlingPageState extends State<ReportHandlingPage> {
                     color: Colors.grey[100],
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Text(report.description ?? '無詳細描述'),
+                  child: Text(report.description ?? '无详细描述'),
                 ),
                 if (report.status == 'pending' || report.status == 'processing') ...[
                   const SizedBox(height: 24),
                   const Text(
-                    '處理操作：',
+                    '处理操作：',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
@@ -101,7 +101,7 @@ class _ReportHandlingPageState extends State<ReportHandlingPage> {
                         DropdownButtonFormField<String>(
                           value: selectedAction,
                           decoration: const InputDecoration(
-                            labelText: '處理措施',
+                            labelText: '处理措施',
                             border: OutlineInputBorder(),
                           ),
                           items: const [
@@ -111,7 +111,7 @@ class _ReportHandlingPageState extends State<ReportHandlingPage> {
                             ),
                             DropdownMenuItem(
                               value: 'temp_ban',
-                              child: Text('臨時封禁'),
+                              child: Text('临时封禁'),
                             ),
                             DropdownMenuItem(
                               value: 'permanent_ban',
@@ -119,7 +119,7 @@ class _ReportHandlingPageState extends State<ReportHandlingPage> {
                             ),
                             DropdownMenuItem(
                               value: 'dismiss',
-                              child: Text('駁回舉報'),
+                              child: Text('驳回举报'),
                             ),
                           ],
                           onChanged: (value) {
@@ -131,8 +131,8 @@ class _ReportHandlingPageState extends State<ReportHandlingPage> {
                           controller: resolutionController,
                           maxLines: 3,
                           decoration: const InputDecoration(
-                            labelText: '處理說明',
-                            hintText: '請輸入處理說明...',
+                            labelText: '处理说明',
+                            hintText: '请输入处理说明...',
                             border: OutlineInputBorder(),
                           ),
                         ),
@@ -147,7 +147,7 @@ class _ReportHandlingPageState extends State<ReportHandlingPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('關閉'),
+            child: const Text('关闭'),
           ),
           if ((report.status == 'pending' || report.status == 'processing') &&
               _authService.hasPermission('reports.handle'))
@@ -156,7 +156,7 @@ class _ReportHandlingPageState extends State<ReportHandlingPage> {
                 Navigator.of(context).pop();
                 await _handleReport(report, selectedAction, resolutionController.text);
               },
-              child: const Text('提交處理'),
+              child: const Text('提交处理'),
             ),
         ],
       ),
@@ -172,7 +172,7 @@ class _ReportHandlingPageState extends State<ReportHandlingPage> {
 
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('舉報已處理')),
+        const SnackBar(content: Text('举报已处理')),
       );
       _loadReports();
     }
@@ -207,11 +207,11 @@ class _ReportHandlingPageState extends State<ReportHandlingPage> {
   String _getTargetTypeText(String type) {
     switch (type) {
       case 'user':
-        return '用戶';
+        return '用户';
       case 'content':
-        return '內容';
+        return '内容';
       case 'call':
-        return '通話';
+        return '通话';
       default:
         return type;
     }
@@ -220,13 +220,13 @@ class _ReportHandlingPageState extends State<ReportHandlingPage> {
   String _getStatusText(String status) {
     switch (status) {
       case 'pending':
-        return '待處理';
+        return '待处理';
       case 'processing':
-        return '處理中';
+        return '处理中';
       case 'resolved':
-        return '已解決';
+        return '已解决';
       case 'dismissed':
-        return '已駁回';
+        return '已驳回';
       default:
         return status;
     }
@@ -237,11 +237,11 @@ class _ReportHandlingPageState extends State<ReportHandlingPage> {
       case 'warning':
         return '警告';
       case 'temp_ban':
-        return '臨時封禁';
+        return '临时封禁';
       case 'permanent_ban':
         return '永久封禁';
       case 'dismiss':
-        return '駁回';
+        return '驳回';
       default:
         return action ?? '-';
     }
@@ -254,19 +254,19 @@ class _ReportHandlingPageState extends State<ReportHandlingPage> {
     switch (status) {
       case 'pending':
         color = Colors.orange;
-        label = '待處理';
+        label = '待处理';
         break;
       case 'processing':
         color = Colors.blue;
-        label = '處理中';
+        label = '处理中';
         break;
       case 'resolved':
         color = Colors.green;
-        label = '已解決';
+        label = '已解决';
         break;
       case 'dismissed':
         color = Colors.grey;
-        label = '已駁回';
+        label = '已驳回';
         break;
       default:
         color = Colors.grey;
@@ -293,27 +293,27 @@ class _ReportHandlingPageState extends State<ReportHandlingPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 標題和篩選欄
+          // 标题和筛选栏
           Row(
             children: [
               const Text(
-                '舉報處理',
+                '举报处理',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const Spacer(),
-              // 狀態篩選
+              // 状态筛选
               DropdownButton<String>(
                 value: _selectedStatus,
-                hint: const Text('狀態'),
+                hint: const Text('状态'),
                 items: const [
-                  DropdownMenuItem(value: null, child: Text('全部狀態')),
-                  DropdownMenuItem(value: 'pending', child: Text('待處理')),
-                  DropdownMenuItem(value: 'processing', child: Text('處理中')),
-                  DropdownMenuItem(value: 'resolved', child: Text('已解決')),
-                  DropdownMenuItem(value: 'dismissed', child: Text('已駁回')),
+                  DropdownMenuItem(value: null, child: Text('全部状态')),
+                  DropdownMenuItem(value: 'pending', child: Text('待处理')),
+                  DropdownMenuItem(value: 'processing', child: Text('处理中')),
+                  DropdownMenuItem(value: 'resolved', child: Text('已解决')),
+                  DropdownMenuItem(value: 'dismissed', child: Text('已驳回')),
                 ],
                 onChanged: (value) {
                   setState(() => _selectedStatus = value);
@@ -321,7 +321,7 @@ class _ReportHandlingPageState extends State<ReportHandlingPage> {
                 },
               ),
               const SizedBox(width: 12),
-              // 重置按鈕
+              // 重置按钮
               TextButton.icon(
                 onPressed: _resetFilters,
                 icon: const Icon(Icons.refresh),
@@ -331,20 +331,20 @@ class _ReportHandlingPageState extends State<ReportHandlingPage> {
           ),
           const SizedBox(height: 16),
 
-          // 數據表格
+          // 数据表格
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : Card(
                     child: DataTable2(
                       columns: const [
-                        DataColumn2(label: Text('舉報人'), size: ColumnSize.M),
-                        DataColumn2(label: Text('被舉報對象'), size: ColumnSize.M),
-                        DataColumn2(label: Text('類型'), size: ColumnSize.S),
+                        DataColumn2(label: Text('举报人'), size: ColumnSize.M),
+                        DataColumn2(label: Text('被举报对象'), size: ColumnSize.M),
+                        DataColumn2(label: Text('类型'), size: ColumnSize.S),
                         DataColumn2(label: Text('原因'), size: ColumnSize.M),
-                        DataColumn2(label: Text('狀態'), size: ColumnSize.S),
-                        DataColumn2(label: Text('處理結果'), size: ColumnSize.S),
-                        DataColumn2(label: Text('舉報時間'), size: ColumnSize.M),
+                        DataColumn2(label: Text('状态'), size: ColumnSize.S),
+                        DataColumn2(label: Text('处理结果'), size: ColumnSize.S),
+                        DataColumn2(label: Text('举报时间'), size: ColumnSize.M),
                         DataColumn2(label: Text('操作'), size: ColumnSize.S),
                       ],
                       rows: _reports.map((report) {
@@ -369,7 +369,7 @@ class _ReportHandlingPageState extends State<ReportHandlingPage> {
                                 children: [
                                   IconButton(
                                     icon: const Icon(Icons.visibility, size: 20),
-                                    tooltip: '查看詳情',
+                                    tooltip: '查看详情',
                                     onPressed: () => _showReportDetail(report),
                                   ),
                                   if ((report.status == 'pending' ||
@@ -381,7 +381,7 @@ class _ReportHandlingPageState extends State<ReportHandlingPage> {
                                         size: 20,
                                         color: Colors.orange,
                                       ),
-                                      tooltip: '處理',
+                                      tooltip: '处理',
                                       onPressed: () => _showReportDetail(report),
                                     ),
                                 ],
@@ -394,7 +394,7 @@ class _ReportHandlingPageState extends State<ReportHandlingPage> {
                   ),
           ),
 
-          // 分頁
+          // 分页
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -408,7 +408,7 @@ class _ReportHandlingPageState extends State<ReportHandlingPage> {
                       }
                     : null,
               ),
-              Text('第 $_currentPage / $_totalPages 頁'),
+              Text('第 $_currentPage / $_totalPages 页'),
               IconButton(
                 icon: const Icon(Icons.chevron_right),
                 onPressed: _currentPage < _totalPages

@@ -1,4 +1,4 @@
-/// ASR 服務導出文件
+/// ASR 服务导出文件
 library;
 
 export 'unified_asr_service.dart';

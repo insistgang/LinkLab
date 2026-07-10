@@ -15,9 +15,9 @@ import '../../widgets/demo/demo_stage.dart';
 import '../../widgets/demo/linkable_icon.dart';
 import 'demo_call_screen.dart';
 
-/// 演示版匹配等待頁面。
+/// 演示版匹配等待页面。
 ///
-/// 頁面內部 phase 只服務 F9 演示 UI，不新增 help_request 主狀態。
+/// 页面内部 phase 只服务 F9 演示 UI，不新增 help_request 主状态。
 class DemoMatchingScreen extends ConsumerStatefulWidget {
   const DemoMatchingScreen({
     super.key,
@@ -46,7 +46,7 @@ class _DemoMatchingScreenState extends ConsumerState<DemoMatchingScreen> {
   }
 
   Future<void> _startMatching() async {
-    // Facade 優先：調用 VolunteerMatchingFacade.findVolunteers
+    // Facade 优先：调用 VolunteerMatchingFacade.findVolunteers
     try {
       final facade = ref.read(volunteerMatchingFacadeProvider);
       final result = await facade.findVolunteers(
@@ -55,11 +55,11 @@ class _DemoMatchingScreenState extends ConsumerState<DemoMatchingScreen> {
         tags: widget.initialRequest?.preferredSkills ?? const [],
       );
       if (result.success) {
-        // Facade 成功，繼續走 demo 流程以驅動 UI 狀態
+        // Facade 成功，继续走 demo 流程以驱动 UI 状态
       }
-      // Facade 失敗時靜默降級到舊流程
+      // Facade 失败时静默降级到旧流程
     } catch (_) {
-      // Facade 異常，降級到舊流程
+      // Facade 异常，降级到旧流程
     }
 
     // Fallback：原有 demo flow
@@ -114,7 +114,7 @@ class _DemoMatchingScreenState extends ConsumerState<DemoMatchingScreen> {
 
   Future<void> _acceptCurrentCandidate() async {
     _clearAutoTimers();
-    // Facade 優先：調用 VolunteerMatchingFacade.acceptVolunteer
+    // Facade 优先：调用 VolunteerMatchingFacade.acceptVolunteer
     try {
       final facade = ref.read(volunteerMatchingFacadeProvider);
       final matchingState = ref.read(demoMatchingFlowProvider);
@@ -122,7 +122,7 @@ class _DemoMatchingScreenState extends ConsumerState<DemoMatchingScreen> {
         await facade.acceptVolunteer(matchingState.activeVolunteerId!);
       }
     } catch (_) {
-      // Facade 異常，降級到舊流程
+      // Facade 异常，降级到旧流程
     }
 
     // Fallback：原有 demo flow
@@ -131,7 +131,7 @@ class _DemoMatchingScreenState extends ConsumerState<DemoMatchingScreen> {
 
   Future<void> _rejectOrTimeoutCurrent() async {
     _clearAutoTimers();
-    // Facade 優先：調用 VolunteerMatchingFacade.rejectVolunteer
+    // Facade 优先：调用 VolunteerMatchingFacade.rejectVolunteer
     try {
       final facade = ref.read(volunteerMatchingFacadeProvider);
       final matchingState = ref.read(demoMatchingFlowProvider);
@@ -139,7 +139,7 @@ class _DemoMatchingScreenState extends ConsumerState<DemoMatchingScreen> {
         await facade.rejectVolunteer(matchingState.activeVolunteerId!);
       }
     } catch (_) {
-      // Facade 異常，降級到舊流程
+      // Facade 异常，降级到旧流程
     }
 
     // Fallback：原有 demo flow
@@ -163,12 +163,12 @@ class _DemoMatchingScreenState extends ConsumerState<DemoMatchingScreen> {
 
   Future<void> _cancelMatching() async {
     _clearAutoTimers();
-    // Facade 優先：調用 VolunteerMatchingFacade.cancelMatching
+    // Facade 优先：调用 VolunteerMatchingFacade.cancelMatching
     try {
       final facade = ref.read(volunteerMatchingFacadeProvider);
       await facade.cancelMatching();
     } catch (_) {
-      // Facade 異常，降級到舊流程
+      // Facade 异常，降级到旧流程
     }
 
     // Fallback：原有 demo flow
@@ -204,8 +204,8 @@ class _DemoMatchingScreenState extends ConsumerState<DemoMatchingScreen> {
     return DemoStageLiveBuilder(
       builder: (context) {
         return DemoStageScaffold(
-          title: '正在爲你尋找合適的志願者',
-          subtitle: 'F9 本地 Top 5 匹配，不依賴真實定位、推送或 Supabase',
+          title: '正在为你寻找合适的志愿者',
+          subtitle: 'F9 本地 Top 5 匹配，不依赖真实定位、推送或 Supabase',
           onBackPressed: _cancelMatching,
           body: ListView(
             padding: const EdgeInsets.fromLTRB(
@@ -249,7 +249,7 @@ class _StatusSummaryCard extends StatelessWidget {
 
     return Semantics(
       liveRegion: true,
-      label: '匹配狀態：${state.statusMessage}',
+      label: '匹配状态：${state.statusMessage}',
       child: DemoSurfaceCard(
         color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.96),
         borderColor: color.withValues(alpha: 0.42),
@@ -262,22 +262,22 @@ class _StatusSummaryCard extends StatelessWidget {
               children: [
                 DemoPill(
                   icon: Icons.volunteer_activism_outlined,
-                  label: '競賽 Demo 匹配',
+                  label: '竞赛 Demo 匹配',
                   color: AppTheme.stageAccent,
                 ),
                 DemoPill(
                   icon: Icons.location_off_outlined,
-                  label: '本地模擬距離',
+                  label: '本地模拟距离',
                   color: AppTheme.stageAccent,
                 ),
                 DemoPill(
                   icon: Icons.notifications_off_outlined,
-                  label: '無真實推送',
+                  label: '无真实推送',
                   color: AppTheme.stageAccent,
                 ),
                 DemoPill(
                   svgIcon: LinkableIconName.emergencyDetect,
-                  label: '緊急識別',
+                  label: '紧急识别',
                   color: AppTheme.stageAccent,
                 ),
               ],
@@ -304,7 +304,7 @@ class _StatusSummaryCard extends StatelessWidget {
                       ),
                       const SizedBox(height: AppTheme.spacingS),
                       AccessibleText(
-                        '演示中已加速，真實場景最多等待 60 秒。候選人來自本地 demo 數據，不依賴真實在線狀態、真實定位或外部服務。',
+                        '演示中已加速，真实场景最多等待 60 秒。候选人来自本地 demo 数据，不依赖真实在线状态、真实定位或外部服务。',
                         style: TextStyle(
                           color: AppTheme.stageTextSecondary,
                           fontSize: AppTheme.fontSizeSmall,
@@ -372,7 +372,7 @@ class _StatusIcon extends StatelessWidget {
         icon: icon,
         color: color,
         size: 42,
-        semanticLabel: '匹配狀態',
+        semanticLabel: '匹配状态',
       ),
     );
   }
@@ -474,7 +474,7 @@ class _CandidateSection extends StatelessWidget {
             ),
             const SizedBox(height: AppTheme.spacingM),
             AccessibleText(
-              '正在準備候選人列表...',
+              '正在准备候选人列表...',
               style: TextStyle(
                 color: AppTheme.stageTextSecondary,
                 fontSize: AppTheme.fontSizeNormal,
@@ -487,18 +487,18 @@ class _CandidateSection extends StatelessWidget {
 
     if (state.candidates.isEmpty) {
       return DemoSurfaceCard(
-        semanticLabel: '當前沒有可用志願者',
+        semanticLabel: '当前没有可用志愿者',
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _InlineNotice(
               icon: Icons.group_off_outlined,
-              text: '當前沒有可用志願者，請稍後再試或返回 AI 助手。',
+              text: '当前没有可用志愿者，请稍后再试或返回 AI 助手。',
               color: AppTheme.stageAccent,
             ),
             const SizedBox(height: AppTheme.spacingS),
             AccessibleText(
-              '你可以取消求助，或回到 AI 助手繼續描述問題。',
+              '你可以取消求助，或回到 AI 助手继续描述问题。',
               style: TextStyle(
                 color: AppTheme.stageTextSecondary,
                 fontSize: AppTheme.fontSizeSmall,
@@ -513,8 +513,8 @@ class _CandidateSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         DemoSectionTitle(
-          title: 'Top 5 志願者候選',
-          subtitle: '離線志願者已被過濾；推薦理由來自本地 F9-A 匹配引擎。',
+          title: 'Top 5 志愿者候选',
+          subtitle: '离线志愿者已被过滤；推荐理由来自本地 F9-A 匹配引擎。',
           trailing: DemoPill(
             icon: Icons.filter_alt_outlined,
             label: '最多 5 位',
@@ -559,7 +559,7 @@ class _VolunteerCandidateCard extends StatelessWidget {
     return Semantics(
       container: true,
       label:
-          '候選志願者第 ${result.rank} 名，${volunteer.nickname}，距離 ${_distanceLabel(volunteer.distanceMeters)}，技能 ${volunteer.skills.join('、')}，信譽 ${_reputationLabel(volunteer.reputationScore)}，${result.reason}',
+          '候选志愿者第 ${result.rank} 名，${volunteer.nickname}，距离 ${_distanceLabel(volunteer.distanceMeters)}，技能 ${volunteer.skills.join('、')}，信誉 ${_reputationLabel(volunteer.reputationScore)}，${result.reason}',
       child: DemoSurfaceCard(
         color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.96),
         borderColor: borderColor.withValues(alpha: isCurrent ? 0.78 : 0.42),
@@ -592,13 +592,13 @@ class _VolunteerCandidateCard extends StatelessWidget {
                           if (isAccepted)
                             DemoPill(
                               icon: Icons.check_circle_outline,
-                              label: '已接單',
+                              label: '已接单',
                               color: AppTheme.stageAccent,
                             )
                           else if (isCurrent)
                             DemoPill(
                               icon: Icons.phone_in_talk_outlined,
-                              label: '正在嘗試',
+                              label: '正在尝试',
                               color: AppTheme.stageAccent,
                             ),
                         ],
@@ -615,15 +615,15 @@ class _VolunteerCandidateCard extends StatelessWidget {
                           _MetricPill(
                             icon: Icons.verified_user_outlined,
                             label:
-                                '信譽 ${_reputationLabel(volunteer.reputationScore)}',
+                                '信誉 ${_reputationLabel(volunteer.reputationScore)}',
                           ),
                           _MetricPill(
                             icon: Icons.history_outlined,
-                            label: '幫助 ${volunteer.helpCount} 次',
+                            label: '帮助 ${volunteer.helpCount} 次',
                           ),
                           _MetricPill(
                             icon: Icons.timer_outlined,
-                            label: '預計 ${volunteer.estimatedResponseSeconds} 秒',
+                            label: '预计 ${volunteer.estimatedResponseSeconds} 秒',
                           ),
                         ],
                       ),
@@ -742,13 +742,13 @@ class _MatchingActions extends StatelessWidget {
   Widget build(BuildContext context) {
     final accepted = state.phase == DemoMatchingUiPhase.accepted;
     return DemoSurfaceCard(
-      semanticLabel: '匹配演示操作區',
+      semanticLabel: '匹配演示操作区',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const DemoSectionTitle(
             title: 'Demo 操作',
-            subtitle: '這些按鈕只在競賽 Demo 中模擬 F9 狀態變化，不接真實外部服務。',
+            subtitle: '这些按钮只在竞赛 Demo 中模拟 F9 状态变化，不接真实外部服务。',
           ),
           const SizedBox(height: AppTheme.spacingM),
           Wrap(
@@ -757,32 +757,32 @@ class _MatchingActions extends StatelessWidget {
             children: [
               _DemoActionButton(
                 icon: Icons.phone_in_talk_outlined,
-                label: '嘗試聯繫',
-                semanticLabel: '嘗試聯繫當前候選志願者',
-                hint: '雙擊顯示正在嘗試聯繫第一個候選人',
+                label: '尝试联系',
+                semanticLabel: '尝试联系当前候选志愿者',
+                hint: '双击显示正在尝试联系第一个候选人',
                 onTap: _canOperate ? onTryCandidate : null,
               ),
               _DemoActionButton(
                 icon: Icons.check_circle_outline,
-                label: accepted ? '已接單' : '模擬接單',
-                semanticLabel: '模擬接單',
-                hint: '雙擊模擬當前志願者成功接單，並進入 connected 狀態',
+                label: accepted ? '已接单' : '模拟接单',
+                semanticLabel: '模拟接单',
+                hint: '双击模拟当前志愿者成功接单，并进入 connected 状态',
                 onTap: _canOperate ? onAccept : null,
                 color: AppTheme.stageAccent,
               ),
               _DemoActionButton(
                 icon: Icons.timer_off_outlined,
-                label: '模擬拒接 / 超時',
-                semanticLabel: '模擬拒接或超時',
-                hint: '雙擊讓當前候選人拒接或超時，並嘗試下一位',
+                label: '模拟拒接 / 超时',
+                semanticLabel: '模拟拒接或超时',
+                hint: '双击让当前候选人拒接或超时，并尝试下一位',
                 onTap: _canOperate ? onRejectOrTimeout : null,
                 color: AppTheme.stageAccent,
               ),
               _DemoActionButton(
                 icon: Icons.group_off_outlined,
-                label: '模擬無人接單',
-                semanticLabel: '模擬無人接單',
-                hint: '雙擊將本次匹配標記爲無人接單並進入 expired 狀態',
+                label: '模拟无人接单',
+                semanticLabel: '模拟无人接单',
+                hint: '双击将本次匹配标记为无人接单并进入 expired 状态',
                 onTap: accepted ? null : onExpire,
                 color: AppTheme.stageAccent,
               ),
@@ -790,7 +790,7 @@ class _MatchingActions extends StatelessWidget {
                 icon: Icons.refresh_rounded,
                 label: '重新匹配',
                 semanticLabel: '重新匹配',
-                hint: '雙擊重置本地匹配並重新生成 Top 5',
+                hint: '双击重置本地匹配并重新生成 Top 5',
                 onTap: onRestart,
                 color: AppTheme.stageAccent,
               ),
@@ -799,7 +799,7 @@ class _MatchingActions extends StatelessWidget {
                 label: '取消匹配',
                 helperLabel: '取消求助',
                 semanticLabel: '取消求助',
-                hint: '雙擊取消當前求助並進入 cancelled 狀態',
+                hint: '双击取消当前求助并进入 cancelled 状态',
                 onTap: accepted ? null : onCancel,
                 color: AppTheme.stageAccent,
               ),
@@ -809,9 +809,9 @@ class _MatchingActions extends StatelessWidget {
             const SizedBox(height: AppTheme.spacingM),
             _DemoActionButton(
               icon: Icons.call_outlined,
-              label: '進入通話',
-              semanticLabel: '進入通話',
-              hint: '雙擊進入現有 demo 通話頁面，不建立真實 WebRTC',
+              label: '进入通话',
+              semanticLabel: '进入通话',
+              hint: '双击进入现有 demo 通话页面，不建立真实 WebRTC',
               onTap: onEnterCall,
               color: AppTheme.stageAccent,
               expand: true,

@@ -179,7 +179,7 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
         statistics: previousState?.statistics,
       ));
     } catch (e) {
-      emit(ReportError('加載舉報失敗: ${e.toString()}'));
+      emit(ReportError('加载举报失败: ${e.toString()}'));
     }
   }
 
@@ -210,7 +210,7 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
         result: event.result,
         action: event.action,
       );
-      emit(const ReportActionSuccess('舉報處理成功'));
+      emit(const ReportActionSuccess('举报处理成功'));
 
       if (previousState is ReportLoaded) {
         add(ReportLoadRequested(
@@ -222,7 +222,7 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
         add(ReportLoadStatistics());
       }
     } catch (e) {
-      emit(ReportError('處理舉報失敗: ${e.toString()}'));
+      emit(ReportError('处理举报失败: ${e.toString()}'));
     }
   }
 
@@ -244,7 +244,7 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
         ));
       }
     } catch (e) {
-      emit(ReportError('加載統計失敗: ${e.toString()}'));
+      emit(ReportError('加载统计失败: ${e.toString()}'));
     }
   }
 }

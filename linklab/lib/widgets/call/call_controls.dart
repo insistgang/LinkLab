@@ -1,5 +1,5 @@
-// 通話控制組件
-// 提供通話過程中的控制按鈕（靜音、揚聲器、錄音、掛斷等）
+// 通话控制组件
+// 提供通话过程中的控制按钮（静音、扬声器、录音、挂断等）
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,7 +8,7 @@ import '../../models/call_models.dart';
 import '../../providers/webrtc_call_provider.dart';
 import '../demo/linkable_icon.dart';
 
-/// 通話控制按鈕配置
+/// 通话控制按钮配置
 class CallControlButton {
   final IconData icon;
   final IconData? activeIcon;
@@ -31,7 +31,7 @@ class CallControlButton {
   });
 }
 
-/// 通話控制欄
+/// 通话控制栏
 class CallControls extends ConsumerWidget {
   final VoidCallback? onEndCall;
   final bool showRecordingButton;
@@ -64,11 +64,11 @@ class CallControls extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // 網絡質量指示器
+            // 网络质量指示器
             if (callState.isConnected)
               _buildNetworkIndicator(context, callState),
             SizedBox(height: compact ? 12 : 20),
-            // 控制按鈕
+            // 控制按钮
             _buildControlButtons(ref, callState),
           ],
         ),
@@ -76,7 +76,7 @@ class CallControls extends ConsumerWidget {
     );
   }
 
-  /// 構建網絡質量指示器
+  /// 构建网络质量指示器
   Widget _buildNetworkIndicator(BuildContext context, CallStateData callState) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -107,7 +107,7 @@ class CallControls extends ConsumerWidget {
           ),
           const SizedBox(width: 4),
           Text(
-            '錄音中',
+            '录音中',
             style: TextStyle(color: Colors.red, fontSize: compact ? 12 : 14),
           ),
         ],
@@ -115,15 +115,15 @@ class CallControls extends ConsumerWidget {
     );
   }
 
-  /// 構建控制按鈕
+  /// 构建控制按钮
   Widget _buildControlButtons(WidgetRef ref, CallStateData callState) {
     final buttons = <Widget>[];
 
-    // 靜音按鈕
+    // 静音按钮
     buttons.add(
       _buildControlButton(
         icon: callState.isMuted ? Icons.mic_off : Icons.mic,
-        label: callState.isMuted ? '靜音中' : '靜音',
+        label: callState.isMuted ? '静音中' : '静音',
         isActive: callState.isMuted,
         activeColor: Colors.orange,
         onPressed: () => ref.read(webRTCCallProvider.notifier).toggleMute(),
@@ -132,18 +132,18 @@ class CallControls extends ConsumerWidget {
 
     buttons.add(const SizedBox(width: 16));
 
-    // 揚聲器按鈕
+    // 扬声器按钮
     buttons.add(
       _buildControlButton(
         icon: callState.isSpeakerOn ? Icons.volume_up : Icons.volume_down,
-        label: callState.isSpeakerOn ? '揚聲器' : '聽筒',
+        label: callState.isSpeakerOn ? '扬声器' : '听筒',
         isActive: callState.isSpeakerOn,
         activeColor: Colors.blue,
         onPressed: () => ref.read(webRTCCallProvider.notifier).toggleSpeaker(),
       ),
     );
 
-    // 錄音按鈕（可選）
+    // 录音按钮（可选）
     if (showRecordingButton) {
       buttons.add(const SizedBox(width: 16));
       buttons.add(
@@ -151,7 +151,7 @@ class CallControls extends ConsumerWidget {
           icon: callState.isRecording
               ? Icons.stop_circle
               : Icons.fiber_manual_record,
-          label: callState.isRecording ? '停止錄音' : '錄音',
+          label: callState.isRecording ? '停止录音' : '录音',
           isActive: callState.isRecording,
           activeColor: Colors.red,
           onPressed: () {
@@ -167,13 +167,13 @@ class CallControls extends ConsumerWidget {
 
     buttons.add(const SizedBox(width: 24));
 
-    // 掛斷按鈕
+    // 挂断按钮
     buttons.add(_buildEndCallButton(ref));
 
     return Row(mainAxisAlignment: MainAxisAlignment.center, children: buttons);
   }
 
-  /// 構建單個控制按鈕
+  /// 构建单个控制按钮
   Widget _buildControlButton({
     required IconData icon,
     required String label,
@@ -222,7 +222,7 @@ class CallControls extends ConsumerWidget {
     );
   }
 
-  /// 構建掛斷按鈕
+  /// 构建挂断按钮
   Widget _buildEndCallButton(WidgetRef ref) {
     final size = compact ? 56.0 : 72.0;
     final iconSize = compact ? 28.0 : 36.0;
@@ -249,14 +249,14 @@ class CallControls extends ConsumerWidget {
                 icon: Icons.call_end,
                 color: Colors.white,
                 size: iconSize,
-                semanticLabel: '掛斷',
+                semanticLabel: '挂断',
               ),
             ),
           ),
         ),
         const SizedBox(height: 4),
         Text(
-          '掛斷',
+          '挂断',
           style: TextStyle(color: Colors.white, fontSize: compact ? 10 : 12),
         ),
       ],
@@ -264,7 +264,7 @@ class CallControls extends ConsumerWidget {
   }
 }
 
-/// 簡潔的通話控制欄
+/// 简洁的通话控制栏
 class CompactCallControls extends StatelessWidget {
   final VoidCallback? onEndCall;
 
@@ -280,7 +280,7 @@ class CompactCallControls extends StatelessWidget {
   }
 }
 
-/// 通話狀態顯示
+/// 通话状态显示
 class CallStatusDisplay extends ConsumerWidget {
   final bool showDuration;
 

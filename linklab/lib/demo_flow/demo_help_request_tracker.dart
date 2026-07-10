@@ -4,8 +4,8 @@ import '../services/local_storage.dart';
 import '../core/utils/logger.dart';
 import '../models/help_request_status.dart';
 
-/// 記錄 Demo 主線中的 help_request 狀態流轉。
-/// 僅服務競賽版本地閉環，不依賴真實後端。
+/// 记录 Demo 主线中的 help_request 状态流转。
+/// 仅服务竞赛版本地闭环，不依赖真实后端。
 class DemoHelpRequestTracker {
   DemoHelpRequestTracker._();
 
@@ -101,7 +101,7 @@ class DemoHelpRequestTracker {
     return requestId;
   }
 
-  static Future<String> startSOSUndoWindow({String intent = 'SOS緊急求助'}) async {
+  static Future<String> startSOSUndoWindow({String intent = 'SOS紧急求助'}) async {
     final requestId = _newRequestId();
     await _storage.setString(StorageKeys.currentDemoHelpRequestId, requestId);
     await _upsertRecord(
@@ -129,7 +129,7 @@ class DemoHelpRequestTracker {
     await _upsertRecord(
       id: requestId,
       type: existing?['type']?.toString() ?? 'ai_auto',
-      intent: existing?['intent']?.toString() ?? 'AI已處理當前問題',
+      intent: existing?['intent']?.toString() ?? 'AI已处理当前问题',
       urgency: existing?['urgency']?.toString() ?? 'normal',
       status: HelpRequestStatus.aiResolved,
       createdAt: existing?['createdAt']?.toString(),
@@ -153,14 +153,14 @@ class DemoHelpRequestTracker {
     await _upsertRecord(
       id: requestId,
       type: existing?['type']?.toString() ?? 'realtime_voice',
-      intent: existing?['intent']?.toString() ?? '連接真人志願者獲取幫助',
+      intent: existing?['intent']?.toString() ?? '连接真人志愿者获取帮助',
       urgency: existing?['urgency']?.toString() ?? 'normal',
       status: HelpRequestStatus.connected,
       volunteerId: volunteerId,
       createdAt: existing?['createdAt']?.toString(),
       matchedAt: DateTime.now(),
       aiResponse: _mergeAiResponse(existing, {
-        'summary': '已爲您接通真人志願者，正在進行語音協助。',
+        'summary': '已为您接通真人志愿者，正在进行语音协助。',
         'volunteerName': volunteerName,
         'volunteerSkills': volunteerSkills,
         'stage': HelpRequestStatus.connected.wireName,
@@ -190,7 +190,7 @@ class DemoHelpRequestTracker {
     await _upsertRecord(
       id: requestId,
       type: existing?['type']?.toString() ?? 'realtime_voice',
-      intent: existing?['intent']?.toString() ?? '真人語音協助',
+      intent: existing?['intent']?.toString() ?? '真人语音协助',
       urgency: existing?['urgency']?.toString() ?? 'normal',
       status: HelpRequestStatus.completed,
       volunteerId: existing?['volunteerId']?.toString(),
@@ -238,7 +238,7 @@ class DemoHelpRequestTracker {
     await _upsertRecord(
       id: requestId,
       type: existing?['type']?.toString() ?? 'realtime_voice',
-      intent: existing?['intent']?.toString() ?? '匹配超時',
+      intent: existing?['intent']?.toString() ?? '匹配超时',
       urgency: existing?['urgency']?.toString() ?? 'normal',
       status: HelpRequestStatus.expired,
       volunteerId: existing?['volunteerId']?.toString(),

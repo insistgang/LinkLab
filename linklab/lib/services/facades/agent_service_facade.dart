@@ -18,9 +18,9 @@ import 'agent_result.dart';
 
 /// AgentServiceFacade
 ///
-/// AGENTS.md §12.2 統一入口：AI 相關能力的唯一 facade。
-/// 包裝 DemoAIService，對外屏蔽 demo/real 實現差異。
-/// UI 層只允許通過本 facade 調用 AI 能力。
+/// AGENTS.md §12.2 统一入口：AI 相关能力的唯一 facade。
+/// 包装 DemoAIService，对外屏蔽 demo/real 实现差异。
+/// UI 层只允许通过本 facade 调用 AI 能力。
 class AgentServiceFacade {
   final DemoAIService _demoService;
   final UnifiedTtsService? _ttsServiceOverride;
@@ -49,13 +49,13 @@ class AgentServiceFacade {
   VisionService get _visionService =>
       _visionServiceOverride ?? (_visionServiceCache ??= VisionService());
 
-  // ────────────────────────── 統一輸入處理 ──────────────────────────
+  // ────────────────────────── 统一输入处理 ──────────────────────────
 
-  /// 統一處理用戶輸入（文字 / 語音 / 圖片）
+  /// 统一处理用户输入（文字 / 语音 / 图片）
   ///
-  /// [text] 用戶輸入文本或語音轉寫
-  /// [imagePath] 可選的圖片路徑
-  /// [inputType] 輸入類型標識：text | voice | image | mixed
+  /// [text] 用户输入文本或语音转写
+  /// [imagePath] 可选的图片路径
+  /// [inputType] 输入类型标识：text | voice | image | mixed
   Future<AgentResult> processInput({
     String? text,
     String? imagePath,
@@ -79,22 +79,22 @@ class AgentServiceFacade {
         return _processImageInput(input, imagePath.trim());
       }
 
-      // 優先調用真實大模型（智譜 GLM-4-flash）
+      // 优先调用真实大模型（智谱 GLM-4-flash）
       final llmResult = await _chatWithLLM(input);
       if (llmResult != null) {
         return llmResult;
       }
-      // 大模型不可用時降級到 Demo
+      // 大模型不可用时降级到 Demo
       final result = await _demoService.process(input, imagePath: imagePath);
       return _mapAIResultToAgentResult(result);
     } catch (e) {
-      return AgentResult.error('processInput 失敗: $e');
+      return AgentResult.error('processInput 失败: $e');
     }
   }
 
-  /// SOS、顯式轉人工與高風險協助必須先走本地確定規則。
+  /// SOS、显式转人工与高风险协助必须先走本地确定规则。
   ///
-  /// 真實大模型可以回答普通問題，但不能吞掉緊急分流和志願者兜底。
+  /// 真实大模型可以回答普通问题，但不能吞掉紧急分流和志愿者兜底。
   Future<AgentResult?> _tryLocalSafetyRoute(
     String input, {
     String? imagePath,
@@ -130,24 +130,24 @@ class AgentServiceFacade {
     String input, {
     String? imagePath,
   }) async {
-    final prompt = input.isEmpty && imagePath != null ? '這是什麼？' : input;
+    final prompt = input.isEmpty && imagePath != null ? '这是什么？' : input;
     final result = await _demoService.process(prompt, imagePath: imagePath);
     return _mapAIResultToAgentResult(result);
   }
 
-  /// 智譜 GLM-4 系統提示詞
+  /// 智谱 GLM-4 系统提示词
   static const _systemPrompt =
-      '你是 LinkAble 共感助手，一個專爲視障、聽障、老年等有障礙需求的用戶設計的 AI 互助助手。'
-      '你的職責是用簡潔、溫暖、可被讀屏軟件朗讀的中文回答用戶問題。'
+      '你是 LinkAble 共感助手，一个专为视障、听障、老年等有障碍需求的用户设计的 AI 互助助手。'
+      '你的职责是用简洁、温暖、可被读屏软件朗读的中文回答用户问题。'
       '回答要求：'
-      '1. 直接回答，不廢話，不超過 100 字 '
-      '2. 如果是醫療、法律等專業問題，提醒用戶諮詢專業人員 '
-      '3. 如果你不確定，建議用戶轉接真人志願者確認 '
-      '4. 語氣溫暖友善，像一個有耐心的朋友 '
-      '5. 不要使用 Markdown 格式，純文本即可';
+      '1. 直接回答，不废话，不超过 100 字 '
+      '2. 如果是医疗、法律等专业问题，提醒用户谘询专业人员 '
+      '3. 如果你不确定，建议用户转接真人志愿者确认 '
+      '4. 语气温暖友善，像一个有耐心的朋友 '
+      '5. 不要使用 Markdown 格式，纯文本即可';
 
-  /// 調用智譜 GLM-4-flash 進行真實對話
-  /// 返回 null 表示調用失敗，應降級到 Demo
+  /// 调用智谱 GLM-4-flash 进行真实对话
+  /// 返回 null 表示调用失败，应降级到 Demo
   Future<AgentResult?> _chatWithLLM(String userMessage) async {
     if (!FeatureFlags.enableRealAI) return null;
     if (!APIConfig.isZhipuConfigured) return null;
@@ -175,7 +175,7 @@ class AgentServiceFacade {
           .timeout(const Duration(seconds: 15));
 
       if (response.statusCode != 200) {
-        AppLogger.warning('[AgentFacade] GLM-4 調用失敗: ${response.statusCode}');
+        AppLogger.warning('[AgentFacade] GLM-4 调用失败: ${response.statusCode}');
         return null;
       }
 
@@ -203,55 +203,55 @@ class AgentServiceFacade {
         uiCopy: {
           'title': 'AI 助手',
           'body': content.trim(),
-          'primaryAction': '繼續',
-          'secondaryAction': '轉人工協助',
+          'primaryAction': '继续',
+          'secondaryAction': '转人工协助',
         },
       );
     } catch (_) {
-      AppLogger.warning('[AgentFacade] GLM-4 調用異常，降級到 Demo');
+      AppLogger.warning('[AgentFacade] GLM-4 调用异常，降级到 Demo');
       return null;
     }
   }
 
-  /// 圖片輸入：直接調用智譜 GLM-4-vision 多模態理解
-  /// 不再做關鍵詞路由，讓大模型自己判斷圖片內容
+  /// 图片输入：直接调用智谱 GLM-4-vision 多模态理解
+  /// 不再做关键词路由，让大模型自己判断图片内容
   Future<AgentResult> _processImageInput(String text, String imagePath) async {
     if (!kIsWeb) {
       final file = File(imagePath);
       if (!file.existsSync()) {
-        return AgentResult.error('圖片文件不存在', intent: 'unknown');
+        return AgentResult.error('图片文件不存在', intent: 'unknown');
       }
     }
 
-    // 優先嚐試真實多模態 API
+    // 优先尝试真实多模态 API
     if (FeatureFlags.enableRealAI && APIConfig.isZhipuConfigured) {
       try {
         return await _visionWithLLM(text, imagePath);
       } catch (e) {
-        AppLogger.warning('[AgentFacade] 多模態視覺調用失敗，降級到關鍵詞路由: $e');
+        AppLogger.warning('[AgentFacade] 多模态视觉调用失败，降级到关键词路由: $e');
       }
     }
 
-    // 降級到原有關鍵詞路由（Demo/百度OCR）
+    // 降级到原有关键词路由（Demo/百度OCR）
     final normalized = text.toLowerCase();
-    if (_containsAny(normalized, const ['藥', 'medicine', '用法', '劑量', '說明書'])) {
+    if (_containsAny(normalized, const ['药', 'medicine', '用法', '剂量', '说明书'])) {
       return checkMedicine(imagePath);
     }
-    if (_containsAny(normalized, const ['顏色', '色', 'color'])) {
+    if (_containsAny(normalized, const ['颜色', '色', 'color'])) {
       return recognizeColor(imagePath);
     }
-    if (_containsAny(normalized, const ['錢', '鈔', '面額', '紙幣', 'money'])) {
+    if (_containsAny(normalized, const ['钱', '钞', '面额', '纸币', 'money'])) {
       return recognizeMoney(imagePath);
     }
-    if (_containsAny(normalized, const ['文字', '讀', 'ocr', '路牌', '通知', '票據'])) {
+    if (_containsAny(normalized, const ['文字', '读', 'ocr', '路牌', '通知', '票据'])) {
       return recognizeText(imagePath);
     }
     if (_containsAny(normalized, const [
-      '產品',
+      '产品',
       '商品',
-      '包裝',
-      '物體',
-      '東西',
+      '包装',
+      '物体',
+      '东西',
       'object',
     ])) {
       return identifyObject(imagePath);
@@ -259,7 +259,7 @@ class AgentServiceFacade {
     return describeScene(imagePath);
   }
 
-  /// 調用智譜 GLM-4-vision 進行多模態圖片理解
+  /// 调用智谱 GLM-4-vision 进行多模态图片理解
   Future<AgentResult> _visionWithLLM(String userText, String imagePath) async {
     List<int> bytes;
     if (kIsWeb) {
@@ -269,7 +269,7 @@ class AgentServiceFacade {
       bytes = await File(imagePath).readAsBytes();
     }
     if (bytes.length > 10 * 1024 * 1024) {
-      return AgentResult.error('圖片過大，請壓縮後重試', intent: 'unknown');
+      return AgentResult.error('图片过大，请压缩后重试', intent: 'unknown');
     }
 
     final base64Image = base64Encode(bytes);
@@ -277,9 +277,9 @@ class AgentServiceFacade {
         ? 'image/png'
         : 'image/jpeg';
 
-    final prompt = userText.trim().isEmpty || userText.trim() == '這是什麼？'
-        ? '請識別這張圖片的內容，用簡潔的中文描述。如果是藥品，讀出藥品名稱、用法用量、有效期。如果是鈔票，說出面額。如果是路牌/文字，讀出內容。'
-        : '用戶問：$userText\n請根據圖片內容回答。';
+    final prompt = userText.trim().isEmpty || userText.trim() == '这是什么？'
+        ? '请识别这张图片的内容，用简洁的中文描述。如果是药品，读出药品名称、用法用量、有效期。如果是钞票，说出面额。如果是路牌/文字，读出内容。'
+        : '用户问：$userText\n请根据图片内容回答。';
 
     final url = Uri.parse('${APIConfig.zhipuBaseUrl}/chat/completions');
     final response = await http
@@ -311,27 +311,27 @@ class AgentServiceFacade {
         .timeout(const Duration(seconds: 20));
 
     if (response.statusCode != 200) {
-      throw Exception('GLM-4-vision 調用失敗: ${response.statusCode}');
+      throw Exception('GLM-4-vision 调用失败: ${response.statusCode}');
     }
 
     final data = jsonDecode(response.body) as Map<String, dynamic>;
     final choices = data['choices'] as List<dynamic>?;
-    if (choices == null || choices.isEmpty) throw Exception('GLM-4-vision 無返回');
+    if (choices == null || choices.isEmpty) throw Exception('GLM-4-vision 无返回');
 
     final firstChoice = choices.first;
     if (firstChoice is! Map<String, dynamic>) {
-      throw Exception('GLM-4-vision 返回結構無效');
+      throw Exception('GLM-4-vision 返回结构无效');
     }
     final message = firstChoice['message'];
     if (message is! Map<String, dynamic>) {
-      throw Exception('GLM-4-vision 消息結構無效');
+      throw Exception('GLM-4-vision 消息结构无效');
     }
     final content = message['content'] as String?;
     if (content == null || content.trim().isEmpty) {
-      throw Exception('GLM-4-vision 返回爲空');
+      throw Exception('GLM-4-vision 返回为空');
     }
 
-    AppLogger.info('[AgentFacade] GLM-4-vision 識別成功');
+    AppLogger.info('[AgentFacade] GLM-4-vision 识别成功');
 
     return AgentResult.success(
       intent: 'scene_describe',
@@ -342,10 +342,10 @@ class AgentServiceFacade {
       spokenText: content.trim(),
       nextAction: 'answer',
       uiCopy: {
-        'title': 'AI 已識別圖片',
+        'title': 'AI 已识别图片',
         'body': content.trim(),
-        'primaryAction': '繼續',
-        'secondaryAction': '轉人工協助',
+        'primaryAction': '继续',
+        'secondaryAction': '转人工协助',
       },
     );
   }
@@ -354,25 +354,25 @@ class AgentServiceFacade {
     return keywords.any(value.contains);
   }
 
-  // ────────────────────────── 意圖識別 ──────────────────────────
+  // ────────────────────────── 意图识别 ──────────────────────────
 
-  /// 意圖識別
+  /// 意图识别
   ///
-  /// 返回標準化意圖標籤，供上層路由決策。
+  /// 返回标准化意图标签，供上层路由决策。
   Future<AgentResult> detectIntent(String text) async {
     try {
       final result = await _demoService.detectIntent(text);
       return _mapAIResultToAgentResult(result);
     } catch (e) {
-      return AgentResult.error('detectIntent 失敗: $e', intent: 'unknown');
+      return AgentResult.error('detectIntent 失败: $e', intent: 'unknown');
     }
   }
 
-  // ────────────────────────── 視覺能力 ──────────────────────────
+  // ────────────────────────── 视觉能力 ──────────────────────────
 
-  /// OCR 文字識別
+  /// OCR 文字识别
   Future<AgentResult> recognizeText(String imagePath) async {
-    // 1. 檢查是否配置了百度OCR
+    // 1. 检查是否配置了百度OCR
     if (FeatureFlags.enableRealAI && APIConfig.isBaiduOcrConfigured) {
       try {
         final ocrService = BaiduOCRService();
@@ -386,19 +386,19 @@ class AgentServiceFacade {
               confidence: result.data!.confidence,
               canResolveByAi: true,
               answerText: result.data!.text.isEmpty
-                  ? '未能識別到文字，請重新拍攝'
-                  : '識別結果：\n${result.data!.text}',
+                  ? '未能识别到文字，请重新拍摄'
+                  : '识别结果：\n${result.data!.text}',
               spokenText: result.data!.text.isEmpty
-                  ? '未能識別到文字，請重新拍攝'
-                  : '已識別到文字：${result.data!.text}',
+                  ? '未能识别到文字，请重新拍摄'
+                  : '已识别到文字：${result.data!.text}',
               nextAction: 'answer',
-              recommendedVolunteerTags: const ['視障協助'],
+              recommendedVolunteerTags: const ['视障协助'],
             );
           }
         }
       } catch (e) {
-        // 真實OCR失敗，降級到Demo
-        AppLogger.warning('真實OCR失敗，降級到Demo: $e');
+        // 真实OCR失败，降级到Demo
+        AppLogger.warning('真实OCR失败，降级到Demo: $e');
       }
     }
 
@@ -407,13 +407,13 @@ class AgentServiceFacade {
       final result = await _demoService.recognizeText(imagePath);
       return _mapAIResultToAgentResult(result);
     } catch (e) {
-      return AgentResult.error('recognizeText 失敗: $e', intent: 'ocr_text');
+      return AgentResult.error('recognizeText 失败: $e', intent: 'ocr_text');
     }
   }
 
-  /// 場景描述
+  /// 场景描述
   Future<AgentResult> describeScene(String imagePath) async {
-    // 1. 優先使用智譜AI
+    // 1. 优先使用智谱AI
     if (FeatureFlags.enableRealAI && _visionService.hasRealService) {
       final result = await _visionService.describeScene(imagePath);
       if (result.success) {
@@ -425,7 +425,7 @@ class AgentServiceFacade {
           answerText: result.text,
           spokenText: result.text,
           nextAction: 'answer',
-          recommendedVolunteerTags: const ['視障協助', '老人陪同'],
+          recommendedVolunteerTags: const ['视障协助', '老人陪同'],
         );
       }
     }
@@ -436,15 +436,15 @@ class AgentServiceFacade {
       return _mapAIResultToAgentResult(result);
     } catch (e) {
       return AgentResult.error(
-        'describeScene 失敗: $e',
+        'describeScene 失败: $e',
         intent: 'scene_describe',
       );
     }
   }
 
-  /// 顏色識別
+  /// 颜色识别
   Future<AgentResult> recognizeColor(String imagePath) async {
-    // 1. 優先使用智譜AI
+    // 1. 优先使用智谱AI
     if (FeatureFlags.enableRealAI && _visionService.hasRealService) {
       final result = await _visionService.recognizeColor(imagePath);
       if (result.success) {
@@ -456,7 +456,7 @@ class AgentServiceFacade {
           answerText: result.text,
           spokenText: result.text,
           nextAction: 'answer',
-          recommendedVolunteerTags: const ['視障協助'],
+          recommendedVolunteerTags: const ['视障协助'],
         );
       }
     }
@@ -467,15 +467,15 @@ class AgentServiceFacade {
       return _mapAIResultToAgentResult(result);
     } catch (e) {
       return AgentResult.error(
-        'recognizeColor 失敗: $e',
+        'recognizeColor 失败: $e',
         intent: 'color_identify',
       );
     }
   }
 
-  /// 藥品確認
+  /// 药品确认
   Future<AgentResult> checkMedicine(String imagePath) async {
-    // 1. 優先使用智譜AI
+    // 1. 优先使用智谱AI
     if (FeatureFlags.enableRealAI && _visionService.hasRealService) {
       final result = await _visionService.checkMedicine(imagePath);
       if (result.success) {
@@ -487,7 +487,7 @@ class AgentServiceFacade {
           answerText: result.text,
           spokenText: result.text,
           nextAction: 'answer',
-          recommendedVolunteerTags: const ['藥品說明協助', '視障協助'],
+          recommendedVolunteerTags: const ['药品说明协助', '视障协助'],
           safetyFlags: const ['not_medical_diagnosis'],
         );
       }
@@ -496,7 +496,7 @@ class AgentServiceFacade {
     // 2. fallback到Demo
     try {
       final result = await _demoService.process(
-        '幫我看看這個藥品',
+        '帮我看看这个药品',
         imagePath: imagePath,
       );
       return _mapAIResultToAgentResult(
@@ -505,15 +505,15 @@ class AgentServiceFacade {
       );
     } catch (e) {
       return AgentResult.error(
-        'checkMedicine 失敗: $e',
+        'checkMedicine 失败: $e',
         intent: 'medicine_check',
       );
     }
   }
 
-  /// 鈔票識別
+  /// 钞票识别
   Future<AgentResult> recognizeMoney(String imagePath) async {
-    // 1. 優先使用智譜AI
+    // 1. 优先使用智谱AI
     if (FeatureFlags.enableRealAI && _visionService.hasRealService) {
       final result = await _visionService.recognizeMoney(imagePath);
       if (result.success) {
@@ -525,29 +525,29 @@ class AgentServiceFacade {
           answerText: result.text,
           spokenText: result.text,
           nextAction: 'answer',
-          recommendedVolunteerTags: const ['視障協助'],
+          recommendedVolunteerTags: const ['视障协助'],
         );
       }
     }
 
     // 2. fallback到Demo
     try {
-      final result = await _demoService.process('這是多少錢', imagePath: imagePath);
+      final result = await _demoService.process('这是多少钱', imagePath: imagePath);
       return _mapAIResultToAgentResult(
         result,
         overrideIntent: 'money_identify',
       );
     } catch (e) {
       return AgentResult.error(
-        'recognizeMoney 失敗: $e',
+        'recognizeMoney 失败: $e',
         intent: 'money_identify',
       );
     }
   }
 
-  /// 物體識別
+  /// 物体识别
   Future<AgentResult> identifyObject(String imagePath) async {
-    // 1. 優先使用智譜AI
+    // 1. 优先使用智谱AI
     if (FeatureFlags.enableRealAI && _visionService.hasRealService) {
       final result = await _visionService.identifyObject(imagePath);
       if (result.success) {
@@ -559,48 +559,48 @@ class AgentServiceFacade {
           answerText: result.text,
           spokenText: result.text,
           nextAction: 'answer',
-          recommendedVolunteerTags: const ['視障協助'],
+          recommendedVolunteerTags: const ['视障协助'],
         );
       }
     }
 
     // 2. fallback到Demo
     try {
-      final result = await _demoService.process('這是什麼東西', imagePath: imagePath);
+      final result = await _demoService.process('这是什么东西', imagePath: imagePath);
       return _mapAIResultToAgentResult(
         result,
         overrideIntent: 'object_identify',
       );
     } catch (e) {
       return AgentResult.error(
-        'identifyObject 失敗: $e',
+        'identifyObject 失败: $e',
         intent: 'object_identify',
       );
     }
   }
 
-  // ────────────────────────── 安全檢測 ──────────────────────────
+  // ────────────────────────── 安全检测 ──────────────────────────
 
-  /// 緊急意圖檢測
+  /// 紧急意图检测
   Future<AgentResult> detectEmergency(String text) async {
     try {
       final result = await _demoService.detectEmergency(text);
       return _mapAIResultToAgentResult(result);
     } catch (e) {
-      return AgentResult.error('detectEmergency 失敗: $e', intent: 'emergency');
+      return AgentResult.error('detectEmergency 失败: $e', intent: 'emergency');
     }
   }
 
-  // ────────────────────────── 內部映射 ──────────────────────────
+  // ────────────────────────── 内部映射 ──────────────────────────
 
-  /// 將 DemoAIService 的 AIResult 映射爲標準 AgentResult
+  /// 将 DemoAIService 的 AIResult 映射为标准 AgentResult
   AgentResult _mapAIResultToAgentResult(
     AIResult result, {
     String? overrideIntent,
   }) {
     if (!result.success) {
       return AgentResult.error(
-        result.error ?? '未知錯誤',
+        result.error ?? '未知错误',
         intent: overrideIntent ?? 'unknown',
       );
     }
@@ -641,7 +641,7 @@ class AgentServiceFacade {
 
     final canResolveByAi = !requiresHumanFallback && !isEmergency;
 
-    // 推薦志願者標籤
+    // 推荐志愿者标签
     final List<String> tags = _inferVolunteerTags(demoIntent, data);
 
     // safetyFlags
@@ -658,9 +658,9 @@ class AgentServiceFacade {
       'title': _uiTitle(demoIntent, isEmergency),
       'body': result.text,
       'primaryAction': isEmergency
-          ? '確認並繼續'
-          : (canResolveByAi ? '繼續' : '轉人工協助'),
-      'secondaryAction': isEmergency ? '撤銷（10秒內）' : '重新描述',
+          ? '确认并继续'
+          : (canResolveByAi ? '继续' : '转人工协助'),
+      'secondaryAction': isEmergency ? '撤销（10秒内）' : '重新描述',
     };
 
     return AgentResult.success(
@@ -672,7 +672,7 @@ class AgentServiceFacade {
       spokenText: result.text,
       nextAction: nextAction,
       handoffReason: requiresHumanFallback
-          ? (demoIntent == DemoAiIntent.fallback ? 'AI 低信心，無法判斷' : '需要真人確認或協助')
+          ? (demoIntent == DemoAiIntent.fallback ? 'AI 低信心，无法判断' : '需要真人确认或协助')
           : null,
       recommendedVolunteerTags: tags,
       safetyFlags: safetyFlags,
@@ -687,118 +687,118 @@ class AgentServiceFacade {
     switch (intent) {
       case DemoAiIntent.medicationCheck:
       case DemoAiIntent.ocrText:
-        return const ['藥品說明協助', '視障協助'];
+        return const ['药品说明协助', '视障协助'];
       case DemoAiIntent.navigation:
       case DemoAiIntent.environmentDescription:
-        return const ['視障協助', '普通問路'];
+        return const ['视障协助', '普通问路'];
       case DemoAiIntent.translation:
       case DemoAiIntent.moneyRecognition:
-        return const ['手語 / 聽障溝通', '視障協助'];
+        return const ['手语 / 听障沟通', '视障协助'];
       case DemoAiIntent.sceneDescription:
       case DemoAiIntent.objectIdentify:
-        return const ['視障協助', '老人陪同'];
+        return const ['视障协助', '老人陪同'];
       case DemoAiIntent.colorRecognition:
-        return const ['視障協助'];
+        return const ['视障协助'];
       case DemoAiIntent.emergency:
-        return const ['緊急陪伴'];
+        return const ['紧急陪伴'];
       case DemoAiIntent.needHuman:
         final context = data['contextIntent'] as String?;
         if (context == 'medication_check') {
-          return const ['藥品說明協助'];
+          return const ['药品说明协助'];
         }
-        return const ['視障協助', '普通問路'];
+        return const ['视障协助', '普通问路'];
       case DemoAiIntent.fallback:
-        return const ['視障協助', '普通問路', '老人陪同'];
+        return const ['视障协助', '普通问路', '老人陪同'];
     }
   }
 
   String _uiTitle(DemoAiIntent intent, bool isEmergency) {
-    if (isEmergency) return '檢測到緊急情況';
+    if (isEmergency) return '检测到紧急情况';
     switch (intent) {
       case DemoAiIntent.ocrText:
-        return 'AI 已識別文字';
+        return 'AI 已识别文字';
       case DemoAiIntent.sceneDescription:
-        return '場景描述';
+        return '场景描述';
       case DemoAiIntent.objectIdentify:
-        return '物體識別';
+        return '物体识别';
       case DemoAiIntent.colorRecognition:
-        return '顏色識別';
+        return '颜色识别';
       case DemoAiIntent.moneyRecognition:
-        return '鈔票識別';
+        return '钞票识别';
       case DemoAiIntent.translation:
-        return '轉譯協助';
+        return '转译协助';
       case DemoAiIntent.environmentDescription:
-        return '環境描述';
+        return '环境描述';
       case DemoAiIntent.navigation:
-        return '導航協助';
+        return '导航协助';
       case DemoAiIntent.medicationCheck:
-        return '藥品確認';
+        return '药品确认';
       case DemoAiIntent.emergency:
-        return '緊急求助';
+        return '紧急求助';
       case DemoAiIntent.needHuman:
-        return '需要真人協助';
+        return '需要真人协助';
       case DemoAiIntent.fallback:
-        return 'AI 不確定';
+        return 'AI 不确定';
     }
   }
 
-  // ────────────────────────── TTS 語音朗讀 ──────────────────────────
+  // ────────────────────────── TTS 语音朗读 ──────────────────────────
 
-  /// 朗讀文本
+  /// 朗读文本
   ///
-  /// 使用統一 TTS 服務（優先 MiniMax，fallback 到本地 TTS）。
-  /// [text] 要朗讀的文本
-  /// [voiceId] MiniMax 音色 ID（可選）
+  /// 使用统一 TTS 服务（优先 MiniMax，fallback 到本地 TTS）。
+  /// [text] 要朗读的文本
+  /// [voiceId] MiniMax 音色 ID（可选）
   Future<void> speakText(String text, {String? voiceId}) async {
     if (text.isEmpty) return;
 
     try {
       await _ttsService.speak(text, voiceId: voiceId);
-      AppLogger.info('AgentServiceFacade 朗讀文本: $text');
+      AppLogger.info('AgentServiceFacade 朗读文本: $text');
     } catch (e) {
-      AppLogger.error('AgentServiceFacade 朗讀失敗', e);
+      AppLogger.error('AgentServiceFacade 朗读失败', e);
       rethrow;
     }
   }
 
-  /// 停止朗讀
+  /// 停止朗读
   Future<void> stopSpeaking() async {
     try {
       await _ttsService.stop();
     } catch (e) {
-      AppLogger.error('停止朗讀失敗', e);
+      AppLogger.error('停止朗读失败', e);
     }
   }
 
-  /// 是否正在朗讀
+  /// 是否正在朗读
   bool get isSpeaking => _ttsService.isSpeaking;
 
-  // ────────────────────────── ASR 語音輸入 ──────────────────────────
+  // ────────────────────────── ASR 语音输入 ──────────────────────────
 
-  /// 是否正在錄音/識別
+  /// 是否正在录音/识别
   bool get isListening => _asrService.isListening;
 
-  /// 開始語音輸入（錄音 + 識別）
+  /// 开始语音输入（录音 + 识别）
   ///
-  /// 返回識別到的文本。調用後進入錄音狀態，
-  /// 需要調用 [stopVoiceInput] 來停止錄音並獲取最終結果。
+  /// 返回识别到的文本。调用后进入录音状态，
+  /// 需要调用 [stopVoiceInput] 来停止录音并获取最终结果。
   Future<String> startVoiceInput() async {
     try {
-      AppLogger.info('AgentServiceFacade 開始語音輸入');
+      AppLogger.info('AgentServiceFacade 开始语音输入');
       return await _asrService.startListening();
     } catch (e) {
-      AppLogger.error('語音輸入啓動失敗', e);
+      AppLogger.error('语音输入启动失败', e);
       rethrow;
     }
   }
 
-  /// 停止語音輸入
+  /// 停止语音输入
   Future<void> stopVoiceInput() async {
     try {
-      AppLogger.info('AgentServiceFacade 停止語音輸入');
+      AppLogger.info('AgentServiceFacade 停止语音输入');
       await _asrService.stopListening();
     } catch (e) {
-      AppLogger.error('停止語音輸入失敗', e);
+      AppLogger.error('停止语音输入失败', e);
     }
   }
 }

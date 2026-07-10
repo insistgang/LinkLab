@@ -1,4 +1,4 @@
-// 統計數據模型
+// 统计数据模型
 class DailyReport {
   final DateTime date;
   final int newUsers;
@@ -59,7 +59,7 @@ class DailyReport {
   }
 }
 
-// 用戶增長報表
+// 用户增长报表
 class UserGrowthReport {
   final DateTime date;
   final int newDisabledUsers;
@@ -95,7 +95,7 @@ class UserGrowthReport {
   }
 }
 
-// 求助類型統計
+// 求助类型统计
 class HelpTypeStatistics {
   final String type;
   final int count;
@@ -125,7 +125,7 @@ class HelpTypeStatistics {
   }
 }
 
-// 志願者績效報表
+// 志愿者绩效报表
 class VolunteerPerformanceReport {
   final String volunteerId;
   final String volunteerName;
@@ -161,7 +161,7 @@ class VolunteerPerformanceReport {
   }
 }
 
-// 報表查詢參數
+// 报表查询参数
 class ReportQueryParams {
   final DateTime startDate;
   final DateTime endDate;

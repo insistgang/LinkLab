@@ -8,21 +8,21 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import '../../config/api_config.dart';
 import 'ai_service.dart';
 
-/// 科大訊飛語音服務
-/// ASR語音識別 + TTS語音合成
-/// 支持WebSocket實時識別和HTTP批量識別
+/// 科大讯飞语音服务
+/// ASR语音识别 + TTS语音合成
+/// 支持WebSocket实时识别和HTTP批量识别
 class XfyunVoiceService implements AIService {
   final _client = http.Client();
   WebSocketChannel? _asrChannel;
 
-  // 回調函數
+  // 回调函数
   Function(String)? _onAsrResult;
   Function(String)? _onAsrPartialResult;
   Function()? _onAsrStart;
   Function()? _onAsrEnd;
   Function(String)? _onAsrError;
 
-  // 狀態
+  // 状态
   bool _isAsrRunning = false;
   final _asrBuffer = StringBuffer();
 
@@ -40,18 +40,18 @@ class XfyunVoiceService implements AIService {
     String? imageUrl,
     DialogContext? context,
   }) async {
-    // 默認實現：語音播報輸入文本
+    // 默认实现：语音播报输入文本
     await textToSpeech(input);
     return AIResponse(
-      text: '語音播報完成',
+      text: '语音播报完成',
       intent: IntentType.generalChat,
       confidence: 1.0,
     );
   }
 
-  // ==================== ASR 語音識別 ====================
+  // ==================== ASR 语音识别 ====================
 
-  /// 設置ASR回調
+  /// 设置ASR回调
   void setAsrCallbacks({
     Function(String)? onResult,
     Function(String)? onPartialResult,
@@ -66,15 +66,15 @@ class XfyunVoiceService implements AIService {
     _onAsrError = onError;
   }
 
-  /// 開始實時語音識別（WebSocket方式）
-  /// 適合長語音輸入場景
+  /// 开始实时语音识别（WebSocket方式）
+  /// 适合长语音输入场景
   Future<bool> startRealTimeAsr({
     String language = 'zh_cn',
     String accent = 'mandarin',
     int sampleRate = 16000,
   }) async {
     if (!APIConfig.isXfyunConfigured) {
-      _onAsrError?.call('科大訊飛API未配置');
+      _onAsrError?.call('科大讯飞API未配置');
       return false;
     }
 
@@ -83,21 +83,21 @@ class XfyunVoiceService implements AIService {
     }
 
     try {
-      // 構建鑑權URL
+      // 构建鉴权URL
       final wsUrl = await _buildAsrWsUrl(
         language: language,
         accent: accent,
         sampleRate: sampleRate,
       );
 
-      // 連接WebSocket
+      // 连接WebSocket
       _asrChannel = WebSocketChannel.connect(Uri.parse(wsUrl));
 
-      // 監聽消息
+      // 监听消息
       _asrChannel!.stream.listen(
         _handleAsrMessage,
         onError: (error) {
-          _onAsrError?.call('WebSocket錯誤: $error');
+          _onAsrError?.call('WebSocket错误: $error');
           _isAsrRunning = false;
         },
         onDone: () {
@@ -112,40 +112,40 @@ class XfyunVoiceService implements AIService {
 
       return true;
     } catch (e) {
-      _onAsrError?.call('啓動語音識別失敗: $e');
+      _onAsrError?.call('启动语音识别失败: $e');
       return false;
     }
   }
 
-  /// 發送音頻數據
-  /// [audioData] PCM格式音頻數據
+  /// 发送音频数据
+  /// [audioData] PCM格式音频数据
   void sendAudioData(List<int> audioData) {
     if (!_isAsrRunning || _asrChannel == null) return;
 
-    // 將音頻數據轉爲Base64
+    // 将音频数据转为Base64
     final base64Audio = base64Encode(audioData);
 
-    // 構建業務參數
+    // 构建业务参数
     final businessParams = {
       'data': base64Audio,
-      'status': 1, // 1: 中間幀
+      'status': 1, // 1: 中间帧
     };
 
     _asrChannel!.sink.add(jsonEncode(businessParams));
   }
 
-  /// 結束音頻發送
+  /// 结束音频发送
   void endAudioStream() {
     if (!_isAsrRunning || _asrChannel == null) return;
 
     final endParams = {
-      'status': 2, // 2: 最後一幀
+      'status': 2, // 2: 最后一帧
     };
 
     _asrChannel!.sink.add(jsonEncode(endParams));
   }
 
-  /// 停止語音識別
+  /// 停止语音识别
   Future<void> stopAsr() async {
     if (_asrChannel != null) {
       endAudioStream();
@@ -155,15 +155,15 @@ class XfyunVoiceService implements AIService {
     _isAsrRunning = false;
   }
 
-  /// 處理ASR消息
+  /// 处理ASR消息
   void _handleAsrMessage(dynamic message) {
     try {
       final data = jsonDecode(message as String);
       final code = data['code'];
 
       if (code != 0) {
-        final errorMsg = data['message'] ?? '識別錯誤';
-        _onAsrError?.call('ASR錯誤: $errorMsg');
+        final errorMsg = data['message'] ?? '识别错误';
+        _onAsrError?.call('ASR错误: $errorMsg');
         return;
       }
 
@@ -172,7 +172,7 @@ class XfyunVoiceService implements AIService {
 
       final ws = result['ws'] as List<dynamic>? ?? [];
 
-      // 解析識別結果
+      // 解析识别结果
       final buffer = StringBuffer();
       for (final item in ws) {
         final cw = item['cw'] as List<dynamic>? ?? [];
@@ -184,39 +184,39 @@ class XfyunVoiceService implements AIService {
 
       final text = buffer.toString();
 
-      // 判斷是否是最終結果
+      // 判断是否是最终结果
       final status = result['status'] as int? ?? 0;
       if (status == 2) {
-        // 最終結果
+        // 最终结果
         _asrBuffer.write(text);
         _onAsrResult?.call(_asrBuffer.toString());
         _asrBuffer.clear();
       } else {
-        // 中間結果
+        // 中间结果
         _onAsrPartialResult?.call(text);
       }
     } catch (e) {
-      _onAsrError?.call('解析ASR結果失敗: $e');
+      _onAsrError?.call('解析ASR结果失败: $e');
     }
   }
 
-  /// 語音識別（HTTP方式）
-  /// 適合短語音識別場景
-  /// [audioFile] 音頻文件路徑
+  /// 语音识别（HTTP方式）
+  /// 适合短语音识别场景
+  /// [audioFile] 音频文件路径
   Future<APIResponse<String>> speechToText(File audioFile) async {
     if (!APIConfig.isXfyunConfigured) {
       return APIResponse.failure(APIError(
         type: APIErrorType.authentication,
-        message: '科大訊飛API未配置',
+        message: '科大讯飞API未配置',
       ));
     }
 
     try {
-      // 讀取音頻文件
+      // 读取音频文件
       final audioBytes = await audioFile.readAsBytes();
       final base64Audio = base64Encode(audioBytes);
 
-      // 構建請求參數
+      // 构建请求参数
       final timestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
       final param = {
         'engine_type': 'sms16k',
@@ -224,7 +224,7 @@ class XfyunVoiceService implements AIService {
       };
       final paramBase64 = base64Encode(utf8Encode(jsonEncode(param)));
 
-      // 計算checksum
+      // 计算checksum
       final checksumSource =
           '${APIConfig.xfyunApiKey}${timestamp}${paramBase64}${base64Audio}';
       final checksum = md5.convert(utf8Encode(checksumSource)).toString();
@@ -253,13 +253,13 @@ class XfyunVoiceService implements AIService {
     } catch (e) {
       return APIResponse.failure(APIError(
         type: APIErrorType.unknown,
-        message: '語音識別失敗',
+        message: '语音识别失败',
         originalError: e.toString(),
       ));
     }
   }
 
-  /// 處理HTTP ASR響應
+  /// 处理HTTP ASR响应
   APIResponse<String> _handleHttpAsrResponse(http.Response response) {
     if (response.statusCode != 200) {
       return APIResponse.failure(APIError.serviceUnavailable(
@@ -272,7 +272,7 @@ class XfyunVoiceService implements AIService {
     final code = data['code'];
 
     if (code != '0') {
-      final message = data['desc'] ?? '識別失敗';
+      final message = data['desc'] ?? '识别失败';
 
       if (code == '10105' || code == '10106') {
         return APIResponse.failure(APIError.authentication(message));
@@ -289,22 +289,22 @@ class XfyunVoiceService implements AIService {
     return APIResponse.success(result);
   }
 
-  /// 構建ASR WebSocket URL
+  /// 构建ASR WebSocket URL
   Future<String> _buildAsrWsUrl({
     required String language,
     required String accent,
     required int sampleRate,
   }) async {
     final timestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-    final expireTime = timestamp + 300; // 5分鐘有效期
+    final expireTime = timestamp + 300; // 5分钟有效期
 
-    // 構建業務參數
+    // 构建业务参数
     final business = {
       'language': language,
       'accent': accent,
       'sample_rate': sampleRate,
       'domain': 'iat',
-      'vad_eos': 3000, // VAD尾端點檢測時間
+      'vad_eos': 3000, // VAD尾端点检测时间
     };
 
     final common = {'app_id': APIConfig.xfyunAppId};
@@ -313,7 +313,7 @@ class XfyunVoiceService implements AIService {
       'status': 0,
       'format': 'audio/L16;rate=$sampleRate',
       'encoding': 'raw',
-      'audio': '', // 第一幀不發送音頻數據
+      'audio': '', // 第一帧不发送音频数据
     };
 
     final params = {
@@ -322,7 +322,7 @@ class XfyunVoiceService implements AIService {
       'data': data,
     };
 
-    // 計算簽名
+    // 计算签名
     final signature = await _generateXfyunSignature(
       timestamp: timestamp,
       expireTime: expireTime,
@@ -334,14 +334,14 @@ class XfyunVoiceService implements AIService {
         '&fd=linkable_asr_${DateTime.now().millisecondsSinceEpoch}';
   }
 
-  // ==================== TTS 語音合成 ====================
+  // ==================== TTS 语音合成 ====================
 
-  /// 文字轉語音
+  /// 文字转语音
   /// [text] 要合成的文本
-  /// [voice] 發音人（可選）
-  /// [speed] 語速（0-100，默認50）
-  /// [volume] 音量（0-100，默認50）
-  /// [pitch] 音調（0-100，默認50）
+  /// [voice] 发音人（可选）
+  /// [speed] 语速（0-100，默认50）
+  /// [volume] 音量（0-100，默认50）
+  /// [pitch] 音调（0-100，默认50）
   Future<APIResponse<List<int>>> textToSpeech(
     String text, {
     String voice = 'xiaoyan',
@@ -352,15 +352,15 @@ class XfyunVoiceService implements AIService {
     if (!APIConfig.isXfyunConfigured) {
       return APIResponse.failure(APIError(
         type: APIErrorType.authentication,
-        message: '科大訊飛API未配置',
+        message: '科大讯飞API未配置',
       ));
     }
 
     try {
-      // 構建業務參數
+      // 构建业务参数
       final business = {
         'aue': 'lame', // MP3格式
-        'sfl': 1, // 開啓流式返回
+        'sfl': 1, // 开启流式返回
         'auf': 'audio/L16;rate=16000',
         'vcn': voice,
         'speed': speed,
@@ -372,7 +372,7 @@ class XfyunVoiceService implements AIService {
       final timestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
       final paramBase64 = base64Encode(utf8Encode(jsonEncode(business)));
 
-      // 計算checksum
+      // 计算checksum
       final checksumSource =
           '${APIConfig.xfyunApiKey}${timestamp}${paramBase64}${base64Encode(utf8Encode(text))}';
       final checksum = md5.convert(utf8Encode(checksumSource)).toString();
@@ -401,13 +401,13 @@ class XfyunVoiceService implements AIService {
     } catch (e) {
       return APIResponse.failure(APIError(
         type: APIErrorType.unknown,
-        message: '語音合成失敗',
+        message: '语音合成失败',
         originalError: e.toString(),
       ));
     }
   }
 
-  /// 處理TTS響應
+  /// 处理TTS响应
   APIResponse<List<int>> _handleTtsResponse(http.Response response) {
     if (response.statusCode != 200) {
       return APIResponse.failure(APIError.serviceUnavailable(
@@ -418,11 +418,11 @@ class XfyunVoiceService implements AIService {
 
     final contentType = response.headers['content-type'] ?? '';
 
-    // 如果是JSON，說明有錯誤
+    // 如果是JSON，说明有错误
     if (contentType.contains('application/json')) {
       final data = jsonDecode(response.body);
       final code = data['code'];
-      final message = data['message'] ?? '合成失敗';
+      final message = data['message'] ?? '合成失败';
 
       if (code == '10105' || code == '10106') {
         return APIResponse.failure(APIError.authentication(message));
@@ -434,12 +434,12 @@ class XfyunVoiceService implements AIService {
       ));
     }
 
-    // 返回音頻數據
+    // 返回音频数据
     return APIResponse.success(response.bodyBytes);
   }
 
-  /// 流式語音合成（WebSocket）
-  /// 適合長文本實時合成
+  /// 流式语音合成（WebSocket）
+  /// 适合长文本实时合成
   Stream<List<int>> textToSpeechStream(
     String text, {
     String voice = 'xiaoyan',
@@ -448,13 +448,13 @@ class XfyunVoiceService implements AIService {
     int pitch = 50,
   }) async* {
     if (!APIConfig.isXfyunConfigured) {
-      throw Exception('科大訊飛API未配置');
+      throw Exception('科大讯飞API未配置');
     }
 
     final wsUrl = await _buildTtsWsUrl();
     final channel = WebSocketChannel.connect(Uri.parse(wsUrl));
 
-    // 發送合成請求
+    // 发送合成请求
     final request = {
       'common': {'app_id': APIConfig.xfyunAppId},
       'business': {
@@ -466,7 +466,7 @@ class XfyunVoiceService implements AIService {
         'tte': 'UTF8',
       },
       'data': {
-        'status': 2, // 一次性發送
+        'status': 2, // 一次性发送
         'text': base64Encode(utf8Encode(text)),
       },
     };
@@ -479,7 +479,7 @@ class XfyunVoiceService implements AIService {
 
       if (code != 0) {
         channel.sink.close();
-        throw Exception(data['message'] ?? '合成錯誤');
+        throw Exception(data['message'] ?? '合成错误');
       }
 
       final audioData = data['data']?['audio'] as String?;
@@ -496,7 +496,7 @@ class XfyunVoiceService implements AIService {
     }
   }
 
-  /// 構建TTS WebSocket URL
+  /// 构建TTS WebSocket URL
   Future<String> _buildTtsWsUrl() async {
     final timestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     final expireTime = timestamp + 300;
@@ -513,12 +513,12 @@ class XfyunVoiceService implements AIService {
 
   // ==================== 工具方法 ====================
 
-  /// 生成科大訊飛簽名
+  /// 生成科大讯飞签名
   Future<String> _generateXfyunSignature({
     required int timestamp,
     required int expireTime,
   }) async {
-    // 使用API Secret生成HMAC-SHA256簽名
+    // 使用API Secret生成HMAC-SHA256签名
     final key = utf8Encode(APIConfig.xfyunApiSecret);
     final message = utf8Encode('${APIConfig.xfyunAppId}${timestamp}');
 
@@ -528,36 +528,36 @@ class XfyunVoiceService implements AIService {
     return base64Encode(digest.bytes);
   }
 
-  /// 獲取支持的語音列表
+  /// 获取支持的语音列表
   List<Map<String, String>> getSupportedVoices() {
     return [
-      {'name': 'xiaoyan', 'desc': '小燕（女聲，標準）'},
-      {'name': 'xiaoyu', 'desc': '小宇（男聲，標準）'},
-      {'name': 'catherine', 'desc': '凱瑟琳（英文女聲）'},
-      {'name': 'henry', 'desc': '亨利（英文男聲）'},
-      {'name': 'vixy', 'desc': '小琪（女聲，溫柔）'},
-      {'name': 'xiaoqi', 'desc': '小琪（女聲，活潑）'},
-      {'name': 'viyu', 'desc': '小宇（男聲，磁性）'},
+      {'name': 'xiaoyan', 'desc': '小燕（女声，标准）'},
+      {'name': 'xiaoyu', 'desc': '小宇（男声，标准）'},
+      {'name': 'catherine', 'desc': '凯瑟琳（英文女声）'},
+      {'name': 'henry', 'desc': '亨利（英文男声）'},
+      {'name': 'vixy', 'desc': '小琪（女声，温柔）'},
+      {'name': 'xiaoqi', 'desc': '小琪（女声，活泼）'},
+      {'name': 'viyu', 'desc': '小宇（男声，磁性）'},
     ];
   }
 
-  /// 獲取支持的語言列表
+  /// 获取支持的语言列表
   List<Map<String, String>> getSupportedLanguages() {
     return [
-      {'code': 'zh_cn', 'desc': '中文（普通話）'},
-      {'code': 'zh_hk', 'desc': '中文（粵語）'},
-      {'code': 'en_us', 'desc': '英語（美式）'},
+      {'code': 'zh_cn', 'desc': '中文（普通话）'},
+      {'code': 'zh_hk', 'desc': '中文（粤语）'},
+      {'code': 'en_us', 'desc': '英语（美式）'},
     ];
   }
 
-  /// 釋放資源
+  /// 释放资源
   void dispose() {
     _asrChannel?.sink.close();
     _client.close();
   }
 }
 
-/// 語音識別結果
+/// 语音识别结果
 class AsrResult {
   final String text;
   final bool isFinal;
@@ -574,7 +574,7 @@ class AsrResult {
   });
 }
 
-/// 語音合成結果
+/// 语音合成结果
 class TtsResult {
   final List<int> audioData;
   final String format;

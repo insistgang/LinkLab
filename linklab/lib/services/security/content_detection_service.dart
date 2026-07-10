@@ -1,37 +1,37 @@
 import '../../core/utils/logger.dart';
 import '../../models/security/call_recording_model.dart';
 
-/// AI內容檢測服務
-/// 用於檢測通話中的違規內容
+/// AI内容检测服务
+/// 用于检测通话中的违规内容
 class ContentDetectionService {
-  // 敏感詞庫
+  // 敏感词库
   static final List<String> _abuseKeywords = [
-    '笨蛋', '傻瓜', '白癡', '廢物', '滾', '去死', '神經病', '垃圾',
-    '蠢貨', '混蛋', '不要臉', '無恥', '賤', '操', '他媽', '傻逼',
-    '腦殘', '智障', '瞎子', '瘸子', '聾子', '殘廢',
+    '笨蛋', '傻瓜', '白痴', '废物', '滚', '去死', '神经病', '垃圾',
+    '蠢货', '混蛋', '不要脸', '无耻', '贱', '操', '他妈', '傻逼',
+    '脑残', '智障', '瞎子', '瘸子', '聋子', '残废',
   ];
 
   static final List<String> _fraudKeywords = [
-    '轉賬', '匯款', '銀行卡', '密碼', '驗證碼', '身份證', '打錢',
-    '借錢', '投資', '理財', '返利', '中獎', '領獎', '手續費',
-    '保證金', '押金', '解凍', '安全賬戶', '警察', '法院', '檢察院',
+    '转账', '汇款', '银行卡', '密码', '验证码', '身份证', '打钱',
+    '借钱', '投资', '理财', '返利', '中奖', '领奖', '手续费',
+    '保证金', '押金', '解冻', '安全账户', '警察', '法院', '检察院',
   ];
 
   static final List<String> _sensitiveKeywords = [
-    '色情', '賭博', '毒品', '槍支', '暴力', '恐怖', '邪教', '反動',
+    '色情', '赌博', '毒品', '枪支', '暴力', '恐怖', '邪教', '反动',
   ];
 
-  /// 檢測文本內容
+  /// 检测文本内容
   Future<DetectionResult> detectSpeech(String text) async {
     try {
-      // 並行檢測各種類型
+      // 并行检测各种类型
       final results = await Future.wait<DetectionResult>([
         detectAbuse(text),
         detectFraud(text),
         detectSensitive(text),
       ]);
 
-      // 返回置信度最高的違規結果
+      // 返回置信度最高的违规结果
       DetectionResult? highestResult;
       for (final result in results) {
         if (result.isViolation) {
@@ -50,7 +50,7 @@ class ContentDetectionService {
         detectedText: text,
       );
     } catch (e) {
-      AppLogger.error('內容檢測失敗', e);
+      AppLogger.error('内容检测失败', e);
       return DetectionResult(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         type: DetectionType.abuse,
@@ -61,7 +61,7 @@ class ContentDetectionService {
     }
   }
 
-  /// 檢測辱罵內容
+  /// 检测辱骂内容
   Future<DetectionResult> detectAbuse(String text) async {
     final detectedKeywords = <String>[];
     double confidence = 0.0;
@@ -73,10 +73,10 @@ class ContentDetectionService {
       }
     }
 
-    // 根據關鍵詞數量和嚴重程度調整置信度
+    // 根据关键词数量和严重程度调整置信度
     confidence = confidence.clamp(0.0, 1.0);
 
-    // 根據置信度確定違規級別
+    // 根据置信度确定违规级别
     ViolationLevel? level;
     if (confidence >= 0.8) {
       level = ViolationLevel.high;
@@ -97,7 +97,7 @@ class ContentDetectionService {
     );
   }
 
-  /// 檢測詐騙誘導
+  /// 检测诈骗诱导
   Future<DetectionResult> detectFraud(String text) async {
     final detectedKeywords = <String>[];
     double confidence = 0.0;
@@ -109,7 +109,7 @@ class ContentDetectionService {
       }
     }
 
-    // 如果同時出現多個關鍵詞，提高置信度
+    // 如果同时出现多个关键词，提高置信度
     if (detectedKeywords.length >= 3) {
       confidence += 0.3;
     }
@@ -136,7 +136,7 @@ class ContentDetectionService {
     );
   }
 
-  /// 檢測敏感內容
+  /// 检测敏感内容
   Future<DetectionResult> detectSensitive(String text) async {
     final detectedKeywords = <String>[];
     double confidence = 0.0;
@@ -168,8 +168,8 @@ class ContentDetectionService {
     );
   }
 
-  /// 檢測異常行爲
-  /// 根據通話時長、沉默時間等指標判斷
+  /// 检测异常行为
+  /// 根据通话时长、沉默时间等指标判断
   Future<DetectionResult> detectAbnormalBehavior({
     required int callDurationSeconds,
     required int silenceDurationSeconds,
@@ -178,22 +178,22 @@ class ContentDetectionService {
     double confidence = 0.0;
     final issues = <String>[];
 
-    // 長時間沉默
+    // 长时间沉默
     if (silenceDurationSeconds > 60) {
       confidence += 0.3;
-      issues.add('長時間沉默');
+      issues.add('长时间沉默');
     }
 
-    // 重複呼叫
+    // 重复呼叫
     if (repeatCallCount > 3) {
       confidence += 0.4;
-      issues.add('頻繁重複呼叫');
+      issues.add('频繁重复呼叫');
     }
 
-    // 極短通話
+    // 极短通话
     if (callDurationSeconds < 10 && callDurationSeconds > 0) {
       confidence += 0.2;
-      issues.add('極短通話');
+      issues.add('极短通话');
     }
 
     confidence = confidence.clamp(0.0, 1.0);
@@ -208,7 +208,7 @@ class ContentDetectionService {
     );
   }
 
-  /// 批量檢測
+  /// 批量检测
   Future<List<DetectionResult>> batchDetect(List<String> texts) async {
     final results = <DetectionResult>[];
     for (final text in texts) {
@@ -217,23 +217,23 @@ class ContentDetectionService {
     return results;
   }
 
-  /// 獲取檢測建議
+  /// 获取检测建议
   String getDetectionAdvice(DetectionResult result) {
     if (!result.isViolation) {
-      return '內容正常';
+      return '内容正常';
     }
 
     switch (result.type) {
       case DetectionType.abuse:
-        return '檢測到辱罵內容，請文明交流';
+        return '检测到辱骂内容，请文明交流';
       case DetectionType.fraud:
-        return '警告：檢測到可疑的詐騙關鍵詞，請勿透露個人信息或轉賬';
+        return '警告：检测到可疑的诈骗关键词，请勿透露个人信息或转账';
       case DetectionType.sensitive:
-        return '檢測到敏感內容，請遵守社區規範';
+        return '检测到敏感内容，请遵守社区规范';
       case DetectionType.abnormal:
-        return '檢測到異常行爲模式';
+        return '检测到异常行为模式';
       case DetectionType.spam:
-        return '檢測到垃圾信息';
+        return '检测到垃圾信息';
     }
   }
 }

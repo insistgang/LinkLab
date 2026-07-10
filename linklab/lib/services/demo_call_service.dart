@@ -1,5 +1,5 @@
-// 演示版通話服務
-// 模擬通話流程，不建立真實WebRTC連接
+// 演示版通话服务
+// 模拟通话流程，不建立真实WebRTC连接
 
 import 'dart:async';
 
@@ -13,16 +13,16 @@ import 'app_session_service.dart';
 import 'local_storage.dart';
 import 'user_center/favorite_volunteer_service.dart';
 
-/// 演示通話狀態
+/// 演示通话状态
 enum DemoCallState {
   idle,
-  connecting, // 正在連接
-  ringing, // 響鈴中
-  connected, // 通話中
-  ended, // 已結束
+  connecting, // 正在连接
+  ringing, // 响铃中
+  connected, // 通话中
+  ended, // 已结束
 }
 
-/// 演示志願者數據
+/// 演示志愿者数据
 class DemoVolunteer {
   final String id;
   final String name;
@@ -41,15 +41,15 @@ class DemoVolunteer {
   });
 }
 
-/// 預設演示志願者
+/// 预设演示志愿者
 const List<DemoVolunteer> demoVolunteers = [
   DemoVolunteer(
     id: 'demo_001',
-    name: '張小明',
+    name: '张小明',
     avatar: '',
     rating: 4.9,
     helpCount: 128,
-    skills: ['醫療輔助', '出行導航'],
+    skills: ['医疗辅助', '出行导航'],
   ),
   DemoVolunteer(
     id: 'demo_002',
@@ -57,19 +57,19 @@ const List<DemoVolunteer> demoVolunteers = [
     avatar: '',
     rating: 4.8,
     helpCount: 256,
-    skills: ['生活常識', '心理支持'],
+    skills: ['生活常识', '心理支持'],
   ),
   DemoVolunteer(
     id: 'demo_003',
-    name: '王醫生',
+    name: '王医生',
     avatar: '',
     rating: 5.0,
     helpCount: 89,
-    skills: ['醫療輔助', '緊急救助'],
+    skills: ['医疗辅助', '紧急救助'],
   ),
 ];
 
-/// 演示版通話服務
+/// 演示版通话服务
 class DemoCallService extends ChangeNotifier {
   static final DemoCallService _instance = DemoCallService._internal();
   factory DemoCallService() => _instance;
@@ -112,11 +112,11 @@ class DemoCallService extends ChangeNotifier {
 
   void _ensureDemoFallbackEnabled(String action) {
     if (!AppConfig.shouldUseDemoFallback(feature: action)) {
-      throw StateError('$action 僅在 Demo fallback 開啓時可用');
+      throw StateError('$action 仅在 Demo fallback 开启时可用');
     }
   }
 
-  /// 開始模擬通話
+  /// 开始模拟通话
   Future<void> startCall() async {
     _ensureDemoFallbackEnabled('DemoCallService.startCall');
     await _ensureLocalStorage();
@@ -125,11 +125,11 @@ class DemoCallService extends ChangeNotifier {
     _state = DemoCallState.connecting;
     notifyListeners();
 
-    // 隨機選擇一個志願者
+    // 随机选择一个志愿者
     _currentVolunteer =
         demoVolunteers[DateTime.now().millisecond % demoVolunteers.length];
 
-    // 模擬連接延遲
+    // 模拟连接延迟
     if (!await _waitForSimulationDelay(const Duration(seconds: 1), sequence)) {
       return;
     }
@@ -137,7 +137,7 @@ class DemoCallService extends ChangeNotifier {
     _state = DemoCallState.ringing;
     notifyListeners();
 
-    // 模擬響鈴
+    // 模拟响铃
     if (!await _waitForSimulationDelay(const Duration(seconds: 2), sequence)) {
       return;
     }
@@ -148,7 +148,7 @@ class DemoCallService extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 開始計時
+  /// 开始计时
   void _startDurationTimer() {
     _durationTimer?.cancel();
     _callDuration = Duration.zero;
@@ -158,7 +158,7 @@ class DemoCallService extends ChangeNotifier {
     });
   }
 
-  /// 掛斷電話
+  /// 挂断电话
   Future<void> hangUp() async {
     await _ensureLocalStorage();
     _callSequence++;
@@ -174,7 +174,7 @@ class DemoCallService extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 切換靜音狀態
+  /// 切换静音状态
   void toggleMute() {
     if (_state == DemoCallState.connected) {
       _isMuted = !_isMuted;
@@ -182,7 +182,7 @@ class DemoCallService extends ChangeNotifier {
     }
   }
 
-  /// 切換揚聲器狀態
+  /// 切换扬声器状态
   void toggleSpeaker() {
     if (_state == DemoCallState.connected) {
       _isSpeakerOn = !_isSpeakerOn;
@@ -190,7 +190,7 @@ class DemoCallService extends ChangeNotifier {
     }
   }
 
-  /// 保存求助者評價，並同步到幫助檔案和常用志願者
+  /// 保存求助者评价，并同步到帮助档案和常用志愿者
   Future<void> submitSeekerRating({
     required int rating,
     List<String> tags = const [],
@@ -206,7 +206,7 @@ class DemoCallService extends ChangeNotifier {
     final mergedAiResponse = <String, dynamic>{
       'summary': feedback?.trim().isNotEmpty == true
           ? feedback!.trim()
-          : '已完成與 ${volunteer.name} 的實時語音協助。',
+          : '已完成与 ${volunteer.name} 的实时语音协助。',
       'volunteerName': volunteer.name,
       'volunteerSkills': volunteer.skills,
       if (tags.isNotEmpty) 'ratingTags': tags,
@@ -238,7 +238,7 @@ class DemoCallService extends ChangeNotifier {
     );
   }
 
-  /// 重置狀態
+  /// 重置状态
   void reset() {
     _callSequence++;
     _cancelSimulationDelay();
@@ -296,7 +296,7 @@ class DemoCallService extends ChangeNotifier {
     _currentHelpRequestId = await DemoHelpRequestTracker.currentRequestId();
     _currentHelpRequestId ??=
         await DemoHelpRequestTracker.ensureMatchingRequest(
-          intent: '與 ${volunteer.name} 進行實時語音協助',
+          intent: '与 ${volunteer.name} 进行实时语音协助',
           type: 'realtime_voice',
         );
 
@@ -310,7 +310,7 @@ class DemoCallService extends ChangeNotifier {
       status: HelpRequestStatus.connected.wireName,
       completedAt: null,
       aiResponse: {
-        'summary': '已爲您接通真人志願者，正在進行語音協助。',
+        'summary': '已为您接通真人志愿者，正在进行语音协助。',
         'volunteerName': volunteer.name,
         'volunteerSkills': volunteer.skills,
       },
@@ -344,7 +344,7 @@ class DemoCallService extends ChangeNotifier {
       'id': _currentHelpRequestId,
       'seekerId': _currentSeekerId,
       'type': 'realtime_voice',
-      'intent': existing['intent'] ?? '與 ${volunteer.name} 進行實時語音協助',
+      'intent': existing['intent'] ?? '与 ${volunteer.name} 进行实时语音协助',
       'urgency': existing['urgency'] ?? 'normal',
       'status': status,
       'volunteerId': volunteer.id,
@@ -370,7 +370,7 @@ class DemoCallService extends ChangeNotifier {
   }
 }
 
-/// 演示版匹配服務
+/// 演示版匹配服务
 class DemoMatchingService extends ChangeNotifier {
   static final DemoMatchingService _instance = DemoMatchingService._internal();
   factory DemoMatchingService() => _instance;
@@ -387,18 +387,18 @@ class DemoMatchingService extends ChangeNotifier {
   int get elapsedSeconds => _elapsedSeconds;
   int get matchedCount => _matchedCount;
   String get statusText {
-    if (!_isSearching) return '準備匹配';
-    if (_elapsedSeconds < 3) return '正在搜索志願者...';
-    return '已找到 $_matchedCount 位志願者';
+    if (!_isSearching) return '准备匹配';
+    if (_elapsedSeconds < 3) return '正在搜索志愿者...';
+    return '已找到 $_matchedCount 位志愿者';
   }
 
-  /// 開始匹配（演示版）
+  /// 开始匹配（演示版）
   Future<void> startMatching() async {
     if (!AppConfig.shouldUseDemoFallback(
       feature: 'DemoMatchingService.startMatching',
     )) {
       throw StateError(
-        'DemoMatchingService.startMatching 僅在 Demo fallback 開啓時可用',
+        'DemoMatchingService.startMatching 仅在 Demo fallback 开启时可用',
       );
     }
 
@@ -409,11 +409,11 @@ class DemoMatchingService extends ChangeNotifier {
     _matchingCompleter = Completer<void>();
     notifyListeners();
 
-    // 模擬匹配過程
+    // 模拟匹配过程
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       _elapsedSeconds++;
 
-      // 第2秒顯示找到志願者
+      // 第2秒显示找到志愿者
       if (_elapsedSeconds == 2) {
         _matchedCount = 3;
       }
@@ -452,7 +452,7 @@ class DemoMatchingService extends ChangeNotifier {
   }
 }
 
-/// 演示版SOS服務
+/// 演示版SOS服务
 class DemoSOSService extends ChangeNotifier {
   static final DemoSOSService _instance = DemoSOSService._internal();
   factory DemoSOSService() => _instance;
@@ -470,17 +470,17 @@ class DemoSOSService extends ChangeNotifier {
   int get elapsedSeconds => _elapsedSeconds;
   int get responderCount => _responderCount;
   String get statusText {
-    if (!_isActive) return '長按3秒發送緊急求助';
-    if (_elapsedSeconds < 3) return '正在發送SOS信號...';
-    return '已有 $_responderCount 位志願者響應';
+    if (!_isActive) return '长按3秒发送紧急求助';
+    if (_elapsedSeconds < 3) return '正在发送SOS信号...';
+    return '已有 $_responderCount 位志愿者响应';
   }
 
-  /// 觸發SOS（演示版）
+  /// 触发SOS（演示版）
   Future<void> triggerSOS() async {
     if (!AppConfig.shouldUseDemoFallback(
       feature: 'DemoSOSService.triggerSOS',
     )) {
-      throw StateError('DemoSOSService.triggerSOS 僅在 Demo fallback 開啓時可用');
+      throw StateError('DemoSOSService.triggerSOS 仅在 Demo fallback 开启时可用');
     }
 
     _timer?.cancel();
@@ -491,7 +491,7 @@ class DemoSOSService extends ChangeNotifier {
     _responderCount = 0;
     notifyListeners();
 
-    // 模擬SOS過程
+    // 模拟SOS过程
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (sequence != _sosSequence) {
         timer.cancel();
@@ -500,7 +500,7 @@ class DemoSOSService extends ChangeNotifier {
 
       _elapsedSeconds++;
 
-      // 第3秒顯示響應
+      // 第3秒显示响应
       if (_elapsedSeconds == 3) {
         _responderCount = 5;
       }
@@ -531,7 +531,7 @@ class DemoSOSService extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 解決SOS
+  /// 解决SOS
   void resolveSOS() {
     _sosSequence++;
     _timer?.cancel();

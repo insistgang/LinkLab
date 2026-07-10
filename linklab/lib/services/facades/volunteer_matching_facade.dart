@@ -7,9 +7,9 @@ import '../matching_service.dart';
 
 /// VolunteerMatchingFacade
 ///
-/// AGENTS.md §12.2 統一入口：志願者匹配能力的唯一 facade。
-/// 包裝 MatchingService / DemoMatchingService，對外屏蔽 demo/real 實現差異。
-/// UI 層只允許通過本 facade 調用匹配能力。
+/// AGENTS.md §12.2 统一入口：志愿者匹配能力的唯一 facade。
+/// 包装 MatchingService / DemoMatchingService，对外屏蔽 demo/real 实现差异。
+/// UI 层只允许通过本 facade 调用匹配能力。
 class VolunteerMatchingFacade {
   final DemoMatchingService _demoMatching;
   final MatchingService _legacyMatching;
@@ -22,11 +22,11 @@ class VolunteerMatchingFacade {
 
   // ────────────────────────── 匹配流程 ──────────────────────────
 
-  /// 發起志願者匹配
+  /// 发起志愿者匹配
   ///
-  /// [intent] 求主意圖標籤
-  /// [urgency] 緊急程度：normal | elevated | emergency
-  /// [tags] 推薦志願者技能標籤
+  /// [intent] 求主意图标签
+  /// [urgency] 紧急程度：normal | elevated | emergency
+  /// [tags] 推荐志愿者技能标签
   Future<MatchingResultModel> findVolunteers({
     required String intent,
     required String urgency,
@@ -41,7 +41,7 @@ class VolunteerMatchingFacade {
     }
 
     try {
-      // 使用 legacy MatchingService 發起匹配
+      // 使用 legacy MatchingService 发起匹配
       final result = await _legacyMatching.startMatching(
         seekerId: 'current_user',
         urgency: urgency,
@@ -51,7 +51,7 @@ class VolunteerMatchingFacade {
       );
 
       if (result == null) {
-        return MatchingResultModel.error('匹配服務返回空結果');
+        return MatchingResultModel.error('匹配服务返回空结果');
       }
 
       final candidates = result.volunteers
@@ -74,7 +74,7 @@ class VolunteerMatchingFacade {
         timeoutAt: result.timeoutAt,
       );
     } catch (e) {
-      return MatchingResultModel.error('findVolunteers 失敗: $e');
+      return MatchingResultModel.error('findVolunteers 失败: $e');
     }
   }
 
@@ -93,7 +93,7 @@ class VolunteerMatchingFacade {
     }
   }
 
-  /// 拒絕匹配
+  /// 拒绝匹配
   Future<void> rejectVolunteer(String volunteerId) async {
     if (AppConfig.demoMode || !FeatureFlags.enableRealMatching) {
       return;
@@ -124,7 +124,7 @@ class VolunteerMatchingFacade {
     }
   }
 
-  /// 獲取當前匹配狀態
+  /// 获取当前匹配状态
   MatchingResultModel getMatchingStatus() {
     final isSearching = _demoMatching.isSearching;
     final matchedCount = _demoMatching.matchedCount;
@@ -158,14 +158,14 @@ class VolunteerMatchingFacade {
     ];
   }
 
-  // ────────────────────────── 內部輔助 ──────────────────────────
+  // ────────────────────────── 内部辅助 ──────────────────────────
 
   String _getVolunteerName(String volunteerId) {
     try {
       final volunteer = demoVolunteers.firstWhere((v) => v.id == volunteerId);
       return volunteer.name;
     } catch (_) {
-      return '志願者';
+      return '志愿者';
     }
   }
 

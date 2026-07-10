@@ -28,7 +28,7 @@ class DemoVolunteer {
   factory DemoVolunteer.fromJson(Map<String, dynamic> json) {
     return DemoVolunteer(
       id: _stringValue(json, 'id'),
-      nickname: _stringValue(json, 'nickname', fallback: '演示志願者'),
+      nickname: _stringValue(json, 'nickname', fallback: '演示志愿者'),
       avatarLabel: _stringValue(json, 'avatarLabel', fallback: '志'),
       distanceMeters: _intValue(json, 'distanceMeters', fallback: 9999),
       skills: _stringList(json['skills']),

@@ -40,31 +40,31 @@ void main() {
     }
   });
 
-  testWidgets('匹配頁能加載 Top 5 候選人並過濾離線志願者', (tester) async {
+  testWidgets('匹配页能加载 Top 5 候选人并过滤离线志愿者', (tester) async {
     await _prepareSignedInMatchingEnvironment();
     final container = await _pumpMatchingScreen(tester);
 
-    expect(find.text('Top 5 志願者候選'), findsOneWidget);
-    expect(find.bySemanticsLabel(RegExp('候選志願者第 [1-5] 名')), findsNWidgets(5));
+    expect(find.text('Top 5 志愿者候选'), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp('候选志愿者第 [1-5] 名')), findsNWidgets(5));
     expect(container.read(demoMatchingFlowProvider).candidates.length, 5);
     expect(find.textContaining('林夏'), findsWidgets);
-    expect(find.textContaining('醫院導診'), findsWidgets);
+    expect(find.textContaining('医院导诊'), findsWidgets);
     expect(find.textContaining('米'), findsWidgets);
-    expect(find.textContaining('信譽'), findsWidgets);
-    expect(find.textContaining('幫助'), findsWidgets);
-    expect(find.textContaining('預計'), findsWidgets);
+    expect(find.textContaining('信誉'), findsWidgets);
+    expect(find.textContaining('帮助'), findsWidgets);
+    expect(find.textContaining('预计'), findsWidgets);
     expect(find.textContaining('匹配'), findsWidgets);
-    expect(find.textContaining('孫悅'), findsNothing);
-    expect(find.textContaining('鄭濤'), findsNothing);
+    expect(find.textContaining('孙悦'), findsNothing);
+    expect(find.textContaining('郑涛'), findsNothing);
   });
 
-  testWidgets('點擊模擬接單後 help_request 進入 connected，且重複接單不會切換 active volunteer', (
+  testWidgets('点击模拟接单后 help_request 进入 connected，且重复接单不会切换 active volunteer', (
     tester,
   ) async {
     await _prepareSignedInMatchingEnvironment();
     final container = await _pumpMatchingScreen(tester);
 
-    await _tapVisible(tester, '模擬接單');
+    await _tapVisible(tester, '模拟接单');
     await tester.pump(const Duration(milliseconds: 250));
 
     final matchingState = container.read(demoMatchingFlowProvider);
@@ -72,8 +72,8 @@ void main() {
     expect(matchingState.phase, DemoMatchingUiPhase.accepted);
     expect(matchingState.activeVolunteerId, isNotNull);
     expect(helpState.status, HelpRequestStatus.connected);
-    expect(find.text('志願者已接單'), findsWidgets);
-    expect(find.text('進入通話'), findsOneWidget);
+    expect(find.text('志愿者已接单'), findsWidgets);
+    expect(find.text('进入通话'), findsOneWidget);
 
     final activeVolunteerId = matchingState.activeVolunteerId;
     await container
@@ -85,7 +85,7 @@ void main() {
     );
   });
 
-  testWidgets('點擊取消求助後 help_request 進入 cancelled', (tester) async {
+  testWidgets('点击取消求助后 help_request 进入 cancelled', (tester) async {
     await _prepareSignedInMatchingEnvironment();
     final container = await _pumpMatchingScreen(tester);
 
@@ -100,15 +100,15 @@ void main() {
       container.read(demoHelpRequestFlowProvider).status,
       HelpRequestStatus.cancelled,
     );
-    expect(find.text('用戶已取消'), findsWidgets);
+    expect(find.text('用户已取消'), findsWidgets);
     expect(find.text('取消求助'), findsOneWidget);
   });
 
-  testWidgets('點擊模擬無人接單後 help_request 進入 expired', (tester) async {
+  testWidgets('点击模拟无人接单后 help_request 进入 expired', (tester) async {
     await _prepareSignedInMatchingEnvironment();
     final container = await _pumpMatchingScreen(tester);
 
-    await _tapVisible(tester, '模擬無人接單');
+    await _tapVisible(tester, '模拟无人接单');
     await tester.pump(const Duration(milliseconds: 250));
 
     expect(
@@ -119,10 +119,10 @@ void main() {
       container.read(demoHelpRequestFlowProvider).status,
       HelpRequestStatus.expired,
     );
-    expect(find.text('無人接單，稍後再試'), findsWidgets);
+    expect(find.text('无人接单，稍后再试'), findsWidgets);
   });
 
-  testWidgets('點擊拒接或超時後嘗試下一位候選人', (tester) async {
+  testWidgets('点击拒接或超时后尝试下一位候选人', (tester) async {
     await _prepareSignedInMatchingEnvironment();
     final container = await _pumpMatchingScreen(tester);
     final firstVolunteerId = container
@@ -131,17 +131,17 @@ void main() {
         ?.volunteer
         .id;
 
-    await _tapVisible(tester, '模擬拒接 / 超時');
+    await _tapVisible(tester, '模拟拒接 / 超时');
     await tester.pump(const Duration(milliseconds: 250));
 
     final state = container.read(demoMatchingFlowProvider);
     expect(state.currentCandidateIndex, 1);
     expect(state.currentCandidate?.volunteer.id, isNot(firstVolunteerId));
     expect(state.statusMessage, contains('第 2 位'));
-    expect(find.text('上一位暫時無法接聽，正在嘗試下一位'), findsOneWidget);
+    expect(find.text('上一位暂时无法接听，正在尝试下一位'), findsOneWidget);
   });
 
-  testWidgets('Top 5 數據缺失時顯示降級文案', (tester) async {
+  testWidgets('Top 5 数据缺失时显示降级文案', (tester) async {
     await _prepareSignedInMatchingEnvironment();
     await _pumpMatchingScreen(
       tester,
@@ -152,38 +152,38 @@ void main() {
       ],
     );
 
-    expect(find.textContaining('當前沒有可用志願者'), findsWidgets);
-    expect(find.textContaining('回到 AI 助手繼續描述問題'), findsWidgets);
+    expect(find.textContaining('当前没有可用志愿者'), findsWidgets);
+    expect(find.textContaining('回到 AI 助手继续描述问题'), findsWidgets);
   });
 
-  testWidgets('匹配頁關鍵按鈕和候選卡片具備 Semantics', (tester) async {
+  testWidgets('匹配页关键按钮和候选卡片具备 Semantics', (tester) async {
     await _prepareSignedInMatchingEnvironment();
     final semantics = tester.ensureSemantics();
     try {
       await _pumpMatchingScreen(tester);
 
-      expect(find.bySemanticsLabel(RegExp('候選志願者第 1 名')), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('候选志愿者第 1 名')), findsOneWidget);
       await tester.ensureVisible(find.text('取消匹配'));
       await tester.pump(const Duration(milliseconds: 250));
 
       expect(find.bySemanticsLabel(RegExp('取消求助')), findsOneWidget);
-      expect(find.bySemanticsLabel(RegExp('模擬接單')), findsOneWidget);
-      expect(find.bySemanticsLabel(RegExp('模擬拒接或超時')), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('模拟接单')), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('模拟拒接或超时')), findsOneWidget);
       expect(find.bySemanticsLabel(RegExp('重新匹配')), findsOneWidget);
     } finally {
       semantics.dispose();
     }
   });
 
-  testWidgets('200% 字體縮放下匹配頁 smoke test 不出現主要 overflow', (tester) async {
+  testWidgets('200% 字体缩放下匹配页 smoke test 不出现主要 overflow', (tester) async {
     await _prepareSignedInMatchingEnvironment();
     await _pumpMatchingScreen(tester, textScale: 2.0);
 
-    expect(find.text('Top 5 志願者候選'), findsOneWidget);
+    expect(find.text('Top 5 志愿者候选'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('默認不接真實定位、推送、Supabase 或 WebRTC', (tester) async {
+  testWidgets('默认不接真实定位、推送、Supabase 或 WebRTC', (tester) async {
     await _prepareSignedInMatchingEnvironment();
     await _pumpMatchingScreen(tester);
 
@@ -192,8 +192,8 @@ void main() {
     expect(FeatureFlags.enablePushNotification, isFalse);
     expect(FeatureFlags.enableDatabaseSync, isFalse);
     expect(FeatureFlags.enableWebRTC, isFalse);
-    expect(find.textContaining('不依賴真實定位'), findsWidgets);
-    expect(find.textContaining('無真實推送'), findsOneWidget);
+    expect(find.textContaining('不依赖真实定位'), findsWidgets);
+    expect(find.textContaining('无真实推送'), findsOneWidget);
   });
 }
 
@@ -267,6 +267,6 @@ class _EmptyMatchingEngineService extends DemoMatchingEngineService {
     DemoMatchRequest request, {
     List<DemoVolunteer>? volunteerPool,
   }) async {
-    return DemoMatchResponse.empty('測試：demo_volunteers.json 暫時不可用');
+    return DemoMatchResponse.empty('测试：demo_volunteers.json 暂时不可用');
   }
 }

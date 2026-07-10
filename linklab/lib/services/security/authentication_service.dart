@@ -3,7 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/utils/logger.dart';
 import '../../models/security/auth_level_model.dart';
 
-/// 認證服務 - 多級認證體系
+/// 认证服务 - 多级认证体系
 class AuthenticationService {
   SupabaseClient? _supabaseClient;
   SupabaseClient get _supabase {
@@ -14,7 +14,7 @@ class AuthenticationService {
     return _supabaseClient!;
   }
 
-  /// 獲取用戶認證狀態
+  /// 获取用户认证状态
   Future<UserAuthStatus?> getUserAuthStatus(String userId) async {
     try {
       final response = await _supabase
@@ -25,12 +25,12 @@ class AuthenticationService {
 
       return UserAuthStatus.fromJson(Map<String, dynamic>.from(response as Map));
     } catch (e) {
-      AppLogger.error('獲取用戶認證狀態失敗', e);
+      AppLogger.error('获取用户认证状态失败', e);
       return null;
     }
   }
 
-  /// 驗證手機號
+  /// 验证手机号
   Future<void> verifyPhone(String phone, String code) async {
     try {
       await _supabase.auth.verifyOTP(
@@ -38,21 +38,21 @@ class AuthenticationService {
         token: code,
         type: OtpType.sms,
       );
-      AppLogger.info('手機號驗證成功: $phone');
+      AppLogger.info('手机号验证成功: $phone');
     } catch (e) {
-      AppLogger.error('手機號驗證失敗', e);
+      AppLogger.error('手机号验证失败', e);
       rethrow;
     }
   }
 
-  /// 提交實名認證
+  /// 提交实名认证
   Future<void> submitRealNameVerification({
     required String userId,
     required String name,
     required String idCard,
   }) async {
     try {
-      // 創建認證申請
+      // 创建认证申请
       await _supabase.from('certification_applications').insert({
         'user_id': userId,
         'auth_level': 'realName',
@@ -62,7 +62,7 @@ class AuthenticationService {
         'submitted_at': DateTime.now().toIso8601String(),
       });
 
-      // 更新用戶認證狀態
+      // 更新用户认证状态
       await _supabase.from('user_auth_status').upsert({
         'user_id': userId,
         'real_name': name,
@@ -70,20 +70,20 @@ class AuthenticationService {
         'updated_at': DateTime.now().toIso8601String(),
       });
 
-      AppLogger.info('實名認證申請已提交: $userId');
+      AppLogger.info('实名认证申请已提交: $userId');
     } catch (e) {
-      AppLogger.error('提交實名認證失敗', e);
+      AppLogger.error('提交实名认证失败', e);
       rethrow;
     }
   }
 
-  /// 上傳殘障證明
+  /// 上传残障证明
   Future<void> uploadDisabledCertificate({
     required String userId,
     required File certificate,
   }) async {
     try {
-      // 上傳圖片到存儲
+      // 上传图片到存储
       final fileName = 'disabled_cert_$userId${DateTime.now().millisecondsSinceEpoch}.jpg';
       final filePath = 'certificates/disabled/$fileName';
 
@@ -95,7 +95,7 @@ class AuthenticationService {
           .from('certificates')
           .getPublicUrl(filePath);
 
-      // 創建認證申請
+      // 创建认证申请
       await _supabase.from('certification_applications').insert({
         'user_id': userId,
         'auth_level': 'disabledCert',
@@ -104,21 +104,21 @@ class AuthenticationService {
         'submitted_at': DateTime.now().toIso8601String(),
       });
 
-      // 更新用戶認證狀態
+      // 更新用户认证状态
       await _supabase.from('user_auth_status').upsert({
         'user_id': userId,
         'disabled_cert_image_url': imageUrl,
         'updated_at': DateTime.now().toIso8601String(),
       });
 
-      AppLogger.info('殘障證明上傳成功: $userId');
+      AppLogger.info('残障证明上传成功: $userId');
     } catch (e) {
-      AppLogger.error('上傳殘障證明失敗', e);
+      AppLogger.error('上传残障证明失败', e);
       rethrow;
     }
   }
 
-  /// 提交技能認證
+  /// 提交技能认证
   Future<void> submitSkillCertification({
     required String userId,
     required String skill,
@@ -126,7 +126,7 @@ class AuthenticationService {
     String? skillCode,
   }) async {
     try {
-      // 上傳證書圖片
+      // 上传证书图片
       final fileName = 'skill_cert_${userId}_${skill}_${DateTime.now().millisecondsSinceEpoch}.jpg';
       final filePath = 'certificates/skills/$fileName';
 
@@ -138,7 +138,7 @@ class AuthenticationService {
           .from('certificates')
           .getPublicUrl(filePath);
 
-      // 創建技能認證記錄
+      // 创建技能认证记录
       await _supabase.from('skill_certifications').insert({
         'user_id': userId,
         'skill_name': skill,
@@ -148,7 +148,7 @@ class AuthenticationService {
         'submitted_at': DateTime.now().toIso8601String(),
       });
 
-      // 創建認證申請
+      // 创建认证申请
       await _supabase.from('certification_applications').insert({
         'user_id': userId,
         'auth_level': 'skillCert',
@@ -158,14 +158,14 @@ class AuthenticationService {
         'submitted_at': DateTime.now().toIso8601String(),
       });
 
-      AppLogger.info('技能認證申請已提交: $userId - $skill');
+      AppLogger.info('技能认证申请已提交: $userId - $skill');
     } catch (e) {
-      AppLogger.error('提交技能認證失敗', e);
+      AppLogger.error('提交技能认证失败', e);
       rethrow;
     }
   }
 
-  /// 獲取用戶的認證申請列表
+  /// 获取用户的认证申请列表
   Future<List<CertificationApplication>> getUserApplications(String userId) async {
     try {
       final response = await _supabase
@@ -178,24 +178,24 @@ class AuthenticationService {
           .map((json) => CertificationApplication.fromJson(Map<String, dynamic>.from(json as Map)))
           .toList();
     } catch (e) {
-      AppLogger.error('獲取認證申請列表失敗', e);
+      AppLogger.error('获取认证申请列表失败', e);
       return [];
     }
   }
 
-  /// 檢查用戶是否完成基礎認證
+  /// 检查用户是否完成基础认证
   Future<bool> isBasicVerified(String userId) async {
     final status = await getUserAuthStatus(userId);
     return status?.isBasicVerified ?? false;
   }
 
-  /// 檢查用戶是否有優先認證
+  /// 检查用户是否有优先认证
   Future<bool> hasPriorityCertification(String userId) async {
     final status = await getUserAuthStatus(userId);
     return status?.hasPriority ?? false;
   }
 
-  /// 獲取用戶已認證的技能
+  /// 获取用户已认证的技能
   Future<List<SkillCertification>> getVerifiedSkills(String userId) async {
     try {
       final response = await _supabase
@@ -208,18 +208,18 @@ class AuthenticationService {
           .map((json) => SkillCertification.fromJson(Map<String, dynamic>.from(json as Map)))
           .toList();
     } catch (e) {
-      AppLogger.error('獲取認證技能失敗', e);
+      AppLogger.error('获取认证技能失败', e);
       return [];
     }
   }
 
-  /// 身份證脫敏
+  /// 身份证脱敏
   String _maskIdCard(String idCard) {
     if (idCard.length != 18) return idCard;
     return '${idCard.substring(0, 6)}********${idCard.substring(14)}';
   }
 
-  /// 監聽認證狀態變化
+  /// 监听认证状态变化
   Stream<UserAuthStatus?> watchUserAuthStatus(String userId) {
     return _supabase
         .from('user_auth_status')

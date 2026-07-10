@@ -16,7 +16,7 @@
       "distance": 1.2,
       "latitude": 39.9042,
       "longitude": 116.4074,
-      "introduction": "資深導盲志願者，有5年志願服務經驗"
+      "introduction": "资深导盲志愿者，有5年志愿服务经验"
     },
     {
       "userId": "volunteer_002",
@@ -34,11 +34,11 @@
       "distance": 2.5,
       "latitude": 39.9142,
       "longitude": 116.4174,
-      "introduction": "退休護士，擅長醫療輔助和老年人陪護"
+      "introduction": "退休护士，擅长医疗辅助和老年人陪护"
     },
     {
       "userId": "volunteer_003",
-      "name": "張偉",
+      "name": "张伟",
       "avatarUrl": "",
       "phone": "137****9012",
       "role": ["volunteer"],
@@ -52,11 +52,11 @@
       "distance": 3.8,
       "latitude": 39.8942,
       "longitude": 116.3974,
-      "introduction": "IT工程師，擅長技術輔助和手語翻譯"
+      "introduction": "IT工程师，擅长技术辅助和手语翻译"
     },
     {
       "userId": "volunteer_004",
-      "name": "劉洋",
+      "name": "刘洋",
       "avatarUrl": "",
       "phone": "136****3456",
       "role": ["volunteer"],
@@ -70,11 +70,11 @@
       "distance": 5.2,
       "latitude": 39.9242,
       "longitude": 116.4274,
-      "introduction": "幼兒園老師，熱愛兒童輔助服務"
+      "introduction": "幼儿园老师，热爱儿童辅助服务"
     },
     {
       "userId": "volunteer_005",
-      "name": "陳靜",
+      "name": "陈静",
       "avatarUrl": "",
       "phone": "135****7890",
       "role": ["volunteer"],
@@ -88,7 +88,7 @@
       "distance": 4.1,
       "latitude": 39.8842,
       "longitude": 116.4374,
-      "introduction": "五星級志願者，全能型服務專家"
+      "introduction": "五星级志愿者，全能型服务专家"
     }
   ],
   "defaultMatchedVolunteer": {
@@ -107,6 +107,6 @@
     "distance": 1.2,
     "latitude": 39.9042,
     "longitude": 116.4074,
-    "introduction": "資深導盲志願者，有5年志願服務經驗"
+    "introduction": "资深导盲志愿者，有5年志愿服务经验"
   }
 }

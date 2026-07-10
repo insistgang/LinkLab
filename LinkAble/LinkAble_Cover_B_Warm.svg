@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="794" height="1123" viewBox="0 0 794 1123" role="img" aria-label="共感 LinkAble — 封面方案 B：溫暖公益風">
-<title>共感 LinkAble — 封面方案 B：溫暖公益風</title>
+<svg xmlns="http://www.w3.org/2000/svg" width="794" height="1123" viewBox="0 0 794 1123" role="img" aria-label="共感 LinkAble — 封面方案 B：温暖公益风">
+<title>共感 LinkAble — 封面方案 B：温暖公益风</title>
 <defs>
 <style><![CDATA[
   .tc { font-family: "Noto Sans CJK TC", "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", sans-serif; }
@@ -17,10 +17,10 @@
 <circle cx="694" cy="100" r="280" fill="#f59f00" opacity="0.06"/>
 <circle cx="0" cy="1123" r="300" fill="#4c6ef5" opacity="0.05"/>
 <rect x="0" y="0" width="794" height="69" fill="#3b5bdb"/>
-<text x="54" y="35" font-size="13.5" fill="white" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="600" letter-spacing="1" opacity="0.95">2026 年兩岸大學生創客大賽</text>
-<text x="54" y="54" font-size="11" fill="white" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" letter-spacing="1" opacity="0.7">逢甲賽區 · 智慧創新應用賽道</text>
+<text x="54" y="35" font-size="13.5" fill="white" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="600" letter-spacing="1" opacity="0.95">2026 年两岸大学生创客大赛</text>
+<text x="54" y="54" font-size="11" fill="white" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" letter-spacing="1" opacity="0.7">逢甲赛区 · 智慧创新应用赛道</text>
 <rect x="585" y="23" width="155" height="24" rx="20" fill="#f59f00"/>
-<text x="662.5" y="39" font-size="10" fill="#1a1a1a" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="700" text-anchor="middle" letter-spacing="0.8">智動共感 · 跨域未來</text>
+<text x="662.5" y="39" font-size="10" fill="#1a1a1a" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="700" text-anchor="middle" letter-spacing="0.8">智动共感 · 跨域未来</text>
 <circle cx="397" cy="440" r="130" fill="url(#b-halo)"/>
 <g transform="translate(237,285)">
 <defs>
@@ -38,32 +38,32 @@
 <g>
 <circle cx="160.000" cy="47.000" r="20" fill="#fff8e1" stroke="#f59f00" stroke-width="1.5" opacity="0.9"/>
 <g transform="translate(152.000,42.200)"><ellipse cx="8.0" cy="4.8" rx="8.0" ry="4.8" fill="none" stroke="#2c3e7a" stroke-width="1.5"/><circle cx="8.0" cy="4.8" r="3.04" fill="#2c3e7a"/></g>
-<text x="160.000" y="19.000" font-size="8.5" fill="#555f7e" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="500" text-anchor="middle" dominant-baseline="middle">視障輔助</text>
+<text x="160.000" y="19.000" font-size="8.5" fill="#555f7e" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="500" text-anchor="middle" dominant-baseline="middle">视障辅助</text>
 </g>
 <g>
 <circle cx="264.320" cy="127.048" r="20" fill="#fff8e1" stroke="#f59f00" stroke-width="1.5" opacity="0.9"/>
 <g transform="translate(258.720,119.048)"><path d="M5.6,14.4 Q-0.8,4.0 5.6,1.6 Q16.8,-2.4 16.0,8.0 Q15.2,11.2 9.6,11.2" fill="none" stroke="#2c3e7a" stroke-width="1.5" stroke-linecap="round"/></g>
-<text x="291.366" y="119.801" font-size="8.5" fill="#555f7e" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="500" text-anchor="middle" dominant-baseline="middle">聽障支援</text>
+<text x="291.366" y="119.801" font-size="8.5" fill="#555f7e" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="500" text-anchor="middle" dominant-baseline="middle">听障支援</text>
 </g>
 <g>
 <circle cx="214.000" cy="248.531" r="20" fill="#fff8e1" stroke="#f59f00" stroke-width="1.5" opacity="0.9"/>
 <g transform="translate(207.600,240.531)"><rect x="1.6" y="4.8" width="9.6" height="9.6" rx="1.6" fill="none" stroke="#2c3e7a" stroke-width="1.5"/><line x1="4.8" y1="4.8" x2="4.8" y2="0.8" stroke="#2c3e7a" stroke-width="1.5" stroke-linecap="round"/><line x1="7.2" y1="4.8" x2="7.2" y2="-0.8" stroke="#2c3e7a" stroke-width="1.5" stroke-linecap="round"/><line x1="9.6" y1="4.8" x2="9.6" y2="0.8" stroke="#2c3e7a" stroke-width="1.5" stroke-linecap="round"/></g>
-<text x="228.000" y="272.779" font-size="8.5" fill="#555f7e" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="500" text-anchor="middle" dominant-baseline="middle">志願匹配</text>
+<text x="228.000" y="272.779" font-size="8.5" fill="#555f7e" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="500" text-anchor="middle" dominant-baseline="middle">志愿匹配</text>
 </g>
 <g>
 <circle cx="106.000" cy="248.531" r="20" fill="#fff8e1" stroke="#f59f00" stroke-width="1.5" opacity="0.9"/>
 <g><circle cx="106.000" cy="248.531" r="7.2" fill="none" stroke="#2c3e7a" stroke-width="1.5"/><text x="106.000" y="251.331" text-anchor="middle" font-size="5.76" font-weight="700" fill="#2c3e7a" font-family="Inter, Arial, sans-serif">!</text></g>
-<text x="92.000" y="272.779" font-size="8.5" fill="#555f7e" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="500" text-anchor="middle" dominant-baseline="middle">緊急 SOS</text>
+<text x="92.000" y="272.779" font-size="8.5" fill="#555f7e" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="500" text-anchor="middle" dominant-baseline="middle">紧急 SOS</text>
 </g>
 <g>
 <circle cx="55.680" cy="127.048" r="20" fill="#fff8e1" stroke="#f59f00" stroke-width="1.5" opacity="0.9"/>
 <g transform="translate(51.680,119.048)"><circle cx="4.0" cy="2.8" r="2.8" fill="none" stroke="#2c3e7a" stroke-width="1.5"/><line x1="4.0" y1="5.6" x2="4.0" y2="11.2" stroke="#2c3e7a" stroke-width="1.5" stroke-linecap="round"/><line x1="4.0" y1="8.0" x2="0.4" y2="10.8" stroke="#2c3e7a" stroke-width="1.5" stroke-linecap="round"/><line x1="4.0" y1="11.2" x2="1.6" y2="15.2" stroke="#2c3e7a" stroke-width="1.5" stroke-linecap="round"/><line x1="4.0" y1="11.2" x2="7.2" y2="15.2" stroke="#2c3e7a" stroke-width="1.5" stroke-linecap="round"/><line x1="7.2" y1="8.0" x2="8.8" y2="10.8" stroke="#2c3e7a" stroke-width="1.5" stroke-linecap="round"/></g>
-<text x="28.634" y="119.801" font-size="8.5" fill="#555f7e" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="500" text-anchor="middle" dominant-baseline="middle">長者照護</text>
+<text x="28.634" y="119.801" font-size="8.5" fill="#555f7e" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="500" text-anchor="middle" dominant-baseline="middle">长者照护</text>
 </g>
 <g>
 <circle cx="132.048" cy="50.680" r="20" fill="#fff8e1" stroke="#f59f00" stroke-width="1.5" opacity="0.9"/>
 <g transform="translate(124.048,44.680)"><rect x="0" y="0" width="16" height="12.0" rx="2" fill="none" stroke="#2c3e7a" stroke-width="1.5"/><line x1="3.2" y1="4.0" x2="12.8" y2="4.0" stroke="#2c3e7a" stroke-width="1.2" stroke-linecap="round"/><line x1="3.2" y1="8.0" x2="9.6" y2="8.0" stroke="#2c3e7a" stroke-width="1.2" stroke-linecap="round"/></g>
-<text x="124.801" y="23.634" font-size="8.5" fill="#555f7e" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="500" text-anchor="middle" dominant-baseline="middle">AI 翻譯</text>
+<text x="124.801" y="23.634" font-size="8.5" fill="#555f7e" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="500" text-anchor="middle" dominant-baseline="middle">AI 翻译</text>
 </g>
 <circle cx="160" cy="155" r="46" fill="url(#net-b-cglow)"/>
 <circle cx="160" cy="155" r="32" fill="#3b5bdb" filter="url(#net-b-glow)"/>
@@ -75,20 +75,20 @@
   <tspan>共感</tspan><tspan dx="10" font-family="Inter, Arial, sans-serif" fill="#3b5bdb">Link</tspan><tspan font-family="Inter, Arial, sans-serif" fill="#f59f00">Able</tspan>
 </text>
 <rect x="367" y="693" width="60" height="3" rx="2" fill="#f59f00"/>
-<text x="397" y="735" font-size="17" fill="#3d4f7c" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="400" text-anchor="middle" letter-spacing="1.5">基於 AI Agent 的無障礙社區互助平臺</text>
+<text x="397" y="735" font-size="17" fill="#3d4f7c" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="400" text-anchor="middle" letter-spacing="1.5">基于 AI Agent 的无障碍社区互助平台</text>
 <text x="397" y="777" font-size="12" fill="#8593b5" font-family="Inter, Arial, sans-serif" font-weight="400" text-anchor="middle" letter-spacing="2.5">Empathy · Connection · Accessibility for All</text>
 <rect x="217.0" y="812" width="112" height="35" rx="8" fill="#dbeafe" stroke="#000" stroke-width="1" stroke-opacity="0.06"/>
-<text x="273.0" y="835" font-size="11.5" fill="#334155" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="600" text-anchor="middle" letter-spacing="1">AI 第一響應</text>
+<text x="273.0" y="835" font-size="11.5" fill="#334155" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="600" text-anchor="middle" letter-spacing="1">AI 第一响应</text>
 <rect x="341.0" y="812" width="112" height="35" rx="8" fill="#fef9c3" stroke="#000" stroke-width="1" stroke-opacity="0.06"/>
-<text x="397.0" y="835" font-size="11.5" fill="#334155" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="600" text-anchor="middle" letter-spacing="1">真人精準互助</text>
+<text x="397.0" y="835" font-size="11.5" fill="#334155" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="600" text-anchor="middle" letter-spacing="1">真人精准互助</text>
 <rect x="465.0" y="812" width="112" height="35" rx="8" fill="#dcfce7" stroke="#000" stroke-width="1" stroke-opacity="0.06"/>
-<text x="521.0" y="835" font-size="11.5" fill="#334155" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="600" text-anchor="middle" letter-spacing="1">安全閉環守護</text>
+<text x="521.0" y="835" font-size="11.5" fill="#334155" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="600" text-anchor="middle" letter-spacing="1">安全闭环守护</text>
 <rect x="0" y="1041" width="794" height="82" fill="#f1f5f9"/>
 <rect x="0" y="1041" width="794" height="3" fill="#3b5bdb"/>
-<text x="54" y="1074" font-size="9.5" fill="#94a3b8" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="500" letter-spacing="1.5">學校</text>
-<text x="54" y="1095" font-size="12" fill="#334155" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="600">上海工程技術大學</text>
-<text x="282.5" y="1074" font-size="9.5" fill="#94a3b8" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="500" letter-spacing="1.5">作品類別</text>
-<text x="282.5" y="1095" font-size="12" fill="#334155" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="600">應用軟體 App 類</text>
-<text x="511" y="1074" font-size="9.5" fill="#94a3b8" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="500" letter-spacing="1.5">提報日期</text>
+<text x="54" y="1074" font-size="9.5" fill="#94a3b8" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="500" letter-spacing="1.5">学校</text>
+<text x="54" y="1095" font-size="12" fill="#334155" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="600">上海工程技术大学</text>
+<text x="282.5" y="1074" font-size="9.5" fill="#94a3b8" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="500" letter-spacing="1.5">作品类别</text>
+<text x="282.5" y="1095" font-size="12" fill="#334155" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="600">应用软体 App 类</text>
+<text x="511" y="1074" font-size="9.5" fill="#94a3b8" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="500" letter-spacing="1.5">提报日期</text>
 <text x="511" y="1095" font-size="12" fill="#334155" font-family="Noto Sans CJK TC, Noto Sans TC, sans-serif" font-weight="600">2026 年 4 月</text>
 </svg>

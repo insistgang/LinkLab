@@ -1,6 +1,6 @@
-/// AgentServiceFacade 統一輸出模型
+/// AgentServiceFacade 统一输出模型
 ///
-/// AGENTS.md §5.4 要求：所有 AI 能力輸出必須經過歸一化，不得直接展示原始模型響應。
+/// AGENTS.md §5.4 要求：所有 AI 能力输出必须经过归一化，不得直接展示原始模型响应。
 class AgentResult {
   final String intent;
   final String urgency;
@@ -67,21 +67,21 @@ class AgentResult {
       urgency: 'normal',
       confidence: 0.0,
       canResolveByAi: false,
-      answerText: '處理出錯，請稍後重試或轉人工協助。',
-      spokenText: '處理出錯，請稍後重試或轉人工協助。',
+      answerText: '处理出错，请稍后重试或转人工协助。',
+      spokenText: '处理出错，请稍后重试或转人工协助。',
       nextAction: 'show_fallback',
       success: false,
       error: errorMessage,
       uiCopy: {
-        'title': '處理出錯',
-        'body': '當前服務暫時不可用，你可以稍後再試或轉人工協助。',
-        'primaryAction': '轉人工協助',
-        'secondaryAction': '稍後重試',
+        'title': '处理出错',
+        'body': '当前服务暂时不可用，你可以稍后再试或转人工协助。',
+        'primaryAction': '转人工协助',
+        'secondaryAction': '稍后重试',
       },
     );
   }
 
-  /// 緊急意圖快速構造
+  /// 紧急意图快速构造
   factory AgentResult.emergency({
     required String answerText,
     required String spokenText,
@@ -97,10 +97,10 @@ class AgentResult {
       nextAction: 'trigger_sos',
       safetyFlags: safetyFlags,
       uiCopy: {
-        'title': '檢測到緊急情況',
+        'title': '检测到紧急情况',
         'body': answerText,
-        'primaryAction': '確認並繼續',
-        'secondaryAction': '撤銷（10秒內）',
+        'primaryAction': '确认并继续',
+        'secondaryAction': '撤销（10秒内）',
       },
     );
   }

@@ -98,7 +98,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
       emit(AuthAuthenticated(session));
     } catch (e) {
-      emit(AuthError('登錄失敗: ${e.toString()}'));
+      emit(AuthError('登录失败: ${e.toString()}'));
     }
   }
 
@@ -111,7 +111,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await _supabaseService.signOut();
       emit(AuthUnauthenticated());
     } catch (e) {
-      emit(AuthError('登出失敗: ${e.toString()}'));
+      emit(AuthError('登出失败: ${e.toString()}'));
     }
   }
 }

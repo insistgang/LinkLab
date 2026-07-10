@@ -1,4 +1,4 @@
-/// AI 服務通用結果模型
+/// AI 服务通用结果模型
 class AIResult {
   final bool success;
   final String text;

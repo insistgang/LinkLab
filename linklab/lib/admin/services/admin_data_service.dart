@@ -1,13 +1,13 @@
 import 'package:flutter/foundation.dart';
 import '../models/admin_models.dart';
 
-/// 運營後臺數據服務
+/// 运营后台数据服务
 class AdminDataService extends ChangeNotifier {
   static final AdminDataService _instance = AdminDataService._internal();
   factory AdminDataService() => _instance;
   AdminDataService._internal();
 
-  // 模擬數據存儲
+  // 模拟数据存储
   final List<UserListItem> _users = [];
   final List<VerificationRequest> _verifications = [];
   final List<ReportRecord> _reports = [];
@@ -21,7 +21,7 @@ class AdminDataService extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  /// 初始化演示數據
+  /// 初始化演示数据
   void initializeDemoData() {
     _generateDemoUsers();
     _generateDemoVerifications();
@@ -29,7 +29,7 @@ class AdminDataService extends ChangeNotifier {
     _generateDemoContents();
   }
 
-  /// 生成演示用戶數據
+  /// 生成演示用户数据
   void _generateDemoUsers() {
     final roles = [
       ['seeker'],
@@ -47,7 +47,7 @@ class AdminDataService extends ChangeNotifier {
       _users.add(UserListItem(
         id: 'user_$i',
         phone: '138${(10000000 + i).toString().substring(1)}',
-        name: '用戶$i',
+        name: '用户$i',
         roles: List<String>.from(roles[i % 3]),
         disabilityTypes: List<String>.from(disabilityTypes[i % 3]),
         status: statuses[i % 5],
@@ -61,34 +61,34 @@ class AdminDataService extends ChangeNotifier {
     }
   }
 
-  /// 生成演示認證數據
+  /// 生成演示认证数据
   void _generateDemoVerifications() {
     final types = ['disability', 'volunteer_skill'];
-    final docTypes = ['身份證', '殘疾證', '技能證書', '學歷證明'];
+    final docTypes = ['身份证', '残疾证', '技能证书', '学历证明'];
 
     for (int i = 1; i <= 20; i++) {
       _verifications.add(VerificationRequest(
         id: 'ver_$i',
         userId: 'user_$i',
-        userName: '用戶$i',
+        userName: '用户$i',
         type: types[i % 2],
         status: i % 3 == 0 ? 'approved' : (i % 4 == 0 ? 'rejected' : 'pending'),
         documentType: docTypes[i % 4],
         submittedAt: DateTime.now().subtract(Duration(days: i)),
         reviewedAt: i % 3 == 0 || i % 4 == 0 ? DateTime.now().subtract(Duration(days: i ~/ 2)) : null,
-        rejectionReason: i % 4 == 0 ? '證件照片不清晰' : null,
+        rejectionReason: i % 4 == 0 ? '证件照片不清晰' : null,
       ));
     }
   }
 
-  /// 生成演示舉報數據
+  /// 生成演示举报数据
   void _generateDemoReports() {
     final reasons = [
-      '言語辱罵',
-      '騷擾行爲',
-      '虛假信息',
-      '不當內容',
-      '惡意掛斷',
+      '言语辱骂',
+      '骚扰行为',
+      '虚假信息',
+      '不当内容',
+      '恶意挂断',
     ];
     final statuses = ['pending', 'processing', 'resolved', 'dismissed'];
 
@@ -96,38 +96,38 @@ class AdminDataService extends ChangeNotifier {
       _reports.add(ReportRecord(
         id: 'rep_$i',
         reporterId: 'user_${i + 10}',
-        reporterName: '舉報者$i',
+        reporterName: '举报者$i',
         targetId: 'user_$i',
         targetType: i % 2 == 0 ? 'user' : 'call',
-        targetName: '被舉報用戶$i',
+        targetName: '被举报用户$i',
         reason: reasons[i % 5],
-        description: '詳細描述內容...',
+        description: '详细描述内容...',
         status: statuses[i % 4],
         createdAt: DateTime.now().subtract(Duration(hours: i * 3)),
       ));
     }
   }
 
-  /// 生成演示內容數據
+  /// 生成演示内容数据
   void _generateDemoContents() {
     for (int i = 1; i <= 25; i++) {
       _contents.add(ContentItem(
         id: 'content_$i',
-        title: '精選故事 #$i：志願者與視障用戶的溫暖相遇',
-        content: '這是一個感人的故事...',
+        title: '精选故事 #$i：志愿者与视障用户的温暖相遇',
+        content: '这是一个感人的故事...',
         type: i % 3 == 0 ? 'announcement' : 'story',
         authorId: 'user_$i',
         authorName: '作者$i',
         viewCount: i * 100,
         likeCount: i * 20,
         status: i % 4 == 0 ? 'published' : (i % 3 == 0 ? 'pending' : 'draft'),
-        tags: ['溫暖', '互助', '正能量'],
+        tags: ['温暖', '互助', '正能量'],
         createdAt: DateTime.now().subtract(Duration(days: i)),
       ));
     }
   }
 
-  /// 獲取儀表盤統計數據
+  /// 获取仪表盘统计数据
   Future<DashboardStats> getDashboardStats() async {
     _isLoading = true;
     notifyListeners();
@@ -158,7 +158,7 @@ class AdminDataService extends ChangeNotifier {
     return stats;
   }
 
-  /// 獲取趨勢數據
+  /// 获取趋势数据
   Future<List<TrendDataPoint>> getTrendData(String metric, int days) async {
     await Future.delayed(const Duration(milliseconds: 300));
 
@@ -173,28 +173,28 @@ class AdminDataService extends ChangeNotifier {
     return data;
   }
 
-  /// 獲取分佈數據
+  /// 获取分布数据
   Future<List<DistributionItem>> getDistributionData(String type) async {
     await Future.delayed(const Duration(milliseconds: 300));
 
     switch (type) {
       case 'help_type':
         return [
-          const DistributionItem(label: 'AI自動解決', value: 35, colorValue: 0xFF1565C0),
-          const DistributionItem(label: '異步求助', value: 25, colorValue: 0xFF2E7D32),
-          const DistributionItem(label: '實時語音', value: 30, colorValue: 0xFFFF6F00),
-          const DistributionItem(label: '實時視頻', value: 10, colorValue: 0xFFD32F2F),
+          const DistributionItem(label: 'AI自动解决', value: 35, colorValue: 0xFF1565C0),
+          const DistributionItem(label: '异步求助', value: 25, colorValue: 0xFF2E7D32),
+          const DistributionItem(label: '实时语音', value: 30, colorValue: 0xFFFF6F00),
+          const DistributionItem(label: '实时视频', value: 10, colorValue: 0xFFD32F2F),
         ];
       case 'user_type':
         return [
-          const DistributionItem(label: '視障用戶', value: 60, colorValue: 0xFF1565C0),
-          const DistributionItem(label: '聽障用戶', value: 15, colorValue: 0xFF2E7D32),
-          const DistributionItem(label: '志願者', value: 25, colorValue: 0xFFFF6F00),
+          const DistributionItem(label: '视障用户', value: 60, colorValue: 0xFF1565C0),
+          const DistributionItem(label: '听障用户', value: 15, colorValue: 0xFF2E7D32),
+          const DistributionItem(label: '志愿者', value: 25, colorValue: 0xFFFF6F00),
         ];
       case 'disability_type':
         return [
           const DistributionItem(label: '全盲', value: 40, colorValue: 0xFF1565C0),
-          const DistributionItem(label: '低視力', value: 35, colorValue: 0xFF2E7D32),
+          const DistributionItem(label: '低视力', value: 35, colorValue: 0xFF2E7D32),
           const DistributionItem(label: '色盲', value: 15, colorValue: 0xFFFF6F00),
           const DistributionItem(label: '其他', value: 10, colorValue: 0xFF757575),
         ];
@@ -203,7 +203,7 @@ class AdminDataService extends ChangeNotifier {
     }
   }
 
-  /// 獲取用戶列表（分頁）
+  /// 获取用户列表（分页）
   Future<PaginatedResult<UserListItem>> getUsers({
     required int page,
     required int pageSize,
@@ -216,7 +216,7 @@ class AdminDataService extends ChangeNotifier {
 
     var filteredUsers = List<UserListItem>.from(_users);
 
-    // 應用篩選
+    // 应用筛选
     if (filter != null) {
       if (filter.searchQuery != null && filter.searchQuery!.isNotEmpty) {
         final query = filter.searchQuery!.toLowerCase();
@@ -261,7 +261,7 @@ class AdminDataService extends ChangeNotifier {
     );
   }
 
-  /// 獲取用戶詳情
+  /// 获取用户详情
   Future<UserListItem?> getUserDetail(String userId) async {
     await Future.delayed(const Duration(milliseconds: 200));
     try {
@@ -271,7 +271,7 @@ class AdminDataService extends ChangeNotifier {
     }
   }
 
-  /// 封禁/解封用戶
+  /// 封禁/解封用户
   Future<bool> toggleUserBan(String userId, bool ban) async {
     _isLoading = true;
     notifyListeners();
@@ -293,7 +293,7 @@ class AdminDataService extends ChangeNotifier {
     return false;
   }
 
-  /// 獲取認證列表
+  /// 获取认证列表
   Future<PaginatedResult<VerificationRequest>> getVerifications({
     required int page,
     required int pageSize,
@@ -326,7 +326,7 @@ class AdminDataService extends ChangeNotifier {
     );
   }
 
-  /// 審覈認證
+  /// 审核认证
   Future<bool> reviewVerification(String verificationId, bool approved, {String? reason}) async {
     _isLoading = true;
     notifyListeners();
@@ -353,7 +353,7 @@ class AdminDataService extends ChangeNotifier {
     return false;
   }
 
-  /// 獲取舉報列表
+  /// 获取举报列表
   Future<PaginatedResult<ReportRecord>> getReports({
     required int page,
     required int pageSize,
@@ -386,7 +386,7 @@ class AdminDataService extends ChangeNotifier {
     );
   }
 
-  /// 處理舉報
+  /// 处理举报
   Future<bool> handleReport(String reportId, String action, {String? resolution}) async {
     _isLoading = true;
     notifyListeners();
@@ -414,7 +414,7 @@ class AdminDataService extends ChangeNotifier {
     return false;
   }
 
-  /// 獲取內容列表
+  /// 获取内容列表
   Future<PaginatedResult<ContentItem>> getContents({
     required int page,
     required int pageSize,
@@ -451,7 +451,7 @@ class AdminDataService extends ChangeNotifier {
     );
   }
 
-  /// 發佈/下架內容
+  /// 发布/下架内容
   Future<bool> toggleContentStatus(String contentId, bool publish) async {
     _isLoading = true;
     notifyListeners();
@@ -476,7 +476,7 @@ class AdminDataService extends ChangeNotifier {
     return false;
   }
 
-  /// 刪除內容
+  /// 删除内容
   Future<bool> deleteContent(String contentId) async {
     _isLoading = true;
     notifyListeners();
@@ -491,7 +491,7 @@ class AdminDataService extends ChangeNotifier {
     return true;
   }
 
-  /// 獲取操作日誌
+  /// 获取操作日志
   Future<PaginatedResult<OperationLog>> getOperationLogs({
     required int page,
     required int pageSize,
@@ -510,12 +510,12 @@ class AdminDataService extends ChangeNotifier {
     );
   }
 
-  /// 記錄操作日誌
+  /// 记录操作日志
   void _logOperation(String operation, String targetType, String targetId, {String? details}) {
     _operationLogs.insert(0, OperationLog(
       id: 'log_${_operationLogs.length + 1}',
       adminId: 'admin',
-      adminName: '管理員',
+      adminName: '管理员',
       operation: operation,
       targetType: targetType,
       targetId: targetId,
@@ -524,7 +524,7 @@ class AdminDataService extends ChangeNotifier {
     ));
   }
 
-  /// 清除錯誤
+  /// 清除错误
   void clearError() {
     _error = null;
     notifyListeners();

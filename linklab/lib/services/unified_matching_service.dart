@@ -1,4 +1,4 @@
-// AGENTS.md §4.2：競賽版已凍結 Demo 主線，真實路徑僅供實驗，已隔離到 services/experimental/real/。
+// AGENTS.md §4.2：竞赛版已冻结 Demo 主线，真实路径仅供实验，已隔离到 services/experimental/real/。
 
 import 'dart:async';
 
@@ -6,11 +6,11 @@ import 'package:flutter/material.dart';
 
 import 'demo_call_service.dart';
 
-/// 匹配狀態
+/// 匹配状态
 enum MatchingStatus { idle, searching, found, timeout, error }
 
-/// 統一匹配服務
-/// 競賽版默認只調度本地 Demo 匹配，不再自動切到真實鏈路。
+/// 统一匹配服务
+/// 竞赛版默认只调度本地 Demo 匹配，不再自动切到真实链路。
 class UnifiedMatchingService extends ChangeNotifier {
   static final UnifiedMatchingService _instance =
       UnifiedMatchingService._internal();
@@ -36,16 +36,16 @@ class UnifiedMatchingService extends ChangeNotifier {
   String get statusText {
     switch (_status) {
       case MatchingStatus.searching:
-        if (_elapsedSeconds < 2) return '正在搜索志願者...';
-        return '已找到 $_matchedCount 位志願者';
+        if (_elapsedSeconds < 2) return '正在搜索志愿者...';
+        return '已找到 $_matchedCount 位志愿者';
       case MatchingStatus.found:
         return '匹配成功';
       case MatchingStatus.timeout:
-        return '匹配超時';
+        return '匹配超时';
       case MatchingStatus.error:
-        return '匹配失敗: $_errorMessage';
+        return '匹配失败: $_errorMessage';
       default:
-        return '準備匹配';
+        return '准备匹配';
     }
   }
 
@@ -54,8 +54,8 @@ class UnifiedMatchingService extends ChangeNotifier {
     _status = MatchingStatus.searching;
     notifyListeners();
 
-    // AGENTS.md §4.2：真實匹配已隔離到 services/experimental/real/real_matching_service.dart，
-    // 競賽版統一服務不再自動切換到真實路徑。
+    // AGENTS.md §4.2：真实匹配已隔离到 services/experimental/real/real_matching_service.dart，
+    // 竞赛版统一服务不再自动切换到真实路径。
     return _startDemoMatching();
   }
 

@@ -3,7 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 import '../constants/theme.dart';
 import '../models/dashboard_model.dart';
 
-// 折線圖組件
+// 折线图组件
 class LineChartWidget extends StatelessWidget {
   final List<TrendDataPoint> data;
   final String title;
@@ -193,7 +193,7 @@ class LineChartWidget extends StatelessWidget {
                   children: [
                     Icon(Icons.show_chart, size: 48, color: Colors.grey[400]),
                     const SizedBox(height: 8),
-                    Text('暫無數據', style: TextStyle(color: Colors.grey[600])),
+                    Text('暂无数据', style: TextStyle(color: Colors.grey[600])),
                   ],
                 ),
               ),
@@ -205,7 +205,7 @@ class LineChartWidget extends StatelessWidget {
   }
 }
 
-// 餅圖組件
+// 饼图组件
 class PieChartWidget extends StatelessWidget {
   final List<DistributionData> data;
   final String title;
@@ -361,7 +361,7 @@ class PieChartWidget extends StatelessWidget {
                       color: Colors.grey[400],
                     ),
                     const SizedBox(height: 8),
-                    Text('暫無數據', style: TextStyle(color: Colors.grey[600])),
+                    Text('暂无数据', style: TextStyle(color: Colors.grey[600])),
                   ],
                 ),
               ),
@@ -373,7 +373,7 @@ class PieChartWidget extends StatelessWidget {
   }
 }
 
-// 柱狀圖組件
+// 柱状图组件
 class BarChartWidget extends StatelessWidget {
   final List<ComparisonData> data;
   final String title;
@@ -604,7 +604,7 @@ class BarChartWidget extends StatelessWidget {
                   children: [
                     Icon(Icons.bar_chart, size: 48, color: Colors.grey[400]),
                     const SizedBox(height: 8),
-                    Text('暫無數據', style: TextStyle(color: Colors.grey[600])),
+                    Text('暂无数据', style: TextStyle(color: Colors.grey[600])),
                   ],
                 ),
               ),

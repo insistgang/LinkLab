@@ -42,54 +42,54 @@ class _StagePalette {
   final LinearGradient accentGradient;
 }
 
-/// 共感LinkAble應用主題配置
-/// 遵循WCAG 2.1 AAA無障礙標準
+/// 共感LinkAble应用主题配置
+/// 遵循WCAG 2.1 AAA无障碍标准
 class AppTheme {
-  // 私有構造函數，防止實例化
+  // 私有构造函数，防止实例化
   AppTheme._();
 
-  // 品牌色 - 高對比度設計
-  static const Color primaryColor = Color(0xFF1565C0); // 深藍色
+  // 品牌色 - 高对比度设计
+  static const Color primaryColor = Color(0xFF1565C0); // 深蓝色
   static const Color primaryLight = Color(0xFF5E92F3);
   static const Color primaryDark = Color(0xFF003C8F);
 
-  // 輔助色
-  static const Color secondaryColor = Color(0xFF2E7D32); // 綠色
+  // 辅助色
+  static const Color secondaryColor = Color(0xFF2E7D32); // 绿色
   static const Color secondaryLight = Color(0xFF60AD5E);
   static const Color secondaryDark = Color(0xFF005005);
 
-  // 強調色
+  // 强调色
   static const Color accentColor = Color(0xFFFF6F00); // 橙色
   static const Color accentLight = Color(0xFFFFA040);
   static const Color accentDark = Color(0xFFC43E00);
 
-  // 緊急/警告色
-  static const Color emergencyColor = Color(0xFFD32F2F); // 紅色
+  // 紧急/警告色
+  static const Color emergencyColor = Color(0xFFD32F2F); // 红色
   static const Color warningColor = Color(0xFFF57C00); // 橙色
-  static const Color successColor = Color(0xFF388E3C); // 綠色
+  static const Color successColor = Color(0xFF388E3C); // 绿色
 
-  // 中性色 - 高對比度
-  static const Color backgroundColor = Color(0xFFFFFFFF); // 純白背景
-  static const Color surfaceColor = Color(0xFFF5F5F5); // 淺灰表面
+  // 中性色 - 高对比度
+  static const Color backgroundColor = Color(0xFFFFFFFF); // 纯白背景
+  static const Color surfaceColor = Color(0xFFF5F5F5); // 浅灰表面
   static const Color cardColor = Color(0xFFFFFFFF);
 
   static DemoStageMode _stageMode = DemoStageMode.day;
 
   static const _StagePalette _nightStagePalette = _StagePalette(
-    background: Color(0xFF080510), // 極深紫黑背景
+    background: Color(0xFF080510), // 极深紫黑背景
     backgroundSoft: Color(0xFF0E0A1C), // 暗紫背景
-    surface: Color(0xFF2A1B54), // 卡片背景 - 靠近按鈕紫色調
-    surfaceStrong: Color(0xFF352268), // 導航欄/強表面 - 中紫
-    border: Color(0xFF3D2A6E), // 邊框顏色（紫色邊框）
+    surface: Color(0xFF2A1B54), // 卡片背景 - 靠近按钮紫色调
+    surfaceStrong: Color(0xFF352268), // 导航栏/强表面 - 中紫
+    border: Color(0xFF3D2A6E), // 边框颜色（紫色边框）
     textPrimary: Color(0xFFF0F6FC), // 主要文字 - 白色
-    textSecondary: Color(0xFFB8A9D4), // 次要文字 - 淺紫灰
+    textSecondary: Color(0xFFB8A9D4), // 次要文字 - 浅紫灰
     textHint: Color(0xFF8B7AAF), // 提示文字
-    accent: Color(0xFFB88CFF), // 強調色 - 紫色
-    accentLight: Color(0xFFD4BBFF), // 淺強調色
-    success: Color(0xFF56D364), // 成功 - 綠色
-    danger: Color(0xFFF85149), // 危險 - 紅色
-    warning: Color(0xFFE3B341), // 警告 - 黃色
-    info: Color(0xFF79C0FF), // 信息 - 藍色
+    accent: Color(0xFFB88CFF), // 强调色 - 紫色
+    accentLight: Color(0xFFD4BBFF), // 浅强调色
+    success: Color(0xFF56D364), // 成功 - 绿色
+    danger: Color(0xFFF85149), // 危险 - 红色
+    warning: Color(0xFFE3B341), // 警告 - 黄色
+    info: Color(0xFF79C0FF), // 信息 - 蓝色
     heroGradient: LinearGradient(
       colors: [Color(0xFF1F6FEB), Color(0xFF9448FF), Color(0xFF58A6FF)],
       stops: [0.0, 0.5, 1.0],
@@ -152,7 +152,7 @@ class AppTheme {
     _stageMode = mode;
   }
 
-  // Demo 主線移動端舞臺色板
+  // Demo 主线移动端舞台色板
   static Color get stageBackground => _stagePalette.background;
   static Color get stageBackgroundSoft => _stagePalette.backgroundSoft;
   static Color get stageSurface => _stagePalette.surface;
@@ -168,20 +168,20 @@ class AppTheme {
   static Color get stageWarning => _stagePalette.warning;
   static Color get stageInfo => _stagePalette.info;
 
-  // 文字顏色 - 確保對比度 >= 7:1
+  // 文字颜色 - 确保对比度 >= 7:1
   static const Color textPrimary = Color(0xFF000000); // 黑色
   static const Color textSecondary = Color(0xFF424242); // 深灰
   static const Color textHint = Color(0xFF616161); // 中灰
   static const Color textOnPrimary = Color(0xFFFFFFFF); // 白字
-  static const Color backgroundGrey = Color(0xFFF5F5F5); // 淺灰背景
-  static const Color successLight = Color(0xFF81C784); // 淺綠色
-  static const Color errorColor = Color(0xFFD32F2F); // 錯誤紅色
+  static const Color backgroundGrey = Color(0xFFF5F5F5); // 浅灰背景
+  static const Color successLight = Color(0xFF81C784); // 浅绿色
+  static const Color errorColor = Color(0xFFD32F2F); // 错误红色
 
-  // 邊框和分割線
+  // 边框和分割线
   static const Color borderColor = Color(0xFF424242);
   static const Color dividerColor = Color(0xFFBDBDBD);
 
-  // 深色模式顏色 - GitHub風格中性深色
+  // 深色模式颜色 - GitHub风格中性深色
   static const Color darkBackground = Color(0xFF0D1117);
   static const Color darkSurface = Color(0xFF161B22);
   static const Color darkCard = Color(0xFF21262D);
@@ -191,7 +191,7 @@ class AppTheme {
   static const Color darkTextSecondary = Color(0xFF9CA3AF);
   static const Color darkAccent = Color(0xFFB88CFF);
 
-  // 高對比度模式顏色 - 基於深色模式但更高對比度
+  // 高对比度模式颜色 - 基于深色模式但更高对比度
   static const Color highContrastBackground = Color(0xFF0D1117);
   static const Color highContrastSurface = Color(0xFF161B22);
   static const Color highContrastCard = Color(0xFF21262D);
@@ -199,7 +199,7 @@ class AppTheme {
   static const Color highContrastPrimary = Color(0xFF79C0FF);
   static const Color highContrastAccent = Color(0xFFB88CFF);
 
-  // 字體大小 - 支持動態縮放
+  // 字体大小 - 支持动态缩放
   static const double fontSizeXSmall = 12.0;
   static const double fontSizeSmall = 14.0;
   static const double fontSizeNormal = 18.0;
@@ -207,13 +207,13 @@ class AppTheme {
   static const double fontSizeXLarge = 32.0;
   static const double fontSizeXXLarge = 48.0;
 
-  // 觸摸目標大小 - 最小48dp
+  // 触摸目标大小 - 最小48dp
   static const double minTouchTarget = 48.0;
   static const double buttonHeight = 56.0;
   static const double largeButtonHeight = 72.0;
   static const double emergencyButtonHeight = 120.0;
 
-  // 間距
+  // 间距
   static const double spacingXS = 4.0;
   static const double spacingS = 8.0;
   static const double spacingM = 16.0;
@@ -221,12 +221,12 @@ class AppTheme {
   static const double spacingXL = 32.0;
   static const double spacingXXL = 48.0;
 
-  // 圓角
+  // 圆角
   static const double borderRadiusSmall = 4.0;
   static const double borderRadiusMedium = 8.0;
   static const double borderRadiusLarge = 16.0;
 
-  // 陰影
+  // 阴影
   static const List<BoxShadow> cardShadow = [
     BoxShadow(color: Color(0x40000000), blurRadius: 4.0, offset: Offset(0, 2)),
   ];
@@ -263,7 +263,7 @@ class AppTheme {
     );
   }
 
-  /// 獲取亮色主題
+  /// 获取亮色主题
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
@@ -454,8 +454,8 @@ class AppTheme {
     );
   }
 
-  /// 獲取高對比度主題（用於視障用戶）
-  /// 使用深色背景 + 高對比度文字，符合WCAG AAA標準
+  /// 获取高对比度主题（用于视障用户）
+  /// 使用深色背景 + 高对比度文字，符合WCAG AAA标准
   static ThemeData get highContrastTheme {
     return ThemeData(
       useMaterial3: true,

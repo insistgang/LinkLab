@@ -1,11 +1,11 @@
--- 安全模塊數據庫表結構
--- 包含多級認證、通話錄音、信用分、舉報處理、緊急聯繫人等功能
+-- 安全模块数据库表结构
+-- 包含多级认证、通话录音、信用分、举报处理、紧急联系人等功能
 
 -- ============================================
--- 1. 多級認證體系相關表
+-- 1. 多级认证体系相关表
 -- ============================================
 
--- 用戶認證狀態表
+-- 用户认证状态表
 CREATE TABLE IF NOT EXISTS user_auth_status (
     user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     phone_verified BOOLEAN DEFAULT FALSE,
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS user_auth_status (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 技能認證表
+-- 技能认证表
 CREATE TABLE IF NOT EXISTS skill_certifications (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS skill_certifications (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 認證申請表
+-- 认证申请表
 CREATE TABLE IF NOT EXISTS certification_applications (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -55,10 +55,10 @@ CREATE TABLE IF NOT EXISTS certification_applications (
 );
 
 -- ============================================
--- 2. 通話錄音相關表
+-- 2. 通话录音相关表
 -- ============================================
 
--- 通話錄音表
+-- 通话录音表
 CREATE TABLE IF NOT EXISTS call_recordings (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     call_id UUID NOT NULL,
@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS call_recordings (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- AI檢測結果表
+-- AI检测结果表
 CREATE TABLE IF NOT EXISTS detection_results (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     recording_id UUID NOT NULL REFERENCES call_recordings(id) ON DELETE CASCADE,
@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS detection_results (
 );
 
 -- ============================================
--- 3. 信用分相關表
+-- 3. 信用分相关表
 -- ============================================
 
 -- 信用分表
@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS credit_scores (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 評價記錄表
+-- 评价记录表
 CREATE TABLE IF NOT EXISTS rating_records (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     call_id UUID NOT NULL,
@@ -124,7 +124,7 @@ CREATE TABLE IF NOT EXISTS rating_records (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 信用分變動記錄表
+-- 信用分变动记录表
 CREATE TABLE IF NOT EXISTS credit_score_changes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -138,10 +138,10 @@ CREATE TABLE IF NOT EXISTS credit_score_changes (
 );
 
 -- ============================================
--- 4. 舉報處理相關表
+-- 4. 举报处理相关表
 -- ============================================
 
--- 舉報記錄表
+-- 举报记录表
 CREATE TABLE IF NOT EXISTS reports (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     reporter_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -160,7 +160,7 @@ CREATE TABLE IF NOT EXISTS reports (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 黑名單表
+-- 黑名单表
 CREATE TABLE IF NOT EXISTS blacklist (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -173,7 +173,7 @@ CREATE TABLE IF NOT EXISTS blacklist (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 舉報統計表
+-- 举报统计表
 CREATE TABLE IF NOT EXISTS report_statistics (
     user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     total_reports_received INTEGER DEFAULT 0,
@@ -184,7 +184,7 @@ CREATE TABLE IF NOT EXISTS report_statistics (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 用戶限制表（臨時凍結等）
+-- 用户限制表（临时冻结等）
 CREATE TABLE IF NOT EXISTS user_restrictions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -194,7 +194,7 @@ CREATE TABLE IF NOT EXISTS user_restrictions (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 用戶狀態變更記錄表
+-- 用户状态变更记录表
 CREATE TABLE IF NOT EXISTS user_status_changes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -205,10 +205,10 @@ CREATE TABLE IF NOT EXISTS user_status_changes (
 );
 
 -- ============================================
--- 5. 緊急聯繫人相關表
+-- 5. 紧急联系人相关表
 -- ============================================
 
--- 緊急聯繫人表
+-- 紧急联系人表
 CREATE TABLE IF NOT EXISTS emergency_contacts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -221,7 +221,7 @@ CREATE TABLE IF NOT EXISTS emergency_contacts (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 緊急通知記錄表
+-- 紧急通知记录表
 CREATE TABLE IF NOT EXISTS emergency_notifications (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -233,7 +233,7 @@ CREATE TABLE IF NOT EXISTS emergency_notifications (
     read_at TIMESTAMPTZ
 );
 
--- 用戶設備表（用於設備封禁）
+-- 用户设备表（用于设备封禁）
 CREATE TABLE IF NOT EXISTS user_devices (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -245,27 +245,27 @@ CREATE TABLE IF NOT EXISTS user_devices (
 );
 
 -- ============================================
--- 創建索引
+-- 创建索引
 -- ============================================
 
--- 認證相關索引
+-- 认证相关索引
 CREATE INDEX IF NOT EXISTS idx_skill_certs_user_id ON skill_certifications(user_id);
 CREATE INDEX IF NOT EXISTS idx_cert_apps_user_id ON certification_applications(user_id);
 CREATE INDEX IF NOT EXISTS idx_cert_apps_status ON certification_applications(status);
 
--- 錄音相關索引
+-- 录音相关索引
 CREATE INDEX IF NOT EXISTS idx_recordings_call_id ON call_recordings(call_id);
 CREATE INDEX IF NOT EXISTS idx_recordings_seeker_id ON call_recordings(seeker_id);
 CREATE INDEX IF NOT EXISTS idx_recordings_expires ON call_recordings(expires_at) WHERE is_deleted = FALSE;
 CREATE INDEX IF NOT EXISTS idx_detection_results_recording_id ON detection_results(recording_id);
 
--- 信用分相關索引
+-- 信用分相关索引
 CREATE INDEX IF NOT EXISTS idx_rating_records_to_user ON rating_records(to_user_id);
 CREATE INDEX IF NOT EXISTS idx_rating_records_call_id ON rating_records(call_id);
 CREATE INDEX IF NOT EXISTS idx_credit_changes_user_id ON credit_score_changes(user_id);
 CREATE INDEX IF NOT EXISTS idx_credit_changes_created_at ON credit_score_changes(created_at);
 
--- 舉報相關索引
+-- 举报相关索引
 CREATE INDEX IF NOT EXISTS idx_reports_reported_id ON reports(reported_id);
 CREATE INDEX IF NOT EXISTS idx_reports_status ON reports(status);
 CREATE INDEX IF NOT EXISTS idx_reports_submitted_at ON reports(submitted_at);
@@ -273,20 +273,20 @@ CREATE INDEX IF NOT EXISTS idx_blacklist_user_id ON blacklist(user_id);
 CREATE INDEX IF NOT EXISTS idx_blacklist_device ON blacklist(device_fingerprint) WHERE level = 'device';
 CREATE INDEX IF NOT EXISTS idx_blacklist_expires ON blacklist(expires_at);
 
--- 緊急聯繫人相關索引
+-- 紧急联系人相关索引
 CREATE INDEX IF NOT EXISTS idx_emergency_contacts_user_id ON emergency_contacts(user_id);
 CREATE INDEX IF NOT EXISTS idx_emergency_contacts_phone ON emergency_contacts(phone);
 CREATE INDEX IF NOT EXISTS idx_emergency_notifications_user_id ON emergency_notifications(user_id);
 
--- 用戶設備索引
+-- 用户设备索引
 CREATE INDEX IF NOT EXISTS idx_user_devices_fingerprint ON user_devices(device_fingerprint);
 CREATE INDEX IF NOT EXISTS idx_user_devices_user_id ON user_devices(user_id);
 
 -- ============================================
--- 創建RLS安全策略
+-- 创建RLS安全策略
 -- ============================================
 
--- 啓用RLS
+-- 启用RLS
 ALTER TABLE user_auth_status ENABLE ROW LEVEL SECURITY;
 ALTER TABLE skill_certifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE certification_applications ENABLE ROW LEVEL SECURITY;
@@ -304,22 +304,22 @@ ALTER TABLE emergency_contacts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE emergency_notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_devices ENABLE ROW LEVEL SECURITY;
 
--- 用戶認證狀態策略
+-- 用户认证状态策略
 CREATE POLICY "Users can view own auth status"
     ON user_auth_status FOR SELECT
     USING (user_id = auth.uid());
 
--- 技能認證策略
+-- 技能认证策略
 CREATE POLICY "Users can view own skill certs"
     ON skill_certifications FOR SELECT
     USING (user_id = auth.uid());
 
--- 認證申請策略
+-- 认证申请策略
 CREATE POLICY "Users can view own applications"
     ON certification_applications FOR SELECT
     USING (user_id = auth.uid());
 
--- 通話錄音策略
+-- 通话录音策略
 CREATE POLICY "Users can view own call recordings"
     ON call_recordings FOR SELECT
     USING (seeker_id = auth.uid() OR volunteer_id = auth.uid());
@@ -329,41 +329,41 @@ CREATE POLICY "Users can view own credit score"
     ON credit_scores FOR SELECT
     USING (user_id = auth.uid());
 
--- 評價記錄策略
+-- 评价记录策略
 CREATE POLICY "Users can view ratings related to them"
     ON rating_records FOR SELECT
     USING (from_user_id = auth.uid() OR to_user_id = auth.uid());
 
--- 信用分變動策略
+-- 信用分变动策略
 CREATE POLICY "Users can view own credit changes"
     ON credit_score_changes FOR SELECT
     USING (user_id = auth.uid());
 
--- 舉報記錄策略
+-- 举报记录策略
 CREATE POLICY "Users can view own reports"
     ON reports FOR SELECT
     USING (reporter_id = auth.uid() OR reported_id = auth.uid());
 
--- 緊急聯繫人策略
+-- 紧急联系人策略
 CREATE POLICY "Users can manage own emergency contacts"
     ON emergency_contacts FOR ALL
     USING (user_id = auth.uid());
 
--- 緊急通知策略
+-- 紧急通知策略
 CREATE POLICY "Users can view own emergency notifications"
     ON emergency_notifications FOR SELECT
     USING (user_id = auth.uid());
 
--- 用戶設備策略
+-- 用户设备策略
 CREATE POLICY "Users can view own devices"
     ON user_devices FOR SELECT
     USING (user_id = auth.uid());
 
 -- ============================================
--- 創建觸發器函數
+-- 创建触发器函数
 -- ============================================
 
--- 自動更新 updated_at 字段
+-- 自动更新 updated_at 字段
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -372,7 +372,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 爲需要自動更新 updated_at 的表創建觸發器
+-- 为需要自动更新 updated_at 的表创建触发器
 CREATE TRIGGER update_user_auth_status_updated_at
     BEFORE UPDATE ON user_auth_status
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
@@ -393,7 +393,7 @@ CREATE TRIGGER update_report_statistics_updated_at
     BEFORE UPDATE ON report_statistics
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- 初始化新用戶信用分
+-- 初始化新用户信用分
 CREATE OR REPLACE FUNCTION initialize_user_credit_score()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -404,12 +404,12 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 爲新用戶自動創建信用分記錄
+-- 为新用户自动创建信用分记录
 CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users
     FOR EACH ROW EXECUTE FUNCTION initialize_user_credit_score();
 
--- 清理過期錄音的定時任務函數
+-- 清理过期录音的定时任务函数
 CREATE OR REPLACE FUNCTION cleanup_expired_recordings()
 RETURNS INTEGER AS $$
 DECLARE
@@ -431,19 +431,19 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- ============================================
--- 添加表註釋
+-- 添加表注释
 -- ============================================
 
-COMMENT ON TABLE user_auth_status IS '用戶多級認證狀態';
-COMMENT ON TABLE skill_certifications IS '技能認證記錄';
-COMMENT ON TABLE certification_applications IS '認證申請記錄';
-COMMENT ON TABLE call_recordings IS '通話錄音記錄';
-COMMENT ON TABLE detection_results IS 'AI內容檢測結果';
-COMMENT ON TABLE credit_scores IS '用戶信用分';
-COMMENT ON TABLE rating_records IS '雙向評價記錄';
-COMMENT ON TABLE credit_score_changes IS '信用分變動歷史';
-COMMENT ON TABLE reports IS '舉報記錄';
-COMMENT ON TABLE blacklist IS '黑名單';
-COMMENT ON TABLE emergency_contacts IS '緊急聯繫人';
-COMMENT ON TABLE emergency_notifications IS '緊急通知記錄';
-COMMENT ON TABLE user_devices IS '用戶設備信息';
+COMMENT ON TABLE user_auth_status IS '用户多级认证状态';
+COMMENT ON TABLE skill_certifications IS '技能认证记录';
+COMMENT ON TABLE certification_applications IS '认证申请记录';
+COMMENT ON TABLE call_recordings IS '通话录音记录';
+COMMENT ON TABLE detection_results IS 'AI内容检测结果';
+COMMENT ON TABLE credit_scores IS '用户信用分';
+COMMENT ON TABLE rating_records IS '双向评价记录';
+COMMENT ON TABLE credit_score_changes IS '信用分变动历史';
+COMMENT ON TABLE reports IS '举报记录';
+COMMENT ON TABLE blacklist IS '黑名单';
+COMMENT ON TABLE emergency_contacts IS '紧急联系人';
+COMMENT ON TABLE emergency_notifications IS '紧急通知记录';
+COMMENT ON TABLE user_devices IS '用户设备信息';

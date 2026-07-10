@@ -1,12 +1,12 @@
 -- =====================================================
--- 共感 LinkAble 數據庫函數和觸發器
+-- 共感 LinkAble 数据库函数和触发器
 -- =====================================================
 
 -- =====================================================
--- 1. 輔助函數
+-- 1. 辅助函数
 -- =====================================================
 
--- 計算兩點間距離(米)
+-- 计算两点间距离(米)
 CREATE OR REPLACE FUNCTION calculate_distance(
     lat1 DECIMAL,
     lng1 DECIMAL,
@@ -15,7 +15,7 @@ CREATE OR REPLACE FUNCTION calculate_distance(
 )
 RETURNS DECIMAL AS $$
 DECLARE
-    R DECIMAL := 6371000; -- 地球半徑(米)
+    R DECIMAL := 6371000; -- 地球半径(米)
     dLat DECIMAL;
     dLng DECIMAL;
     a DECIMAL;
@@ -31,7 +31,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
--- 根據積分計算等級
+-- 根据积分计算等级
 CREATE OR REPLACE FUNCTION calculate_volunteer_level(points INT)
 RETURNS INT AS $$
 BEGIN
@@ -47,7 +47,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
--- 增加數值(用於觸發器)
+-- 增加数值(用于触发器)
 CREATE OR REPLACE FUNCTION increment(x INT DEFAULT 1)
 RETURNS INT AS $$
 BEGIN
@@ -55,7 +55,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 增加緩存命中次數
+-- 增加缓存命中次数
 CREATE OR REPLACE FUNCTION increment_cache_hit(hash TEXT)
 RETURNS VOID AS $$
 BEGIN
@@ -66,10 +66,10 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- =====================================================
--- 2. 匹配查詢函數
+-- 2. 匹配查询函数
 -- =====================================================
 
--- 查找匹配的志願者
+-- 查找匹配的志愿者
 CREATE OR REPLACE FUNCTION find_matching_volunteers(
     seeker_lat DECIMAL,
     seeker_lng DECIMAL,
@@ -121,10 +121,10 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- =====================================================
--- 3. 觸發器函數
+-- 3. 触发器函数
 -- =====================================================
 
--- 更新志願者等級
+-- 更新志愿者等级
 CREATE OR REPLACE FUNCTION update_volunteer_level()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -134,13 +134,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 創建觸發器：積分變化時更新等級
+-- 创建触发器：积分变化时更新等级
 CREATE TRIGGER trigger_update_volunteer_level
     BEFORE UPDATE OF points ON volunteer_profiles
     FOR EACH ROW
     EXECUTE FUNCTION update_volunteer_level();
 
--- 更新用戶最後登錄時間
+-- 更新用户最后登录时间
 CREATE OR REPLACE FUNCTION update_last_login()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -149,11 +149,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 求助記錄狀態變更日誌
+-- 求助记录状态变更日志
 CREATE OR REPLACE FUNCTION log_help_request_change()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- 記錄狀態變更到日誌表(如果存在)
+    -- 记录状态变更到日志表(如果存在)
     IF TG_OP = 'UPDATE' AND OLD.status IS DISTINCT FROM NEW.status THEN
         INSERT INTO help_request_logs (
             request_id,
@@ -171,7 +171,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 創建日誌表
+-- 创建日志表
 CREATE TABLE IF NOT EXISTS help_request_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     request_id UUID REFERENCES help_requests(id),
@@ -180,26 +180,26 @@ CREATE TABLE IF NOT EXISTS help_request_logs (
     changed_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 創建觸發器
+-- 创建触发器
 CREATE TRIGGER trigger_log_help_request_change
     AFTER UPDATE ON help_requests
     FOR EACH ROW
     EXECUTE FUNCTION log_help_request_change();
 
 -- =====================================================
--- 4. 積分計算觸發器
+-- 4. 积分计算触发器
 -- =====================================================
 
--- 求助完成後計算積分
+-- 求助完成后计算积分
 CREATE OR REPLACE FUNCTION calculate_help_points()
 RETURNS TRIGGER AS $$
 DECLARE
     points_to_add INT := 0;
     duration_min INT;
 BEGIN
-    -- 只處理狀態變爲completed的情況
+    -- 只处理状态变为completed的情况
     IF NEW.status = 'completed' AND OLD.status != 'completed' THEN
-        -- 基礎積分
+        -- 基础积分
         IF NEW.type = 'sos' THEN
             points_to_add := 20;
         ELSIF NEW.type IN ('realtime_voice', 'realtime_video') THEN
@@ -208,7 +208,7 @@ BEGIN
             points_to_add := 5;
         END IF;
 
-        -- 時長獎勵
+        -- 时长奖励
         IF NEW.duration_seconds IS NOT NULL THEN
             duration_min := NEW.duration_seconds / 60;
             IF duration_min >= 30 THEN
@@ -222,7 +222,7 @@ BEGIN
             END IF;
         END IF;
 
-        -- 評價獎勵
+        -- 评价奖励
         IF NEW.seeker_rating IS NOT NULL THEN
             points_to_add := points_to_add + CASE NEW.seeker_rating
                 WHEN 5 THEN 10
@@ -234,7 +234,7 @@ BEGIN
             END;
         END IF;
 
-        -- 插入積分流水
+        -- 插入积分流水
         IF points_to_add > 0 AND NEW.volunteer_id IS NOT NULL THEN
             INSERT INTO point_transactions (
                 user_id,
@@ -252,10 +252,10 @@ BEGIN
                 COALESCE((SELECT points FROM volunteer_profiles WHERE user_id = NEW.volunteer_id), 0) + points_to_add,
                 'help_complete',
                 NEW.id,
-                '完成幫助獲得積分'
+                '完成帮助获得积分'
             WHERE EXISTS (SELECT 1 FROM volunteer_profiles WHERE user_id = NEW.volunteer_id);
 
-            -- 更新志願者積分和累計幫助次數
+            -- 更新志愿者积分和累计帮助次数
             UPDATE volunteer_profiles
             SET
                 points = points + points_to_add,
@@ -268,14 +268,14 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 創建觸發器
+-- 创建触发器
 CREATE TRIGGER trigger_calculate_help_points
     AFTER UPDATE ON help_requests
     FOR EACH ROW
     EXECUTE FUNCTION calculate_help_points();
 
 -- =====================================================
--- 5. 異步任務積分計算
+-- 5. 异步任务积分计算
 -- =====================================================
 
 CREATE OR REPLACE FUNCTION calculate_async_task_points()
@@ -283,9 +283,9 @@ RETURNS TRIGGER AS $$
 DECLARE
     points_to_add INT := 5;
 BEGIN
-    -- 只處理狀態變爲completed的情況
+    -- 只处理状态变为completed的情况
     IF NEW.status = 'completed' AND OLD.status != 'completed' THEN
-        -- 優先級獎勵
+        -- 优先级奖励
         points_to_add := points_to_add + CASE NEW.priority
             WHEN 'urgent' THEN 10
             WHEN 'high' THEN 5
@@ -293,7 +293,7 @@ BEGIN
             ELSE 0
         END;
 
-        -- 插入積分流水
+        -- 插入积分流水
         IF points_to_add > 0 AND NEW.volunteer_id IS NOT NULL THEN
             INSERT INTO point_transactions (
                 user_id,
@@ -311,10 +311,10 @@ BEGIN
                 COALESCE((SELECT points FROM volunteer_profiles WHERE user_id = NEW.volunteer_id), 0) + points_to_add,
                 'task_complete',
                 NEW.id,
-                '完成異步任務獲得積分'
+                '完成异步任务获得积分'
             WHERE EXISTS (SELECT 1 FROM volunteer_profiles WHERE user_id = NEW.volunteer_id);
 
-            -- 更新志願者積分
+            -- 更新志愿者积分
             UPDATE volunteer_profiles
             SET points = points + points_to_add
             WHERE user_id = NEW.volunteer_id;
@@ -325,14 +325,14 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 創建觸發器
+-- 创建触发器
 CREATE TRIGGER trigger_calculate_async_task_points
     AFTER UPDATE ON async_tasks
     FOR EACH ROW
     EXECUTE FUNCTION calculate_async_task_points();
 
 -- =====================================================
--- 6. 清理過期緩存的定時任務函數
+-- 6. 清理过期缓存的定时任务函数
 -- =====================================================
 
 CREATE OR REPLACE FUNCTION cleanup_expired_cache()
@@ -344,10 +344,10 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- =====================================================
--- 7. 視圖
+-- 7. 视图
 -- =====================================================
 
--- 志願者統計視圖
+-- 志愿者统计视图
 CREATE OR REPLACE VIEW volunteer_stats AS
 SELECT
     vp.user_id,
@@ -366,7 +366,7 @@ LEFT JOIN help_requests hr ON hr.volunteer_id = vp.user_id
 WHERE u.is_deleted = FALSE
 GROUP BY vp.user_id, u.name, vp.level, vp.points, vp.credit_score, vp.total_help_count, vp.is_online, vp.is_verified;
 
--- 求助統計視圖
+-- 求助统计视图
 CREATE OR REPLACE VIEW help_request_stats AS
 SELECT
     DATE(created_at) as date,
@@ -380,21 +380,21 @@ FROM help_requests
 GROUP BY DATE(created_at), type, urgency, status;
 
 -- =====================================================
--- 8. 初始化數據(可選)
+-- 8. 初始化数据(可选)
 -- =====================================================
 
--- 創建系統用戶(用於系統操作)
+-- 创建系统用户(用于系统操作)
 INSERT INTO users (id, phone, name, role, created_at)
 VALUES (
     '00000000-0000-0000-0000-000000000000',
     'system',
-    '系統',
+    '系统',
     ARRAY['system'],
     NOW()
 )
 ON CONFLICT (id) DO NOTHING;
 
--- 添加RLS策略排除系統用戶
+-- 添加RLS策略排除系统用户
 CREATE POLICY system_user_bypass ON users
     FOR ALL
     USING (id = '00000000-0000-0000-0000-000000000000')

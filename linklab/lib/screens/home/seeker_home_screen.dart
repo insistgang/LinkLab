@@ -23,7 +23,7 @@ import '../../widgets/demo/linkable_icon.dart';
 import '../ai_chat/demo_ai_chat_screen.dart';
 import '../demo/demo_help_archive_screen.dart';
 
-/// 求助者首頁：主入口必須是穩定的求助大按鈕，而不是 Phase-3 CRUD 頁面。
+/// 求助者首页：主入口必须是稳定的求助大按钮，而不是 Phase-3 CRUD 页面。
 class SeekerHomeScreen extends ConsumerStatefulWidget {
   const SeekerHomeScreen({super.key});
 
@@ -87,8 +87,8 @@ class _SeekerHomeScreenState extends ConsumerState<SeekerHomeScreen> {
     final now = DateTime.now();
     final profile = session.userProfile;
     final preferenceSummary = session.preferences.highContrastMode
-        ? '高對比度已開啓'
-        : '標準顯示模式';
+        ? '高对比度已开启'
+        : '标准显示模式';
 
     return DemoStageLiveBuilder(
       builder: (context) {
@@ -99,8 +99,8 @@ class _SeekerHomeScreenState extends ConsumerState<SeekerHomeScreen> {
         return DemoStageScaffold(
           title: '共感 LinkAble',
           subtitle: compactLayout
-              ? 'AI 先處理，複雜需求轉真人'
-              : 'AI 先處理標準化問題，複雜需求再轉真人志願者',
+              ? 'AI 先处理，复杂需求转真人'
+              : 'AI 先处理标准化问题，复杂需求再转真人志愿者',
           showBackButton: false,
           headerTopPadding: compactLayout
               ? AppTheme.spacingXS
@@ -156,17 +156,17 @@ class _SeekerHomeScreenState extends ConsumerState<SeekerHomeScreen> {
                       Expanded(
                         child: _SummaryStatCard(
                           eyebrow: '最近求助',
-                          value: '${_recentHistory.length} 條',
-                          description: '本地演示檔案已同步',
+                          value: '${_recentHistory.length} 条',
+                          description: '本地演示档案已同步',
                           color: AppTheme.stageAccent,
                         ),
                       ),
                       const SizedBox(width: AppTheme.spacingM),
                       Expanded(
                         child: _SummaryStatCard(
-                          eyebrow: '當前角色',
+                          eyebrow: '当前角色',
                           value: _buildRoleSummary(profile),
-                          description: '可在“我的”調整偏好',
+                          description: '可在“我的”调整偏好',
                           color: AppTheme.stageSuccess,
                         ),
                       ),
@@ -184,7 +184,7 @@ class _SeekerHomeScreenState extends ConsumerState<SeekerHomeScreen> {
                 const SizedBox(height: AppTheme.spacingXL),
                 const DemoSectionTitle(
                   title: '快捷工具',
-                  subtitle: '保留最高頻入口，避免首屏功能過載。',
+                  subtitle: '保留最高频入口，避免首屏功能过载。',
                 ),
                 const SizedBox(height: AppTheme.spacingM),
                 DemoReveal(
@@ -194,24 +194,24 @@ class _SeekerHomeScreenState extends ConsumerState<SeekerHomeScreen> {
                       final isNarrow = constraints.maxWidth < 360;
                       final children = [
                         _QuickToolButton(
-                          label: '文字識別',
-                          description: '讀說明書、菜單、票據',
+                          label: '文字识别',
+                          description: '读说明书、菜单、票据',
                           icon: Icons.document_scanner_outlined,
-                          semanticLabel: 'OCR文字識別',
+                          semanticLabel: 'OCR文字识别',
                           onTap: () => _openAIChat(context),
                         ),
                         _QuickToolButton(
-                          label: '顏色識別',
-                          description: '區分衣物與物品顏色',
+                          label: '颜色识别',
+                          description: '区分衣物与物品颜色',
                           icon: Icons.color_lens_outlined,
-                          semanticLabel: '顏色識別',
+                          semanticLabel: '颜色识别',
                           onTap: () => _openAIChat(context),
                         ),
                         _QuickToolButton(
-                          label: 'AI 對話',
-                          description: '直接輸入複雜需求',
+                          label: 'AI 对话',
+                          description: '直接输入复杂需求',
                           icon: Icons.chat_bubble_outline_rounded,
-                          semanticLabel: '智能對話',
+                          semanticLabel: '智能对话',
                           onTap: () => _openAIChat(context),
                         ),
                       ];
@@ -244,8 +244,8 @@ class _SeekerHomeScreenState extends ConsumerState<SeekerHomeScreen> {
                 DemoReveal(
                   delay: const Duration(milliseconds: 280),
                   child: DemoSurfaceCard(
-                    semanticLabel: '連接真人志願者',
-                    hint: '雙擊進入匹配頁',
+                    semanticLabel: '连接真人志愿者',
+                    hint: '双击进入匹配页',
                     onTap: () => DemoMatchingFlow.startMatching(context),
                     child: Row(
                       children: [
@@ -260,7 +260,7 @@ class _SeekerHomeScreenState extends ConsumerState<SeekerHomeScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               AccessibleText(
-                                '呼叫志願者',
+                                '呼叫志愿者',
                                 style: TextStyle(
                                   color: AppTheme.stageTextPrimary,
                                   fontSize: AppTheme.fontSizeLarge,
@@ -269,7 +269,7 @@ class _SeekerHomeScreenState extends ConsumerState<SeekerHomeScreen> {
                               ),
                               const SizedBox(height: AppTheme.spacingXS),
                               AccessibleText(
-                                'AI 無法處理時，30 秒內嘗試匹配附近在線志願者。',
+                                'AI 无法处理时，30 秒内尝试匹配附近在线志愿者。',
                                 style: TextStyle(
                                   color: AppTheme.stageTextSecondary,
                                   fontSize: AppTheme.fontSizeSmall,
@@ -282,7 +282,7 @@ class _SeekerHomeScreenState extends ConsumerState<SeekerHomeScreen> {
                         const LinkableSvgIcon(
                           icon: LinkableIconName.navigationGuide,
                           size: 34,
-                          semanticLabel: '進入匹配演示',
+                          semanticLabel: '进入匹配演示',
                         ),
                       ],
                     ),
@@ -290,8 +290,8 @@ class _SeekerHomeScreenState extends ConsumerState<SeekerHomeScreen> {
                 ),
                 const SizedBox(height: AppTheme.spacingXL),
                 DemoSectionTitle(
-                  title: '最近幫助',
-                  subtitle: '展示主鏈路的終態與回看落點。',
+                  title: '最近帮助',
+                  subtitle: '展示主链路的终态与回看落点。',
                   trailing: TextButton(
                     onPressed: () {
                       pushDemoStageRoute(
@@ -352,15 +352,15 @@ class _SeekerHomeScreenState extends ConsumerState<SeekerHomeScreen> {
   }
 
   String _buildWeatherLabel(DateTime now) {
-    if (now.hour < 12) return '演示天氣 晴 24°C';
-    if (now.hour < 18) return '演示天氣 多雲 26°C';
-    return '演示天氣 夜間 21°C';
+    if (now.hour < 12) return '演示天气 晴 24°C';
+    if (now.hour < 18) return '演示天气 多云 26°C';
+    return '演示天气 夜间 21°C';
   }
 
   String _buildRoleSummary(UserModel? profile) {
-    if (profile == null) return '演示賬號';
-    if (profile.isVolunteer && profile.isSeeker) return '互助雙角色';
-    if (profile.isVolunteer) return '志願者';
+    if (profile == null) return '演示账号';
+    if (profile.isVolunteer && profile.isSeeker) return '互助双角色';
+    if (profile.isVolunteer) return '志愿者';
     return '求助者';
   }
 }
@@ -483,8 +483,8 @@ class _HeroPanel extends StatelessWidget {
           const SizedBox(height: AppTheme.spacingS),
           AccessibleText(
             profile?.isVolunteer == true
-                ? '今天想先幫助別人，還是先處理自己的需求？'
-                : '把標準化需求先交給 AI，複雜問題再轉真人。',
+                ? '今天想先帮助别人，还是先处理自己的需求？'
+                : '把标准化需求先交给 AI，复杂问题再转真人。',
             style: TextStyle(
               color: AppTheme.stageTextSecondary,
               fontSize: compactLayout
@@ -502,7 +502,7 @@ class _HeroPanel extends StatelessWidget {
           const SizedBox(height: AppTheme.spacingM),
           Center(
             child: AccessibleText(
-              '點擊啓動SOS緊急求助',
+              '点击启动SOS紧急求助',
               style: TextStyle(
                 color: AppTheme.stageTextSecondary,
                 fontSize: AppTheme.fontSizeSmall,
@@ -518,7 +518,7 @@ class _HeroPanel extends StatelessWidget {
                   onPressed: onVolunteerPressed,
                   icon: const Icon(Icons.phone_in_talk_outlined, size: 24),
                   label: const Text(
-                    '直接匹配志願者',
+                    '直接匹配志愿者',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -567,8 +567,8 @@ class _PrimaryHelpCluster extends StatelessWidget {
     final logoSize = buttonSize * 0.94;
     return Semantics(
       button: true,
-      label: '啓動 SOS 緊急求助',
-      hint: '雙擊進入緊急求助流程，可在下一頁撤銷',
+      label: '启动 SOS 紧急求助',
+      hint: '双击进入紧急求助流程，可在下一页撤销',
       onTap: onEmergencyPressed,
       child: Material(
         color: Colors.transparent,
@@ -670,8 +670,8 @@ class _CompetitionDemoNoticeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DemoSurfaceCard(
-      semanticLabel: '競賽演示模式說明',
-      hint: '當前默認只展示 MVP 主線，社羣入口僅展示精選故事',
+      semanticLabel: '竞赛演示模式说明',
+      hint: '当前默认只展示 MVP 主线，社群入口仅展示精选故事',
       color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.94),
       borderColor: AppTheme.stageAccent.withValues(alpha: 0.28),
       child: Row(
@@ -688,7 +688,7 @@ class _CompetitionDemoNoticeCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 AccessibleText(
-                  '競賽演示模式已鎖定',
+                  '竞赛演示模式已锁定',
                   style: TextStyle(
                     color: AppTheme.stageTextPrimary,
                     fontSize: AppTheme.fontSizeNormal,
@@ -697,7 +697,7 @@ class _CompetitionDemoNoticeCard extends StatelessWidget {
                 ),
                 const SizedBox(height: AppTheme.spacingXS),
                 AccessibleText(
-                  '當前默認僅展示 AI 對話、真人匹配、實時通話、SOS、登錄偏好與無障礙能力。社羣入口只展示精選故事和未來藍圖，不開放羣聊或積分互動。',
+                  '当前默认仅展示 AI 对话、真人匹配、实时通话、SOS、登录偏好与无障碍能力。社群入口只展示精选故事和未来蓝图，不开放群聊或积分互动。',
                   style: TextStyle(
                     color: AppTheme.stageTextSecondary,
                     fontSize: AppTheme.fontSizeSmall,
@@ -732,7 +732,7 @@ class _QuickToolButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return DemoSurfaceCard(
       semanticLabel: semanticLabel,
-      hint: '雙擊打開$label',
+      hint: '双击打开$label',
       onTap: onTap,
       padding: const EdgeInsets.all(AppTheme.spacingM),
       child: ConstrainedBox(
@@ -758,7 +758,7 @@ class _QuickToolButton extends StatelessWidget {
                   child: const LinkableSvgIcon(
                     icon: LinkableIconName.navigationGuide,
                     size: 24,
-                    semanticLabel: '點擊進入',
+                    semanticLabel: '点击进入',
                   ),
                 ),
               ],
@@ -783,7 +783,7 @@ class _QuickToolButton extends StatelessWidget {
             ),
             const SizedBox(height: AppTheme.spacingM),
             AccessibleText(
-              '點擊進入',
+              '点击进入',
               style: TextStyle(
                 color: AppTheme.stageTextHint,
                 fontSize: AppTheme.fontSizeSmall,
@@ -808,11 +808,11 @@ class _EmptyHistoryCard extends StatelessWidget {
           const LinkableSvgIcon(
             icon: LinkableIconName.featuredStory,
             size: AppTheme.fontSizeXXLarge,
-            semanticLabel: '暫無歷史求助記錄',
+            semanticLabel: '暂无历史求助记录',
           ),
           const SizedBox(height: AppTheme.spacingS),
           AccessibleText(
-            '還沒有歷史求助記錄',
+            '还没有历史求助记录',
             style: TextStyle(
               color: AppTheme.stageTextPrimary,
               fontSize: AppTheme.fontSizeNormal,
@@ -821,7 +821,7 @@ class _EmptyHistoryCard extends StatelessWidget {
           ),
           const SizedBox(height: AppTheme.spacingXS),
           AccessibleText(
-            '完成一次 AI 或志願者協助後，這裏會自動更新。',
+            '完成一次 AI 或志愿者协助后，这里会自动更新。',
             style: TextStyle(
               color: AppTheme.stageTextSecondary,
               fontSize: AppTheme.fontSizeSmall,
@@ -843,8 +843,8 @@ class _HelpHistoryItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return DemoSurfaceCard(
       onTap: onTap,
-      semanticLabel: '幫助記錄 ${request.intent ?? '未命名求助'}',
-      hint: '雙擊查看幫助檔案',
+      semanticLabel: '帮助记录 ${request.intent ?? '未命名求助'}',
+      hint: '双击查看帮助档案',
       child: Row(
         children: [
           Container(
@@ -876,7 +876,7 @@ class _HelpHistoryItem extends StatelessWidget {
                 ),
                 const SizedBox(height: AppTheme.spacingXS),
                 AccessibleText(
-                  '${request.intent ?? '未命名求助'} · ${request.createdAt?.formatRelative() ?? '剛剛'}',
+                  '${request.intent ?? '未命名求助'} · ${request.createdAt?.formatRelative() ?? '刚刚'}',
                   style: TextStyle(
                     color: AppTheme.stageTextSecondary,
                     fontSize: AppTheme.fontSizeSmall,
@@ -905,13 +905,13 @@ class _HelpHistoryItem extends StatelessWidget {
       case 'ai_auto':
         return 'AI自助';
       case 'realtime_voice':
-        return '語音求助';
+        return '语音求助';
       case 'realtime_video':
-        return '視頻求助';
+        return '视频求助';
       case 'sos':
-        return '緊急求助';
+        return '紧急求助';
       default:
-        return '幫助記錄';
+        return '帮助记录';
     }
   }
 
@@ -951,16 +951,16 @@ class _SafetyReadyCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final title = !settings.autoShareLocation
-        ? 'SOS 位置信息未開啓'
+        ? 'SOS 位置信息未开启'
         : settings.shareWithEmergencyContacts && contactCount == 0
-        ? 'SOS 基礎廣播已就緒'
-        : 'SOS 演示鏈路已就緒';
+        ? 'SOS 基础广播已就绪'
+        : 'SOS 演示链路已就绪';
 
     final subtitle = !settings.autoShareLocation
-        ? '建議先到“我的 > 位置共享”開啓位置同步。'
+        ? '建议先到“我的 > 位置共享”开启位置同步。'
         : settings.shareWithEmergencyContacts && contactCount == 0
-        ? '已開啓位置共享，但聯繫人通知還沒有接收對象。'
-        : '當前位置、聯繫人通知和志願者廣播都可在演示中展示。';
+        ? '已开启位置共享，但联系人通知还没有接收对象。'
+        : '当前位置、联系人通知和志愿者广播都可在演示中展示。';
 
     return DemoSurfaceCard(
       color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.96),
@@ -977,7 +977,7 @@ class _SafetyReadyCard extends StatelessWidget {
             child: const LinkableSvgIcon(
               icon: LinkableIconName.emergencyContact,
               size: 42,
-              semanticLabel: 'SOS 安全設置',
+              semanticLabel: 'SOS 安全设置',
             ),
           ),
           const SizedBox(width: AppTheme.spacingM),

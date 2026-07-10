@@ -4,27 +4,27 @@ import 'dart:convert';
 import '../../core/utils/logger.dart';
 import '../../models/community_models.dart';
 
-/// 內容審覈服務
+/// 内容审核服务
 class ContentModerationService {
-  // 敏感詞列表（實際項目中應該從服務器獲取或配置）
+  // 敏感词列表（实际项目中应该从服务器获取或配置）
   static const List<String> _sensitiveWords = [
-    '暴力', '恐怖', '色情', '賭博', '毒品', '詐騙', '傳銷',
-    '反動', '分裂', '極端', '仇恨', '歧視', '侮辱', '誹謗',
-    '髒話', '罵人', '攻擊', '威脅', '恐嚇', '騷擾', '垃圾',
+    '暴力', '恐怖', '色情', '赌博', '毒品', '诈骗', '传销',
+    '反动', '分裂', '极端', '仇恨', '歧视', '侮辱', '诽谤',
+    '脏话', '骂人', '攻击', '威胁', '恐吓', '骚扰', '垃圾',
   ];
 
-  // 敏感詞分類
+  // 敏感词分类
   static const Map<String, List<String>> _sensitiveCategories = {
-    'violence': ['暴力', '恐怖', '攻擊', '威脅', '恐嚇'],
-    'pornography': ['色情', '淫穢', '性'],
-    'gambling': ['賭博', '博彩', '彩票'],
-    'drugs': ['毒品', '吸毒', '販毒'],
-    'fraud': ['詐騙', '欺詐', '騙局'],
-    'political': ['反動', '分裂', '極端'],
-    'harassment': ['騷擾', '侮辱', '誹謗', '歧視'],
+    'violence': ['暴力', '恐怖', '攻击', '威胁', '恐吓'],
+    'pornography': ['色情', '淫秽', '性'],
+    'gambling': ['赌博', '博彩', '彩票'],
+    'drugs': ['毒品', '吸毒', '贩毒'],
+    'fraud': ['诈骗', '欺诈', '骗局'],
+    'political': ['反动', '分裂', '极端'],
+    'harassment': ['骚扰', '侮辱', '诽谤', '歧视'],
   };
 
-  /// 審覈文本內容
+  /// 审核文本内容
   Future<ModerationResult> moderateText(String text) async {
     try {
       if (text.isEmpty) {
@@ -37,14 +37,14 @@ class ContentModerationService {
       final flaggedKeywords = <String>[];
       final detectedCategories = <String>[];
 
-      // 檢查敏感詞
+      // 检查敏感词
       for (final word in _sensitiveWords) {
         if (text.toLowerCase().contains(word.toLowerCase())) {
           flaggedKeywords.add(word);
         }
       }
 
-      // 分類檢測
+      // 分类检测
       for (final entry in _sensitiveCategories.entries) {
         for (final word in entry.value) {
           if (text.toLowerCase().contains(word.toLowerCase())) {
@@ -55,13 +55,13 @@ class ContentModerationService {
         }
       }
 
-      // 計算置信度
+      // 计算置信度
       final confidence = _calculateConfidence(
         textLength: text.length,
         flaggedCount: flaggedKeywords.length,
       );
 
-      // 判斷是否通過審覈
+      // 判断是否通过审核
       final isApproved = flaggedKeywords.isEmpty || confidence > 0.7;
 
       return ModerationResult(
@@ -71,22 +71,22 @@ class ContentModerationService {
             ? detectedCategories.first
             : null,
         reason: flaggedKeywords.isNotEmpty
-            ? '包含敏感詞: ${flaggedKeywords.take(3).join(', ')}'
+            ? '包含敏感词: ${flaggedKeywords.take(3).join(', ')}'
             : null,
         flaggedKeywords: flaggedKeywords,
       );
     } catch (e) {
-      AppLogger.error('文本審覈失敗', e);
-      // 審覈失敗時默認通過，但記錄日誌
+      AppLogger.error('文本审核失败', e);
+      // 审核失败时默认通过，但记录日志
       return const ModerationResult(
         isApproved: true,
         confidence: 0.5,
-        reason: '審覈服務異常',
+        reason: '审核服务异常',
       );
     }
   }
 
-  /// 批量審覈文本
+  /// 批量审核文本
   Future<List<ModerationResult>> moderateTexts(List<String> texts) async {
     final results = <ModerationResult>[];
     for (final text in texts) {
@@ -95,60 +95,60 @@ class ContentModerationService {
     return results;
   }
 
-  /// 審覈圖片內容
+  /// 审核图片内容
   Future<ModerationResult> moderateImage(File image) async {
     try {
-      // 檢查文件大小
+      // 检查文件大小
       final fileSize = await image.length();
       if (fileSize > 10 * 1024 * 1024) {
         return const ModerationResult(
           isApproved: false,
           confidence: 1.0,
-          reason: '圖片大小超過10MB限制',
+          reason: '图片大小超过10MB限制',
         );
       }
 
-      // 這裏可以集成第三方圖片審覈API
-      // 例如：阿里雲內容安全、騰訊雲天御、百度AI審覈等
+      // 这里可以集成第三方图片审核API
+      // 例如：阿里云内容安全、腾讯云天御、百度AI审核等
 
-      // 模擬圖片審覈結果
-      // 實際項目中應該調用真實的圖片審覈服務
+      // 模拟图片审核结果
+      // 实际项目中应该调用真实的图片审核服务
       return await _mockImageModeration(image);
     } catch (e) {
-      AppLogger.error('圖片審覈失敗', e);
+      AppLogger.error('图片审核失败', e);
       return const ModerationResult(
         isApproved: true,
         confidence: 0.5,
-        reason: '圖片審覈服務異常',
+        reason: '图片审核服务异常',
       );
     }
   }
 
-  /// 模擬圖片審覈（實際項目中替換爲真實API）
+  /// 模拟图片审核（实际项目中替换为真实API）
   Future<ModerationResult> _mockImageModeration(File image) async {
-    // 模擬審覈延遲
+    // 模拟审核延迟
     await Future.delayed(const Duration(milliseconds: 500));
 
-    // 默認通過
+    // 默认通过
     return const ModerationResult(
       isApproved: true,
       confidence: 0.95,
     );
   }
 
-  /// 使用阿里雲內容安全審覈圖片
+  /// 使用阿里云内容安全审核图片
   Future<ModerationResult> _aliyunImageModeration(File image) async {
     try {
-      // 阿里雲內容安全API配置
+      // 阿里云内容安全API配置
       const accessKeyId = 'YOUR_ACCESS_KEY_ID';
       const accessKeySecret = 'YOUR_ACCESS_KEY_SECRET';
       const endpoint = 'https://green-cdn.cn-hangzhou.aliyuncs.com';
 
-      // 讀取圖片並轉爲base64
+      // 读取图片并转为base64
       final bytes = await image.readAsBytes();
       final base64Image = base64Encode(bytes);
 
-      // 構建請求
+      // 构建请求
       final response = await http.post(
         Uri.parse('$endpoint/green/image/scan'),
         headers: {
@@ -168,18 +168,18 @@ class ContentModerationService {
 
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);
-        // 解析審覈結果
+        // 解析审核结果
         return _parseAliyunResult(result);
       } else {
-        throw Exception('API請求失敗: ${response.statusCode}');
+        throw Exception('API请求失败: ${response.statusCode}');
       }
     } catch (e) {
-      AppLogger.error('阿里雲圖片審覈失敗', e);
+      AppLogger.error('阿里云图片审核失败', e);
       rethrow;
     }
   }
 
-  /// 解析阿里雲審覈結果
+  /// 解析阿里云审核结果
   ModerationResult _parseAliyunResult(Map<String, dynamic> result) {
     try {
       final data = result['data'] as List<dynamic>?;
@@ -187,7 +187,7 @@ class ContentModerationService {
         return const ModerationResult(
           isApproved: false,
           confidence: 0,
-          reason: '審覈結果解析失敗',
+          reason: '审核结果解析失败',
         );
       }
 
@@ -229,41 +229,41 @@ class ContentModerationService {
         confidence: isApproved ? 1 - maxConfidence : maxConfidence,
         category: category,
         reason: flaggedKeywords.isNotEmpty
-            ? '檢測到違規內容: ${flaggedKeywords.join(', ')}'
+            ? '检测到违规内容: ${flaggedKeywords.join(', ')}'
             : null,
         flaggedKeywords: flaggedKeywords,
       );
     } catch (e) {
-      AppLogger.error('解析審覈結果失敗', e);
+      AppLogger.error('解析审核结果失败', e);
       return const ModerationResult(
         isApproved: false,
         confidence: 0,
-        reason: '結果解析異常',
+        reason: '结果解析异常',
       );
     }
   }
 
-  /// 計算置信度
+  /// 计算置信度
   double _calculateConfidence({
     required int textLength,
     required int flaggedCount,
   }) {
     if (flaggedCount == 0) return 1.0;
 
-    // 基於敏感詞密度計算置信度
+    // 基于敏感词密度计算置信度
     final density = flaggedCount / (textLength / 100);
     final confidence = 1.0 - (density * 0.3).clamp(0.0, 1.0);
 
     return confidence;
   }
 
-  /// 檢查內容是否需要人工審覈
+  /// 检查内容是否需要人工审核
   bool needsManualReview(ModerationResult result) {
     return !result.isApproved ||
         (result.confidence < 0.8 && result.confidence > 0.3);
   }
 
-  /// 過濾敏感詞（用*替換）
+  /// 过滤敏感词（用*替换）
   String filterSensitiveWords(String text) {
     var filteredText = text;
     for (final word in _sensitiveWords) {
@@ -276,17 +276,17 @@ class ContentModerationService {
     return filteredText;
   }
 
-  /// 添加自定義敏感詞
+  /// 添加自定义敏感词
   void addSensitiveWords(List<String> words) {
     _sensitiveWords.addAll(words);
   }
 
-  /// 獲取敏感詞列表
+  /// 获取敏感词列表
   List<String> getSensitiveWords() {
     return List.unmodifiable(_sensitiveWords);
   }
 
-  /// 實時審覈（用於輸入時檢查）
+  /// 实时审核（用于输入时检查）
   Future<Map<String, dynamic>> realtimeCheck(String text) async {
     final result = await moderateText(text);
 
@@ -296,7 +296,7 @@ class ContentModerationService {
       'sensitiveWords': result.flaggedKeywords,
       'suggestion': result.isApproved
           ? null
-          : '內容包含敏感信息，請修改後重試',
+          : '内容包含敏感信息，请修改后重试',
     };
   }
 }

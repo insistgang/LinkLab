@@ -1,6 +1,6 @@
-// 數據模型導出
+// 数据模型导出
 
-// Agent 標準化模型（AGENTS.md §5.3 / §5.4）
+// Agent 标准化模型（AGENTS.md §5.3 / §5.4）
 export 'agent_input_model.dart';
 export 'agent_response_model.dart';
 

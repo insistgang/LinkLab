@@ -4,8 +4,8 @@ import '../../core/theme/app_theme.dart';
 import '../demo/linkable_icon.dart';
 import 'accessible_text.dart';
 
-/// 可訪問圖片組件。
-/// 統一處理 asset/network 加載失敗時的可見回退和語義文本。
+/// 可访问图片组件。
+/// 统一处理 asset/network 加载失败时的可见回退和语义文本。
 class AccessibleImage extends StatelessWidget {
   const AccessibleImage.asset({
     super.key,

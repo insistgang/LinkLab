@@ -2,49 +2,49 @@
   {
     "index": 1,
     "file": "01-home-f1.svg",
-    "label": "首頁",
+    "label": "首页",
     "desc": "home · F1 入口",
     "source_comment": ""
   },
   {
     "index": 2,
     "file": "02-ai-chat-f1.svg",
-    "label": "AI 對話",
+    "label": "AI 对话",
     "desc": "ai chat · F1",
     "source_comment": ""
   },
   {
     "index": 3,
     "file": "03-match-f9.svg",
-    "label": "志願者匹配",
+    "label": "志愿者匹配",
     "desc": "match · F9",
     "source_comment": ""
   },
   {
     "index": 4,
     "file": "04-call-f11.svg",
-    "label": "語音通話",
+    "label": "语音通话",
     "desc": "call · F11",
     "source_comment": ""
   },
   {
     "index": 5,
     "file": "05-profile-f33.svg",
-    "label": "個人中心",
+    "label": "个人中心",
     "desc": "profile · F33",
     "source_comment": ""
   },
   {
     "index": 6,
     "file": "06-stories.svg",
-    "label": "精選故事",
+    "label": "精选故事",
     "desc": "stories",
     "source_comment": ""
   },
   {
     "index": 7,
     "file": "07-help-primary-cta.svg",
-    "label": "我需要幫助",
+    "label": "我需要帮助",
     "desc": "help · primary cta",
     "source_comment": ""
   },
@@ -65,7 +65,7 @@
   {
     "index": 10,
     "file": "10-voice.svg",
-    "label": "語音求助",
+    "label": "语音求助",
     "desc": "voice",
     "source_comment": ""
   },
@@ -79,196 +79,196 @@
   {
     "index": 12,
     "file": "12-handoff.svg",
-    "label": "轉人工",
+    "label": "转人工",
     "desc": "handoff",
     "source_comment": ""
   },
   {
     "index": 13,
     "file": "13-ocr-text.svg",
-    "label": "讀文字",
+    "label": "读文字",
     "desc": "ocr_text",
     "source_comment": ""
   },
   {
     "index": 14,
     "file": "14-scene-describe.svg",
-    "label": "場景描述",
+    "label": "场景描述",
     "desc": "scene_describe",
     "source_comment": ""
   },
   {
     "index": 15,
     "file": "15-object-identify.svg",
-    "label": "物體識別",
+    "label": "物体识别",
     "desc": "object_identify",
     "source_comment": ""
   },
   {
     "index": 16,
     "file": "16-color-identify.svg",
-    "label": "顏色識別",
+    "label": "颜色识别",
     "desc": "color_identify",
     "source_comment": ""
   },
   {
     "index": 17,
     "file": "17-money-identify.svg",
-    "label": "鈔票識別",
+    "label": "钞票识别",
     "desc": "money_identify",
     "source_comment": ""
   },
   {
     "index": 18,
     "file": "18-translate-or-relay.svg",
-    "label": "翻譯代述",
+    "label": "翻译代述",
     "desc": "translate_or_relay",
     "source_comment": ""
   },
   {
     "index": 19,
     "file": "19-navigation-guide.svg",
-    "label": "導航導診",
+    "label": "导航导诊",
     "desc": "navigation_guide",
     "source_comment": ""
   },
   {
     "index": 20,
     "file": "20-medicine-check.svg",
-    "label": "藥品確認",
+    "label": "药品确认",
     "desc": "medicine_check",
     "source_comment": ""
   },
   {
     "index": 21,
     "file": "21-emergency-f13.svg",
-    "label": "緊急求助",
+    "label": "紧急求助",
     "desc": "emergency · F13",
     "source_comment": ""
   },
   {
     "index": 22,
     "file": "22-unknown-low-conf.svg",
-    "label": "不確定",
+    "label": "不确定",
     "desc": "unknown · low conf",
     "source_comment": ""
   },
   {
     "index": 23,
     "file": "23-deaf-relay.svg",
-    "label": "聽障轉譯",
+    "label": "听障转译",
     "desc": "deaf relay",
     "source_comment": ""
   },
   {
     "index": 24,
     "file": "24-scan.svg",
-    "label": "掃一掃",
+    "label": "扫一扫",
     "desc": "scan",
     "source_comment": ""
   },
   {
     "index": 25,
     "file": "25-emergency-contact.svg",
-    "label": "緊急聯繫人",
+    "label": "紧急联系人",
     "desc": "emergency contact",
     "source_comment": ""
   },
   {
     "index": 26,
     "file": "26-cancel-10s-window.svg",
-    "label": "撤銷",
+    "label": "撤销",
     "desc": "cancel · 10s window",
     "source_comment": ""
   },
   {
     "index": 27,
     "file": "27-broadcast.svg",
-    "label": "廣播",
+    "label": "广播",
     "desc": "broadcast",
     "source_comment": ""
   },
   {
     "index": 28,
     "file": "28-answer-connected.svg",
-    "label": "接聽",
+    "label": "接听",
     "desc": "answer · connected",
     "source_comment": ""
   },
   {
     "index": 29,
     "file": "29-hang-up.svg",
-    "label": "掛斷",
+    "label": "挂断",
     "desc": "hang up",
     "source_comment": ""
   },
   {
     "index": 30,
     "file": "30-mute.svg",
-    "label": "靜音",
+    "label": "静音",
     "desc": "mute",
     "source_comment": ""
   },
   {
     "index": 31,
     "file": "31-font-size-200.svg",
-    "label": "字體調節",
+    "label": "字体调节",
     "desc": "font size · 200%",
     "source_comment": ""
   },
   {
     "index": 32,
     "file": "32-contrast-7-1.svg",
-    "label": "高對比度",
+    "label": "高对比度",
     "desc": "contrast ≥ 7:1",
     "source_comment": ""
   },
   {
     "index": 33,
     "file": "33-screen-reader.svg",
-    "label": "讀屏",
+    "label": "读屏",
     "desc": "screen reader",
     "source_comment": ""
   },
   {
     "index": 34,
     "file": "34-tts-spoken.svg",
-    "label": "語音輸出",
+    "label": "语音输出",
     "desc": "tts · spoken",
     "source_comment": ""
   },
   {
     "index": 35,
     "file": "35-haptic.svg",
-    "label": "觸覺反饋",
+    "label": "触觉反馈",
     "desc": "haptic",
     "source_comment": ""
   },
   {
     "index": 36,
     "file": "36-dark-mode.svg",
-    "label": "夜間模式",
+    "label": "夜间模式",
     "desc": "dark mode",
     "source_comment": ""
   },
   {
     "index": 37,
     "file": "37-visual.svg",
-    "label": "視力障礙",
+    "label": "视力障碍",
     "desc": "visual",
     "source_comment": ""
   },
   {
     "index": 38,
     "file": "38-hearing.svg",
-    "label": "聽力障礙",
+    "label": "听力障碍",
     "desc": "hearing",
     "source_comment": ""
   },
   {
     "index": 39,
     "file": "39-mobility.svg",
-    "label": "肢體障礙",
+    "label": "肢体障碍",
     "desc": "mobility",
     "source_comment": ""
   },
@@ -282,21 +282,21 @@
   {
     "index": 41,
     "file": "41-speech.svg",
-    "label": "言語障礙",
+    "label": "言语障碍",
     "desc": "speech",
     "source_comment": ""
   },
   {
     "index": 42,
     "file": "42-volunteer-role.svg",
-    "label": "我是志願者",
+    "label": "我是志愿者",
     "desc": "volunteer role",
     "source_comment": ""
   },
   {
     "index": 43,
     "file": "43-ai-processing.svg",
-    "label": "處理中",
+    "label": "处理中",
     "desc": "ai_processing",
     "source_comment": ""
   },
@@ -317,7 +317,7 @@
   {
     "index": 46,
     "file": "46-expired-60s.svg",
-    "label": "超時",
+    "label": "超时",
     "desc": "expired · 60s",
     "source_comment": ""
   },
@@ -331,7 +331,7 @@
   {
     "index": 48,
     "file": "48-weak-signal.svg",
-    "label": "弱網",
+    "label": "弱网",
     "desc": "weak signal",
     "source_comment": ""
   }

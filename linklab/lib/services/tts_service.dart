@@ -1,7 +1,7 @@
 import 'package:flutter_tts/flutter_tts.dart';
 import '../core/utils/logger.dart';
 
-/// 文字轉語音服務
+/// 文字转语音服务
 class TTSService {
   static final TTSService _instance = TTSService._internal();
   factory TTSService() => _instance;
@@ -11,7 +11,7 @@ class TTSService {
   bool _isInitialized = false;
   bool _isSpeaking = false;
 
-  /// 是否正在朗讀
+  /// 是否正在朗读
   bool get isSpeaking => _isSpeaking;
 
   /// 初始化TTS
@@ -26,27 +26,27 @@ class TTSService {
 
       _flutterTts.setStartHandler(() {
         _isSpeaking = true;
-        AppLogger.debug('TTS開始朗讀');
+        AppLogger.debug('TTS开始朗读');
       });
 
       _flutterTts.setCompletionHandler(() {
         _isSpeaking = false;
-        AppLogger.debug('TTS朗讀完成');
+        AppLogger.debug('TTS朗读完成');
       });
 
       _flutterTts.setErrorHandler((msg) {
         _isSpeaking = false;
-        AppLogger.error('TTS錯誤: $msg');
+        AppLogger.error('TTS错误: $msg');
       });
 
       _isInitialized = true;
-      AppLogger.info('TTS服務初始化成功');
+      AppLogger.info('TTS服务初始化成功');
     } catch (e) {
-      AppLogger.error('TTS服務初始化失敗', e);
+      AppLogger.error('TTS服务初始化失败', e);
     }
   }
 
-  /// 朗讀文本
+  /// 朗读文本
   Future<void> speak(String text) async {
     if (!_isInitialized) {
       await initialize();
@@ -57,60 +57,60 @@ class TTSService {
     try {
       await stop();
       await _flutterTts.speak(text);
-      AppLogger.info('TTS朗讀: $text');
+      AppLogger.info('TTS朗读: $text');
     } catch (e) {
-      AppLogger.error('TTS朗讀失敗', e);
+      AppLogger.error('TTS朗读失败', e);
     }
   }
 
-  /// 停止朗讀
+  /// 停止朗读
   Future<void> stop() async {
     try {
       await _flutterTts.stop();
       _isSpeaking = false;
     } catch (e) {
-      AppLogger.error('TTS停止失敗', e);
+      AppLogger.error('TTS停止失败', e);
     }
   }
 
-  /// 暫停朗讀
+  /// 暂停朗读
   Future<void> pause() async {
     try {
       await _flutterTts.pause();
     } catch (e) {
-      AppLogger.error('TTS暫停失敗', e);
+      AppLogger.error('TTS暂停失败', e);
     }
   }
 
-  /// 設置語速
+  /// 设置语速
   Future<void> setSpeechRate(double rate) async {
     try {
       await _flutterTts.setSpeechRate(rate);
-      AppLogger.info('TTS語速設置爲: $rate');
+      AppLogger.info('TTS语速设置为: $rate');
     } catch (e) {
-      AppLogger.error('TTS設置語速失敗', e);
+      AppLogger.error('TTS设置语速失败', e);
     }
   }
 
-  /// 設置音量
+  /// 设置音量
   Future<void> setVolume(double volume) async {
     try {
       await _flutterTts.setVolume(volume.clamp(0.0, 1.0));
     } catch (e) {
-      AppLogger.error('TTS設置音量失敗', e);
+      AppLogger.error('TTS设置音量失败', e);
     }
   }
 
-  /// 設置音調
+  /// 设置音调
   Future<void> setPitch(double pitch) async {
     try {
       await _flutterTts.setPitch(pitch);
     } catch (e) {
-      AppLogger.error('TTS設置音調失敗', e);
+      AppLogger.error('TTS设置音调失败', e);
     }
   }
 
-  /// 獲取可用語音
+  /// 获取可用语音
   Future<List<dynamic>> getVoices() async {
     try {
       final voices = await _flutterTts.getVoices;
@@ -119,17 +119,17 @@ class TTSService {
       }
       return const [];
     } catch (e) {
-      AppLogger.error('獲取TTS語音列表失敗', e);
+      AppLogger.error('获取TTS语音列表失败', e);
       return [];
     }
   }
 
-  /// 設置語音
+  /// 设置语音
   Future<void> setVoice(String voiceName) async {
     try {
       await _flutterTts.setVoice({'name': voiceName, 'locale': 'zh-CN'});
     } catch (e) {
-      AppLogger.error('TTS設置語音失敗', e);
+      AppLogger.error('TTS设置语音失败', e);
     }
   }
 }

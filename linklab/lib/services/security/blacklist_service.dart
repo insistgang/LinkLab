@@ -4,7 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/utils/logger.dart';
 import '../../models/security/report_model.dart';
 
-/// 黑名單服務
+/// 黑名单服务
 class BlacklistService {
   SupabaseClient? _supabaseClient;
   SupabaseClient get _supabase {
@@ -17,7 +17,7 @@ class BlacklistService {
 
   final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
 
-  /// 添加用戶到黑名單
+  /// 添加用户到黑名单
   Future<void> addToBlacklist({
     required String userId,
     required BlacklistLevel level,
@@ -40,7 +40,7 @@ class BlacklistService {
         createdAt: DateTime.now(),
       );
 
-      // 保存到黑名單
+      // 保存到黑名单
       await _supabase.from('blacklist').insert({
         'id': entry.id,
         'user_id': userId,
@@ -51,12 +51,12 @@ class BlacklistService {
         'created_at': entry.createdAt?.toIso8601String(),
       });
 
-      // 如果是用戶級封禁，同時封禁設備
+      // 如果是用户级封禁，同时封禁设备
       if (level == BlacklistLevel.user) {
         await _banUserDevices(userId);
       }
 
-      // 記錄用戶狀態變更
+      // 记录用户状态变更
       await _supabase.from('user_status_changes').insert({
         'user_id': userId,
         'from_status': 'active',
@@ -65,14 +65,14 @@ class BlacklistService {
         'created_at': DateTime.now().toIso8601String(),
       });
 
-      AppLogger.info('用戶已加入黑名單: $userId, 級別: ${level.name}');
+      AppLogger.info('用户已加入黑名单: $userId, 级别: ${level.name}');
     } catch (e) {
-      AppLogger.error('添加黑名單失敗', e);
+      AppLogger.error('添加黑名单失败', e);
       rethrow;
     }
   }
 
-  /// 檢查用戶是否在黑名單中
+  /// 检查用户是否在黑名单中
   Future<bool> isBlacklisted(String userId) async {
     try {
       final response = await _supabase
@@ -85,30 +85,30 @@ class BlacklistService {
 
       return response != null;
     } catch (e) {
-      AppLogger.error('檢查黑名單失敗', e);
+      AppLogger.error('检查黑名单失败', e);
       return false;
     }
   }
 
-  /// 添加設備封禁
+  /// 添加设备封禁
   Future<void> addDeviceBan(String deviceFingerprint, {String? reason}) async {
     try {
       await _supabase.from('blacklist').insert({
         'id': DateTime.now().millisecondsSinceEpoch.toString(),
         'level': 'device',
         'device_fingerprint': deviceFingerprint,
-        'reason': reason ?? '設備違規',
+        'reason': reason ?? '设备违规',
         'created_at': DateTime.now().toIso8601String(),
       });
 
-      AppLogger.info('設備已封禁: $deviceFingerprint');
+      AppLogger.info('设备已封禁: $deviceFingerprint');
     } catch (e) {
-      AppLogger.error('添加設備封禁失敗', e);
+      AppLogger.error('添加设备封禁失败', e);
       rethrow;
     }
   }
 
-  /// 檢查設備是否被封禁
+  /// 检查设备是否被封禁
   Future<bool> isDeviceBanned(String deviceFingerprint) async {
     try {
       final response = await _supabase
@@ -120,7 +120,7 @@ class BlacklistService {
 
       return response != null;
     } catch (e) {
-      AppLogger.error('檢查設備封禁失敗', e);
+      AppLogger.error('检查设备封禁失败', e);
       return false;
     }
   }
@@ -136,19 +136,19 @@ class BlacklistService {
         'id': DateTime.now().millisecondsSinceEpoch.toString(),
         'level': 'ip',
         'ip_address': ipAddress,
-        'reason': reason ?? 'IP違規',
+        'reason': reason ?? 'IP违规',
         'expires_at': expiresAt?.toIso8601String(),
         'created_at': DateTime.now().toIso8601String(),
       });
 
       AppLogger.info('IP已封禁: $ipAddress');
     } catch (e) {
-      AppLogger.error('添加IP封禁失敗', e);
+      AppLogger.error('添加IP封禁失败', e);
       rethrow;
     }
   }
 
-  /// 檢查IP是否被封禁
+  /// 检查IP是否被封禁
   Future<bool> isIPBanned(String ipAddress) async {
     try {
       final response = await _supabase
@@ -161,12 +161,12 @@ class BlacklistService {
 
       return response != null;
     } catch (e) {
-      AppLogger.error('檢查IP封禁失敗', e);
+      AppLogger.error('检查IP封禁失败', e);
       return false;
     }
   }
 
-  /// 從黑名單移除
+  /// 从黑名单移除
   Future<void> removeFromBlacklist(String entryId) async {
     try {
       await _supabase
@@ -174,24 +174,24 @@ class BlacklistService {
           .delete()
           .eq('id', entryId);
 
-      AppLogger.info('已從黑名單移除: $entryId');
+      AppLogger.info('已从黑名单移除: $entryId');
     } catch (e) {
-      AppLogger.error('移除黑名單失敗', e);
+      AppLogger.error('移除黑名单失败', e);
       rethrow;
     }
   }
 
-  /// 解封用戶
+  /// 解封用户
   Future<void> unbanUser(String userId, {String? reason}) async {
     try {
-      // 刪除用戶級黑名單記錄
+      // 删除用户级黑名单记录
       await _supabase
           .from('blacklist')
           .delete()
           .eq('user_id', userId)
           .eq('level', 'user');
 
-      // 記錄狀態變更
+      // 记录状态变更
       await _supabase.from('user_status_changes').insert({
         'user_id': userId,
         'from_status': 'banned',
@@ -200,14 +200,14 @@ class BlacklistService {
         'created_at': DateTime.now().toIso8601String(),
       });
 
-      AppLogger.info('用戶已解封: $userId');
+      AppLogger.info('用户已解封: $userId');
     } catch (e) {
-      AppLogger.error('解封用戶失敗', e);
+      AppLogger.error('解封用户失败', e);
       rethrow;
     }
   }
 
-  /// 獲取設備指紋
+  /// 获取设备指纹
   Future<String> getDeviceFingerprint() async {
     try {
       String deviceId = '';
@@ -220,18 +220,18 @@ class BlacklistService {
         deviceId = '${iosInfo.name}_${iosInfo.model}_${iosInfo.identifierForVendor}';
       }
 
-      // 使用簡單的哈希
+      // 使用简单的哈希
       return _simpleHash(deviceId);
     } catch (e) {
-      AppLogger.error('獲取設備指紋失敗', e);
+      AppLogger.error('获取设备指纹失败', e);
       return '';
     }
   }
 
-  /// 封禁用戶的所有設備
+  /// 封禁用户的所有设备
   Future<void> _banUserDevices(String userId) async {
     try {
-      // 獲取用戶的所有設備指紋
+      // 获取用户的所有设备指纹
       final devices = await _supabase
           .from('user_devices')
           .select('device_fingerprint')
@@ -240,14 +240,14 @@ class BlacklistService {
       for (final device in devices as List<dynamic>) {
         final deviceMap = Map<String, dynamic>.from(device as Map);
         final fingerprint = deviceMap['device_fingerprint'].toString();
-        await addDeviceBan(fingerprint, reason: '關聯違規賬號');
+        await addDeviceBan(fingerprint, reason: '关联违规账号');
       }
     } catch (e) {
-      AppLogger.error('封禁用戶設備失敗', e);
+      AppLogger.error('封禁用户设备失败', e);
     }
   }
 
-  /// 記錄設備信息
+  /// 记录设备信息
   Future<void> recordDeviceInfo(String userId) async {
     try {
       final fingerprint = await getDeviceFingerprint();
@@ -272,11 +272,11 @@ class BlacklistService {
         onConflict: 'user_id',
       );
     } catch (e) {
-      AppLogger.error('記錄設備信息失敗', e);
+      AppLogger.error('记录设备信息失败', e);
     }
   }
 
-  /// 獲取黑名單列表（管理後臺）
+  /// 获取黑名单列表（管理后台）
   Future<List<BlacklistEntry>> getBlacklist({
     BlacklistLevel? level,
     int limit = 50,
@@ -297,12 +297,12 @@ class BlacklistService {
           .map((json) => BlacklistEntry.fromJson(Map<String, dynamic>.from(json as Map)))
           .toList();
     } catch (e) {
-      AppLogger.error('獲取黑名單失敗', e);
+      AppLogger.error('获取黑名单失败', e);
       return [];
     }
   }
 
-  /// 檢查當前環境是否受限
+  /// 检查当前环境是否受限
   Future<BlacklistCheckResult> checkCurrentEnvironment() async {
     final deviceFingerprint = await getDeviceFingerprint();
 
@@ -310,7 +310,7 @@ class BlacklistService {
     if (isDeviceBannedResult) {
       return BlacklistCheckResult(
         isRestricted: true,
-        reason: '設備已被封禁',
+        reason: '设备已被封禁',
         level: BlacklistLevel.device,
       );
     }
@@ -322,7 +322,7 @@ class BlacklistService {
     );
   }
 
-  /// 簡單哈希函數
+  /// 简单哈希函数
   String _simpleHash(String input) {
     var hash = 0;
     for (var i = 0; i < input.length; i++) {
@@ -334,7 +334,7 @@ class BlacklistService {
   }
 }
 
-/// 黑名單檢查結果
+/// 黑名单检查结果
 class BlacklistCheckResult {
   final bool isRestricted;
   final String? reason;

@@ -41,7 +41,7 @@ class _UsersContentState extends State<_UsersContent> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('用戶管理'),
+        title: const Text('用户管理'),
         actions: [
           // Search
           if (!isMobile)
@@ -52,7 +52,7 @@ class _UsersContentState extends State<_UsersContent> {
                 child: TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
-                    hintText: '搜索用戶...',
+                    hintText: '搜索用户...',
                     prefixIcon: const Icon(Icons.search),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
@@ -76,15 +76,15 @@ class _UsersContentState extends State<_UsersContent> {
           // Filters
           PopupMenuButton<String>(
             icon: const Icon(Icons.filter_list),
-            tooltip: '篩選',
+            tooltip: '筛选',
             itemBuilder: (context) => [
-              const PopupMenuItem(value: 'all', child: Text('全部用戶')),
-              const PopupMenuItem(value: 'disabled', child: Text('殘障用戶')),
-              const PopupMenuItem(value: 'volunteer', child: Text('志願者')),
+              const PopupMenuItem(value: 'all', child: Text('全部用户')),
+              const PopupMenuItem(value: 'disabled', child: Text('残障用户')),
+              const PopupMenuItem(value: 'volunteer', child: Text('志愿者')),
               const PopupMenuDivider(),
-              const PopupMenuItem(value: 'active', child: Text('正常用戶')),
+              const PopupMenuItem(value: 'active', child: Text('正常用户')),
               const PopupMenuItem(value: 'banned', child: Text('已封禁')),
-              const PopupMenuItem(value: 'pending', child: Text('待審覈')),
+              const PopupMenuItem(value: 'pending', child: Text('待审核')),
             ],
             onSelected: (value) {
               switch (value) {
@@ -159,7 +159,7 @@ class _UsersContentState extends State<_UsersContent> {
                     onPressed: () {
                       context.read<UserBloc>().add(const UserLoadRequested());
                     },
-                    child: const Text('重試'),
+                    child: const Text('重试'),
                   ),
                 ],
               ),
@@ -179,7 +179,7 @@ class _UsersContentState extends State<_UsersContent> {
         child: PaginatedDataTable2(
           header: Row(
             children: [
-              Text('共 ${state.total} 位用戶'),
+              Text('共 ${state.total} 位用户'),
               const Spacer(),
               if (state.search != null)
                 Chip(
@@ -193,7 +193,7 @@ class _UsersContentState extends State<_UsersContent> {
                 Padding(
                   padding: const EdgeInsets.only(left: 8),
                   child: Chip(
-                    label: Text('狀態: ${state.status!.name}'),
+                    label: Text('状态: ${state.status!.name}'),
                     onDeleted: () {
                       context.read<UserBloc>().add(const UserFilterChanged());
                     },
@@ -202,11 +202,11 @@ class _UsersContentState extends State<_UsersContent> {
             ],
           ),
           columns: const [
-            DataColumn2(label: Text('用戶'), size: ColumnSize.L),
-            DataColumn2(label: Text('類型'), size: ColumnSize.S),
-            DataColumn2(label: Text('狀態'), size: ColumnSize.S),
-            DataColumn2(label: Text('認證'), size: ColumnSize.S),
-            DataColumn2(label: Text('註冊時間'), size: ColumnSize.M),
+            DataColumn2(label: Text('用户'), size: ColumnSize.L),
+            DataColumn2(label: Text('类型'), size: ColumnSize.S),
+            DataColumn2(label: Text('状态'), size: ColumnSize.S),
+            DataColumn2(label: Text('认证'), size: ColumnSize.S),
+            DataColumn2(label: Text('注册时间'), size: ColumnSize.M),
             DataColumn2(label: Text('操作'), size: ColumnSize.S),
           ],
           source: _UserDataSource(
@@ -271,7 +271,7 @@ class _UsersContentState extends State<_UsersContent> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('用戶詳情'),
+        title: const Text('用户详情'),
         content: SizedBox(
           width: 500,
           child: SingleChildScrollView(
@@ -280,28 +280,28 @@ class _UsersContentState extends State<_UsersContent> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 _buildDetailRow('ID', user.id),
-                _buildDetailRow('郵箱', user.email),
-                _buildDetailRow('暱稱', user.displayName ?? '未設置'),
+                _buildDetailRow('邮箱', user.email),
+                _buildDetailRow('昵称', user.displayName ?? '未设置'),
                 _buildDetailRow('角色', user.roleText),
-                _buildDetailRow('狀態', user.statusText),
+                _buildDetailRow('状态', user.statusText),
                 if (user.disabilityType != null) ...[
-                  _buildDetailRow('殘障類型', user.disabilityType!),
-                  _buildDetailRow('認證狀態', user.verificationText),
+                  _buildDetailRow('残障类型', user.disabilityType!),
+                  _buildDetailRow('认证状态', user.verificationText),
                 ],
                 if (user.volunteerLevel != null) ...[
-                  _buildDetailRow('志願者等級', user.volunteerLevel!),
+                  _buildDetailRow('志愿者等级', user.volunteerLevel!),
                   _buildDetailRow(
-                    '積分',
+                    '积分',
                     user.volunteerPoints?.toString() ?? '0',
                   ),
                   _buildDetailRow(
-                    '評分',
+                    '评分',
                     user.rating?.toStringAsFixed(1) ?? '0.0',
                   ),
-                  _buildDetailRow('總通話', user.totalCalls?.toString() ?? '0'),
+                  _buildDetailRow('总通话', user.totalCalls?.toString() ?? '0'),
                 ],
                 _buildDetailRow(
-                  '註冊時間',
+                  '注册时间',
                   user.createdAt.toString().substring(0, 19),
                 ),
               ],
@@ -311,7 +311,7 @@ class _UsersContentState extends State<_UsersContent> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('關閉'),
+            child: const Text('关闭'),
           ),
           if (user.status == UserStatus.active)
             ElevatedButton(
@@ -370,18 +370,18 @@ class _UsersContentState extends State<_UsersContent> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('封禁用戶'),
+        title: const Text('封禁用户'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('確定要封禁用戶 ${user.displayName ?? user.email} 嗎？'),
+            Text('确定要封禁用户 ${user.displayName ?? user.email} 吗？'),
             const SizedBox(height: 16),
             TextField(
               controller: reasonController,
               decoration: const InputDecoration(
-                labelText: '封禁原因（可選）',
-                hintText: '請輸入封禁原因',
+                labelText: '封禁原因（可选）',
+                hintText: '请输入封禁原因',
               ),
               maxLines: 3,
             ),
@@ -402,7 +402,7 @@ class _UsersContentState extends State<_UsersContent> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.errorColor,
             ),
-            child: const Text('確認封禁'),
+            child: const Text('确认封禁'),
           ),
         ],
       ),
@@ -413,8 +413,8 @@ class _UsersContentState extends State<_UsersContent> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('解封用戶'),
-        content: Text('確定要解封用戶 ${user.displayName ?? user.email} 嗎？'),
+        title: const Text('解封用户'),
+        content: Text('确定要解封用户 ${user.displayName ?? user.email} 吗？'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -425,7 +425,7 @@ class _UsersContentState extends State<_UsersContent> {
               Navigator.pop(context);
               context.read<UserBloc>().add(UserUnbanRequested(user.id));
             },
-            child: const Text('確認解封'),
+            child: const Text('确认解封'),
           ),
         ],
       ),
@@ -436,15 +436,15 @@ class _UsersContentState extends State<_UsersContent> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('認證審覈'),
+        title: const Text('认证审核'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('用戶: ${user.displayName ?? user.email}'),
+            Text('用户: ${user.displayName ?? user.email}'),
             if (user.disabilityCertificateUrl != null) ...[
               const SizedBox(height: 16),
-              const Text('殘障證明:'),
+              const Text('残障证明:'),
               const SizedBox(height: 8),
               Image.network(
                 user.disabilityCertificateUrl!,
@@ -454,7 +454,7 @@ class _UsersContentState extends State<_UsersContent> {
                   return Container(
                     height: 200,
                     color: Colors.grey[200],
-                    child: const Center(child: Text('無法加載圖片')),
+                    child: const Center(child: Text('无法加载图片')),
                   );
                 },
               ),
@@ -476,7 +476,7 @@ class _UsersContentState extends State<_UsersContent> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.errorColor,
             ),
-            child: const Text('拒絕'),
+            child: const Text('拒绝'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -485,7 +485,7 @@ class _UsersContentState extends State<_UsersContent> {
                 UserVerifyRequested(user.id, VerificationStatus.approved),
               );
             },
-            child: const Text('通過'),
+            child: const Text('通过'),
           ),
         ],
       ),
@@ -536,7 +536,7 @@ class _UserDataSource extends DataTableSource {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      user.displayName ?? '未設置暱稱',
+                      user.displayName ?? '未设置昵称',
                       style: const TextStyle(fontWeight: FontWeight.w500),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -558,10 +558,10 @@ class _UserDataSource extends DataTableSource {
           Chip(
             label: Text(
               user.disabilityType != null
-                  ? '殘障用戶'
+                  ? '残障用户'
                   : user.volunteerLevel != null
-                  ? '志願者'
-                  : '普通用戶',
+                  ? '志愿者'
+                  : '普通用户',
               style: const TextStyle(fontSize: 12),
             ),
             padding: EdgeInsets.zero,
@@ -635,7 +635,7 @@ class _UserDataSource extends DataTableSource {
                   children: [
                     Icon(Icons.visibility, size: 18),
                     SizedBox(width: 8),
-                    Text('查看詳情'),
+                    Text('查看详情'),
                   ],
                 ),
               ),
@@ -646,7 +646,7 @@ class _UserDataSource extends DataTableSource {
                     children: [
                       Icon(Icons.verified, size: 18),
                       SizedBox(width: 8),
-                      Text('審覈認證'),
+                      Text('审核认证'),
                     ],
                   ),
                 ),
@@ -657,7 +657,7 @@ class _UserDataSource extends DataTableSource {
                     children: [
                       Icon(Icons.block, size: 18, color: AppTheme.errorColor),
                       const SizedBox(width: 8),
-                      const Text('封禁用戶'),
+                      const Text('封禁用户'),
                     ],
                   ),
                 )
@@ -668,7 +668,7 @@ class _UserDataSource extends DataTableSource {
                     children: [
                       Icon(Icons.check_circle, size: 18),
                       SizedBox(width: 8),
-                      Text('解封用戶'),
+                      Text('解封用户'),
                     ],
                   ),
                 ),
@@ -733,7 +733,7 @@ class _UserListTile extends StatelessWidget {
                 )
               : null,
         ),
-        title: Text(user.displayName ?? '未設置暱稱'),
+        title: Text(user.displayName ?? '未设置昵称'),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -22,8 +22,8 @@ import '../../widgets/demo/demo_overlays.dart';
 import '../../widgets/demo/demo_stage.dart';
 import '../../widgets/demo/linkable_icon.dart';
 
-/// 演示版 AI 對話頁面
-/// 支持文字、圖片、語音預填充，以及轉人工與 SOS 演示銜接。
+/// 演示版 AI 对话页面
+/// 支持文字、图片、语音预填充，以及转人工与 SOS 演示衔接。
 class DemoAIChatScreen extends ConsumerStatefulWidget {
   const DemoAIChatScreen({
     super.key,
@@ -85,7 +85,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
   }
 
   String get _defaultIntroMessage =>
-      '您好！我是 AI 助手“智動”。\n\n我可以幫您：\n• 讀文字、說明書、路牌和通知單\n• 描述場景、環境和顏色\n• 模擬面額識別、翻譯轉譯和找路提示\n• 檢測緊急詞並進入 SOS Mock\n\n不確定時，每個回答都可以轉接志願者。';
+      '您好！我是 AI 助手“智动”。\n\n我可以帮您：\n• 读文字、说明书、路牌和通知单\n• 描述场景、环境和颜色\n• 模拟面额识别、翻译转译和找路提示\n• 检测紧急词并进入 SOS Mock\n\n不确定时，每个回答都可以转接志愿者。';
 
   void _addUserMessage(
     String text, {
@@ -145,8 +145,8 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
 
     if (text.isEmpty && imageBytes == null) return;
 
-    final visibleText = text.isEmpty ? '發送了圖片' : text;
-    final requestText = text.isEmpty ? '這是什麼？' : text;
+    final visibleText = text.isEmpty ? '发送了图片' : text;
+    final requestText = text.isEmpty ? '这是什么？' : text;
 
     _addUserMessage(visibleText, imageBytes: imageBytes, imageName: imageName);
     _textController.clear();
@@ -180,8 +180,8 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
         .startAiProcessing(intent: input);
     _addBotMessage('AI 正在分析...');
 
-    // 優先使用統一 Agent facade，真實 OCR/VLM/ASR/TTS 由 facade 決定，
-    // 失敗時繼續回到 Demo fallback，避免主鏈路無響應。
+    // 优先使用统一 Agent facade，真实 OCR/VLM/ASR/TTS 由 facade 决定，
+    // 失败时继续回到 Demo fallback，避免主链路无响应。
     AgentResponse? response;
     try {
       final agentResult = await _agentFacade.processInput(
@@ -194,7 +194,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
         requestId: _uuid.v4(),
       );
     } catch (e) {
-      // Agent facade 失敗時降級到舊 processRequest / process() 方法
+      // Agent facade 失败时降级到旧 processRequest / process() 方法
       AppLogger.warning(
         '[DemoAIChat] Agent facade failed, fallback to DemoAIService',
         e,
@@ -226,7 +226,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
             setState(() {
               _messages.removeLast();
             });
-            _addBotMessage('抱歉，處理出錯了：${result.error}');
+            _addBotMessage('抱歉，处理出错了：${result.error}');
             await ref
                 .read(demoHelpRequestFlowProvider.notifier)
                 .markCancelled(reason: result.error);
@@ -240,7 +240,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
           setState(() {
             _messages.removeLast();
           });
-          _addBotMessage('抱歉，處理出錯了：$e3');
+          _addBotMessage('抱歉，处理出错了：$e3');
           setState(() {
             _isProcessing = false;
           });
@@ -288,19 +288,19 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
     showDemoStageDialog<void>(
       context,
       builder: (context) => DemoDialog(
-        title: '需要人工幫助？',
+        title: '需要人工帮助？',
         icon: Icons.headset_mic_outlined,
-        description: 'AI 可能無法完全解決您的問題。是否現在爲您連接志願者？',
+        description: 'AI 可能无法完全解决您的问题。是否现在为您连接志愿者？',
         actions: [
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
               await ref
                   .read(demoHelpRequestFlowProvider.notifier)
-                  .markCancelled(reason: '用戶選擇繼續 AI 對話');
+                  .markCancelled(reason: '用户选择继续 AI 对话');
             },
             child: Text(
-              '繼續 AI 對話',
+              '继续 AI 对话',
               style: TextStyle(color: AppTheme.stageTextSecondary),
             ),
           ),
@@ -313,7 +313,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
               Navigator.pop(context);
               _startMatchingFlow();
             },
-            child: const Text('連接志願者'),
+            child: const Text('连接志愿者'),
           ),
         ],
       ),
@@ -326,18 +326,18 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
   }) {
     final rawUiCopy = result.uiCopy;
     final uiCopy = UiCopy(
-      title: _readUiCopyValue(rawUiCopy, 'title', 'AI 已完成處理'),
+      title: _readUiCopyValue(rawUiCopy, 'title', 'AI 已完成处理'),
       body: _readUiCopyValue(rawUiCopy, 'body', result.answerText),
       primaryAction: _readUiCopyValue(
         rawUiCopy,
         'primaryAction',
-        '繼續',
+        '继续',
         fallbackKey: 'primary_action',
       ),
       secondaryAction: _readUiCopyValue(
         rawUiCopy,
         'secondaryAction',
-        '轉人工協助',
+        '转人工协助',
         fallbackKey: 'secondary_action',
       ),
     );
@@ -385,7 +385,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
     final lastUserMessage = _messages.lastWhere(
       (message) => message.isUser,
       orElse: () => ChatMessage(
-        text: '連接真人志願者獲取幫助',
+        text: '连接真人志愿者获取帮助',
         isUser: true,
         timestamp: DateTime.now(),
       ),
@@ -399,7 +399,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
     await ref
         .read(demoHelpRequestFlowProvider.notifier)
         .enterMatching(
-          intent: '連接真人志願者：${lastUserMessage.text}',
+          intent: '连接真人志愿者：${lastUserMessage.text}',
           type: 'realtime_voice',
         );
     if (!mounted) return;
@@ -416,13 +416,13 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
     try {
       await _agentFacade.speakText(text);
       if (!mounted) return;
-      AppLogger.info('[DemoAIChat] TTS 朗讀成功');
+      AppLogger.info('[DemoAIChat] TTS 朗读成功');
     } catch (e) {
       if (!mounted) return;
-      AppLogger.warning('[DemoAIChat] TTS 朗讀失敗', e);
+      AppLogger.warning('[DemoAIChat] TTS 朗读失败', e);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('語音播放失敗，請稍後重試'),
+          content: Text('语音播放失败，请稍后重试'),
           duration: Duration(seconds: 2),
         ),
       );
@@ -491,10 +491,10 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
             leading: const LinkableSvgIcon(
               icon: LinkableIconName.photoHelp,
               size: 32,
-              semanticLabel: '從相冊選擇',
+              semanticLabel: '从相册选择',
             ),
             title: AccessibleText(
-              '從相冊選擇',
+              '从相册选择',
               style: TextStyle(color: AppTheme.stageTextPrimary),
             ),
             onTap: () {
@@ -514,7 +514,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
       try {
         await _agentFacade.stopVoiceInput();
       } catch (e) {
-        AppLogger.warning('[DemoAIChat] 停止語音輸入失敗', e);
+        AppLogger.warning('[DemoAIChat] 停止语音输入失败', e);
       }
       if (mounted) {
         setState(() => _isListening = false);
@@ -523,7 +523,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
     }
 
     setState(() => _isListening = true);
-    _addBotMessage('正在聽您說...');
+    _addBotMessage('正在听您说...');
 
     try {
       final recognizedText = await _agentFacade.startVoiceInput();
@@ -541,7 +541,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
         _textController.text = recognizedText;
         await _sendMessage();
       } else {
-        _addBotMessage('沒有聽清，請再試一次。');
+        _addBotMessage('没有听清，请再试一次。');
       }
     } catch (e) {
       if (!mounted) return;
@@ -551,7 +551,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
           _messages.removeLast();
         }
       });
-      _addBotMessage('語音識別遇到了問題，請檢查麥克風權限後重試，也可以直接輸入文字。');
+      _addBotMessage('语音识别遇到了问题，请检查麦克风权限后重试，也可以直接输入文字。');
     }
   }
 
@@ -602,7 +602,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
 
         return DemoStageScaffold(
           title: widget.title,
-          subtitle: compactLayout ? '文字、圖片、語音輸入' : '支持文字、圖片與語音預置輸入',
+          subtitle: compactLayout ? '文字、图片、语音输入' : '支持文字、图片与语音预置输入',
           showBackButton: true,
           body: chatBody,
           bottomBar: inputBar,
@@ -614,7 +614,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
   Widget _buildEmbeddedHeader({required bool compactLayout}) {
     return Semantics(
       header: true,
-      label: 'AI 助手，第一響應入口',
+      label: 'AI 助手，第一响应入口',
       child: Row(
         children: [
           DemoGlassIconBadge(
@@ -644,7 +644,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
                 ),
                 const SizedBox(height: AppTheme.spacingXS),
                 AccessibleText(
-                  'AI 先判斷，必要時轉真人',
+                  'AI 先判断，必要时转真人',
                   style: TextStyle(
                     color: AppTheme.stageTextSecondary,
                     fontSize: AppTheme.fontSizeSmall,
@@ -701,12 +701,12 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
                 children: [
                   DemoPill(
                     icon: Icons.multitrack_audio_rounded,
-                    label: 'AI 助手在線',
+                    label: 'AI 助手在线',
                     color: AppTheme.stageAccentLight,
                   ),
                   DemoPill(
                     icon: Icons.headset_mic_outlined,
-                    label: '可轉真人',
+                    label: '可转真人',
                     color: AppTheme.stageAccentLight,
                   ),
                 ],
@@ -714,7 +714,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
               if (!compactLayout) ...[
                 const SizedBox(height: AppTheme.spacingM),
                 AccessibleText(
-                  '先由 AI 快速完成 OCR、場景描述與顏色識別；不確定時再無縫轉接志願者。',
+                  '先由 AI 快速完成 OCR、场景描述与颜色识别；不确定时再无缝转接志愿者。',
                   style: TextStyle(
                     color: AppTheme.stageTextSecondary,
                     fontSize: AppTheme.fontSizeSmall,
@@ -734,12 +734,12 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
                       color: AppTheme.stageAccentLight,
                     ),
                     DemoPill(
-                      label: '場景描述',
+                      label: '场景描述',
                       icon: Icons.visibility_outlined,
                       color: AppTheme.stageAccentLight,
                     ),
                     DemoPill(
-                      label: '緊急詞檢測',
+                      label: '紧急词检测',
                       icon: Icons.warning_amber_rounded,
                       color: AppTheme.stageAccentLight,
                     ),
@@ -877,13 +877,13 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
                 const SizedBox(width: AppTheme.spacingM),
                 Expanded(
                   child: AccessibleText(
-                    _selectedImageName ?? '已選擇圖片',
+                    _selectedImageName ?? '已选择图片',
                     style: TextStyle(color: AppTheme.stageTextPrimary),
                   ),
                 ),
                 AccessibleIconButton(
                   icon: Icons.close,
-                  semanticLabel: '移除已選擇的圖片',
+                  semanticLabel: '移除已选择的图片',
                   iconColor: AppTheme.stageTextSecondary,
                   onPressed: () => setState(() {
                     _selectedImageBytes = null;
@@ -913,8 +913,8 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
               SizedBox(width: compactLayout ? 6 : AppTheme.spacingS),
               Semantics(
                 button: true,
-                label: _isListening ? '停止錄音' : '語音輸入',
-                hint: '雙擊執行${_isListening ? '停止錄音' : '語音輸入'}',
+                label: _isListening ? '停止录音' : '语音输入',
+                hint: '双击执行${_isListening ? '停止录音' : '语音输入'}',
                 enabled: !_isProcessing,
                 child: Material(
                   color: _isListening
@@ -953,7 +953,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
                         : AppTheme.fontSizeNormal,
                   ),
                   decoration: InputDecoration(
-                    hintText: '輸入消息...',
+                    hintText: '输入消息...',
                     hintStyle: TextStyle(
                       color: AppTheme.stageTextHint,
                       fontSize: compactLayout
@@ -995,8 +995,8 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
                 ),
                 child: Semantics(
                   button: true,
-                  label: '發送消息',
-                  hint: '雙擊執行發送消息',
+                  label: '发送消息',
+                  hint: '双击执行发送消息',
                   enabled: !_isProcessing,
                   child: Material(
                     color: Colors.transparent,
@@ -1010,7 +1010,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
                         child: LinkableSvgIcon(
                           icon: LinkableIconName.send,
                           size: compactLayout ? 22 : AppTheme.fontSizeLarge,
-                          semanticLabel: '發送消息',
+                          semanticLabel: '发送消息',
                         ),
                       ),
                     ),
@@ -1042,8 +1042,8 @@ class _QuickPromptButton extends StatelessWidget {
 
     return Semantics(
       button: true,
-      label: '快捷問題：$label',
-      hint: '雙擊發送這個問題',
+      label: '快捷问题：$label',
+      hint: '双击发送这个问题',
       enabled: onPressed != null,
       child: Material(
         color: AppTheme.stageAccent.withValues(
@@ -1132,10 +1132,10 @@ class _ChatMessageBubble extends StatelessWidget {
   }
 
   bool get _isEmergencyResult {
-    // 優先讀取 AgentResponse 標準字段
+    // 优先读取 AgentResponse 标准字段
     final urgency = message.data?['urgency'] as String?;
     if (urgency == 'emergency') return true;
-    // 兼容舊 AIResult 格式
+    // 兼容旧 AIResult 格式
     return message.data?['isEmergency'] == true ||
         message.data?['action'] == 'sos_triggered';
   }
@@ -1163,7 +1163,7 @@ class _ChatMessageBubble extends StatelessWidget {
           _standardNextAction == 'show_fallback' ||
           !_canResolveByAI;
     }
-    // 兼容舊格式
+    // 兼容旧格式
     return message.data?['canTransferToHuman'] != false;
   }
 
@@ -1188,13 +1188,13 @@ class _ChatMessageBubble extends StatelessWidget {
   String get _transferActionLabel {
     final label = message.uiCopy?.primaryAction.trim();
     if (label == null || label.isEmpty) {
-      return '連接志願者';
+      return '连接志愿者';
     }
-    if (label.contains('繼續') ||
+    if (label.contains('继续') ||
         label.contains('重新') ||
         label.contains('等待') ||
-        label.contains('稍後')) {
-      return '連接志願者';
+        label.contains('稍后')) {
+      return '连接志愿者';
     }
     return label;
   }
@@ -1215,7 +1215,7 @@ class _ChatMessageBubble extends StatelessWidget {
         : const EdgeInsets.all(AppTheme.spacingM);
 
     return Semantics(
-      label: message.isUser ? '我說：${message.text}' : 'AI 助手說：${message.text}',
+      label: message.isUser ? '我说：${message.text}' : 'AI 助手说：${message.text}',
       child: Padding(
         padding: EdgeInsets.only(
           bottom: compactLayout ? AppTheme.spacingS : AppTheme.spacingM,
@@ -1300,7 +1300,7 @@ class _ChatMessageBubble extends StatelessWidget {
                           icon: isSpeaking
                               ? Icons.stop_circle_outlined
                               : Icons.volume_up_outlined,
-                          semanticLabel: isSpeaking ? '停止播放' : '語音播放',
+                          semanticLabel: isSpeaking ? '停止播放' : '语音播放',
                           size: 36,
                           iconSize: compactLayout
                               ? AppTheme.fontSizeSmall
@@ -1315,7 +1315,7 @@ class _ChatMessageBubble extends StatelessWidget {
                         ),
                         if (_showSOSAction)
                           _BubbleActionButton(
-                            label: '進入 SOS',
+                            label: '进入 SOS',
                             icon: Icons.emergency_outlined,
                             foregroundColor: AppTheme.stageBackground,
                             backgroundColor: AppTheme.stageDanger,
@@ -1333,7 +1333,7 @@ class _ChatMessageBubble extends StatelessWidget {
                           TextButton(
                             onPressed: onTransferToHuman,
                             child: Text(
-                              '轉人工複覈',
+                              '转人工复核',
                               style: TextStyle(color: AppTheme.stageAccent),
                             ),
                           ),
@@ -1389,7 +1389,7 @@ class _BubbleActionButton extends StatelessWidget {
     return Semantics(
       button: true,
       label: label,
-      hint: '雙擊執行$label',
+      hint: '双击执行$label',
       child: ElevatedButton.icon(
         style: ElevatedButton.styleFrom(
           foregroundColor: foregroundColor,

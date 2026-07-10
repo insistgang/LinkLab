@@ -3,7 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'skill_model.freezed.dart';
 part 'skill_model.g.dart';
 
-/// 技能標籤模型
+/// 技能标签模型
 @freezed
 class SkillModel with _$SkillModel {
   const factory SkillModel({
@@ -23,7 +23,7 @@ class SkillModel with _$SkillModel {
 
   const SkillModel._();
 
-  /// 技能圖標（emoji）
+  /// 技能图标（emoji）
   String get iconEmoji {
     switch (category) {
       case 'medical':
@@ -46,153 +46,153 @@ class SkillModel with _$SkillModel {
   }
 }
 
-/// 預設技能標籤定義
+/// 预设技能标签定义
 class SkillDefinitions {
   static const List<SkillModel> all = [
-    // 醫療輔助
+    // 医疗辅助
     SkillModel(
       id: 'medical_basic',
-      name: '醫療輔助',
+      name: '医疗辅助',
       category: 'medical',
-      description: '基礎醫療知識，可協助用藥指導、健康諮詢',
+      description: '基础医疗知识，可协助用药指导、健康谘询',
       requiresVerification: true,
     ),
     SkillModel(
       id: 'medical_nursing',
-      name: '護理陪護',
+      name: '护理陪护',
       category: 'medical',
-      description: '專業護理技能，可協助日常護理',
+      description: '专业护理技能，可协助日常护理',
       requiresVerification: true,
     ),
 
-    // 外語翻譯
+    // 外语翻译
     SkillModel(
       id: 'lang_english',
-      name: '英語翻譯',
+      name: '英语翻译',
       category: 'language',
-      description: '英語口譯和筆譯',
+      description: '英语口译和笔译',
     ),
     SkillModel(
       id: 'lang_japanese',
-      name: '日語翻譯',
+      name: '日语翻译',
       category: 'language',
-      description: '日語口譯和筆譯',
+      description: '日语口译和笔译',
     ),
     SkillModel(
       id: 'lang_korean',
-      name: '韓語翻譯',
+      name: '韩语翻译',
       category: 'language',
-      description: '韓語口譯和筆譯',
+      description: '韩语口译和笔译',
     ),
     SkillModel(
       id: 'lang_french',
-      name: '法語翻譯',
+      name: '法语翻译',
       category: 'language',
-      description: '法語口譯和筆譯',
+      description: '法语口译和笔译',
     ),
     SkillModel(
       id: 'lang_german',
-      name: '德語翻譯',
+      name: '德语翻译',
       category: 'language',
-      description: '德語口譯和筆譯',
+      description: '德语口译和笔译',
     ),
     SkillModel(
       id: 'lang_spanish',
-      name: '西班牙語翻譯',
+      name: '西班牙语翻译',
       category: 'language',
-      description: '西班牙語口譯和筆譯',
+      description: '西班牙语口译和笔译',
     ),
 
-    // 技術指導
+    // 技术指导
     SkillModel(
       id: 'tech_mobile',
-      name: '手機操作',
+      name: '手机操作',
       category: 'tech',
-      description: '協助智能手機設置、APP使用等',
+      description: '协助智能手机设置、APP使用等',
     ),
     SkillModel(
       id: 'tech_computer',
-      name: '電腦操作',
+      name: '电脑操作',
       category: 'tech',
-      description: '協助電腦操作、軟件使用等',
+      description: '协助电脑操作、软件使用等',
     ),
     SkillModel(
       id: 'tech_internet',
-      name: '網絡購物',
+      name: '网络购物',
       category: 'tech',
-      description: '協助網購、支付、訂單查詢等',
+      description: '协助网购、支付、订单查询等',
     ),
 
     // 心理支持
     SkillModel(
       id: 'psych_counseling',
-      name: '心理諮詢',
+      name: '心理谘询',
       category: 'psychology',
-      description: '提供情緒疏導和心理支持',
+      description: '提供情绪疏导和心理支持',
       requiresVerification: true,
     ),
     SkillModel(
       id: 'psych_companion',
       name: '陪伴聊天',
       category: 'psychology',
-      description: '提供陪伴和傾聽',
+      description: '提供陪伴和倾听',
     ),
 
-    // 出行導航
+    // 出行导航
     SkillModel(
       id: 'nav_outdoor',
-      name: '戶外導航',
+      name: '户外导航',
       category: 'navigation',
-      description: '協助路線規劃、交通查詢等',
+      description: '协助路线规划、交通查询等',
     ),
     SkillModel(
       id: 'nav_transport',
-      name: '交通協助',
+      name: '交通协助',
       category: 'navigation',
-      description: '協助打車、公交地鐵換乘等',
+      description: '协助打车、公交地铁换乘等',
     ),
 
-    // 生活常識
+    // 生活常识
     SkillModel(
       id: 'life_cooking',
-      name: '烹飪指導',
+      name: '烹饪指导',
       category: 'life',
-      description: '提供烹飪方法和食譜指導',
+      description: '提供烹饪方法和食谱指导',
     ),
     SkillModel(
       id: 'life_cleaning',
-      name: '家務整理',
+      name: '家务整理',
       category: 'life',
-      description: '提供家務整理和清潔建議',
+      description: '提供家务整理和清洁建议',
     ),
     SkillModel(
       id: 'life_shopping',
-      name: '購物協助',
+      name: '购物协助',
       category: 'life',
-      description: '協助商品選擇、價格比較等',
+      description: '协助商品选择、价格比较等',
     ),
 
-    // 手語
+    // 手语
     SkillModel(
       id: 'sign_language',
-      name: '手語翻譯',
+      name: '手语翻译',
       category: 'sign_language',
-      description: '手語翻譯服務',
+      description: '手语翻译服务',
       requiresVerification: true,
     ),
   ];
 
-  /// 按分類獲取技能
+  /// 按分类获取技能
   static List<SkillModel> getByCategory(String category) {
     return all.where((s) => s.category == category).toList();
   }
 
-  /// 獲取所有分類
+  /// 获取所有分类
   static List<String> get categories {
     return all.map((s) => s.category).whereType<String>().toSet().toList();
   }
 
-  /// 根據ID獲取技能
+  /// 根据ID获取技能
   static SkillModel? getById(String id) {
     try {
       return all.firstWhere((s) => s.id == id);
@@ -201,30 +201,30 @@ class SkillDefinitions {
     }
   }
 
-  /// 獲取分類顯示名稱
+  /// 获取分类显示名称
   static String getCategoryDisplayName(String category) {
     switch (category) {
       case 'medical':
-        return '醫療輔助';
+        return '医疗辅助';
       case 'language':
-        return '外語翻譯';
+        return '外语翻译';
       case 'tech':
-        return '技術指導';
+        return '技术指导';
       case 'psychology':
         return '心理支持';
       case 'navigation':
-        return '出行導航';
+        return '出行导航';
       case 'life':
-        return '生活常識';
+        return '生活常识';
       case 'sign_language':
-        return '手語翻譯';
+        return '手语翻译';
       default:
         return '其他';
     }
   }
 }
 
-/// 技能認證申請
+/// 技能认证申请
 @freezed
 class SkillVerificationRequest with _$SkillVerificationRequest {
   const factory SkillVerificationRequest({

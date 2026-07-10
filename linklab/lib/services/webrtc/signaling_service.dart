@@ -7,60 +7,60 @@ import '../../core/utils/logger.dart';
 import '../../models/call_models.dart';
 import 'webrtc_config.dart';
 
-/// 信令服務
-/// 使用Supabase Realtime進行WebRTC信令交換
+/// 信令服务
+/// 使用Supabase Realtime进行WebRTC信令交换
 class SignalingService {
   static final SignalingService _instance = SignalingService._internal();
   factory SignalingService() => _instance;
   SignalingService._internal();
 
-  // ==================== Supabase客戶端 ====================
+  // ==================== Supabase客户端 ====================
 
   final SupabaseClient _supabase = Supabase.instance.client;
 
-  // ==================== 頻道和訂閱 ====================
+  // ==================== 频道和订阅 ====================
 
-  /// 當前信令頻道
+  /// 当前信令频道
   RealtimeChannel? _signalingChannel;
 
-  /// 房間Presence頻道
+  /// 房间Presence频道
   RealtimeChannel? _presenceChannel;
 
-  /// 廣播訂閱
+  /// 广播订阅
   StreamSubscription? _broadcastSubscription;
 
-  /// Presence訂閱
+  /// Presence订阅
   StreamSubscription? _presenceSubscription;
 
-  // ==================== 狀態流控制器 ====================
+  // ==================== 状态流控制器 ====================
 
   /// 信令消息流
   final _signalingMessageController = StreamController<SignalingMessage>.broadcast();
 
-  /// 房間狀態流
+  /// 房间状态流
   final _roomStateController = StreamController<RoomState>.broadcast();
 
-  /// 參與者變化流
+  /// 参与者变化流
   final _participantsController = StreamController<List<RoomParticipant>>.broadcast();
 
-  /// 連接狀態流
+  /// 连接状态流
   final _connectionStateController = StreamController<SignalingConnectionState>.broadcast();
 
-  // ==================== 狀態 ====================
+  // ==================== 状态 ====================
 
-  /// 當前房間ID
+  /// 当前房间ID
   String? _currentRoomId;
 
-  /// 當前用戶ID
+  /// 当前用户ID
   String? get _currentUserId => _supabase.auth.currentUser?.id;
 
-  /// 房間參與者列表
+  /// 房间参与者列表
   final List<RoomParticipant> _participants = [];
 
-  /// 是否已加入房間
+  /// 是否已加入房间
   bool get isInRoom => _currentRoomId != null;
 
-  /// 當前房間ID
+  /// 当前房间ID
   String? get currentRoomId => _currentRoomId;
 
   // ==================== Getters ====================
@@ -68,27 +68,27 @@ class SignalingService {
   /// 信令消息流
   Stream<SignalingMessage> get signalingMessageStream => _signalingMessageController.stream;
 
-  /// 房間狀態流
+  /// 房间状态流
   Stream<RoomState> get roomStateStream => _roomStateController.stream;
 
-  /// 參與者變化流
+  /// 参与者变化流
   Stream<List<RoomParticipant>> get participantsStream => _participantsController.stream;
 
-  /// 連接狀態流
+  /// 连接状态流
   Stream<SignalingConnectionState> get connectionStateStream => _connectionStateController.stream;
 
-  /// 房間參與者列表
+  /// 房间参与者列表
   List<RoomParticipant> get participants => List.unmodifiable(_participants);
 
-  // ==================== 房間管理 ====================
+  // ==================== 房间管理 ====================
 
-  /// 加入房間
+  /// 加入房间
   Future<void> joinRoom(String roomId, {CallRole? role}) async {
     if (_currentUserId == null) {
-      throw Exception('用戶未登錄');
+      throw Exception('用户未登录');
     }
 
-    // 如果已經在房間中，先離開
+    // 如果已经在房间中，先离开
     if (_currentRoomId != null && _currentRoomId != roomId) {
       await leaveRoom();
     }
@@ -99,7 +99,7 @@ class SignalingService {
     try {
       _updateConnectionState(SignalingConnectionState.connecting);
 
-      // 創建信令頻道
+      // 创建信令频道
       _signalingChannel = _supabase.channel(
         'call:$roomId',
         opts: RealtimeChannelConfig(
@@ -107,25 +107,25 @@ class SignalingService {
         ),
       );
 
-      // 監聽信令廣播
+      // 监听信令广播
       _signalingChannel!.onBroadcast(
         event: 'signaling',
         callback: (payload) => _handleSignalingMessage(payload),
       );
 
-      // 監聽系統消息（如用戶加入/離開）
+      // 监听系统消息（如用户加入/离开）
       _signalingChannel!.onBroadcast(
         event: 'system',
         callback: (payload) => _handleSystemMessage(payload),
       );
 
-      // 訂閱頻道
+      // 订阅频道
       await _signalingChannel!.subscribe((status, error) {
         if (error != null) {
-          AppLogger.error('[Signaling] 訂閱錯誤', error);
+          AppLogger.error('[Signaling] 订阅错误', error);
           _updateConnectionState(SignalingConnectionState.error);
         } else {
-          AppLogger.info('[Signaling] 訂閱狀態: $status');
+          AppLogger.info('[Signaling] 订阅状态: $status');
           if (status == 'SUBSCRIBED') {
             _updateConnectionState(SignalingConnectionState.connected);
             _updateRoomState(RoomState.joined);
@@ -133,40 +133,40 @@ class SignalingService {
         }
       });
 
-      // 等待訂閱完成
+      // 等待订阅完成
       await Future.delayed(const Duration(milliseconds: 500));
 
-      // 發送加入消息
+      // 发送加入消息
       await _sendSystemMessage('user_joined', {
         'user_id': _currentUserId,
         'role': role?.name,
         'joined_at': DateTime.now().toIso8601String(),
       });
 
-      AppLogger.info('[Signaling] 已加入房間: $roomId');
+      AppLogger.info('[Signaling] 已加入房间: $roomId');
     } catch (error, stackTrace) {
-      AppLogger.error('[Signaling] 加入房間失敗', error, stackTrace);
+      AppLogger.error('[Signaling] 加入房间失败', error, stackTrace);
       _updateConnectionState(SignalingConnectionState.error);
-      throw Exception('加入房間失敗: $error');
+      throw Exception('加入房间失败: $error');
     }
   }
 
-  /// 離開房間
+  /// 离开房间
   Future<void> leaveRoom() async {
     if (_currentRoomId == null) return;
 
     try {
-      // 發送離開消息
+      // 发送离开消息
       await _sendSystemMessage('user_left', {
         'user_id': _currentUserId,
         'left_at': DateTime.now().toIso8601String(),
       });
 
-      // 取消訂閱
+      // 取消订阅
       await _signalingChannel?.unsubscribe();
       await _presenceChannel?.unsubscribe();
 
-      // 清理資源
+      // 清理资源
       _broadcastSubscription?.cancel();
       _presenceSubscription?.cancel();
       _signalingChannel = null;
@@ -178,13 +178,13 @@ class SignalingService {
       _updateRoomState(RoomState.left);
       _updateConnectionState(SignalingConnectionState.disconnected);
 
-      AppLogger.info('[Signaling] 已離開房間');
+      AppLogger.info('[Signaling] 已离开房间');
     } catch (error, stackTrace) {
-      AppLogger.error('[Signaling] 離開房間失敗', error, stackTrace);
+      AppLogger.error('[Signaling] 离开房间失败', error, stackTrace);
     }
   }
 
-  /// 創建房間（在數據庫中記錄）
+  /// 创建房间（在数据库中记录）
   Future<String> createRoom({
     required String seekerId,
     String? helpRequestId,
@@ -202,15 +202,15 @@ class SignalingService {
         'created_at': DateTime.now().toIso8601String(),
       });
 
-      AppLogger.info('[Signaling] 房間已創建: $roomId');
+      AppLogger.info('[Signaling] 房间已创建: $roomId');
       return roomId;
     } catch (error, stackTrace) {
-      AppLogger.error('[Signaling] 創建房間失敗', error, stackTrace);
-      throw Exception('創建房間失敗: $error');
+      AppLogger.error('[Signaling] 创建房间失败', error, stackTrace);
+      throw Exception('创建房间失败: $error');
     }
   }
 
-  /// 更新房間狀態
+  /// 更新房间状态
   Future<void> updateRoomStatus(String roomId, String status) async {
     try {
       await _supabase.from('call_rooms').update({
@@ -218,13 +218,13 @@ class SignalingService {
         'updated_at': DateTime.now().toIso8601String(),
       }).eq('id', roomId);
     } catch (error, stackTrace) {
-      AppLogger.error('[Signaling] 更新房間狀態失敗', error, stackTrace);
+      AppLogger.error('[Signaling] 更新房间状态失败', error, stackTrace);
     }
   }
 
-  // ==================== 信令發送方法 ====================
+  // ==================== 信令发送方法 ====================
 
-  /// 發送Offer
+  /// 发送Offer
   Future<void> sendOffer(String roomId, String sdp, String type) async {
     await _sendSignalingMessage(
       SignalingType.offer,
@@ -236,7 +236,7 @@ class SignalingService {
     );
   }
 
-  /// 發送Answer
+  /// 发送Answer
   Future<void> sendAnswer(String roomId, String sdp, String type) async {
     await _sendSignalingMessage(
       SignalingType.answer,
@@ -248,7 +248,7 @@ class SignalingService {
     );
   }
 
-  /// 發送ICE候選
+  /// 发送ICE候选
   Future<void> sendIceCandidate(
     String roomId,
     String candidate, {
@@ -266,7 +266,7 @@ class SignalingService {
     );
   }
 
-  /// 發送ICE候選（使用Map格式）
+  /// 发送ICE候选（使用Map格式）
   Future<void> sendIceCandidateFromMap(String roomId, Map<String, dynamic> candidateData) async {
     await _sendSignalingMessage(
       SignalingType.iceCandidate,
@@ -275,7 +275,7 @@ class SignalingService {
     );
   }
 
-  /// 發送就緒信號
+  /// 发送就绪信号
   Future<void> sendReady(String roomId) async {
     await _sendSignalingMessage(
       SignalingType.ready,
@@ -284,7 +284,7 @@ class SignalingService {
     );
   }
 
-  /// 發送掛斷信號
+  /// 发送挂断信号
   Future<void> sendBye(String roomId, {CallEndReason? reason}) async {
     await _sendSignalingMessage(
       SignalingType.bye,
@@ -295,7 +295,7 @@ class SignalingService {
     );
   }
 
-  /// 發送自定義消息
+  /// 发送自定义消息
   Future<void> sendCustomMessage(String roomId, String type, Map<String, dynamic> data) async {
     await _sendSignalingMessage(
       SignalingType.values.firstWhere(
@@ -307,9 +307,9 @@ class SignalingService {
     );
   }
 
-  // ==================== 內部信令方法 ====================
+  // ==================== 内部信令方法 ====================
 
-  /// 發送信令消息
+  /// 发送信令消息
   Future<void> _sendSignalingMessage(
     SignalingType type,
     Map<String, dynamic> data, {
@@ -332,13 +332,13 @@ class SignalingService {
         event: 'signaling',
         payload: message.toJson(),
       );
-      AppLogger.verbose('[Signaling] 發送消息: ${type.name}');
+      AppLogger.verbose('[Signaling] 发送消息: ${type.name}');
     } catch (error, stackTrace) {
-      AppLogger.error('[Signaling] 發送消息失敗', error, stackTrace);
+      AppLogger.error('[Signaling] 发送消息失败', error, stackTrace);
     }
   }
 
-  /// 發送系統消息
+  /// 发送系统消息
   Future<void> _sendSystemMessage(String event, Map<String, dynamic> payload) async {
     if (_signalingChannel == null) return;
 
@@ -352,13 +352,13 @@ class SignalingService {
         },
       );
     } catch (error, stackTrace) {
-      AppLogger.error('[Signaling] 發送系統消息失敗', error, stackTrace);
+      AppLogger.error('[Signaling] 发送系统消息失败', error, stackTrace);
     }
   }
 
-  // ==================== 消息處理方法 ====================
+  // ==================== 消息处理方法 ====================
 
-  /// 處理信令消息
+  /// 处理信令消息
   void _handleSignalingMessage(Map<String, dynamic> payload) {
     try {
       final message = SignalingMessage.fromJson(payload);
@@ -370,10 +370,10 @@ class SignalingService {
         '[Signaling] 收到消息: ${message.type.name} from ${message.fromUserId}',
       );
 
-      // 轉發給監聽者
+      // 转发给监听者
       _signalingMessageController.add(message);
 
-      // 根據消息類型處理
+      // 根据消息类型处理
       switch (message.type) {
         case SignalingType.join:
           _handleUserJoin(message);
@@ -388,11 +388,11 @@ class SignalingService {
           break;
       }
     } catch (error, stackTrace) {
-      AppLogger.error('[Signaling] 處理消息失敗', error, stackTrace);
+      AppLogger.error('[Signaling] 处理消息失败', error, stackTrace);
     }
   }
 
-  /// 處理系統消息
+  /// 处理系统消息
   void _handleSystemMessage(Map<String, dynamic> payload) {
     final event = payload['event'] as String?;
     final data = payload['data'] as Map<String, dynamic>?;
@@ -409,24 +409,24 @@ class SignalingService {
     }
   }
 
-  /// 處理用戶加入
+  /// 处理用户加入
   void _handleUserJoin(SignalingMessage message) {
     _updateRoomState(RoomState.peerJoined);
   }
 
-  /// 處理用戶離開
+  /// 处理用户离开
   void _handleUserLeave(SignalingMessage message) {
     _updateRoomState(RoomState.peerLeft);
   }
 
-  /// 處理掛斷
+  /// 处理挂断
   void _handleBye(SignalingMessage message) {
     final reason = message.data['reason'] as String?;
-    AppLogger.info('[Signaling] 對方掛斷: $reason');
+    AppLogger.info('[Signaling] 对方挂断: $reason');
     _updateRoomState(RoomState.callEnded);
   }
 
-  /// 處理參與者加入
+  /// 处理参与者加入
   void _handleParticipantJoined(Map<String, dynamic> data) {
     final userId = data['user_id'] as String?;
     if (userId == null || userId == _currentUserId) return;
@@ -445,10 +445,10 @@ class SignalingService {
     _participantsController.add(List.unmodifiable(_participants));
     _updateRoomState(RoomState.peerJoined);
 
-    AppLogger.info('[Signaling] 參與者加入: $userId');
+    AppLogger.info('[Signaling] 参与者加入: $userId');
   }
 
-  /// 處理參與者離開
+  /// 处理参与者离开
   void _handleParticipantLeft(Map<String, dynamic> data) {
     final userId = data['user_id'] as String?;
     if (userId == null) return;
@@ -457,31 +457,31 @@ class SignalingService {
     _participantsController.add(List.unmodifiable(_participants));
     _updateRoomState(RoomState.peerLeft);
 
-    AppLogger.info('[Signaling] 參與者離開: $userId');
+    AppLogger.info('[Signaling] 参与者离开: $userId');
   }
 
-  // ==================== 狀態更新方法 ====================
+  // ==================== 状态更新方法 ====================
 
-  /// 更新房間狀態
+  /// 更新房间状态
   void _updateRoomState(RoomState state) {
     _roomStateController.add(state);
   }
 
-  /// 更新連接狀態
+  /// 更新连接状态
   void _updateConnectionState(SignalingConnectionState state) {
     _connectionStateController.add(state);
   }
 
-  // ==================== 輔助方法 ====================
+  // ==================== 辅助方法 ====================
 
-  /// 生成房間ID
+  /// 生成房间ID
   String _generateRoomId() {
     const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
     final timestamp = DateTime.now().millisecondsSinceEpoch.toRadixString(36);
     return 'room_${timestamp}_${_currentUserId?.substring(0, 8)}';
   }
 
-  /// 釋放資源
+  /// 释放资源
   void dispose() {
     leaveRoom();
     _signalingMessageController.close();
@@ -491,27 +491,27 @@ class SignalingService {
   }
 }
 
-/// 房間狀態
+/// 房间状态
 enum RoomState {
-  idle,         // 空閒
+  idle,         // 空闲
   joining,      // 加入中
   joined,       // 已加入
-  peerJoined,   // 對方已加入
-  peerLeft,     // 對方已離開
-  callEnded,    // 通話結束
-  left,         // 已離開
-  error,        // 錯誤
+  peerJoined,   // 对方已加入
+  peerLeft,     // 对方已离开
+  callEnded,    // 通话结束
+  left,         // 已离开
+  error,        // 错误
 }
 
-/// 信令連接狀態
+/// 信令连接状态
 enum SignalingConnectionState {
-  disconnected, // 未連接
-  connecting,   // 連接中
-  connected,    // 已連接
-  error,        // 錯誤
+  disconnected, // 未连接
+  connecting,   // 连接中
+  connected,    // 已连接
+  error,        // 错误
 }
 
-/// 房間參與者
+/// 房间参与者
 class RoomParticipant {
   final String userId;
   final String? role;

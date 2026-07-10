@@ -1,79 +1,79 @@
-# LinkLab 運營後臺管理系統
+# LinkLab 运营后台管理系统
 
-基於 Flutter Web 開發的運營後臺管理端，爲 LinkLab 視障輔助平臺提供完整的運營管理能力。
+基于 Flutter Web 开发的运营后台管理端，为 LinkLab 视障辅助平台提供完整的运营管理能力。
 
-## 功能模塊
+## 功能模块
 
-### 1. 用戶管理
-- 用戶列表（分頁、篩選、搜索）
-- 用戶詳情查看
-- 封禁/解封用戶
-- 認證審覈（殘障證明、技能證書）
-- 支持殘障用戶和志願者分類管理
+### 1. 用户管理
+- 用户列表（分页、筛选、搜索）
+- 用户详情查看
+- 封禁/解封用户
+- 认证审核（残障证明、技能证书）
+- 支持残障用户和志愿者分类管理
 
-### 2. 數據看板
-核心指標：
+### 2. 数据看板
+核心指标：
 - DAU/MAU（日活/月活）
-- 求助響應率
-- 志願者留存率
-- AI解決率
-- 平均通話時長
-- 用戶滿意度
+- 求助响应率
+- 志愿者留存率
+- AI解决率
+- 平均通话时长
+- 用户满意度
 
-圖表組件：
-- 折線圖（趨勢分析）
-- 餅圖（分佈統計）
-- 柱狀圖（對比分析）
+图表组件：
+- 折线图（趋势分析）
+- 饼图（分布统计）
+- 柱状图（对比分析）
 
-### 3. 內容管理
-- 精選故事審覈與發佈
+### 3. 内容管理
+- 精选故事审核与发布
 - 故事上架/下架管理
-- 精選標記設置
-- 社羣內容管理
-- 評論管理
+- 精选标记设置
+- 社群内容管理
+- 评论管理
 
-### 4. 舉報處理
-- 舉報列表（分頁、篩選）
-- 舉報詳情查看
-- 處理操作：警告/封號/刪除內容/駁回
-- 舉報統計分析
+### 4. 举报处理
+- 举报列表（分页、筛选）
+- 举报详情查看
+- 处理操作：警告/封号/删除内容/驳回
+- 举报统计分析
 
-### 5. 數據統計
-- 日/周/月報表
-- 用戶增長報表
-- 求助類型分佈
-- Excel導出功能
+### 5. 数据统计
+- 日/周/月报表
+- 用户增长报表
+- 求助类型分布
+- Excel导出功能
 
-## 技術棧
+## 技术栈
 
-- **Flutter Web** - 跨平臺Web應用框架
-- **fl_chart** - 圖表組件庫
-- **data_table_2** - 高性能數據表格
-- **supabase_flutter** - 後端服務
-- **flutter_bloc** - 狀態管理
+- **Flutter Web** - 跨平台Web应用框架
+- **fl_chart** - 图表组件库
+- **data_table_2** - 高性能数据表格
+- **supabase_flutter** - 后端服务
+- **flutter_bloc** - 状态管理
 - **go_router** - 路由管理
-- **responsive_framework** - 響應式佈局
+- **responsive_framework** - 响应式布局
 
-## 項目結構
+## 项目结构
 
 ```
 lib/
-├── bloc/                 # BLoC狀態管理
-│   ├── auth_bloc.dart    # 認證狀態
-│   ├── dashboard_bloc.dart # 儀表盤狀態
-│   ├── user_bloc.dart    # 用戶管理狀態
-│   ├── content_bloc.dart # 內容管理狀態
-│   └── report_bloc.dart  # 舉報處理狀態
-├── constants/            # 常量定義
+├── bloc/                 # BLoC状态管理
+│   ├── auth_bloc.dart    # 认证状态
+│   ├── dashboard_bloc.dart # 仪表盘状态
+│   ├── user_bloc.dart    # 用户管理状态
+│   ├── content_bloc.dart # 内容管理状态
+│   └── report_bloc.dart  # 举报处理状态
+├── constants/            # 常量定义
 │   ├── app_constants.dart
 │   └── theme.dart
-├── models/               # 數據模型
+├── models/               # 数据模型
 │   ├── user_model.dart
 │   ├── dashboard_model.dart
 │   ├── content_model.dart
 │   ├── report_model.dart
 │   └── statistics_model.dart
-├── screens/              # 頁面
+├── screens/              # 页面
 │   ├── login_screen.dart
 │   ├── dashboard_screen.dart
 │   ├── users_screen.dart
@@ -81,9 +81,9 @@ lib/
 │   ├── reports_screen.dart
 │   ├── statistics_screen.dart
 │   └── settings_screen.dart
-├── services/             # 服務層
+├── services/             # 服务层
 │   └── supabase_service.dart
-├── widgets/              # 公共組件
+├── widgets/              # 公共组件
 │   ├── app_layout.dart
 │   ├── sidebar.dart
 │   ├── metric_card.dart
@@ -92,13 +92,13 @@ lib/
 └── router.dart           # 路由配置
 ```
 
-## 快速開始
+## 快速开始
 
-### 環境要求
+### 环境要求
 - Flutter SDK >= 3.11.4
 - Dart SDK >= 3.0.0
 
-### 安裝依賴
+### 安装依赖
 
 ```bash
 cd admin_dashboard
@@ -107,47 +107,47 @@ flutter pub get
 
 ### 配置Supabase
 
-編輯 `lib/constants/app_constants.dart`：
+编辑 `lib/constants/app_constants.dart`：
 
 ```dart
 static const String supabaseUrl = 'YOUR_SUPABASE_URL';
 static const String supabaseAnonKey = 'YOUR_SUPABASE_ANON_KEY';
 ```
 
-### 運行開發服務器
+### 运行开发服务器
 
 ```bash
 flutter run -d chrome
 ```
 
-### 構建生產版本
+### 构建生产版本
 
 ```bash
 flutter build web --release
 ```
 
-## 默認登錄賬號
+## 默认登录账号
 
-- 郵箱: admin@linklab.com
-- 密碼: admin123
+- 邮箱: admin@linklab.com
+- 密码: admin123
 
-## 響應式佈局
+## 响应式布局
 
-系統支持多種屏幕尺寸：
-- 桌面端 (>900px)：完整側邊欄 + 數據表格
-- 平板端 (600-900px)：自適應佈局
-- 移動端 (<600px)：抽屜式導航 + 卡片列表
+系统支持多种屏幕尺寸：
+- 桌面端 (>900px)：完整侧边栏 + 数据表格
+- 平板端 (600-900px)：自适应布局
+- 移动端 (<600px)：抽屉式导航 + 卡片列表
 
-## 數據庫表結構
+## 数据库表结构
 
 需要以下Supabase表：
-- `users` - 用戶信息
-- `stories` - 精選故事
-- `community_content` - 社羣內容
-- `reports` - 舉報記錄
-- `daily_reports` - 日報表
-- `user_growth_reports` - 用戶增長報表
+- `users` - 用户信息
+- `stories` - 精选故事
+- `community_content` - 社群内容
+- `reports` - 举报记录
+- `daily_reports` - 日报表
+- `user_growth_reports` - 用户增长报表
 
-## 許可證
+## 许可证
 
 MIT License

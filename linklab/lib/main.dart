@@ -15,7 +15,7 @@ Widget buildLinkLabApp() {
   return const ProviderScope(child: LinkLabApp());
 }
 
-/// 兼容舊測試入口。當前默認啓動鎖定競賽 Demo 主線。
+/// 兼容旧测试入口。当前默认启动锁定竞赛 Demo 主线。
 Widget buildCompetitionDemoApp() => buildLinkLabApp();
 
 Future<void> initializeLinkLabApp({
@@ -39,17 +39,17 @@ Future<void> initializeLinkLabApp({
     );
     if (!initialized) {
       AppConfig.configureDemoFallback(
-        reason: 'Supabase.initialize 失敗',
+        reason: 'Supabase.initialize 失败',
         enablePresenterSession: enablePresenterSessionOnFallback,
       );
     }
   }
 
-  // Demo 數據作爲 fallback 資產始終可用；默認啓動不觸發真實業務表查詢。
+  // Demo 数据作为 fallback 资产始终可用；默认启动不触发真实业务表查询。
   await DemoDataLoader.initialize();
 
-  // 注意：此處 ProviderScope 尚未創建，只能直接操作底層服務實例。
-  // Riverpod provider 在 runApp 後由 AppSessionNotifier.build() 自動同步。
+  // 注意：此处 ProviderScope 尚未创建，只能直接操作底层服务实例。
+  // Riverpod provider 在 runApp 后由 AppSessionNotifier.build() 自动同步。
   // ignore: deprecated_member_use_from_same_package
   await AppSessionService.instance.initialize();
 
@@ -59,7 +59,7 @@ Future<void> initializeLinkLabApp({
   }
 }
 
-/// 顯式 Demo 初始化入口，供閉環測試和現場 fallback 使用。
+/// 显式 Demo 初始化入口，供闭环测试和现场 fallback 使用。
 Future<void> initializeCompetitionDemoApp() async {
   AppConfig.configureCompetitionDemoDefaults(enablePresenterSession: true);
   await DemoDataLoader.initialize();
@@ -73,9 +73,9 @@ Future<void> initializeCompetitionDemoApp() async {
 Future<void> _loadDotEnv() async {
   try {
     await dotenv.load(fileName: '.env');
-    AppLogger.info('.env 加載完成');
+    AppLogger.info('.env 加载完成');
   } catch (error, stackTrace) {
-    AppLogger.warning('.env 加載失敗，將按缺少配置處理', error, stackTrace);
+    AppLogger.warning('.env 加载失败，将按缺少配置处理', error, stackTrace);
   }
 }
 
@@ -121,7 +121,7 @@ Future<bool> _initializeSupabase({required bool enableAuthAutoRefresh}) async {
     return true;
   } catch (error, stackTrace) {
     AppConfig.markSupabaseUnavailable();
-    AppLogger.error('Supabase client 初始化失敗', error, stackTrace);
+    AppLogger.error('Supabase client 初始化失败', error, stackTrace);
     return false;
   }
 }
@@ -130,13 +130,13 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeLinkLabApp();
 
-  // 設置首選方向
+  // 设置首选方向
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
 
-  // 設置系統UI樣式
+  // 设置系统UI样式
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,

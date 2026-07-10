@@ -4,8 +4,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../core/utils/logger.dart';
 
-/// Realtime狀態同步服務
-/// 負責志願者在線狀態、求助狀態、通話狀態的實時同步
+/// Realtime状态同步服务
+/// 负责志愿者在线状态、求助状态、通话状态的实时同步
 class RealtimeSyncService {
   static final RealtimeSyncService _instance = RealtimeSyncService._internal();
   factory RealtimeSyncService() => _instance;
@@ -20,10 +20,10 @@ class RealtimeSyncService {
     return _supabaseClient!;
   }
 
-  // 頻道緩存
+  // 频道缓存
   final Map<String, RealtimeChannel> _channels = {};
 
-  // 狀態流
+  // 状态流
   final _volunteerStatusController = StreamController<VolunteerStatus>.broadcast();
   final _helpRequestStatusController = StreamController<HelpRequestStatus>.broadcast();
   final _callStatusController = StreamController<CallStatusEvent>.broadcast();
@@ -32,9 +32,9 @@ class RealtimeSyncService {
   Stream<HelpRequestStatus> get helpRequestStatusStream => _helpRequestStatusController.stream;
   Stream<CallStatusEvent> get callStatusStream => _callStatusController.stream;
 
-  /// 訂閱志願者在線狀態
+  /// 订阅志愿者在线状态
   ///
-  /// [volunteerId] 志願者ID
+  /// [volunteerId] 志愿者ID
   void subscribeVolunteerStatus(String volunteerId) {
     final channelName = 'volunteer_status:$volunteerId';
 
@@ -69,9 +69,9 @@ class RealtimeSyncService {
     _channels[channelName] = channel;
   }
 
-  /// 訂閱求助狀態
+  /// 订阅求助状态
   ///
-  /// [helpRequestId] 求助記錄ID
+  /// [helpRequestId] 求助记录ID
   void subscribeHelpRequestStatus(String helpRequestId) {
     final channelName = 'help_request:$helpRequestId';
 
@@ -110,9 +110,9 @@ class RealtimeSyncService {
     _channels[channelName] = channel;
   }
 
-  /// 訂閱通話狀態
+  /// 订阅通话状态
   ///
-  /// [roomId] 通話房間ID
+  /// [roomId] 通话房间ID
   void subscribeCallStatus(String roomId) {
     final channelName = 'call:$roomId';
 
@@ -138,9 +138,9 @@ class RealtimeSyncService {
     _channels[channelName] = channel;
   }
 
-  /// 訂閱SOS狀態
+  /// 订阅SOS状态
   ///
-  /// [sosId] SOS記錄ID
+  /// [sosId] SOS记录ID
   void subscribeSOSStatus(String sosId) {
     final channelName = 'sos:$sosId';
 
@@ -183,9 +183,9 @@ class RealtimeSyncService {
     _channels[channelName] = channel;
   }
 
-  /// 訂閱志願者匹配請求
+  /// 订阅志愿者匹配请求
   ///
-  /// [userId] 用戶ID（志願者）
+  /// [userId] 用户ID（志愿者）
   void subscribeMatchingRequests(String userId) {
     final channelName = 'volunteer_matches:$userId';
 
@@ -217,15 +217,15 @@ class RealtimeSyncService {
     _channels[channelName] = channel;
   }
 
-  /// 取消訂閱
+  /// 取消订阅
   ///
-  /// [channelName] 頻道名稱，如果爲null則取消所有訂閱
+  /// [channelName] 频道名称，如果为null则取消所有订阅
   void unsubscribe([String? channelName]) {
     if (channelName != null) {
       _channels[channelName]?.unsubscribe();
       _channels.remove(channelName);
     } else {
-      // 取消所有訂閱
+      // 取消所有订阅
       for (final channel in _channels.values) {
         channel.unsubscribe();
       }
@@ -233,11 +233,11 @@ class RealtimeSyncService {
     }
   }
 
-  /// 發送通話信令
+  /// 发送通话信令
   ///
-  /// [roomId] 房間ID
-  /// [type] 信令類型
-  /// [data] 信令數據
+  /// [roomId] 房间ID
+  /// [type] 信令类型
+  /// [data] 信令数据
   Future<void> sendSignalingMessage({
     required String roomId,
     required String type,
@@ -254,13 +254,13 @@ class RealtimeSyncService {
     );
   }
 
-  /// 處理匹配請求接收
+  /// 处理匹配请求接收
   void _onMatchingRequestReceived(Map<String, dynamic> record) {
-    // 這裏可以觸發本地通知或回調
-    // 實際實現中可以通過另一個stream暴露給UI層
+    // 这里可以触发本地通知或回调
+    // 实际实现中可以通过另一个stream暴露给UI层
   }
 
-  /// 釋放資源
+  /// 释放资源
   void dispose() {
     unsubscribe();
     _volunteerStatusController.close();
@@ -269,7 +269,7 @@ class RealtimeSyncService {
   }
 }
 
-/// 志願者狀態
+/// 志愿者状态
 class VolunteerStatus {
   final String volunteerId;
   final bool isOnline;
@@ -283,14 +283,14 @@ class VolunteerStatus {
     this.lastHeartbeatAt,
   });
 
-  /// 是否活躍（5分鐘內有心跳）
+  /// 是否活跃（5分钟内有心跳）
   bool get isActive {
     if (lastHeartbeatAt == null) return false;
     return DateTime.now().difference(lastHeartbeatAt!).inMinutes < 5;
   }
 }
 
-/// 求助狀態
+/// 求助状态
 class HelpRequestStatus {
   final String helpRequestId;
   final String status;
@@ -316,7 +316,7 @@ class HelpRequestStatus {
   bool get isCancelled => status == 'cancelled';
 }
 
-/// 通話狀態事件
+/// 通话状态事件
 class CallStatusEvent {
   final String roomId;
   final String type; // offer, answer, ice-candidate, join, leave
@@ -333,7 +333,7 @@ class CallStatusEvent {
   });
 }
 
-/// 在線狀態管理器
+/// 在线状态管理器
 class OnlinePresenceManager {
   static final OnlinePresenceManager _instance = OnlinePresenceManager._internal();
   factory OnlinePresenceManager() => _instance;
@@ -350,7 +350,7 @@ class OnlinePresenceManager {
   Timer? _heartbeatTimer;
   bool _isOnline = false;
 
-  /// 上線
+  /// 上线
   Future<void> goOnline() async {
     if (_isOnline) return;
 
@@ -370,11 +370,11 @@ class OnlinePresenceManager {
       _isOnline = true;
       _startHeartbeat();
     } catch (e) {
-      AppLogger.error('在線狀態上線失敗', e);
+      AppLogger.error('在线状态上线失败', e);
     }
   }
 
-  /// 下線
+  /// 下线
   Future<void> goOffline() async {
     _heartbeatTimer?.cancel();
 
@@ -389,11 +389,11 @@ class OnlinePresenceManager {
 
       _isOnline = false;
     } catch (e) {
-      AppLogger.error('在線狀態下線失敗', e);
+      AppLogger.error('在线状态下线失败', e);
     }
   }
 
-  /// 啓動心跳
+  /// 启动心跳
   void _startHeartbeat() {
     _heartbeatTimer?.cancel();
     _heartbeatTimer = Timer.periodic(const Duration(minutes: 1), (_) async {
@@ -409,12 +409,12 @@ class OnlinePresenceManager {
             .update({'last_heartbeat_at': DateTime.now().toIso8601String()})
             .eq('user_id', userId);
       } catch (e) {
-        AppLogger.error('在線狀態心跳發送失敗', e);
+        AppLogger.error('在线状态心跳发送失败', e);
       }
     });
   }
 
-  /// 釋放資源
+  /// 释放资源
   void dispose() {
     _heartbeatTimer?.cancel();
     goOffline();

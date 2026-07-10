@@ -62,7 +62,7 @@ class _LocationSharingScreenState extends State<LocationSharingScreen> {
       setState(() => _settings = saved);
       showDemoStageSnackBar(
         context,
-        message: '位置共享設置已保存',
+        message: '位置共享设置已保存',
         icon: Icons.check_circle_outline,
         accentColor: AppTheme.stageAccent,
       );
@@ -85,7 +85,7 @@ class _LocationSharingScreenState extends State<LocationSharingScreen> {
   Widget build(BuildContext context) {
     return DemoStageScaffold(
       title: '位置共享',
-      subtitle: '配置 SOS 時的位置同步、聯繫人通知與語音觸發提示',
+      subtitle: '配置 SOS 时的位置同步、联系人通知与语音触发提示',
       body: _isLoading
           ? Center(
               child: CircularProgressIndicator(color: AppTheme.stageAccent),
@@ -111,7 +111,7 @@ class _LocationSharingScreenState extends State<LocationSharingScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         AccessibleText(
-                          'SOS 觸發預覽',
+                          'SOS 触发预览',
                           style: TextStyle(
                             color: AppTheme.stageTextPrimary,
                             fontSize: AppTheme.fontSizeLarge,
@@ -120,7 +120,7 @@ class _LocationSharingScreenState extends State<LocationSharingScreen> {
                         ),
                         const SizedBox(height: AppTheme.spacingS),
                         AccessibleText(
-                          '當前主前端會按以下順序演示安全流程。',
+                          '当前主前端会按以下顺序演示安全流程。',
                           style: TextStyle(
                             fontSize: AppTheme.fontSizeNormal,
                             color: AppTheme.stageTextSecondary,
@@ -133,40 +133,40 @@ class _LocationSharingScreenState extends State<LocationSharingScreen> {
                               ? Icons.my_location
                               : Icons.location_off_outlined,
                           title: _settings.autoShareLocation
-                              ? '採集${_settings.usePreciseLocation ? '精確' : '大致'}位置'
-                              : '跳過自動位置共享',
+                              ? '采集${_settings.usePreciseLocation ? '精确' : '大致'}位置'
+                              : '跳过自动位置共享',
                           description: _settings.autoShareLocation
-                              ? '演示頁會顯示當前位置已同步到 SOS 流程。'
-                              : '仍可觸發 SOS，但聯繫人通知不會附帶實時位置。',
+                              ? '演示页会显示当前位置已同步到 SOS 流程。'
+                              : '仍可触发 SOS，但联系人通知不会附带实时位置。',
                         ),
                         _PreviewStep(
                           icon: _settings.shareWithEmergencyContacts
                               ? Icons.contacts
                               : Icons.contacts_outlined,
                           title: _settings.shareWithEmergencyContacts
-                              ? '同步通知緊急聯繫人'
-                              : '本次不通知緊急聯繫人',
+                              ? '同步通知紧急联系人'
+                              : '本次不通知紧急联系人',
                           description: _settings.shareWithEmergencyContacts
                               ? _contactCount == 0
-                                    ? '你已開啓此選項，但還沒有聯繫人可通知。'
-                                    : '當前將同步通知 $_contactCount 位聯繫人。'
-                              : 'SOS 只展示志願者廣播與響應流程。',
+                                    ? '你已开启此选项，但还没有联系人可通知。'
+                                    : '当前将同步通知 $_contactCount 位联系人。'
+                              : 'SOS 只展示志愿者广播与响应流程。',
                         ),
                         const _PreviewStep(
                           icon: Icons.campaign_outlined,
-                          title: '向附近志願者廣播',
-                          description: '演示版默認展示 5km 範圍內廣播與響應。',
+                          title: '向附近志愿者广播',
+                          description: '演示版默认展示 5km 范围内广播与响应。',
                         ),
                         _PreviewStep(
                           icon: _settings.enableVoiceTrigger
                               ? Icons.mic_none
                               : Icons.mic_off_outlined,
                           title: _settings.enableVoiceTrigger
-                              ? '保留語音觸發提示'
-                              : '僅保留長按與快捷操作提示',
+                              ? '保留语音触发提示'
+                              : '仅保留长按与快捷操作提示',
                           description: _settings.enableVoiceTrigger
-                              ? '界面會提示可通過語音關鍵詞觸發。'
-                              : '界面不會把語音作爲首選觸發方式展示。',
+                              ? '界面会提示可通过语音关键词触发。'
+                              : '界面不会把语音作为首选触发方式展示。',
                         ),
                       ],
                     ),
@@ -177,7 +177,7 @@ class _LocationSharingScreenState extends State<LocationSharingScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         AccessibleText(
-                          '共享設置',
+                          '共享设置',
                           style: TextStyle(
                             color: AppTheme.stageTextPrimary,
                             fontSize: AppTheme.fontSizeLarge,
@@ -186,8 +186,8 @@ class _LocationSharingScreenState extends State<LocationSharingScreen> {
                         ),
                         const SizedBox(height: AppTheme.spacingM),
                         _SwitchTile(
-                          title: 'SOS 時自動共享位置',
-                          subtitle: '用於讓志願者和聯繫人更快確認你的位置。',
+                          title: 'SOS 时自动共享位置',
+                          subtitle: '用于让志愿者和联系人更快确认你的位置。',
                           value: _settings.autoShareLocation,
                           onChanged: (value) {
                             setState(() {
@@ -202,8 +202,8 @@ class _LocationSharingScreenState extends State<LocationSharingScreen> {
                         ),
                         _StageDivider(),
                         _SwitchTile(
-                          title: '使用精確位置',
-                          subtitle: '關閉後，演示頁將只展示大致區域。',
+                          title: '使用精确位置',
+                          subtitle: '关闭后，演示页将只展示大致区域。',
                           value: _settings.usePreciseLocation,
                           onChanged: _settings.autoShareLocation
                               ? (value) {
@@ -217,8 +217,8 @@ class _LocationSharingScreenState extends State<LocationSharingScreen> {
                         ),
                         _StageDivider(),
                         _SwitchTile(
-                          title: '同步給緊急聯繫人',
-                          subtitle: '聯繫人會收到當前狀態與位置摘要。',
+                          title: '同步给紧急联系人',
+                          subtitle: '联系人会收到当前状态与位置摘要。',
                           value: _settings.shareWithEmergencyContacts,
                           onChanged: (value) {
                             setState(() {
@@ -230,8 +230,8 @@ class _LocationSharingScreenState extends State<LocationSharingScreen> {
                         ),
                         _StageDivider(),
                         _SwitchTile(
-                          title: '顯示語音觸發提示',
-                          subtitle: '在 SOS 頁保留“緊急求助”等語音觸發說明。',
+                          title: '显示语音触发提示',
+                          subtitle: '在 SOS 页保留“紧急求助”等语音触发说明。',
                           value: _settings.enableVoiceTrigger,
                           onChanged: (value) {
                             setState(() {
@@ -250,7 +250,7 @@ class _LocationSharingScreenState extends State<LocationSharingScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         AccessibleText(
-                          '當前提醒',
+                          '当前提醒',
                           style: TextStyle(
                             color: AppTheme.stageTextPrimary,
                             fontSize: AppTheme.fontSizeLarge,
@@ -260,8 +260,8 @@ class _LocationSharingScreenState extends State<LocationSharingScreen> {
                         const SizedBox(height: AppTheme.spacingS),
                         AccessibleText(
                           _contactCount == 0
-                              ? '你還沒有設置緊急聯繫人。即使開啓了聯繫人同步，演示頁也不會顯示實際通知對象。'
-                              : '已配置 $_contactCount 位聯繫人，SOS 時會按優先級展示通知。',
+                              ? '你还没有设置紧急联系人。即使开启了联系人同步，演示页也不会显示实际通知对象。'
+                              : '已配置 $_contactCount 位联系人，SOS 时会按优先级展示通知。',
                           style: TextStyle(
                             fontSize: AppTheme.fontSizeNormal,
                             color: AppTheme.stageTextSecondary,
@@ -270,7 +270,7 @@ class _LocationSharingScreenState extends State<LocationSharingScreen> {
                         ),
                         const SizedBox(height: AppTheme.spacingS),
                         AccessibleText(
-                          '系統級定位權限、短信發送和真實後臺告警仍屬於後續能力，當前頁面聚焦主前端演示閉環。',
+                          '系统级定位权限、短信发送和真实后台告警仍属于后续能力，当前页面聚焦主前端演示闭环。',
                           style: TextStyle(
                             fontSize: AppTheme.fontSizeSmall,
                             color: AppTheme.stageTextHint,
@@ -286,9 +286,9 @@ class _LocationSharingScreenState extends State<LocationSharingScreen> {
                     icon: LinkableMaterialIcon(
                       icon: Icons.contact_phone_outlined,
                       color: AppTheme.stageAccent,
-                      semanticLabel: '管理緊急聯繫人',
+                      semanticLabel: '管理紧急联系人',
                     ),
-                    label: const Text('管理緊急聯繫人'),
+                    label: const Text('管理紧急联系人'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppTheme.stageAccent,
                       side: BorderSide(color: AppTheme.stageAccent, width: 2),
@@ -296,8 +296,8 @@ class _LocationSharingScreenState extends State<LocationSharingScreen> {
                   ),
                   const SizedBox(height: AppTheme.spacingM),
                   AccessibleButton(
-                    label: '保存設置',
-                    semanticLabel: '保存位置共享設置',
+                    label: '保存设置',
+                    semanticLabel: '保存位置共享设置',
                     icon: Icons.save_outlined,
                     backgroundColor: AppTheme.stageAccent,
                     isLoading: _isSaving,
@@ -319,16 +319,16 @@ class _ReadinessBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final title = !settings.autoShareLocation
-        ? '位置共享未開啓'
+        ? '位置共享未开启'
         : contactCount == 0 && settings.shareWithEmergencyContacts
-        ? '基礎 SOS 已就緒'
-        : 'SOS 安全配置已就緒';
+        ? '基础 SOS 已就绪'
+        : 'SOS 安全配置已就绪';
 
     final summary = !settings.autoShareLocation
-        ? '當前觸發 SOS 時不會自動附帶位置。'
+        ? '当前触发 SOS 时不会自动附带位置。'
         : contactCount == 0 && settings.shareWithEmergencyContacts
-        ? '位置共享可用，但建議先補充至少 1 位緊急聯繫人。'
-        : '當前會共享${settings.usePreciseLocation ? '精確' : '大致'}位置，並展示聯繫人通知流程。';
+        ? '位置共享可用，但建议先补充至少 1 位紧急联系人。'
+        : '当前会共享${settings.usePreciseLocation ? '精确' : '大致'}位置，并展示联系人通知流程。';
 
     return Container(
       padding: const EdgeInsets.all(AppTheme.spacingL),
@@ -391,15 +391,15 @@ class _ReadinessBanner extends StatelessWidget {
             spacing: AppTheme.spacingS,
             runSpacing: AppTheme.spacingS,
             children: [
-              _StatusChip(label: settings.isReady ? '安全閉環完整' : '建議補充設置'),
+              _StatusChip(label: settings.isReady ? '安全闭环完整' : '建议补充设置'),
               _StatusChip(label: settings.locationModeLabel),
               _StatusChip(
                 label: settings.shareWithEmergencyContacts
-                    ? '聯繫人通知 ${contactCount > 0 ? '$contactCount 位' : '待補充'}'
-                    : '聯繫人通知關閉',
+                    ? '联系人通知 ${contactCount > 0 ? '$contactCount 位' : '待补充'}'
+                    : '联系人通知关闭',
               ),
               _StatusChip(
-                label: settings.enableVoiceTrigger ? '語音提示開啓' : '僅手動觸發',
+                label: settings.enableVoiceTrigger ? '语音提示开启' : '仅手动触发',
               ),
             ],
           ),

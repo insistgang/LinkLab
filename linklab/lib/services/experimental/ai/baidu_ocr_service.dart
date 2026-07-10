@@ -6,9 +6,9 @@ import 'package:crypto/crypto.dart';
 import '../../../config/api_config.dart';
 import 'ai_service.dart';
 
-/// 百度OCR服務
-/// F2 文字識別與朗讀的核心實現
-/// 支持通用文字識別、高精度識別、手寫體識別
+/// 百度OCR服务
+/// F2 文字识别与朗读的核心实现
+/// 支持通用文字识别、高精度识别、手写体识别
 class BaiduOCRService implements AIService {
   String? _accessToken;
   DateTime? _tokenExpireTime;
@@ -37,22 +37,22 @@ class BaiduOCRService implements AIService {
     DialogContext? context,
   }) async {
     if (imageUrl == null) {
-      return AIResponse.error('OCR服務需要圖片輸入');
+      return AIResponse.error('OCR服务需要图片输入');
     }
 
     try {
       final result = await recognizeText(File(imageUrl));
 
       if (!result.isSuccess) {
-        return AIResponse.error(result.error?.message ?? 'OCR識別失敗');
+        return AIResponse.error(result.error?.message ?? 'OCR识别失败');
       }
 
       final ocrResult = result.data!;
 
-      // 檢查是否是藥品標籤
+      // 检查是否是药品标签
       final isMedicineLabel = _isMedicineLabel(ocrResult.text);
 
-      // 構建響應
+      // 构建响应
       final responseText = _buildResponseText(ocrResult, isMedicineLabel);
 
       return AIResponse(
@@ -69,12 +69,12 @@ class BaiduOCRService implements AIService {
         },
       );
     } catch (e) {
-      return AIResponse.error('OCR識別失敗: $e');
+      return AIResponse.error('OCR识别失败: $e');
     }
   }
 
-  /// 通用文字識別（標準版）
-  /// 適用於普通印刷體文字識別
+  /// 通用文字识别（标准版）
+  /// 适用于普通印刷体文字识别
   Future<APIResponse<OCRResult>> recognizeText(File image) async {
     return await _recognizeWithRetry(
       image: image,
@@ -87,8 +87,8 @@ class BaiduOCRService implements AIService {
     );
   }
 
-  /// 通用文字識別（高精度版）
-  /// 適用於小字、模糊、複雜背景等場景
+  /// 通用文字识别（高精度版）
+  /// 适用于小字、模糊、复杂背景等场景
   Future<APIResponse<OCRResult>> recognizeAccurate(File image) async {
     return await _recognizeWithRetry(
       image: image,
@@ -101,8 +101,8 @@ class BaiduOCRService implements AIService {
     );
   }
 
-  /// 手寫文字識別
-  /// 適用於手寫體文字識別
+  /// 手写文字识别
+  /// 适用于手写体文字识别
   Future<APIResponse<OCRResult>> recognizeHandwriting(File image) async {
     return await _recognizeWithRetry(
       image: image,
@@ -114,8 +114,8 @@ class BaiduOCRService implements AIService {
     );
   }
 
-  /// 身份證識別
-  /// [isFront] true爲正面（人像面），false爲背面（國徽面）
+  /// 身份证识别
+  /// [isFront] true为正面（人像面），false为背面（国徽面）
   Future<APIResponse<IdCardResult>> recognizeIdCard(File image, {bool isFront = true}) async {
     try {
       await _ensureAccessToken();
@@ -145,13 +145,13 @@ class BaiduOCRService implements AIService {
     } catch (e) {
       return APIResponse.failure(APIError(
         type: APIErrorType.unknown,
-        message: '身份證識別失敗',
+        message: '身份证识别失败',
         originalError: e.toString(),
       ));
     }
   }
 
-  /// 銀行卡識別
+  /// 银行卡识别
   Future<APIResponse<BankCardResult>> recognizeBankCard(File image) async {
     try {
       await _ensureAccessToken();
@@ -178,13 +178,13 @@ class BaiduOCRService implements AIService {
     } catch (e) {
       return APIResponse.failure(APIError(
         type: APIErrorType.unknown,
-        message: '銀行卡識別失敗',
+        message: '银行卡识别失败',
         originalError: e.toString(),
       ));
     }
   }
 
-  /// 營業執照識別
+  /// 营业执照识别
   Future<APIResponse<BusinessLicenseResult>> recognizeBusinessLicense(File image) async {
     try {
       await _ensureAccessToken();
@@ -211,13 +211,13 @@ class BaiduOCRService implements AIService {
     } catch (e) {
       return APIResponse.failure(APIError(
         type: APIErrorType.unknown,
-        message: '營業執照識別失敗',
+        message: '营业执照识别失败',
         originalError: e.toString(),
       ));
     }
   }
 
-  /// 帶重試機制的OCR識別
+  /// 带重试机制的OCR识别
   Future<APIResponse<OCRResult>> _recognizeWithRetry({
     required File image,
     required String endpoint,
@@ -237,22 +237,22 @@ class BaiduOCRService implements AIService {
           }
           return APIResponse.failure(APIError(
             type: APIErrorType.unknown,
-            message: 'OCR識別失敗，已重試$maxRetries次',
+            message: 'OCR识别失败，已重试$maxRetries次',
             originalError: e.toString(),
           ));
         }
-        // 等待後重試
+        // 等待后重试
         await Future.delayed(Duration(milliseconds: 500 * attempts));
       }
     }
 
     return APIResponse.failure(APIError(
       type: APIErrorType.unknown,
-      message: 'OCR識別失敗',
+      message: 'OCR识别失败',
     ));
   }
 
-  /// 執行OCR識別
+  /// 执行OCR识别
   Future<APIResponse<OCRResult>> _recognize(
     File image,
     String endpoint,
@@ -262,12 +262,12 @@ class BaiduOCRService implements AIService {
 
     final base64Image = base64Encode(await image.readAsBytes());
 
-    // 檢查圖片大小（百度OCR限制4MB）
+    // 检查图片大小（百度OCR限制4MB）
     final imageBytes = base64Decode(base64Image);
     if (imageBytes.length > 4 * 1024 * 1024) {
       return APIResponse.failure(APIError(
         type: APIErrorType.invalidParameter,
-        message: '圖片過大，請壓縮後重試',
+        message: '图片过大，请压缩后重试',
       ));
     }
 
@@ -291,7 +291,7 @@ class BaiduOCRService implements AIService {
     return _handleOCRResponse(response);
   }
 
-  /// 處理OCR響應
+  /// 处理OCR响应
   APIResponse<OCRResult> _handleOCRResponse(http.Response response) {
     if (response.statusCode != 200) {
       return APIResponse.failure(APIError.serviceUnavailable(
@@ -302,10 +302,10 @@ class BaiduOCRService implements AIService {
 
     final data = jsonDecode(response.body);
 
-    // 檢查錯誤碼
+    // 检查错误码
     final errorCode = data['error_code'];
     if (errorCode != null) {
-      final errorMsg = data['error_msg'] ?? '未知錯誤';
+      final errorMsg = data['error_msg'] ?? '未知错误';
 
       switch (errorCode) {
         case 110:
@@ -317,25 +317,25 @@ class BaiduOCRService implements AIService {
         case 216201:
           return APIResponse.failure(APIError(
             type: APIErrorType.invalidParameter,
-            message: '圖片格式錯誤',
+            message: '图片格式错误',
             originalError: errorMsg,
           ));
         case 216202:
           return APIResponse.failure(APIError(
             type: APIErrorType.invalidParameter,
-            message: '圖片過大',
+            message: '图片过大',
             originalError: errorMsg,
           ));
         default:
           return APIResponse.failure(APIError(
             type: APIErrorType.unknown,
-            message: '識別失敗: $errorMsg',
+            message: '识别失败: $errorMsg',
             originalError: errorMsg,
           ));
       }
     }
 
-    // 解析成功結果
+    // 解析成功结果
     final wordsResult = data['words_result'] as List<dynamic>? ?? [];
 
     if (wordsResult.isEmpty) {
@@ -378,7 +378,7 @@ class BaiduOCRService implements AIService {
     ));
   }
 
-  /// 處理身份證響應
+  /// 处理身份证响应
   APIResponse<IdCardResult> _handleIdCardResponse(http.Response response) {
     if (response.statusCode != 200) {
       return APIResponse.failure(APIError.serviceUnavailable(
@@ -393,7 +393,7 @@ class BaiduOCRService implements AIService {
     if (errorCode != null) {
       return APIResponse.failure(APIError(
         type: APIErrorType.unknown,
-        message: data['error_msg'] ?? '身份證識別失敗',
+        message: data['error_msg'] ?? '身份证识别失败',
       ));
     }
 
@@ -401,17 +401,17 @@ class BaiduOCRService implements AIService {
 
     return APIResponse.success(IdCardResult(
       name: _extractWord(wordsResult, '姓名'),
-      gender: _extractWord(wordsResult, '性別'),
+      gender: _extractWord(wordsResult, '性别'),
       ethnicity: _extractWord(wordsResult, '民族'),
       birth: _extractWord(wordsResult, '出生'),
       address: _extractWord(wordsResult, '住址'),
-      idNumber: _extractWord(wordsResult, '公民身份號碼'),
-      issuingAuthority: _extractWord(wordsResult, '簽發機關'),
+      idNumber: _extractWord(wordsResult, '公民身份号码'),
+      issuingAuthority: _extractWord(wordsResult, '签发机关'),
       validPeriod: _extractWord(wordsResult, '有效期限'),
     ));
   }
 
-  /// 處理銀行卡響應
+  /// 处理银行卡响应
   APIResponse<BankCardResult> _handleBankCardResponse(http.Response response) {
     if (response.statusCode != 200) {
       return APIResponse.failure(APIError.serviceUnavailable(
@@ -426,7 +426,7 @@ class BaiduOCRService implements AIService {
     if (errorCode != null) {
       return APIResponse.failure(APIError(
         type: APIErrorType.unknown,
-        message: data['error_msg'] ?? '銀行卡識別失敗',
+        message: data['error_msg'] ?? '银行卡识别失败',
       ));
     }
 
@@ -440,7 +440,7 @@ class BaiduOCRService implements AIService {
     ));
   }
 
-  /// 處理營業執照響應
+  /// 处理营业执照响应
   APIResponse<BusinessLicenseResult> _handleBusinessLicenseResponse(http.Response response) {
     if (response.statusCode != 200) {
       return APIResponse.failure(APIError.serviceUnavailable(
@@ -455,16 +455,16 @@ class BaiduOCRService implements AIService {
     if (errorCode != null) {
       return APIResponse.failure(APIError(
         type: APIErrorType.unknown,
-        message: data['error_msg'] ?? '營業執照識別失敗',
+        message: data['error_msg'] ?? '营业执照识别失败',
       ));
     }
 
     final wordsResult = data['words_result'] as Map<String, dynamic>? ?? {};
 
     return APIResponse.success(BusinessLicenseResult(
-      companyName: _extractWord(wordsResult, '單位名稱'),
+      companyName: _extractWord(wordsResult, '单位名称'),
       legalPerson: _extractWord(wordsResult, '法人'),
-      licenseNumber: _extractWord(wordsResult, '證件編號'),
+      licenseNumber: _extractWord(wordsResult, '证件编号'),
       address: _extractWord(wordsResult, '地址'),
       validPeriod: _extractWord(wordsResult, '有效期'),
     ));
@@ -476,30 +476,30 @@ class BaiduOCRService implements AIService {
     return field?['words'] as String? ?? '';
   }
 
-  /// 確保AccessToken有效
+  /// 确保AccessToken有效
   Future<void> _ensureAccessToken() async {
-    // 檢查內存中的token
+    // 检查内存中的token
     if (_accessToken != null &&
         _tokenExpireTime != null &&
         DateTime.now().isBefore(_tokenExpireTime!)) {
       return;
     }
 
-    // 檢查全局配置中的token
+    // 检查全局配置中的token
     if (APIConfig.isBaiduOcrTokenValid) {
       _accessToken = APIConfig.baiduOcrAccessToken;
       _tokenExpireTime = DateTime.now().add(const Duration(hours: 23));
       return;
     }
 
-    // 重新獲取token
+    // 重新获取token
     await _fetchAccessToken();
   }
 
-  /// 獲取AccessToken
+  /// 获取AccessToken
   Future<void> _fetchAccessToken() async {
     if (!APIConfig.isBaiduOcrConfigured) {
-      throw Exception('百度OCR API密鑰未配置');
+      throw Exception('百度OCR API密钥未配置');
     }
 
     final url = Uri.parse(
@@ -513,27 +513,27 @@ class BaiduOCRService implements AIService {
         .timeout(Duration(seconds: APIConfig.connectionTimeoutSeconds));
 
     if (response.statusCode != 200) {
-      throw Exception('獲取AccessToken失敗: HTTP ${response.statusCode}');
+      throw Exception('获取AccessToken失败: HTTP ${response.statusCode}');
     }
 
     final data = jsonDecode(response.body);
 
     final error = data['error'];
     if (error != null) {
-      throw Exception('獲取AccessToken失敗: $error - ${data['error_description']}');
+      throw Exception('获取AccessToken失败: $error - ${data['error_description']}');
     }
 
     _accessToken = data['access_token'];
-    final expiresIn = data['expires_in'] as int? ?? 2592000; // 默認30天
+    final expiresIn = data['expires_in'] as int? ?? 2592000; // 默认30天
 
-    // 提前1小時刷新
+    // 提前1小时刷新
     _tokenExpireTime = DateTime.now().add(Duration(seconds: expiresIn - 3600));
 
     // 同步到全局配置
     APIConfig.setBaiduOcrAccessToken(_accessToken!, expiresIn);
   }
 
-  /// 檢測語言
+  /// 检测语言
   String _detectLanguage(String text) {
     final chineseRegex = RegExp(r'[\u4e00-\u9fff]');
     final englishRegex = RegExp(r'[a-zA-Z]');
@@ -551,13 +551,13 @@ class BaiduOCRService implements AIService {
     return 'unknown';
   }
 
-  /// 判斷是否是藥品標籤
+  /// 判断是否是药品标签
   bool _isMedicineLabel(String text) {
     final medicineKeywords = [
-      '藥品', '藥物', '藥片', '膠囊', '顆粒', '口服液',
-      '用法用量', '適應症', '禁忌', '不良反應',
-      '國藥準字', '處方藥', 'OTC', '非處方藥',
-      '生產日期', '有效期', '批號',
+      '药品', '药物', '药片', '胶囊', '颗粒', '口服液',
+      '用法用量', '适应症', '禁忌', '不良反应',
+      '国药准字', '处方药', 'OTC', '非处方药',
+      '生产日期', '有效期', '批号',
       'medication', 'dosage', 'prescription',
       'tablet', 'capsule', 'mg', 'ml',
     ];
@@ -566,19 +566,19 @@ class BaiduOCRService implements AIService {
     return medicineKeywords.any((keyword) => lowerText.contains(keyword));
   }
 
-  /// 構建響應文本
+  /// 构建响应文本
   String _buildResponseText(OCRResult result, bool isMedicineLabel) {
     if (result.text.isEmpty) {
-      return '未能識別到文字，請嘗試重新拍攝，確保光線充足、文字清晰可見。';
+      return '未能识别到文字，请尝试重新拍摄，确保光线充足、文字清晰可见。';
     }
 
     final buffer = StringBuffer();
 
     if (isMedicineLabel) {
-      buffer.writeln('檢測到藥品標籤，識別結果如下：');
+      buffer.writeln('检测到药品标签，识别结果如下：');
       buffer.writeln();
     } else {
-      buffer.writeln('識別到以下內容：');
+      buffer.writeln('识别到以下内容：');
       buffer.writeln();
     }
 
@@ -586,19 +586,19 @@ class BaiduOCRService implements AIService {
 
     if (isMedicineLabel) {
       buffer.writeln();
-      buffer.writeln('【重要提醒】這是藥品標籤，用藥前請務必向志願者或醫生確認用法用量，確保用藥安全。');
+      buffer.writeln('【重要提醒】这是药品标签，用药前请务必向志愿者或医生确认用法用量，确保用药安全。');
     }
 
     return buffer.toString();
   }
 
-  /// 釋放資源
+  /// 释放资源
   void dispose() {
     _client.close();
   }
 }
 
-/// OCR識別結果
+/// OCR识别结果
 class OCRResult {
   final String text;
   final List<OCRWord> words;
@@ -613,7 +613,7 @@ class OCRResult {
   });
 }
 
-/// OCR單詞
+/// OCR单词
 class OCRWord {
   final String text;
   final double confidence;
@@ -626,7 +626,7 @@ class OCRWord {
   });
 }
 
-/// 矩形區域
+/// 矩形区域
 class Rect {
   final int left;
   final int top;
@@ -641,7 +641,7 @@ class Rect {
   });
 }
 
-/// 身份證識別結果
+/// 身份证识别结果
 class IdCardResult {
   final String name;
   final String gender;
@@ -666,7 +666,7 @@ class IdCardResult {
   bool get isEmpty => name.isEmpty && idNumber.isEmpty;
 }
 
-/// 銀行卡識別結果
+/// 银行卡识别结果
 class BankCardResult {
   final String cardNumber;
   final String bankName;
@@ -683,7 +683,7 @@ class BankCardResult {
   bool get isEmpty => cardNumber.isEmpty;
 }
 
-/// 營業執照識別結果
+/// 营业执照识别结果
 class BusinessLicenseResult {
   final String companyName;
   final String legalPerson;

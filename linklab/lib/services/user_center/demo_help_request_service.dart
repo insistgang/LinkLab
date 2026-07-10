@@ -37,7 +37,7 @@ class DemoHelpRequestService {
       feature: 'DemoHelpRequestService.createRequest',
     )) {
       throw StateError(
-        'DemoHelpRequestService.createRequest 僅在 Demo fallback 開啓時可用',
+        'DemoHelpRequestService.createRequest 仅在 Demo fallback 开启时可用',
       );
     }
 
@@ -113,7 +113,7 @@ class DemoHelpRequestService {
   Future<bool> cancelRequest(
     String requestId,
     String seekerId, {
-    String reason = '求助者主動取消',
+    String reason = '求助者主动取消',
   }) async {
     if (!AppConfig.shouldUseDemoFallback(
       feature: 'DemoHelpRequestService.cancelRequest',
@@ -137,7 +137,7 @@ class DemoHelpRequestService {
       await _saveRequests(requests);
       return true;
     } catch (e) {
-      AppLogger.error('取消本地求助單失敗', e);
+      AppLogger.error('取消本地求助单失败', e);
       return false;
     }
   }
@@ -162,7 +162,7 @@ class DemoHelpRequestService {
       requests.sort((a, b) => b.createdAt.compareTo(a.createdAt));
       return requests;
     } catch (e) {
-      AppLogger.error('讀取本地求助單失敗', e);
+      AppLogger.error('读取本地求助单失败', e);
       return [];
     }
   }

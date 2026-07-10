@@ -1,28 +1,28 @@
 // =====================================================
-// 共感 LinkAble - 積分計算 Edge Function
-// 功能：監聽help_requests變更，自動計算和更新積分
+// 共感 LinkAble - 积分计算 Edge Function
+// 功能：监听help_requests变更，自动计算和更新积分
 // =====================================================
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0';
 
-// CORS頭
+// CORS头
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// 積分配置
+// 积分配置
 const POINTS_CONFIG = {
-  // 實時幫助積分
+  // 实时帮助积分
   realtime_help: {
-    base: 10,           // 基礎積分
-    duration_bonus: {   // 時長獎勵
+    base: 10,           // 基础积分
+    duration_bonus: {   // 时长奖励
       '5min': 5,
       '10min': 10,
       '15min': 15,
       '30min': 25,
     },
-    rating_bonus: {     // 評價獎勵
+    rating_bonus: {     // 评价奖励
       5: 10,
       4: 5,
       3: 2,
@@ -30,7 +30,7 @@ const POINTS_CONFIG = {
       1: -5,
     },
   },
-  // 異步任務積分
+  // 异步任务积分
   async_task: {
     base: 5,
     priority_bonus: {
@@ -40,7 +40,7 @@ const POINTS_CONFIG = {
       urgent: 10,
     },
   },
-  // SOS緊急幫助積分
+  // SOS紧急帮助积分
   sos_help: {
     base: 20,
     duration_bonus: {
@@ -48,26 +48,26 @@ const POINTS_CONFIG = {
       '10min': 20,
     },
   },
-  // 連續簽到積分
+  // 连续签到积分
   daily_signin: {
     base: 1,
-    streak_bonus: [0, 0, 1, 1, 2, 2, 5], // 第1-7天額外獎勵
+    streak_bonus: [0, 0, 1, 1, 2, 2, 5], // 第1-7天额外奖励
   },
 };
 
-// 等級配置
+// 等级配置
 const LEVEL_CONFIG = [
-  { level: 1, minPoints: 0, title: '新手志願者' },
-  { level: 2, minPoints: 50, title: '初級志願者' },
-  { level: 3, minPoints: 150, title: '中級志願者' },
-  { level: 4, minPoints: 300, title: '高級志願者' },
-  { level: 5, minPoints: 500, title: '資深志願者' },
-  { level: 6, minPoints: 800, title: '專家志願者' },
-  { level: 7, minPoints: 1200, title: '大師志願者' },
+  { level: 1, minPoints: 0, title: '新手志愿者' },
+  { level: 2, minPoints: 50, title: '初级志愿者' },
+  { level: 3, minPoints: 150, title: '中级志愿者' },
+  { level: 4, minPoints: 300, title: '高级志愿者' },
+  { level: 5, minPoints: 500, title: '资深志愿者' },
+  { level: 6, minPoints: 800, title: '专家志愿者' },
+  { level: 7, minPoints: 1200, title: '大师志愿者' },
 ];
 
 /**
- * 計算幫助積分
+ * 计算帮助积分
  */
 function calculateHelpPoints(
   helpType: string,
@@ -79,12 +79,12 @@ function calculateHelpPoints(
   let totalPoints = 0;
 
   if (isSOS) {
-    // SOS緊急幫助
+    // SOS紧急帮助
     const config = POINTS_CONFIG.sos_help;
     totalPoints += config.base;
     breakdown.base = config.base;
 
-    // 時長獎勵
+    // 时长奖励
     const durationMin = durationSeconds / 60;
     if (durationMin >= 10) {
       totalPoints += config.duration_bonus['10min'];
@@ -94,12 +94,12 @@ function calculateHelpPoints(
       breakdown.duration = config.duration_bonus['5min'];
     }
   } else if (helpType === 'realtime_voice' || helpType === 'realtime_video') {
-    // 實時幫助
+    // 实时帮助
     const config = POINTS_CONFIG.realtime_help;
     totalPoints += config.base;
     breakdown.base = config.base;
 
-    // 時長獎勵
+    // 时长奖励
     const durationMin = durationSeconds / 60;
     if (durationMin >= 30) {
       totalPoints += config.duration_bonus['30min'];
@@ -115,7 +115,7 @@ function calculateHelpPoints(
       breakdown.duration = config.duration_bonus['5min'];
     }
 
-    // 評價獎勵
+    // 评价奖励
     if (rating && config.rating_bonus[rating as keyof typeof config.rating_bonus] !== undefined) {
       const ratingBonus = config.rating_bonus[rating as keyof typeof config.rating_bonus];
       totalPoints += ratingBonus;
@@ -127,7 +127,7 @@ function calculateHelpPoints(
 }
 
 /**
- * 計算異步任務積分
+ * 计算异步任务积分
  */
 function calculateAsyncTaskPoints(priority: string): { points: number; breakdown: any } {
   const config = POINTS_CONFIG.async_task;
@@ -142,7 +142,7 @@ function calculateAsyncTaskPoints(priority: string): { points: number; breakdown
 }
 
 /**
- * 根據積分計算等級
+ * 根据积分计算等级
  */
 function calculateLevel(points: number): { level: number; title: string } {
   for (let i = LEVEL_CONFIG.length - 1; i >= 0; i--) {
@@ -154,7 +154,7 @@ function calculateLevel(points: number): { level: number; title: string } {
 }
 
 /**
- * 添加積分流水
+ * 添加积分流水
  */
 async function addPointTransaction(
   supabase: any,
@@ -179,20 +179,20 @@ async function addPointTransaction(
   });
 
   if (error) {
-    console.error('添加積分流水失敗:', error);
+    console.error('添加积分流水失败:', error);
     throw error;
   }
 }
 
 /**
- * 更新志願者積分和等級
+ * 更新志愿者积分和等级
  */
 async function updateVolunteerPoints(
   supabase: any,
   userId: string,
   pointsToAdd: number
 ): Promise<void> {
-  // 獲取當前積分
+  // 获取当前积分
   const { data: profile, error: fetchError } = await supabase
     .from('volunteer_profiles')
     .select('points, level')
@@ -200,20 +200,20 @@ async function updateVolunteerPoints(
     .single();
 
   if (fetchError || !profile) {
-    console.error('獲取志願者資料失敗:', fetchError);
+    console.error('获取志愿者资料失败:', fetchError);
     throw fetchError;
   }
 
   const newPoints = profile.points + pointsToAdd;
   const { level: newLevel, title } = calculateLevel(newPoints);
 
-  // 更新積分和等級
+  // 更新积分和等级
   const updateData: any = {
     points: newPoints,
     total_help_count: supabase.rpc('increment', { x: 1 }),
   };
 
-  // 如果等級提升，更新等級
+  // 如果等级提升，更新等级
   if (newLevel > profile.level) {
     updateData.level = newLevel;
   }
@@ -224,24 +224,24 @@ async function updateVolunteerPoints(
     .eq('user_id', userId);
 
   if (updateError) {
-    console.error('更新志願者積分失敗:', updateError);
+    console.error('更新志愿者积分失败:', updateError);
     throw updateError;
   }
 
-  // 如果等級提升，發送通知
+  // 如果等级提升，发送通知
   if (newLevel > profile.level) {
     await supabase.from('notifications').insert({
       user_id: userId,
       type: 'level_up',
-      title: '等級提升！',
-      content: `恭喜您升級到${title}！`,
+      title: '等级提升！',
+      content: `恭喜您升级到${title}！`,
       data: { newLevel, newPoints },
     });
   }
 }
 
 /**
- * 處理求助完成積分
+ * 处理求助完成积分
  */
 async function handleHelpCompleted(supabase: any, helpRequest: any): Promise<void> {
   const {
@@ -264,7 +264,7 @@ async function handleHelpCompleted(supabase: any, helpRequest: any): Promise<voi
 
   if (points <= 0) return;
 
-  // 獲取當前積分餘額
+  // 获取当前积分余额
   const { data: profile } = await supabase
     .from('volunteer_profiles')
     .select('points')
@@ -273,7 +273,7 @@ async function handleHelpCompleted(supabase: any, helpRequest: any): Promise<voi
 
   const currentBalance = profile?.points || 0;
 
-  // 添加積分流水
+  // 添加积分流水
   await addPointTransaction(
     supabase,
     volunteer_id,
@@ -281,18 +281,18 @@ async function handleHelpCompleted(supabase: any, helpRequest: any): Promise<voi
     points,
     'help_complete',
     id,
-    `完成${isSOS ? '緊急' : ''}幫助獲得積分`,
+    `完成${isSOS ? '紧急' : ''}帮助获得积分`,
     currentBalance
   );
 
-  // 更新志願者積分
+  // 更新志愿者积分
   await updateVolunteerPoints(supabase, volunteer_id, points);
 
-  console.log(`志願者 ${volunteer_id} 獲得 ${points} 積分`, breakdown);
+  console.log(`志愿者 ${volunteer_id} 获得 ${points} 积分`, breakdown);
 }
 
 /**
- * 處理異步任務完成積分
+ * 处理异步任务完成积分
  */
 async function handleAsyncTaskCompleted(supabase: any, task: any): Promise<void> {
   const { id, volunteer_id, priority } = task;
@@ -301,7 +301,7 @@ async function handleAsyncTaskCompleted(supabase: any, task: any): Promise<void>
 
   const { points, breakdown } = calculateAsyncTaskPoints(priority || 'normal');
 
-  // 獲取當前積分餘額
+  // 获取当前积分余额
   const { data: profile } = await supabase
     .from('volunteer_profiles')
     .select('points')
@@ -310,7 +310,7 @@ async function handleAsyncTaskCompleted(supabase: any, task: any): Promise<void>
 
   const currentBalance = profile?.points || 0;
 
-  // 添加積分流水
+  // 添加积分流水
   await addPointTransaction(
     supabase,
     volunteer_id,
@@ -318,18 +318,18 @@ async function handleAsyncTaskCompleted(supabase: any, task: any): Promise<void>
     points,
     'task_complete',
     id,
-    '完成異步任務獲得積分',
+    '完成异步任务获得积分',
     currentBalance
   );
 
-  // 更新志願者積分
+  // 更新志愿者积分
   await updateVolunteerPoints(supabase, volunteer_id, points);
 
-  console.log(`志願者 ${volunteer_id} 獲得 ${points} 積分(異步任務)`, breakdown);
+  console.log(`志愿者 ${volunteer_id} 获得 ${points} 积分(异步任务)`, breakdown);
 }
 
 /**
- * 手動觸發積分計算(用於補償或測試)
+ * 手动触发积分计算(用于补偿或测试)
  */
 async function handleManualCalculate(req: Request): Promise<Response> {
   try {
@@ -349,7 +349,7 @@ async function handleManualCalculate(req: Request): Promise<Response> {
 
       if (error || !helpRequest) {
         return new Response(
-          JSON.stringify({ error: '求助記錄不存在' }),
+          JSON.stringify({ error: '求助记录不存在' }),
           { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
@@ -357,7 +357,7 @@ async function handleManualCalculate(req: Request): Promise<Response> {
       await handleHelpCompleted(supabase, helpRequest);
 
       return new Response(
-        JSON.stringify({ success: true, message: '求助積分已計算' }),
+        JSON.stringify({ success: true, message: '求助积分已计算' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -371,7 +371,7 @@ async function handleManualCalculate(req: Request): Promise<Response> {
 
       if (error || !task) {
         return new Response(
-          JSON.stringify({ error: '異步任務不存在' }),
+          JSON.stringify({ error: '异步任务不存在' }),
           { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
@@ -379,7 +379,7 @@ async function handleManualCalculate(req: Request): Promise<Response> {
       await handleAsyncTaskCompleted(supabase, task);
 
       return new Response(
-        JSON.stringify({ success: true, message: '任務積分已計算' }),
+        JSON.stringify({ success: true, message: '任务积分已计算' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -390,7 +390,7 @@ async function handleManualCalculate(req: Request): Promise<Response> {
     );
 
   } catch (error) {
-    console.error('手動計算積分錯誤:', error);
+    console.error('手动计算积分错误:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -399,7 +399,7 @@ async function handleManualCalculate(req: Request): Promise<Response> {
 }
 
 /**
- * 獲取積分配置
+ * 获取积分配置
  */
 async function handleGetConfig(): Promise<Response> {
   return new Response(
@@ -412,7 +412,7 @@ async function handleGetConfig(): Promise<Response> {
 }
 
 /**
- * Webhook處理函數(用於數據庫觸發器)
+ * Webhook处理函数(用于数据库触发器)
  */
 async function handleWebhook(req: Request): Promise<Response> {
   try {
@@ -423,12 +423,12 @@ async function handleWebhook(req: Request): Promise<Response> {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // 處理help_requests狀態變更
+    // 处理help_requests状态变更
     if (type === 'help_request_completed') {
       await handleHelpCompleted(supabase, record);
     }
 
-    // 處理async_tasks狀態變更
+    // 处理async_tasks状态变更
     if (type === 'async_task_completed') {
       await handleAsyncTaskCompleted(supabase, record);
     }
@@ -439,7 +439,7 @@ async function handleWebhook(req: Request): Promise<Response> {
     );
 
   } catch (error) {
-    console.error('Webhook處理錯誤:', error);
+    console.error('Webhook处理错误:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -455,17 +455,17 @@ Deno.serve(async (req: Request) => {
 
   const url = new URL(req.url);
 
-  // Webhook端點(數據庫觸發器調用)
+  // Webhook端点(数据库触发器调用)
   if (url.pathname === '/points-calculator/webhook' && req.method === 'POST') {
     return handleWebhook(req);
   }
 
-  // 手動計算端點
+  // 手动计算端点
   if (url.pathname === '/points-calculator/calculate' && req.method === 'POST') {
     return handleManualCalculate(req);
   }
 
-  // 獲取配置端點
+  // 获取配置端点
   if (url.pathname === '/points-calculator/config' && req.method === 'GET') {
     return handleGetConfig();
   }

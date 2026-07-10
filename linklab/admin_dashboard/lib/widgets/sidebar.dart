@@ -38,7 +38,7 @@ class Sidebar extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '運營後臺',
+                        '运营后台',
                         style: TextStyle(
                           fontSize: 12,
                           color: AppTheme.textSecondary,
@@ -98,7 +98,7 @@ class Sidebar extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      session?.displayName ?? '管理員',
+                      session?.displayName ?? '管理员',
                       style: const TextStyle(
                         fontWeight: FontWeight.w500,
                         color: AppTheme.textPrimary,
@@ -133,8 +133,8 @@ class Sidebar extends StatelessWidget {
                   showDialog(
                     context: context,
                     builder: (dialogContext) => AlertDialog(
-                      title: const Text('確認退出'),
-                      content: const Text('確定要退出登錄嗎？'),
+                      title: const Text('确认退出'),
+                      content: const Text('确定要退出登录吗？'),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(dialogContext),

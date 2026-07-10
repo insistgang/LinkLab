@@ -1,29 +1,29 @@
-// 儀表盤指標數據模型
+// 仪表盘指标数据模型
 class DashboardMetrics {
-  final int dau; // 日活躍用戶
-  final int mau; // 月活躍用戶
-  final double dauChange; // DAU變化率
-  final double mauChange; // MAU變化率
+  final int dau; // 日活跃用户
+  final int mau; // 月活跃用户
+  final double dauChange; // DAU变化率
+  final double mauChange; // MAU变化率
 
-  final double responseRate; // 求助響應率
+  final double responseRate; // 求助响应率
   final double responseRateChange;
 
-  final double volunteerRetention; // 志願者留存率
+  final double volunteerRetention; // 志愿者留存率
   final double volunteerRetentionChange;
 
-  final double aiResolutionRate; // AI解決率
+  final double aiResolutionRate; // AI解决率
   final double aiResolutionRateChange;
 
-  final double avgCallDuration; // 平均通話時長（分鐘）
+  final double avgCallDuration; // 平均通话时长（分钟）
   final double avgCallDurationChange;
 
-  final double satisfaction; // 用戶滿意度
+  final double satisfaction; // 用户满意度
   final double satisfactionChange;
 
-  final int totalCalls; // 總通話數
+  final int totalCalls; // 总通话数
   final int totalCallsChange;
 
-  final int newUsers; // 新增用戶
+  final int newUsers; // 新增用户
   final int newUsersChange;
 
   DashboardMetrics({
@@ -71,7 +71,7 @@ class DashboardMetrics {
   }
 }
 
-// 趨勢數據點
+// 趋势数据点
 class TrendDataPoint {
   final DateTime date;
   final double value;
@@ -92,12 +92,12 @@ class TrendDataPoint {
   }
 }
 
-// 趨勢數據
+// 趋势数据
 class TrendData {
-  final List<TrendDataPoint> dau; // DAU趨勢
-  final List<TrendDataPoint> mau; // MAU趨勢
-  final List<TrendDataPoint> calls; // 通話趨勢
-  final List<TrendDataPoint> newUsers; // 新用戶趨勢
+  final List<TrendDataPoint> dau; // DAU趋势
+  final List<TrendDataPoint> mau; // MAU趋势
+  final List<TrendDataPoint> calls; // 通话趋势
+  final List<TrendDataPoint> newUsers; // 新用户趋势
 
   TrendData({
     required this.dau,
@@ -124,7 +124,7 @@ class TrendData {
   }
 }
 
-// 分佈數據
+// 分布数据
 class DistributionData {
   final String name;
   final double value;
@@ -145,12 +145,12 @@ class DistributionData {
   }
 }
 
-// 用戶分佈數據
+// 用户分布数据
 class UserDistribution {
-  final List<DistributionData> userType; // 用戶類型分佈
-  final List<DistributionData> disabilityType; // 殘障類型分佈
-  final List<DistributionData> skillDistribution; // 技能分佈
-  final List<DistributionData> regionDistribution; // 地區分佈
+  final List<DistributionData> userType; // 用户类型分布
+  final List<DistributionData> disabilityType; // 残障类型分布
+  final List<DistributionData> skillDistribution; // 技能分布
+  final List<DistributionData> regionDistribution; // 地区分布
 
   UserDistribution({
     required this.userType,
@@ -177,7 +177,7 @@ class UserDistribution {
   }
 }
 
-// 對比數據
+// 对比数据
 class ComparisonData {
   final String category;
   final double current;
@@ -198,10 +198,10 @@ class ComparisonData {
   }
 }
 
-// 求助類型分佈
+// 求助类型分布
 class HelpTypeDistribution {
-  final List<ComparisonData> weekly; // 本週數據
-  final List<ComparisonData> monthly; // 本月數據
+  final List<ComparisonData> weekly; // 本周数据
+  final List<ComparisonData> monthly; // 本月数据
 
   HelpTypeDistribution({
     required this.weekly,

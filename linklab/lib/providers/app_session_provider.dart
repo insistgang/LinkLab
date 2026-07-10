@@ -8,14 +8,14 @@ import '../services/auth_service.dart';
 import '../services/app_session_service.dart';
 
 // ---------------------------------------------------------------------------
-// Legacy service provider – 只做過渡期橋接，新代碼不應直接依賴
+// Legacy service provider – 只做过渡期桥接，新代码不应直接依赖
 // ---------------------------------------------------------------------------
 final appSessionServiceProvider = Provider<AppSessionService>((ref) {
   return AppSessionService.instance;
 });
 
 // ---------------------------------------------------------------------------
-// Riverpod 狀態 & Notifier
+// Riverpod 状态 & Notifier
 // ---------------------------------------------------------------------------
 final appSessionProvider =
     NotifierProvider<AppSessionNotifier, AppSessionState>(
@@ -87,10 +87,10 @@ class AppSessionState {
     );
   }
 
-  /// 委託給底層 service 獲取幫助歷史。
-  /// 注意：這是同步調用本地存儲，僅適用於 Demo 模式。
+  /// 委托给底层 service 获取帮助历史。
+  /// 注意：这是同步调用本地存储，仅适用于 Demo 模式。
   List<HelpRequestModel> getRecentHelpHistory({int limit = 3}) {
-    // 通過全局 service 實例讀取本地存儲（過渡期方案）
+    // 通过全局 service 实例读取本地存储（过渡期方案）
     // ignore: deprecated_member_use_from_same_package
     return AppSessionService.instance.getRecentHelpHistory(limit: limit);
   }
@@ -119,12 +119,12 @@ class AppSessionNotifier extends Notifier<AppSessionState> {
   }
 
   // -----------------------------------------------------------------------
-  // 公開方法 – UI 層只通過這些方法修改會話狀態
+  // 公开方法 – UI 层只通过这些方法修改会话状态
   // -----------------------------------------------------------------------
 
   Future<void> initialize() async {
     await _session.initialize();
-    // build() 中的 listener 會自動同步 state，此處無需手動賦值
+    // build() 中的 listener 会自动同步 state，此处无需手动赋值
   }
 
   Future<void> login(String phone, String code) async {

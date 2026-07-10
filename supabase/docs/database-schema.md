@@ -1,22 +1,22 @@
-# 共感 LinkAble 數據庫設計文檔
+# 共感 LinkAble 数据库设计文档
 
-## 數據庫關係圖
+## 数据库关系图
 
 ```mermaid
 erDiagram
-    users ||--o| volunteer_profiles : "1:1 志願者擴展"
-    users ||--o{ help_requests : "1:N 發起求助"
-    users ||--o{ help_requests : "1:N 作爲志願者幫助"
-    users ||--o{ async_tasks : "1:N 發起任務"
-    users ||--o{ point_transactions : "1:N 積分流水"
-    users ||--o{ emergency_contacts : "1:N 緊急聯繫人"
-    users ||--o{ reports : "1:N 舉報"
-    users ||--o{ reports : "1:N 被舉報"
+    users ||--o| volunteer_profiles : "1:1 志愿者扩展"
+    users ||--o{ help_requests : "1:N 发起求助"
+    users ||--o{ help_requests : "1:N 作为志愿者帮助"
+    users ||--o{ async_tasks : "1:N 发起任务"
+    users ||--o{ point_transactions : "1:N 积分流水"
+    users ||--o{ emergency_contacts : "1:N 紧急联系人"
+    users ||--o{ reports : "1:N 举报"
+    users ||--o{ reports : "1:N 被举报"
     
-    help_requests ||--o{ async_tasks : "1:N 關聯任務"
-    help_requests ||--o{ call_records : "1:N 通話記錄"
+    help_requests ||--o{ async_tasks : "1:N 关联任务"
+    help_requests ||--o{ call_records : "1:N 通话记录"
     
-    volunteer_profiles ||--o{ async_tasks : "1:N 接單"
+    volunteer_profiles ||--o{ async_tasks : "1:N 接单"
     
     users {
         uuid id PK
@@ -158,224 +158,224 @@ erDiagram
     }
 ```
 
-## 表結構詳細說明
+## 表结构详细说明
 
-### 1. users (用戶基礎表)
+### 1. users (用户基础表)
 
-| 字段 | 類型 | 說明 |
+| 字段 | 类型 | 说明 |
 |------|------|------|
-| id | UUID | 主鍵，用戶唯一標識 |
-| phone | TEXT | 手機號，用於登錄，唯一 |
-| name | TEXT | 用戶暱稱 |
-| avatar_url | TEXT | 頭像URL |
-| role | TEXT[] | 角色數組：seeker(求助者), volunteer(志願者)，支持雙角色 |
-| disability_type | TEXT[] | 障礙類型：visual(視障), hearing(聽障), physical(肢體), elderly(老年), temporary(臨時) |
-| preferences | JSONB | 無障礙偏好配置 |
-| last_login_at | TIMESTAMPTZ | 最後登錄時間 |
-| is_deleted | BOOLEAN | 軟刪除標記 |
+| id | UUID | 主键，用户唯一标识 |
+| phone | TEXT | 手机号，用于登录，唯一 |
+| name | TEXT | 用户昵称 |
+| avatar_url | TEXT | 头像URL |
+| role | TEXT[] | 角色数组：seeker(求助者), volunteer(志愿者)，支持双角色 |
+| disability_type | TEXT[] | 障碍类型：visual(视障), hearing(听障), physical(肢体), elderly(老年), temporary(临时) |
+| preferences | JSONB | 无障碍偏好配置 |
+| last_login_at | TIMESTAMPTZ | 最后登录时间 |
+| is_deleted | BOOLEAN | 软删除标记 |
 
-### 2. volunteer_profiles (志願者擴展表)
+### 2. volunteer_profiles (志愿者扩展表)
 
-| 字段 | 類型 | 說明 |
+| 字段 | 类型 | 说明 |
 |------|------|------|
-| user_id | UUID | 主鍵/外鍵，關聯users.id |
-| skills | TEXT[] | 技能標籤：medical(醫療), guide(導盲), tech(技術), sign(手語), elderly(敬老), child(兒童), daily(日常) |
-| level | INT | 等級1-7，根據積分自動計算 |
-| points | INT | 當前積分 |
+| user_id | UUID | 主键/外键，关联users.id |
+| skills | TEXT[] | 技能标签：medical(医疗), guide(导盲), tech(技术), sign(手语), elderly(敬老), child(儿童), daily(日常) |
+| level | INT | 等级1-7，根据积分自动计算 |
+| points | INT | 当前积分 |
 | credit_score | DECIMAL(2,1) | 信用分1-5 |
-| is_verified | BOOLEAN | 是否實名認證 |
-| available_schedule | JSONB | 可服務時間段配置 |
-| is_online | BOOLEAN | 在線狀態 |
-| last_heartbeat_at | TIMESTAMPTZ | 最後心跳時間 |
-| total_help_count | INT | 累計幫助次數 |
-| location | GEOGRAPHY(POINT,4326) | 實時位置座標(WGS84) |
+| is_verified | BOOLEAN | 是否实名认证 |
+| available_schedule | JSONB | 可服务时间段配置 |
+| is_online | BOOLEAN | 在线状态 |
+| last_heartbeat_at | TIMESTAMPTZ | 最后心跳时间 |
+| total_help_count | INT | 累计帮助次数 |
+| location | GEOGRAPHY(POINT,4326) | 实时位置座标(WGS84) |
 
-### 3. help_requests (求助記錄表)
+### 3. help_requests (求助记录表)
 
-| 字段 | 類型 | 說明 |
+| 字段 | 类型 | 说明 |
 |------|------|------|
-| id | UUID | 主鍵 |
+| id | UUID | 主键 |
 | seeker_id | UUID | 求助者ID |
-| type | TEXT | 類型：ai_auto, async, realtime_voice, realtime_video, sos |
-| intent | TEXT | AI識別的意圖 |
-| urgency | TEXT | 緊急程度：normal, important, urgent, emergency |
-| status | TEXT | 狀態：pending, ai_resolved, matching, matched, connected, completed, cancelled |
-| ai_response | JSONB | AI處理結果緩存 |
-| volunteer_id | UUID | 匹配的志願者ID |
+| type | TEXT | 类型：ai_auto, async, realtime_voice, realtime_video, sos |
+| intent | TEXT | AI识别的意图 |
+| urgency | TEXT | 紧急程度：normal, important, urgent, emergency |
+| status | TEXT | 状态：pending, ai_resolved, matching, matched, connected, completed, cancelled |
+| ai_response | JSONB | AI处理结果缓存 |
+| volunteer_id | UUID | 匹配的志愿者ID |
 | location | GEOGRAPHY(POINT,4326) | 求助位置 |
-| duration_seconds | INT | 通話時長(秒) |
-| seeker_rating | INT | 求助者給志願者的評分1-5 |
-| volunteer_rating | INT | 志願者給求助者的評分1-5 |
-| matched_at | TIMESTAMPTZ | 匹配成功時間 |
-| completed_at | TIMESTAMPTZ | 完成時間 |
+| duration_seconds | INT | 通话时长(秒) |
+| seeker_rating | INT | 求助者给志愿者的评分1-5 |
+| volunteer_rating | INT | 志愿者给求助者的评分1-5 |
+| matched_at | TIMESTAMPTZ | 匹配成功时间 |
+| completed_at | TIMESTAMPTZ | 完成时间 |
 
-### 4. async_tasks (異步任務表)
+### 4. async_tasks (异步任务表)
 
-| 字段 | 類型 | 說明 |
+| 字段 | 类型 | 说明 |
 |------|------|------|
-| id | UUID | 主鍵 |
-| request_id | UUID | 關聯的求助記錄ID |
+| id | UUID | 主键 |
+| request_id | UUID | 关联的求助记录ID |
 | seeker_id | UUID | 求助者ID |
-| volunteer_id | UUID | 接單的志願者ID |
-| title | TEXT | 任務標題 |
-| description | TEXT | 任務描述 |
-| type | TEXT | 類型：ocr, scene_desc, translation, guidance, other |
-| status | TEXT | 狀態：pending, accepted, processing, completed, cancelled, expired |
-| priority | TEXT | 優先級：low, normal, high, urgent |
-| result | TEXT | 處理結果 |
-| deadline_at | TIMESTAMPTZ | 截止時間 |
+| volunteer_id | UUID | 接单的志愿者ID |
+| title | TEXT | 任务标题 |
+| description | TEXT | 任务描述 |
+| type | TEXT | 类型：ocr, scene_desc, translation, guidance, other |
+| status | TEXT | 状态：pending, accepted, processing, completed, cancelled, expired |
+| priority | TEXT | 优先级：low, normal, high, urgent |
+| result | TEXT | 处理结果 |
+| deadline_at | TIMESTAMPTZ | 截止时间 |
 
-### 5. point_transactions (積分流水錶)
+### 5. point_transactions (积分流水表)
 
-| 字段 | 類型 | 說明 |
+| 字段 | 类型 | 说明 |
 |------|------|------|
-| id | UUID | 主鍵 |
-| user_id | UUID | 用戶ID |
-| type | TEXT | 類型：earn(獲得), spend(消耗), bonus(獎勵), penalty(扣除) |
-| amount | INT | 積分變化量(正數增加，負數減少) |
-| balance | INT | 變動後餘額 |
-| source | TEXT | 來源：help_complete, task_complete, sign_in, exchange, system |
-| source_id | UUID | 關聯記錄ID |
+| id | UUID | 主键 |
+| user_id | UUID | 用户ID |
+| type | TEXT | 类型：earn(获得), spend(消耗), bonus(奖励), penalty(扣除) |
+| amount | INT | 积分变化量(正数增加，负数减少) |
+| balance | INT | 变动后余额 |
+| source | TEXT | 来源：help_complete, task_complete, sign_in, exchange, system |
+| source_id | UUID | 关联记录ID |
 
-### 6. emergency_contacts (緊急聯繫人表)
+### 6. emergency_contacts (紧急联系人表)
 
-| 字段 | 類型 | 說明 |
+| 字段 | 类型 | 说明 |
 |------|------|------|
-| id | UUID | 主鍵 |
-| user_id | UUID | 用戶ID |
-| name | TEXT | 聯繫人姓名 |
-| phone | TEXT | 聯繫人電話 |
-| relationship | TEXT | 關係 |
-| priority | INT | 優先級(1最高) |
-| is_active | BOOLEAN | 是否啓用 |
-| notify_on_sos | BOOLEAN | SOS時是否通知 |
+| id | UUID | 主键 |
+| user_id | UUID | 用户ID |
+| name | TEXT | 联系人姓名 |
+| phone | TEXT | 联系人电话 |
+| relationship | TEXT | 关系 |
+| priority | INT | 优先级(1最高) |
+| is_active | BOOLEAN | 是否启用 |
+| notify_on_sos | BOOLEAN | SOS时是否通知 |
 
-### 7. reports (舉報表)
+### 7. reports (举报表)
 
-| 字段 | 類型 | 說明 |
+| 字段 | 类型 | 说明 |
 |------|------|------|
-| id | UUID | 主鍵 |
-| reporter_id | UUID | 舉報人ID |
-| reported_id | UUID | 被舉報人ID |
-| target_type | TEXT | 舉報對象類型：user, help_request, async_task |
-| target_id | UUID | 舉報對象ID |
-| reason | TEXT | 舉報原因：harassment, fraud, inappropriate, spam, other |
-| description | TEXT | 詳細描述 |
-| evidence | JSONB | 證據附件 |
-| status | TEXT | 狀態：pending, investigating, resolved, rejected |
-| result | TEXT | 處理結果 |
-| handled_by | UUID | 處理人ID |
-| handled_at | TIMESTAMPTZ | 處理時間 |
+| id | UUID | 主键 |
+| reporter_id | UUID | 举报人ID |
+| reported_id | UUID | 被举报人ID |
+| target_type | TEXT | 举报对象类型：user, help_request, async_task |
+| target_id | UUID | 举报对象ID |
+| reason | TEXT | 举报原因：harassment, fraud, inappropriate, spam, other |
+| description | TEXT | 详细描述 |
+| evidence | JSONB | 证据附件 |
+| status | TEXT | 状态：pending, investigating, resolved, rejected |
+| result | TEXT | 处理结果 |
+| handled_by | UUID | 处理人ID |
+| handled_at | TIMESTAMPTZ | 处理时间 |
 
-### 8. call_records (通話記錄表)
+### 8. call_records (通话记录表)
 
-| 字段 | 類型 | 說明 |
+| 字段 | 类型 | 说明 |
 |------|------|------|
-| id | UUID | 主鍵 |
-| request_id | UUID | 關聯的求助記錄ID |
+| id | UUID | 主键 |
+| request_id | UUID | 关联的求助记录ID |
 | seeker_id | UUID | 求助者ID |
-| volunteer_id | UUID | 志願者ID |
-| call_type | TEXT | 通話類型：voice, video |
-| status | TEXT | 狀態：initiated, connected, ended, failed |
-| started_at | TIMESTAMPTZ | 開始時間 |
-| ended_at | TIMESTAMPTZ | 結束時間 |
-| duration_seconds | INT | 通話時長(秒) |
-| end_reason | TEXT | 結束原因：normal, network_error, user_hangup, timeout |
-| ice_candidate_count | INT | ICE候選數量(網絡質量指標) |
-| quality_score | INT | 通話質量評分1-5 |
+| volunteer_id | UUID | 志愿者ID |
+| call_type | TEXT | 通话类型：voice, video |
+| status | TEXT | 状态：initiated, connected, ended, failed |
+| started_at | TIMESTAMPTZ | 开始时间 |
+| ended_at | TIMESTAMPTZ | 结束时间 |
+| duration_seconds | INT | 通话时长(秒) |
+| end_reason | TEXT | 结束原因：normal, network_error, user_hangup, timeout |
+| ice_candidate_count | INT | ICE候选数量(网络质量指标) |
+| quality_score | INT | 通话质量评分1-5 |
 
-### 9. ai_response_cache (AI響應緩存表)
+### 9. ai_response_cache (AI响应缓存表)
 
-| 字段 | 類型 | 說明 |
+| 字段 | 类型 | 说明 |
 |------|------|------|
-| query_hash | TEXT | 主鍵，查詢內容的哈希值 |
-| query_type | TEXT | 查詢類型：ocr, scene_desc, asr, translation |
-| response | JSONB | AI響應結果 |
-| hit_count | INT | 命中次數 |
-| created_at | TIMESTAMPTZ | 創建時間 |
-| expires_at | TIMESTAMPTZ | 過期時間 |
+| query_hash | TEXT | 主键，查询内容的哈希值 |
+| query_type | TEXT | 查询类型：ocr, scene_desc, asr, translation |
+| response | JSONB | AI响应结果 |
+| hit_count | INT | 命中次数 |
+| created_at | TIMESTAMPTZ | 创建时间 |
+| expires_at | TIMESTAMPTZ | 过期时间 |
 
 ## 索引列表
 
-### 性能關鍵索引
+### 性能关键索引
 
-| 表名 | 索引名 | 類型 | 用途 |
+| 表名 | 索引名 | 类型 | 用途 |
 |------|--------|------|------|
-| users | idx_users_phone | B-Tree | 手機號登錄查詢，支持快速用戶認證 |
-| users | idx_users_role | GIN | 角色篩選，支持多角色查詢 |
-| users | idx_users_created_at | B-Tree | 用戶註冊時間排序 |
-| volunteer_profiles | idx_volunteer_location | GIST | 地理位置空間查詢，用於附近志願者匹配 |
-| volunteer_profiles | idx_volunteer_online | B-Tree | 在線志願者查詢，配合is_online字段 |
-| volunteer_profiles | idx_volunteer_skills | GIN | 技能標籤匹配，支持多技能篩選 |
-| volunteer_profiles | idx_volunteer_points | B-Tree | 積分排行查詢 |
-| volunteer_profiles | idx_volunteer_heartbeat | B-Tree | 清理離線志願者時查詢 |
-| help_requests | idx_help_status_urgency | B-Tree | 匹配查詢，按狀態和緊急程度篩選 |
-| help_requests | idx_help_location | GIST | 附近求助空間查詢 |
-| help_requests | idx_help_seeker_id | B-Tree | 查詢用戶的求助歷史 |
-| help_requests | idx_help_volunteer_id | B-Tree | 查詢志願者的幫助記錄 |
-| help_requests | idx_help_created_at | B-Tree | 求助記錄時間排序 |
-| async_tasks | idx_async_status | B-Tree | 任務隊列查詢，按狀態篩選 |
-| async_tasks | idx_async_volunteer_id | B-Tree | 查詢志願者的任務列表 |
-| async_tasks | idx_async_deadline | B-Tree | 即將過期任務提醒 |
-| point_transactions | idx_points_user_id | B-Tree | 查詢用戶積分流水 |
-| point_transactions | idx_points_created_at | B-Tree | 積分記錄時間排序 |
-| emergency_contacts | idx_emergency_user_id | B-Tree | 查詢用戶的緊急聯繫人 |
-| reports | idx_reports_status | B-Tree | 待處理舉報查詢 |
-| reports | idx_reports_target | B-Tree | 查詢針對特定對象的舉報 |
-| call_records | idx_call_request_id | B-Tree | 查詢求助關聯的通話記錄 |
-| ai_response_cache | idx_cache_expires | B-Tree | 清理過期緩存 |
+| users | idx_users_phone | B-Tree | 手机号登录查询，支持快速用户认证 |
+| users | idx_users_role | GIN | 角色筛选，支持多角色查询 |
+| users | idx_users_created_at | B-Tree | 用户注册时间排序 |
+| volunteer_profiles | idx_volunteer_location | GIST | 地理位置空间查询，用于附近志愿者匹配 |
+| volunteer_profiles | idx_volunteer_online | B-Tree | 在线志愿者查询，配合is_online字段 |
+| volunteer_profiles | idx_volunteer_skills | GIN | 技能标签匹配，支持多技能筛选 |
+| volunteer_profiles | idx_volunteer_points | B-Tree | 积分排行查询 |
+| volunteer_profiles | idx_volunteer_heartbeat | B-Tree | 清理离线志愿者时查询 |
+| help_requests | idx_help_status_urgency | B-Tree | 匹配查询，按状态和紧急程度筛选 |
+| help_requests | idx_help_location | GIST | 附近求助空间查询 |
+| help_requests | idx_help_seeker_id | B-Tree | 查询用户的求助历史 |
+| help_requests | idx_help_volunteer_id | B-Tree | 查询志愿者的帮助记录 |
+| help_requests | idx_help_created_at | B-Tree | 求助记录时间排序 |
+| async_tasks | idx_async_status | B-Tree | 任务队列查询，按状态筛选 |
+| async_tasks | idx_async_volunteer_id | B-Tree | 查询志愿者的任务列表 |
+| async_tasks | idx_async_deadline | B-Tree | 即将过期任务提醒 |
+| point_transactions | idx_points_user_id | B-Tree | 查询用户积分流水 |
+| point_transactions | idx_points_created_at | B-Tree | 积分记录时间排序 |
+| emergency_contacts | idx_emergency_user_id | B-Tree | 查询用户的紧急联系人 |
+| reports | idx_reports_status | B-Tree | 待处理举报查询 |
+| reports | idx_reports_target | B-Tree | 查询针对特定对象的举报 |
+| call_records | idx_call_request_id | B-Tree | 查询求助关联的通话记录 |
+| ai_response_cache | idx_cache_expires | B-Tree | 清理过期缓存 |
 
 ## RLS策略摘要
 
-### 策略詳細說明
+### 策略详细说明
 
-| 表名 | 策略名 | 操作 | 說明 |
+| 表名 | 策略名 | 操作 | 说明 |
 |------|--------|------|------|
-| users | user_self_full_access | ALL | 用戶只能修改自己的數據，`auth.uid() = id` |
-| users | user_public_read | SELECT | 認證用戶可查看其他用戶基本信息，排除敏感字段 |
-| volunteer_profiles | volunteer_self_access | ALL | 志願者管理自己的資料，`auth.uid() = user_id` |
-| volunteer_profiles | volunteer_public_read | SELECT | 公開信息(不含精確位置)，僅返回必要字段 |
-| volunteer_profiles | volunteer_location_for_matching | SELECT | 匹配過程中求助者可查看位置，需通過匹配驗證 |
+| users | user_self_full_access | ALL | 用户只能修改自己的数据，`auth.uid() = id` |
+| users | user_public_read | SELECT | 认证用户可查看其他用户基本信息，排除敏感字段 |
+| volunteer_profiles | volunteer_self_access | ALL | 志愿者管理自己的资料，`auth.uid() = user_id` |
+| volunteer_profiles | volunteer_public_read | SELECT | 公开信息(不含精确位置)，仅返回必要字段 |
+| volunteer_profiles | volunteer_location_for_matching | SELECT | 匹配过程中求助者可查看位置，需通过匹配验证 |
 | help_requests | help_seeker_access | ALL | 求助者管理自己的求助，`auth.uid() = seeker_id` |
-| help_requests | help_volunteer_access | SELECT,UPDATE | 志願者查看和更新分配到的求助，`auth.uid() = volunteer_id` |
-| async_tasks | task_seeker_access | ALL | 求助者管理自己的任務 |
-| async_tasks | task_volunteer_access | SELECT,UPDATE | 志願者查看和接受任務 |
-| point_transactions | points_self_read | SELECT | 用戶只能查看自己的積分流水 |
-| emergency_contacts | emergency_self_access | ALL | 用戶管理自己的緊急聯繫人 |
-| reports | reporter_access | SELECT,INSERT | 舉報人可查看自己提交的舉報 |
-| reports | admin_access | ALL | 管理員可處理所有舉報 |
-| call_records | call_participant_access | SELECT | 通話參與者可查看記錄 |
-| ai_response_cache | public_read | SELECT | 所有認證用戶可讀緩存 |
+| help_requests | help_volunteer_access | SELECT,UPDATE | 志愿者查看和更新分配到的求助，`auth.uid() = volunteer_id` |
+| async_tasks | task_seeker_access | ALL | 求助者管理自己的任务 |
+| async_tasks | task_volunteer_access | SELECT,UPDATE | 志愿者查看和接受任务 |
+| point_transactions | points_self_read | SELECT | 用户只能查看自己的积分流水 |
+| emergency_contacts | emergency_self_access | ALL | 用户管理自己的紧急联系人 |
+| reports | reporter_access | SELECT,INSERT | 举报人可查看自己提交的举报 |
+| reports | admin_access | ALL | 管理员可处理所有举报 |
+| call_records | call_participant_access | SELECT | 通话参与者可查看记录 |
+| ai_response_cache | public_read | SELECT | 所有认证用户可读缓存 |
 
-## 觸發器和函數
+## 触发器和函数
 
-### 數據庫觸發器
+### 数据库触发器
 
-| 觸發器名 | 表名 | 觸發時機 | 功能說明 |
+| 触发器名 | 表名 | 触发时机 | 功能说明 |
 |----------|------|----------|----------|
-| trg_update_volunteer_level | volunteer_profiles | AFTER UPDATE | 根據積分自動計算志願者等級 (1-7級) |
-| trg_update_help_count | help_requests | AFTER UPDATE | 求助完成時更新志願者的累計幫助次數 |
-| trg_calculate_credit_score | help_requests | AFTER UPDATE | 根據評分自動計算志願者信用分 |
-| trg_task_expired_check | async_tasks | BEFORE UPDATE | 檢查任務是否已過期，自動更新狀態 |
-| trg_user_soft_delete | users | BEFORE UPDATE | 軟刪除時清理敏感信息 |
-| trg_cache_hit_increment | ai_response_cache | BEFORE SELECT | 緩存命中時自動增加hit_count |
+| trg_update_volunteer_level | volunteer_profiles | AFTER UPDATE | 根据积分自动计算志愿者等级 (1-7级) |
+| trg_update_help_count | help_requests | AFTER UPDATE | 求助完成时更新志愿者的累计帮助次数 |
+| trg_calculate_credit_score | help_requests | AFTER UPDATE | 根据评分自动计算志愿者信用分 |
+| trg_task_expired_check | async_tasks | BEFORE UPDATE | 检查任务是否已过期，自动更新状态 |
+| trg_user_soft_delete | users | BEFORE UPDATE | 软删除时清理敏感信息 |
+| trg_cache_hit_increment | ai_response_cache | BEFORE SELECT | 缓存命中时自动增加hit_count |
 
-### 數據庫函數
+### 数据库函数
 
-| 函數名 | 參數 | 返回值 | 功能說明 |
+| 函数名 | 参数 | 返回值 | 功能说明 |
 |--------|------|--------|----------|
-| calculate_volunteer_level | points INT | INT | 根據積分計算等級：1級(0-99), 2級(100-299), 3級(300-599), 4級(600-999), 5級(1000-1499), 6級(1500-2099), 7級(2100+) |
-| calculate_credit_score | ratings INT[] | DECIMAL | 根據歷史評分計算信用分(1-5分) |
-| find_nearest_volunteers | lat FLOAT, lng FLOAT, radius_meters INT, skills TEXT[] | TABLE | 查找附近符合條件的志願者 |
-| get_user_points_balance | user_id UUID | INT | 獲取用戶當前積分餘額 |
-| add_point_transaction | user_id UUID, type TEXT, amount INT, source TEXT, source_id UUID | VOID | 添加積分流水並更新餘額 |
-| cleanup_expired_cache | VOID | INT | 清理過期的AI緩存，返回清理數量 |
+| calculate_volunteer_level | points INT | INT | 根据积分计算等级：1级(0-99), 2级(100-299), 3级(300-599), 4级(600-999), 5级(1000-1499), 6级(1500-2099), 7级(2100+) |
+| calculate_credit_score | ratings INT[] | DECIMAL | 根据历史评分计算信用分(1-5分) |
+| find_nearest_volunteers | lat FLOAT, lng FLOAT, radius_meters INT, skills TEXT[] | TABLE | 查找附近符合条件的志愿者 |
+| get_user_points_balance | user_id UUID | INT | 获取用户当前积分余额 |
+| add_point_transaction | user_id UUID, type TEXT, amount INT, source TEXT, source_id UUID | VOID | 添加积分流水并更新余额 |
+| cleanup_expired_cache | VOID | INT | 清理过期的AI缓存，返回清理数量 |
 
 ### Edge Functions
 
-| 函數名 | 功能 | 觸發方式 |
+| 函数名 | 功能 | 触发方式 |
 |--------|------|----------|
-| matching-engine | 志願者匹配算法 | HTTP POST |
-| ai-dispatcher | AI服務調度(OCR/ASR/TTS/VL) | HTTP POST |
+| matching-engine | 志愿者匹配算法 | HTTP POST |
+| ai-dispatcher | AI服务调度(OCR/ASR/TTS/VL) | HTTP POST |
 | push-notifier | 推送通知(FCM) | HTTP POST |
-| points-calculator | 積分計算和等級更新 | HTTP POST / Webhook |
+| points-calculator | 积分计算和等级更新 | HTTP POST / Webhook |

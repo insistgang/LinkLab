@@ -2,7 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/utils/logger.dart';
 import '../../models/community_models.dart';
 
-/// 新手村服務
+/// 新手村服务
 class NewbieVillageService {
   SupabaseClient? _supabaseClient;
   SupabaseClient get _supabase {
@@ -13,10 +13,10 @@ class NewbieVillageService {
     return _supabaseClient!;
   }
 
-  /// 開始訓練
+  /// 开始训练
   Future<NewbieTraining?> startTraining(String volunteerId) async {
     try {
-      // 檢查是否已有訓練記錄
+      // 检查是否已有训练记录
       final existing = await _supabase
           .from('newbie_trainings')
           .select()
@@ -24,11 +24,11 @@ class NewbieVillageService {
           .maybeSingle();
 
       if (existing != null) {
-        AppLogger.info('用戶已有訓練記錄');
+        AppLogger.info('用户已有训练记录');
         return NewbieTraining.fromJson(existing);
       }
 
-      // 創建新的訓練記錄
+      // 创建新的训练记录
       final response = await _supabase
           .from('newbie_trainings')
           .insert({
@@ -41,15 +41,15 @@ class NewbieVillageService {
           .select()
           .single();
 
-      AppLogger.info('開始新手訓練: $volunteerId');
+      AppLogger.info('开始新手训练: $volunteerId');
       return NewbieTraining.fromJson(response);
     } catch (e) {
-      AppLogger.error('開始訓練失敗', e);
+      AppLogger.error('开始训练失败', e);
       return null;
     }
   }
 
-  /// 獲取訓練進度
+  /// 获取训练进度
   Future<NewbieTraining?> getTrainingProgress(String volunteerId) async {
     try {
       final response = await _supabase
@@ -61,12 +61,12 @@ class NewbieVillageService {
       if (response == null) return null;
       return NewbieTraining.fromJson(response);
     } catch (e) {
-      AppLogger.error('獲取訓練進度失敗', e);
+      AppLogger.error('获取训练进度失败', e);
       return null;
     }
   }
 
-  /// 完成模擬場景
+  /// 完成模拟场景
   Future<void> completeScenario(
     String volunteerId,
     String scenarioId, {
@@ -74,7 +74,7 @@ class NewbieVillageService {
     String? feedback,
   }) async {
     try {
-      // 記錄場景完成
+      // 记录场景完成
       await _supabase.from('completed_scenarios').insert({
         'volunteer_id': volunteerId,
         'scenario_id': scenarioId,
@@ -83,56 +83,56 @@ class NewbieVillageService {
         'completed_at': DateTime.now().toIso8601String(),
       });
 
-      // 更新訓練進度
+      // 更新训练进度
       await _supabase.rpc('increment_completed_scenarios', params: {
         'volunteer_id': volunteerId,
       });
 
-      // 檢查是否畢業
+      // 检查是否毕业
       await checkGraduation(volunteerId);
 
-      AppLogger.info('完成模擬場景: $scenarioId');
+      AppLogger.info('完成模拟场景: $scenarioId');
     } catch (e) {
-      AppLogger.error('完成模擬場景失敗', e);
+      AppLogger.error('完成模拟场景失败', e);
       rethrow;
     }
   }
 
-  /// 檢查畢業狀態
+  /// 检查毕业状态
   Future<bool> checkGraduation(String volunteerId) async {
     try {
       final training = await getTrainingProgress(volunteerId);
       if (training == null) return false;
 
-      // 檢查是否已完成所有場景
+      // 检查是否已完成所有场景
       if (training.completedScenarios >= training.totalScenarios &&
           !training.isGraduated) {
-        // 更新畢業狀態
+        // 更新毕业状态
         await _supabase.from('newbie_trainings').update({
           'is_graduated': true,
           'graduated_at': DateTime.now().toIso8601String(),
         }).eq('volunteer_id', volunteerId);
 
-        // 更新志願者等級
+        // 更新志愿者等级
         await _supabase.from('volunteer_profiles').update({
           'level': 2,
         }).eq('user_id', volunteerId);
 
-        AppLogger.info('志願者畢業: $volunteerId');
+        AppLogger.info('志愿者毕业: $volunteerId');
         return true;
       }
 
       return training.isGraduated;
     } catch (e) {
-      AppLogger.error('檢查畢業狀態失敗', e);
+      AppLogger.error('检查毕业状态失败', e);
       return false;
     }
   }
 
-  /// 分配導師
+  /// 分配导师
   Future<void> assignMentor(String newbieId, String mentorId) async {
     try {
-      // 檢查導師是否存在且是資深志願者
+      // 检查导师是否存在且是资深志愿者
       final mentor = await _supabase
           .from('volunteer_profiles')
           .select()
@@ -140,30 +140,30 @@ class NewbieVillageService {
           .single();
 
       if (mentor['level'] < 3) {
-        throw Exception('導師必須是正式志願者（等級3以上）');
+        throw Exception('导师必须是正式志愿者（等级3以上）');
       }
 
-      // 獲取導師信息
+      // 获取导师信息
       final mentorUser = await _supabase
           .from('users')
           .select('name')
           .eq('id', mentorId)
           .single();
 
-      // 更新訓練記錄
+      // 更新训练记录
       await _supabase.from('newbie_trainings').update({
         'mentor_id': mentorId,
-        'mentor_name': mentorUser['name'] ?? '導師',
+        'mentor_name': mentorUser['name'] ?? '导师',
       }).eq('volunteer_id', newbieId);
 
-      AppLogger.info('分配導師成功: $mentorId -> $newbieId');
+      AppLogger.info('分配导师成功: $mentorId -> $newbieId');
     } catch (e) {
-      AppLogger.error('分配導師失敗', e);
+      AppLogger.error('分配导师失败', e);
       rethrow;
     }
   }
 
-  /// 獲取可用導師列表
+  /// 获取可用导师列表
   Future<List<Map<String, dynamic>>> getAvailableMentors() async {
     try {
       final response = await _supabase
@@ -178,19 +178,19 @@ class NewbieVillageService {
         final userData = json['users'] as Map<String, dynamic>?;
         return {
           'id': json['user_id'],
-          'name': userData?['name'] ?? '志願者',
+          'name': userData?['name'] ?? '志愿者',
           'avatar': userData?['avatar_url'],
           'level': json['level'],
           'helpCount': json['total_help_count'] ?? 0,
         };
       }).toList();
     } catch (e) {
-      AppLogger.error('獲取導師列表失敗', e);
+      AppLogger.error('获取导师列表失败', e);
       return [];
     }
   }
 
-  /// 獲取所有模擬場景
+  /// 获取所有模拟场景
   Future<List<TrainingScenario>> getAllScenarios() async {
     try {
       final response = await _supabase
@@ -202,12 +202,12 @@ class NewbieVillageService {
           .map((json) => TrainingScenario.fromJson(json))
           .toList();
     } catch (e) {
-      AppLogger.error('獲取模擬場景失敗', e);
+      AppLogger.error('获取模拟场景失败', e);
       return [];
     }
   }
 
-  /// 獲取場景詳情
+  /// 获取场景详情
   Future<TrainingScenario?> getScenarioDetail(String scenarioId) async {
     try {
       final response = await _supabase
@@ -218,12 +218,12 @@ class NewbieVillageService {
 
       return TrainingScenario.fromJson(response);
     } catch (e) {
-      AppLogger.error('獲取場景詳情失敗', e);
+      AppLogger.error('获取场景详情失败', e);
       return null;
     }
   }
 
-  /// 獲取用戶已完成的場景
+  /// 获取用户已完成的场景
   Future<List<String>> getCompletedScenarios(String volunteerId) async {
     try {
       final response = await _supabase
@@ -235,18 +235,18 @@ class NewbieVillageService {
           .map((json) => json['scenario_id'] as String)
           .toList();
     } catch (e) {
-      AppLogger.error('獲取已完成場景失敗', e);
+      AppLogger.error('获取已完成场景失败', e);
       return [];
     }
   }
 
-  /// 初始化預設場景
+  /// 初始化预设场景
   Future<void> initializePresetScenarios() async {
     try {
       final presetScenarios = _getPresetScenarios();
 
       for (final scenario in presetScenarios) {
-        // 檢查是否已存在
+        // 检查是否已存在
         final existing = await _supabase
             .from('training_scenarios')
             .select()
@@ -258,76 +258,76 @@ class NewbieVillageService {
         }
       }
 
-      AppLogger.info('預設場景初始化完成');
+      AppLogger.info('预设场景初始化完成');
     } catch (e) {
-      AppLogger.error('初始化預設場景失敗', e);
+      AppLogger.error('初始化预设场景失败', e);
     }
   }
 
-  /// 獲取預設場景
+  /// 获取预设场景
   List<Map<String, dynamic>> _getPresetScenarios() {
     return [
       {
-        'title': '藥品識別場景',
-        'description': '視障用戶需要識別藥品名稱和用法用量。請指導用戶使用OCR功能識別藥品包裝上的文字信息。',
+        'title': '药品识别场景',
+        'description': '视障用户需要识别药品名称和用法用量。请指导用户使用OCR功能识别药品包装上的文字信息。',
         'type': ScenarioType.ocr,
         'image_url': null,
         'hints': [
-          '引導用戶對準藥品包裝',
-          '確保光線充足',
-          '提醒用戶覈對藥品名稱',
-          '幫助用戶理解用法用量',
+          '引导用户对准药品包装',
+          '确保光线充足',
+          '提醒用户核对药品名称',
+          '帮助用户理解用法用量',
         ],
         'expected_actions': [
-          '打開相機',
-          '對準藥品',
-          '識別文字',
-          '朗讀結果',
+          '打开相机',
+          '对准药品',
+          '识别文字',
+          '朗读结果',
         ],
         'sort_order': 1,
       },
       {
-        'title': '場景描述場景',
-        'description': '視障用戶想了解周圍環境。請詳細描述場景中的關鍵信息，幫助用戶建立空間認知。',
+        'title': '场景描述场景',
+        'description': '视障用户想了解周围环境。请详细描述场景中的关键信息，帮助用户建立空间认知。',
         'type': ScenarioType.sceneDescription,
         'image_url': null,
         'hints': [
-          '描述整體環境',
-          '指出重要地標',
-          '說明方向和距離',
-          '提醒潛在障礙',
+          '描述整体环境',
+          '指出重要地标',
+          '说明方向和距离',
+          '提醒潜在障碍',
         ],
         'expected_actions': [
-          '觀察環境',
-          '描述場景',
-          '指出關鍵信息',
-          '提供導航建議',
+          '观察环境',
+          '描述场景',
+          '指出关键信息',
+          '提供导航建议',
         ],
         'sort_order': 2,
       },
       {
-        'title': '導航指引場景',
-        'description': '視障用戶需要前往目的地。請提供清晰的導航指引，包括方向、距離和路標。',
+        'title': '导航指引场景',
+        'description': '视障用户需要前往目的地。请提供清晰的导航指引，包括方向、距离和路标。',
         'type': ScenarioType.navigation,
         'image_url': null,
         'hints': [
-          '確認當前位置',
-          '明確目的地',
-          '分步驟指引',
-          '確認用戶理解',
+          '确认当前位置',
+          '明确目的地',
+          '分步骤指引',
+          '确认用户理解',
         ],
         'expected_actions': [
-          '定位當前位置',
-          '規劃路線',
+          '定位当前位置',
+          '规划路线',
           '逐步指引',
-          '確認到達',
+          '确认到达',
         ],
         'sort_order': 3,
       },
     ];
   }
 
-  /// 提交訓練反饋
+  /// 提交训练反馈
   Future<void> submitFeedback(
     String volunteerId,
     String scenarioId, {
@@ -343,14 +343,14 @@ class NewbieVillageService {
         'created_at': DateTime.now().toIso8601String(),
       });
 
-      AppLogger.info('提交訓練反饋成功');
+      AppLogger.info('提交训练反馈成功');
     } catch (e) {
-      AppLogger.error('提交訓練反饋失敗', e);
+      AppLogger.error('提交训练反馈失败', e);
       rethrow;
     }
   }
 
-  /// 獲取訓練統計
+  /// 获取训练统计
   Future<Map<String, dynamic>> getTrainingStats(String volunteerId) async {
     try {
       final training = await getTrainingProgress(volunteerId);
@@ -366,7 +366,7 @@ class NewbieVillageService {
         'mentorName': training?.mentorName,
       };
     } catch (e) {
-      AppLogger.error('獲取訓練統計失敗', e);
+      AppLogger.error('获取训练统计失败', e);
       return {
         'totalScenarios': 3,
         'completedScenarios': 0,

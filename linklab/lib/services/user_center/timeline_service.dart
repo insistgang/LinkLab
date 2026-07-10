@@ -5,8 +5,8 @@ import '../../models/timeline_model.dart';
 import 'skill_tag_service.dart';
 import 'volunteer_demo_store.dart';
 
-/// 善意時間線服務 (F20)
-/// 管理志願者的幫助履歷可視化
+/// 善意时间线服务 (F20)
+/// 管理志愿者的帮助履历可视化
 class TimelineService {
   TimelineService({
     SupabaseClient? supabase,
@@ -27,8 +27,8 @@ class TimelineService {
     return _supabaseClient!;
   }
 
-  /// 獲取時間線數據
-  /// [year] 年份，默認爲當前年份
+  /// 获取时间线数据
+  /// [year] 年份，默认为当前年份
   Future<TimelineModel> getTimeline(String volunteerId, int year) async {
     final targetYear = year;
 
@@ -92,13 +92,13 @@ class TimelineService {
           stats: await _calculateLocalStats(volunteerId, yearActivities),
         );
       } catch (e) {
-        AppLogger.error('獲取本地時間線數據失敗', e);
+        AppLogger.error('获取本地时间线数据失败', e);
         return TimelineModel(volunteerId: volunteerId, year: targetYear);
       }
     }
 
     try {
-      // 獲取該年度的幫助記錄
+      // 获取该年度的帮助记录
       final startDate = DateTime(targetYear, 1, 1);
       final endDate = DateTime(targetYear, 12, 31, 23, 59, 59);
 
@@ -120,7 +120,7 @@ class TimelineService {
 
       final helps = response as List;
 
-      // 按日期分組統計
+      // 按日期分组统计
       final dayMap = <String, TimelineDay>{};
       int totalHelps = 0;
       int totalMinutes = 0;
@@ -158,10 +158,10 @@ class TimelineService {
         totalMinutes += durationMinutes;
       }
 
-      // 計算連續幫助天數
+      // 计算连续帮助天数
       final streakDays = _calculateStreakDays(dayMap.keys.toList()..sort());
 
-      // 獲取統計信息
+      // 获取统计信息
       final stats = await _calculateStats(volunteerId, targetYear);
 
       return TimelineModel(
@@ -174,7 +174,7 @@ class TimelineService {
         stats: stats,
       );
     } catch (e) {
-      AppLogger.error('獲取時間線數據失敗', e);
+      AppLogger.error('获取时间线数据失败', e);
       return TimelineModel(
         volunteerId: volunteerId,
         year: targetYear,
@@ -182,7 +182,7 @@ class TimelineService {
     }
   }
 
-  /// 創建時間線事件
+  /// 创建时间线事件
   TimelineEvent _createTimelineEvent(Map<String, dynamic> help) {
     final seeker = help['seeker'] is Map
         ? Map<String, dynamic>.from(help['seeker'] as Map)
@@ -199,7 +199,7 @@ class TimelineService {
     );
   }
 
-  /// 計算連續幫助天數
+  /// 计算连续帮助天数
   int _calculateStreakDays(List<String> sortedDates) {
     if (sortedDates.isEmpty) return 0;
 
@@ -223,7 +223,7 @@ class TimelineService {
     return maxStreak;
   }
 
-  /// 計算統計數據
+  /// 计算统计数据
   Future<TimelineStats> _calculateStats(String volunteerId, int year) async {
     try {
       final startDate = DateTime(year, 1, 1);
@@ -239,7 +239,7 @@ class TimelineService {
 
       final helps = response as List;
 
-      // 實時/異步幫助統計
+      // 实时/异步帮助统计
       final realtimeCount = helps
           .where((h) {
             final item = Map<String, dynamic>.from(h as Map);
@@ -252,7 +252,7 @@ class TimelineService {
         return item['type'] == 'async';
       }).length;
 
-      // 評分統計
+      // 评分统计
       final ratings = helps
           .map((h) {
             final item = Map<String, dynamic>.from(h as Map);
@@ -267,7 +267,7 @@ class TimelineService {
 
       final fiveStarCount = ratings.where((r) => r == 5).length;
 
-      // 找出幫助最多的求助者
+      // 找出帮助最多的求助者
       final seekerCount = <String, int>{};
       for (final help in helps) {
         final item = Map<String, dynamic>.from(help as Map);
@@ -286,7 +286,7 @@ class TimelineService {
         }
       });
 
-      // 獲取最常幫助者的名字
+      // 获取最常帮助者的名字
       String? mostHelpedSeekerName;
       if (mostHelpedSeekerId != null) {
         final seekerResponse = await _supabase
@@ -311,7 +311,7 @@ class TimelineService {
         mostHelpedCount: mostHelpedCount,
       );
     } catch (e) {
-      AppLogger.error('計算時間線統計失敗', e);
+      AppLogger.error('计算时间线统计失败', e);
       return const TimelineStats();
     }
   }
@@ -366,33 +366,33 @@ class TimelineService {
         topSkills: skills.take(3).map((item) => item.name).toList(),
       );
     } catch (e) {
-      AppLogger.error('計算本地時間線統計失敗', e);
+      AppLogger.error('计算本地时间线统计失败', e);
       return const TimelineStats();
     }
   }
 
-  /// 生成年度報告
+  /// 生成年度报告
   Future<AnnualReport> generateAnnualReport(
     String volunteerId, {
     int? year,
   }) async {
-    final targetYear = year ?? DateTime.now().year - 1; // 默認生成上一年的報告
+    final targetYear = year ?? DateTime.now().year - 1; // 默认生成上一年的报告
 
     try {
       final timeline = await getTimeline(volunteerId, targetYear);
       return AnnualReportGenerator.generate(volunteerId, targetYear, timeline);
     } catch (e) {
-      AppLogger.error('生成年度報告失敗', e);
+      AppLogger.error('生成年度报告失败', e);
       return AnnualReport(
         volunteerId: volunteerId,
         year: targetYear,
-        title: '$targetYear年度善意報告',
+        title: '$targetYear年度善意报告',
         generatedAt: DateTime.now(),
       );
     }
   }
 
-  /// 獲取月度總結
+  /// 获取月度总结
   Future<MonthlySummary> getMonthlySummary(
     String volunteerId,
     int year,
@@ -425,7 +425,7 @@ class TimelineService {
           goodRatings: monthActivities.where((item) => (item.rating ?? 0) >= 4).length,
         );
       } catch (e) {
-        AppLogger.error('獲取本地月度總結失敗', e);
+        AppLogger.error('获取本地月度总结失败', e);
         return MonthlySummary(year: year, month: month);
       }
     }
@@ -453,13 +453,13 @@ class TimelineService {
         },
       );
 
-      // 獲取好評數
+      // 获取好评数
       final goodRatings = helps.where((h) {
         final item = Map<String, dynamic>.from(h as Map);
         return ((item['seeker_rating'] as num?)?.toInt() ?? 0) >= 4;
       }).length;
 
-      // 計算活躍天數
+      // 计算活跃天数
       final activeDays = helps
         .map((h) {
             final item = Map<String, dynamic>.from(h as Map);
@@ -479,12 +479,12 @@ class TimelineService {
         goodRatings: goodRatings,
       );
     } catch (e) {
-      AppLogger.error('獲取月度總結失敗', e);
+      AppLogger.error('获取月度总结失败', e);
       return MonthlySummary(year: year, month: month);
     }
   }
 
-  /// 獲取里程碑
+  /// 获取里程碑
   Future<List<TimelineMilestone>> getMilestones(String volunteerId) async {
     if (!_hasSupabase) {
       try {
@@ -496,8 +496,8 @@ class TimelineService {
         final milestones = <TimelineMilestone>[
           TimelineMilestone(
             type: 'first_help',
-            title: '首次幫助',
-            description: '開啓了志願之旅',
+            title: '首次帮助',
+            description: '开启了志愿之旅',
             date: activities.last.createdAt,
           ),
         ];
@@ -508,8 +508,8 @@ class TimelineService {
             milestones.add(
               TimelineMilestone(
                 type: 'help_count_$target',
-                title: '$target次幫助',
-                description: '累計完成$target次幫助',
+                title: '$target次帮助',
+                description: '累计完成$target次帮助',
                 date: activities[target - 1].createdAt,
               ),
             );
@@ -519,7 +519,7 @@ class TimelineService {
         milestones.sort((a, b) => a.date.compareTo(b.date));
         return milestones;
       } catch (e) {
-        AppLogger.error('獲取本地里程碑失敗', e);
+        AppLogger.error('获取本地里程碑失败', e);
         return [];
       }
     }
@@ -527,7 +527,7 @@ class TimelineService {
     try {
       final milestones = <TimelineMilestone>[];
 
-      // 首次幫助
+      // 首次帮助
       final firstHelp = await _supabase
           .from('help_requests')
           .select('created_at')
@@ -541,14 +541,14 @@ class TimelineService {
         final firstHelpMap = Map<String, dynamic>.from(firstHelp as Map);
         milestones.add(TimelineMilestone(
           type: 'first_help',
-          title: '首次幫助',
-          description: '開啓了志願之旅',
+          title: '首次帮助',
+          description: '开启了志愿之旅',
           date: DateTime.tryParse(firstHelpMap['created_at']?.toString() ?? '') ??
               DateTime.now(),
         ));
       }
 
-      // 累計幫助里程碑
+      // 累计帮助里程碑
       final totalCountResponse = await _supabase
           .from('help_requests')
           .select('created_at')
@@ -565,8 +565,8 @@ class TimelineService {
               Map<String, dynamic>.from(allHelps[target - 1] as Map);
           milestones.add(TimelineMilestone(
             type: 'help_count_$target',
-            title: '$target次幫助',
-            description: '累計完成$target次幫助',
+            title: '$target次帮助',
+            description: '累计完成$target次帮助',
             date: DateTime.tryParse(
                   milestoneHelp['created_at']?.toString() ?? '',
                 ) ??
@@ -580,13 +580,13 @@ class TimelineService {
 
       return milestones;
     } catch (e) {
-      AppLogger.error('獲取里程碑失敗', e);
+      AppLogger.error('获取里程碑失败', e);
       return [];
     }
   }
 }
 
-/// 月度總結
+/// 月度总结
 class MonthlySummary {
   final int year;
   final int month;
@@ -604,17 +604,17 @@ class MonthlySummary {
     this.goodRatings = 0,
   });
 
-  /// 月份名稱
+  /// 月份名称
   String get monthName => '$month月';
 
-  /// 平均每日幫助數
+  /// 平均每日帮助数
   double get averageHelpsPerDay {
     if (activeDays == 0) return 0;
     return totalHelps / activeDays;
   }
 }
 
-/// 時間線里程碑
+/// 时间线里程碑
 class TimelineMilestone {
   final String type;
   final String title;

@@ -5,8 +5,8 @@ import '../../models/help_request_model.dart';
 import '../../models/help_statistics_model.dart';
 import '../local_storage.dart' as storage;
 
-/// 幫助檔案服務 (F14)
-/// 管理求助者的歷史幫助記錄和統計
+/// 帮助档案服务 (F14)
+/// 管理求助者的历史帮助记录和统计
 class HelpArchiveService {
   HelpArchiveService({SupabaseClient? supabase}) : _supabaseClient = supabase;
 
@@ -29,7 +29,7 @@ class HelpArchiveService {
     return _supabaseClient!;
   }
 
-  /// 獲取幫助歷史記錄
+  /// 获取帮助历史记录
   Future<List<HelpRequestModel>> getHelpHistory(
     String userId, {
     int limit = 20,
@@ -69,12 +69,12 @@ class HelpArchiveService {
           )
           .toList();
     } catch (e) {
-      AppLogger.error('獲取幫助歷史失敗', e);
+      AppLogger.error('获取帮助历史失败', e);
       return [];
     }
   }
 
-  /// 獲取幫助統計數據
+  /// 获取帮助统计数据
   Future<HelpStatistics> getStatistics(String userId) async {
     if (!_hasSupabase) {
       return _buildLocalStatistics();
@@ -96,7 +96,7 @@ class HelpArchiveService {
 
       return _buildStatisticsFromRequests(allRequests);
     } catch (e) {
-      AppLogger.error('獲取幫助統計失敗', e);
+      AppLogger.error('获取帮助统计失败', e);
       return const HelpStatistics();
     }
   }
@@ -124,7 +124,7 @@ class HelpArchiveService {
         Map<String, dynamic>.from(response as Map),
       );
     } catch (e) {
-      AppLogger.error('獲取幫助記錄詳情失敗', e);
+      AppLogger.error('获取帮助记录详情失败', e);
       return null;
     }
   }
@@ -156,7 +156,7 @@ class HelpArchiveService {
           )
           .toList();
     } catch (e) {
-      AppLogger.error('搜索幫助記錄失敗', e);
+      AppLogger.error('搜索帮助记录失败', e);
       return [];
     }
   }
@@ -223,13 +223,13 @@ class HelpArchiveService {
       case 'ai_auto':
         return 'AI自助';
       case 'realtime_voice':
-        return '語音求助';
+        return '语音求助';
       case 'realtime_video':
-        return '視頻求助';
+        return '视频求助';
       case 'async':
-        return '異步求助';
+        return '异步求助';
       case 'sos':
-        return '緊急求助';
+        return '紧急求助';
       default:
         return '其他';
     }

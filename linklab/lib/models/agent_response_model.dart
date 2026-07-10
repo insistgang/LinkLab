@@ -1,7 +1,7 @@
 import 'ai_result_model.dart';
 import 'demo_ai_intent.dart';
 
-/// UI 文案子類
+/// UI 文案子类
 /// 符合 AGENTS.md §5.4 要求
 class UiCopy {
   final String title;
@@ -33,7 +33,7 @@ class UiCopy {
   }
 }
 
-/// Agent 標準化響應模型
+/// Agent 标准化响应模型
 /// 符合 AGENTS.md §5.4 要求
 class AgentResponse {
   final String requestId;
@@ -98,7 +98,7 @@ class AgentResponse {
     );
   }
 
-  /// 從舊的 AIResult 快捷轉換爲標準 AgentResponse（遷移用）
+  /// 从旧的 AIResult 快捷转换为标准 AgentResponse（迁移用）
   factory AgentResponse.fromAIResult(AIResult result, {String? requestId}) {
     final data = result.data;
     final intentName = data?['intent'] as String? ?? 'fallback';
@@ -113,7 +113,7 @@ class AgentResponse {
     );
   }
 
-  /// 從舊的 AIResult 轉換爲標準 AgentResponse
+  /// 从旧的 AIResult 转换为标准 AgentResponse
   factory AgentResponse.fromDemoResult({
     required String requestId,
     required DemoAiIntent demoIntent,
@@ -225,17 +225,17 @@ class AgentResponse {
   static String? _handoffReason(DemoAiIntent intent) {
     switch (intent) {
       case DemoAiIntent.environmentDescription:
-        return '環境描述涉及安全風險，建議志願者陪同確認';
+        return '环境描述涉及安全风险，建议志愿者陪同确认';
       case DemoAiIntent.navigation:
-        return '導航路線需要實時確認，建議志願者協助';
+        return '导航路线需要实时确认，建议志愿者协助';
       case DemoAiIntent.medicationCheck:
-        return '藥品確認涉及健康安全，建議志願者或藥師複覈';
+        return '药品确认涉及健康安全，建议志愿者或药师复核';
       case DemoAiIntent.emergency:
-        return '檢測到緊急情況，需要立即啓動 SOS';
+        return '检测到紧急情况，需要立即启动 SOS';
       case DemoAiIntent.needHuman:
-        return '用戶主動要求轉人工';
+        return '用户主动要求转人工';
       case DemoAiIntent.fallback:
-        return 'AI 無法識別意圖，建議轉人工';
+        return 'AI 无法识别意图，建议转人工';
       default:
         return null;
     }
@@ -244,28 +244,28 @@ class AgentResponse {
   static List<String> _volunteerTags(DemoAiIntent intent) {
     switch (intent) {
       case DemoAiIntent.ocrText:
-        return ['視障協助', '閱讀輔助'];
+        return ['视障协助', '阅读辅助'];
       case DemoAiIntent.sceneDescription:
       case DemoAiIntent.objectIdentify:
-        return ['視障協助', '出行陪同'];
+        return ['视障协助', '出行陪同'];
       case DemoAiIntent.colorRecognition:
-        return ['視障協助', '日常生活'];
+        return ['视障协助', '日常生活'];
       case DemoAiIntent.moneyRecognition:
-        return ['視障協助', '財務輔助'];
+        return ['视障协助', '财务辅助'];
       case DemoAiIntent.translation:
-        return ['聽障轉譯', '溝通協助'];
+        return ['听障转译', '沟通协助'];
       case DemoAiIntent.environmentDescription:
-        return ['視障協助', '出行陪同'];
+        return ['视障协助', '出行陪同'];
       case DemoAiIntent.navigation:
-        return ['醫院導診', '出行陪同'];
+        return ['医院导诊', '出行陪同'];
       case DemoAiIntent.medicationCheck:
-        return ['視障協助', '醫院導診'];
+        return ['视障协助', '医院导诊'];
       case DemoAiIntent.emergency:
-        return ['緊急救援', '醫療協助'];
+        return ['紧急救援', '医疗协助'];
       case DemoAiIntent.needHuman:
-        return ['綜合協助'];
+        return ['综合协助'];
       case DemoAiIntent.fallback:
-        return ['綜合協助'];
+        return ['综合协助'];
     }
   }
 
@@ -283,86 +283,86 @@ class AgentResponse {
     switch (intent) {
       case DemoAiIntent.ocrText:
         return const UiCopy(
-          title: 'AI 已識別文字內容',
-          body: '我已讀出圖片中的文字，請複覈關鍵信息。',
-          primaryAction: '繼續識別',
-          secondaryAction: '轉人工確認',
+          title: 'AI 已识别文字内容',
+          body: '我已读出图片中的文字，请复核关键信息。',
+          primaryAction: '继续识别',
+          secondaryAction: '转人工确认',
         );
       case DemoAiIntent.sceneDescription:
         return const UiCopy(
-          title: 'AI 場景描述完成',
-          body: '我已描述當前畫面，前方環境基本安全，請慢速前進。',
-          primaryAction: '繼續描述',
-          secondaryAction: '轉人工陪同',
+          title: 'AI 场景描述完成',
+          body: '我已描述当前画面，前方环境基本安全，请慢速前进。',
+          primaryAction: '继续描述',
+          secondaryAction: '转人工陪同',
         );
       case DemoAiIntent.objectIdentify:
         return const UiCopy(
-          title: 'AI 物體識別完成',
-          body: '我已識別畫面中的主要物體，請確認是否正確。',
-          primaryAction: '繼續識別',
-          secondaryAction: '轉人工確認',
+          title: 'AI 物体识别完成',
+          body: '我已识别画面中的主要物体，请确认是否正确。',
+          primaryAction: '继续识别',
+          secondaryAction: '转人工确认',
         );
       case DemoAiIntent.colorRecognition:
         return const UiCopy(
-          title: 'AI 顏色識別完成',
-          body: '我已識別主體顏色，光線可能影響判斷，請複覈。',
-          primaryAction: '重新識別',
-          secondaryAction: '轉人工確認',
+          title: 'AI 颜色识别完成',
+          body: '我已识别主体颜色，光线可能影响判断，请复核。',
+          primaryAction: '重新识别',
+          secondaryAction: '转人工确认',
         );
       case DemoAiIntent.moneyRecognition:
         return const UiCopy(
-          title: 'AI 面額識別完成',
-          body: '我已識別鈔票面額，請用觸摸特徵或設備複覈。',
-          primaryAction: '繼續識別',
-          secondaryAction: '轉人工確認',
+          title: 'AI 面额识别完成',
+          body: '我已识别钞票面额，请用触摸特征或设备复核。',
+          primaryAction: '继续识别',
+          secondaryAction: '转人工确认',
         );
       case DemoAiIntent.translation:
         return const UiCopy(
-          title: 'AI 轉譯完成',
-          body: '我已整理成短句，可轉人工協助溝通。',
-          primaryAction: '繼續轉譯',
-          secondaryAction: '轉人工協助',
+          title: 'AI 转译完成',
+          body: '我已整理成短句，可转人工协助沟通。',
+          primaryAction: '继续转译',
+          secondaryAction: '转人工协助',
         );
       case DemoAiIntent.environmentDescription:
         return const UiCopy(
-          title: 'AI 環境提示',
-          body: '前方通道基本可走，建議轉志願者陪同確認。',
-          primaryAction: '找志願者',
-          secondaryAction: '稍後處理',
+          title: 'AI 环境提示',
+          body: '前方通道基本可走，建议转志愿者陪同确认。',
+          primaryAction: '找志愿者',
+          secondaryAction: '稍后处理',
         );
       case DemoAiIntent.navigation:
         return const UiCopy(
-          title: 'AI 導航提示',
-          body: '複雜動線建議轉人工陪同，我可以馬上爲你找志願者。',
-          primaryAction: '找志願者',
-          secondaryAction: '稍後處理',
+          title: 'AI 导航提示',
+          body: '复杂动线建议转人工陪同，我可以马上为你找志愿者。',
+          primaryAction: '找志愿者',
+          secondaryAction: '稍后处理',
         );
       case DemoAiIntent.medicationCheck:
         return const UiCopy(
-          title: 'AI 藥品識別',
-          body: '我已讀取藥品信息，不做醫療診斷，建議轉人工或藥師確認。',
-          primaryAction: '找志願者確認',
-          secondaryAction: '稍後處理',
+          title: 'AI 药品识别',
+          body: '我已读取药品信息，不做医疗诊断，建议转人工或药师确认。',
+          primaryAction: '找志愿者确认',
+          secondaryAction: '稍后处理',
         );
       case DemoAiIntent.emergency:
         return const UiCopy(
-          title: '緊急模式已啓動',
-          body: '請在 10 秒內撤銷，否則將廣播附近志願者並通知緊急聯繫人。',
-          primaryAction: '立即撤銷',
-          secondaryAction: '確認緊急',
+          title: '紧急模式已启动',
+          body: '请在 10 秒内撤销，否则将广播附近志愿者并通知紧急联系人。',
+          primaryAction: '立即撤销',
+          secondaryAction: '确认紧急',
         );
       case DemoAiIntent.needHuman:
         return const UiCopy(
-          title: '正在轉接志願者',
-          body: '已收到轉人工請求，正在爲你匹配附近合適的志願者。',
+          title: '正在转接志愿者',
+          body: '已收到转人工请求，正在为你匹配附近合适的志愿者。',
           primaryAction: '等待匹配',
           secondaryAction: '取消求助',
         );
       case DemoAiIntent.fallback:
         return const UiCopy(
-          title: 'AI 無法判斷',
-          body: '這個問題我還不能穩定判斷，建議轉人工或換個說法再試。',
-          primaryAction: '轉人工',
+          title: 'AI 无法判断',
+          body: '这个问题我还不能稳定判断，建议转人工或换个说法再试。',
+          primaryAction: '转人工',
           secondaryAction: '重新描述',
         );
     }

@@ -1,4 +1,4 @@
-// AGENTS.md §4.2：競賽版已凍結 Demo 主線，真實路徑僅供實驗，已隔離到 services/experimental/real/。
+// AGENTS.md §4.2：竞赛版已冻结 Demo 主线，真实路径仅供实验，已隔离到 services/experimental/real/。
 
 import 'dart:async';
 
@@ -10,11 +10,11 @@ import 'demo_call_service.dart';
 import 'experimental/real/real_call_service.dart';
 import 'webrtc/webrtc_config.dart';
 
-/// 通話狀態
+/// 通话状态
 enum CallStatus { idle, connecting, ringing, connected, ended, failed }
 
-/// 統一通話服務
-/// 默認只驅動 Demo 通話；歷史實驗頁若顯式調用 real API，則只走隔離後的 experimental 實現。
+/// 统一通话服务
+/// 默认只驱动 Demo 通话；历史实验页若显式调用 real API，则只走隔离后的 experimental 实现。
 class UnifiedCallService extends ChangeNotifier {
   static final UnifiedCallService _instance = UnifiedCallService._internal();
   factory UnifiedCallService() => _instance;
@@ -54,15 +54,15 @@ class UnifiedCallService extends ChangeNotifier {
   String get statusText {
     switch (_status) {
       case CallStatus.connecting:
-        return '正在連接...';
+        return '正在连接...';
       case CallStatus.ringing:
-        return '等待接聽...';
+        return '等待接听...';
       case CallStatus.connected:
-        return '通話中 ${_formatDuration(_callDuration)}';
+        return '通话中 ${_formatDuration(_callDuration)}';
       case CallStatus.ended:
-        return '通話結束';
+        return '通话结束';
       case CallStatus.failed:
-        return '連接失敗: $_errorMessage';
+        return '连接失败: $_errorMessage';
       default:
         return '';
     }
@@ -129,7 +129,7 @@ class UnifiedCallService extends ChangeNotifier {
   }
 
   Future<void> initialize() async {
-    // AGENTS.md §4.2：競賽版默認鏈路不初始化真實通話依賴。
+    // AGENTS.md §4.2：竞赛版默认链路不初始化真实通话依赖。
   }
 
   Future<void> startCall(DemoVolunteer volunteer) async {
@@ -147,7 +147,7 @@ class UnifiedCallService extends ChangeNotifier {
     required String helpRequestId,
     required VolunteerInfo volunteer,
   }) async {
-    // AGENTS.md §4.2：該入口只供歷史實驗頁使用，不進入默認導航和演示腳本。
+    // AGENTS.md §4.2：该入口只供历史实验页使用，不进入默认导航和演示脚本。
     _resetState();
     _experimentalRealSessionActive = true;
     _realVolunteer = volunteer;
@@ -175,7 +175,7 @@ class UnifiedCallService extends ChangeNotifier {
     required String roomId,
     required VolunteerInfo volunteer,
   }) async {
-    // AGENTS.md §4.2：該入口只供歷史實驗頁使用，不進入默認導航和演示腳本。
+    // AGENTS.md §4.2：该入口只供历史实验页使用，不进入默认导航和演示脚本。
     _resetState();
     _experimentalRealSessionActive = true;
     _realVolunteer = volunteer;

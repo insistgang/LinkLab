@@ -14,10 +14,10 @@ import 'seeker_home_screen.dart';
 
 enum _MainArea { landing, seeker, volunteer }
 
-/// 主頁面（帶底部導航）
-/// 根據用戶身份顯示不同導航：
-/// - 求助者模式：首頁、AI助手、社羣、我的
-/// - 志願者模式：首頁、待幫助列表、社羣、我的
+/// 主页面（带底部导航）
+/// 根据用户身份显示不同导航：
+/// - 求助者模式：首页、AI助手、社群、我的
+/// - 志愿者模式：首页、待帮助列表、社群、我的
 class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key, this.startInSeekerArea = false});
 
@@ -41,7 +41,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   Widget build(BuildContext context) {
     assert(
       !AppConfig.isCompetitionDemoOnly || AppConfig.demoMode,
-      'AGENTS.md §4.2：競賽版默認底部導航只允許暴露 Demo 主線入口',
+      'AGENTS.md §4.2：竞赛版默认底部导航只允许暴露 Demo 主线入口',
     );
 
     final session = ref.watch(appSessionProvider);
@@ -49,11 +49,11 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     final compactLayout =
         mediaQuery.size.width < 430 || mediaQuery.textScaler.scale(1) > 1.15;
 
-    // 根據身份決定導航項和頁面
+    // 根据身份决定导航项和页面
     final screens = _buildScreens(_area);
     final navItems = _buildNavItems(_area);
 
-    // 確保當前索引不越界
+    // 确保当前索引不越界
     if (_currentIndex >= screens.length) {
       _currentIndex = 0;
     }
@@ -83,7 +83,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                     compactLayout ? 8 : 16,
                   ),
                   child: Semantics(
-                    label: '底部導航欄',
+                    label: '底部导航栏',
                     child: Container(
                       padding: EdgeInsets.all(compactLayout ? 6 : 8),
                       decoration: AppTheme.stageCardDecoration(
@@ -135,7 +135,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     );
   }
 
-  /// 根據身份構建頁面列表
+  /// 根据身份构建页面列表
   List<Widget> _buildScreens(_MainArea area) {
     switch (area) {
       case _MainArea.landing:
@@ -146,23 +146,23 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           ),
         ];
       case _MainArea.volunteer:
-        // 志願者模式：待幫助列表、AI 助手、社羣、我的
+        // 志愿者模式：待帮助列表、AI 助手、社群、我的
         return const [
           PendingHelpScreen(),
           DemoAIChatScreen(
             embeddedInTab: true,
-            quickPrompts: ['布洛芬是什麼藥？', '藥盒有效期怎麼看？', '我需要真人志願者幫助'],
+            quickPrompts: ['布洛芬是什么药？', '药盒有效期怎么看？', '我需要真人志愿者帮助'],
           ),
           CommunityScreen(),
           ProfileScreen(mode: ProfileScreenMode.volunteer),
         ];
       case _MainArea.seeker:
-        // 求助者模式：首頁、AI 助手、社羣、我的
+        // 求助者模式：首页、AI 助手、社群、我的
         return const [
           SeekerHomeScreen(),
           DemoAIChatScreen(
             embeddedInTab: true,
-            quickPrompts: ['布洛芬是什麼藥？', '藥盒有效期怎麼看？', '我需要真人志願者幫助'],
+            quickPrompts: ['布洛芬是什么药？', '药盒有效期怎么看？', '我需要真人志愿者帮助'],
           ),
           CommunityScreen(),
           ProfileScreen(mode: ProfileScreenMode.seeker),
@@ -170,7 +170,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     }
   }
 
-  /// 根據當前應用區構建導航項
+  /// 根据当前应用区构建导航项
   List<_NavItem> _buildNavItems(_MainArea area) {
     switch (area) {
       case _MainArea.landing:
@@ -178,55 +178,55 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       case _MainArea.volunteer:
         return const [
           _NavItem(
-            label: '待幫助',
+            label: '待帮助',
             icon: Icons.handshake_outlined,
             activeIcon: Icons.handshake,
-            semanticLabel: '查看待幫助列表',
+            semanticLabel: '查看待帮助列表',
           ),
           _NavItem(
             label: 'AI助手',
             icon: Icons.smart_toy_outlined,
             activeIcon: Icons.smart_toy,
-            semanticLabel: '打開AI智能助手',
+            semanticLabel: '打开AI智能助手',
           ),
           _NavItem(
-            label: '社羣',
+            label: '社群',
             icon: Icons.forum_outlined,
             activeIcon: Icons.forum,
-            semanticLabel: '查看社羣精選故事',
+            semanticLabel: '查看社群精选故事',
           ),
           _NavItem(
             label: '我的',
             icon: Icons.person_outline,
             activeIcon: Icons.person,
-            semanticLabel: '查看個人中心',
+            semanticLabel: '查看个人中心',
           ),
         ];
       case _MainArea.seeker:
         return const [
           _NavItem(
-            label: '首頁',
+            label: '首页',
             icon: Icons.home_outlined,
             activeIcon: Icons.home,
-            semanticLabel: '查看求助者首頁',
+            semanticLabel: '查看求助者首页',
           ),
           _NavItem(
             label: 'AI助手',
             icon: Icons.smart_toy_outlined,
             activeIcon: Icons.smart_toy,
-            semanticLabel: '打開AI智能助手',
+            semanticLabel: '打开AI智能助手',
           ),
           _NavItem(
-            label: '社羣',
+            label: '社群',
             icon: Icons.forum_outlined,
             activeIcon: Icons.forum,
-            semanticLabel: '查看社羣精選故事',
+            semanticLabel: '查看社群精选故事',
           ),
           _NavItem(
             label: '我的',
             icon: Icons.person_outline,
             activeIcon: Icons.person,
-            semanticLabel: '查看個人中心',
+            semanticLabel: '查看个人中心',
           ),
         ];
     }
@@ -291,7 +291,7 @@ class _DemoNavButton extends StatelessWidget {
       button: true,
       selected: isActive,
       label: item.semanticLabel ?? item.label,
-      hint: '雙擊切換到${item.label}',
+      hint: '双击切换到${item.label}',
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(22),

@@ -58,12 +58,12 @@ class _ContentContentState extends State<_ContentContent>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('內容管理'),
+        title: const Text('内容管理'),
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
-            Tab(text: '精選故事'),
-            Tab(text: '社羣內容'),
+            Tab(text: '精选故事'),
+            Tab(text: '社群内容'),
           ],
         ),
       ),
@@ -163,7 +163,7 @@ class _StoriesList extends StatelessWidget {
             return Center(
               child: TextButton(
                 onPressed: onLoadMore,
-                child: const Text('加載更多'),
+                child: const Text('加载更多'),
               ),
             );
           }
@@ -224,7 +224,7 @@ class _StoriesList extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               child: ElevatedButton(
                 onPressed: onLoadMore,
-                child: const Text('加載更多'),
+                child: const Text('加载更多'),
               ),
             ),
         ],
@@ -310,7 +310,7 @@ class _StoryCard extends StatelessWidget {
                             ),
                             SizedBox(width: 4),
                             Text(
-                              '精選',
+                              '精选',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: AppTheme.warningColor,
@@ -379,7 +379,7 @@ class _StoryCard extends StatelessWidget {
                         child: ElevatedButton.icon(
                           onPressed: onPublish,
                           icon: const Icon(Icons.publish, size: 18),
-                          label: const Text('發佈'),
+                          label: const Text('发布'),
                         ),
                       )
                     else
@@ -398,7 +398,7 @@ class _StoryCard extends StatelessWidget {
                           story.isFeatured ? Icons.star_border : Icons.star,
                           size: 18,
                         ),
-                        label: Text(story.isFeatured ? '取消精選' : '設爲精選'),
+                        label: Text(story.isFeatured ? '取消精选' : '设为精选'),
                       ),
                     ),
                   ],
@@ -421,7 +421,7 @@ class _StoryCard extends StatelessWidget {
         break;
       case ContentStatus.published:
         color = AppTheme.successColor;
-        text = '已發佈';
+        text = '已发布';
         break;
       case ContentStatus.archived:
         color = AppTheme.errorColor;
@@ -466,7 +466,7 @@ class _CommunityList extends StatelessWidget {
       itemBuilder: (context, index) {
         if (index == contents.length) {
           return Center(
-            child: TextButton(onPressed: onLoadMore, child: const Text('加載更多')),
+            child: TextButton(onPressed: onLoadMore, child: const Text('加载更多')),
           );
         }
 

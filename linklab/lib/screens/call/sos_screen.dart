@@ -7,8 +7,8 @@ import '../../services/sos_service.dart';
 import '../../services/webrtc_service.dart';
 import 'call_screen.dart';
 
-/// SOS 緊急求助頁面
-/// 大按鈕觸發SOS，顯示SOS狀態和倒計時
+/// SOS 紧急求助页面
+/// 大按钮触发SOS，显示SOS状态和倒计时
 class SOSScreen extends StatefulWidget {
   const SOSScreen({super.key});
 
@@ -27,7 +27,7 @@ class _SOSScreenState extends State<SOSScreen> with TickerProviderStateMixin {
   int _elapsedSeconds = 0;
   Timer? _timer;
 
-  // 長按檢測
+  // 长按检测
   bool _isLongPressing = false;
   double _longPressProgress = 0;
   Timer? _longPressTimer;
@@ -61,7 +61,7 @@ class _SOSScreenState extends State<SOSScreen> with TickerProviderStateMixin {
           _pulseController.repeat(reverse: true);
           break;
         case SOSState.waitingResponse:
-          // 保持動畫
+          // 保持动画
           break;
         case SOSState.responded:
         case SOSState.connected:
@@ -96,7 +96,7 @@ class _SOSScreenState extends State<SOSScreen> with TickerProviderStateMixin {
     _timer?.cancel();
     _pulseController.stop();
 
-    // 獲取當前通話信息
+    // 获取当前通话信息
     final callInfo = _webRTCService.currentCall;
     if (callInfo != null && mounted) {
       Navigator.pushReplacement(
@@ -156,33 +156,33 @@ class _SOSScreenState extends State<SOSScreen> with TickerProviderStateMixin {
   String get _statusText {
     switch (_currentState) {
       case SOSState.triggering:
-        return '正在觸發SOS...';
+        return '正在触发SOS...';
       case SOSState.gettingLocation:
-        return '正在獲取位置...';
+        return '正在获取位置...';
       case SOSState.broadcasting:
-        return '正在廣播求助信號...';
+        return '正在广播求助信号...';
       case SOSState.waitingResponse:
-        return '等待志願者響應...';
+        return '等待志愿者响应...';
       case SOSState.escalating:
-        return '擴大搜索範圍...';
+        return '扩大搜索范围...';
       case SOSState.responded:
-        return '志願者已響應';
+        return '志愿者已响应';
       case SOSState.connected:
-        return '正在建立連接...';
+        return '正在建立连接...';
       case SOSState.manualIntervention:
-        return '平臺已介入處理';
+        return '平台已介入处理';
       default:
-        return '長按3秒發送緊急求助';
+        return '长按3秒发送紧急求助';
     }
   }
 
   String get _escalationText {
     if (_elapsedSeconds < 300) {
-      return '5km範圍內廣播';
+      return '5km范围内广播';
     } else if (_elapsedSeconds < 600) {
-      return '已擴大至全城廣播';
+      return '已扩大至全城广播';
     } else {
-      return '已通知所有緊急聯繫人';
+      return '已通知所有紧急联系人';
     }
   }
 
@@ -193,7 +193,7 @@ class _SOSScreenState extends State<SOSScreen> with TickerProviderStateMixin {
       body: SafeArea(
         child: Column(
           children: [
-            // 頂部狀態欄
+            // 顶部状态栏
             if (_currentState != SOSState.idle) ...[
               Container(
                 padding: const EdgeInsets.all(16),
@@ -204,7 +204,7 @@ class _SOSScreenState extends State<SOSScreen> with TickerProviderStateMixin {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'SOS緊急求助進行中',
+                        'SOS紧急求助进行中',
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -229,7 +229,7 @@ class _SOSScreenState extends State<SOSScreen> with TickerProviderStateMixin {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // SOS按鈕
+                    // SOS按钮
                     GestureDetector(
                       onLongPressStart: (_) => _onLongPressStart(),
                       onLongPressEnd: (_) => _onLongPressEnd(),
@@ -254,7 +254,7 @@ class _SOSScreenState extends State<SOSScreen> with TickerProviderStateMixin {
                             child: Stack(
                               alignment: Alignment.center,
                               children: [
-                                // 長按進度環
+                                // 长按进度环
                                 if (_isLongPressing)
                                   CircularProgressIndicator(
                                     value: _longPressProgress,
@@ -262,7 +262,7 @@ class _SOSScreenState extends State<SOSScreen> with TickerProviderStateMixin {
                                     backgroundColor: Colors.red[200],
                                     valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
                                   ),
-                                // 圖標和文字
+                                // 图标和文字
                                 Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -291,7 +291,7 @@ class _SOSScreenState extends State<SOSScreen> with TickerProviderStateMixin {
 
                     const SizedBox(height: 40),
 
-                    // 狀態文字
+                    // 状态文字
                     Text(
                       _statusText,
                       style: TextStyle(
@@ -323,7 +323,7 @@ class _SOSScreenState extends State<SOSScreen> with TickerProviderStateMixin {
 
                     const SizedBox(height: 60),
 
-                    // 其他觸發方式提示
+                    // 其他触发方式提示
                     if (_currentState == SOSState.idle) ...[
                       Container(
                         padding: const EdgeInsets.all(16),
@@ -335,15 +335,15 @@ class _SOSScreenState extends State<SOSScreen> with TickerProviderStateMixin {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '其他觸發方式:',
+                              '其他触发方式:',
                               style: TextStyle(
                                 color: Colors.grey[700],
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             const SizedBox(height: 8),
-                            _buildTriggerHint('連按電源鍵3次', '3秒內快速按3次'),
-                            _buildTriggerHint('語音觸發', '說出"緊急求助"等關鍵詞'),
+                            _buildTriggerHint('连按电源键3次', '3秒内快速按3次'),
+                            _buildTriggerHint('语音触发', '说出"紧急求助"等关键词'),
                           ],
                         ),
                       ),
@@ -353,7 +353,7 @@ class _SOSScreenState extends State<SOSScreen> with TickerProviderStateMixin {
               ),
             ),
 
-            // 底部按鈕
+            // 底部按钮
             if (_currentState != SOSState.idle) ...[
               Padding(
                 padding: const EdgeInsets.all(24),

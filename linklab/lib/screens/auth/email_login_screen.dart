@@ -75,7 +75,7 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
     final email = _emailController.text.trim();
     if (!_isValidEmail(email)) {
       setState(() {
-        _errorText = '請輸入有效郵箱後再發送登錄郵件。';
+        _errorText = '请输入有效邮箱后再发送登录邮件。';
         _infoText = null;
       });
       return;
@@ -84,10 +84,10 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
     await _runAuthAction(() async {
       await ref.read(appSessionProvider.notifier).sendEmailLoginLink(email);
       if (!mounted) return;
-      _setInfo('登錄郵件已發送，請打開郵箱完成登錄。');
+      _setInfo('登录邮件已发送，请打开邮箱完成登录。');
       showDemoStageSnackBar(
         context,
-        message: '登錄郵件已發送',
+        message: '登录邮件已发送',
         icon: Icons.mark_email_read_outlined,
         accentColor: AppTheme.stageInfo,
       );
@@ -115,7 +115,7 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
     } catch (_) {
       if (!mounted) return;
       setState(() {
-        _errorText = '登錄失敗，請稍後再試。';
+        _errorText = '登录失败，请稍后再试。';
       });
     } finally {
       if (mounted) {
@@ -152,10 +152,10 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
     return DemoStageLiveBuilder(
       builder: (context) {
         return DemoStageScaffold(
-          title: '郵箱登錄',
+          title: '邮箱登录',
           subtitle: authReady
-              ? 'RealMode 使用 Supabase Auth，不接短信服務商'
-              : 'DemoMode 使用本地郵箱賬號，不依賴外部認證',
+              ? 'RealMode 使用 Supabase Auth，不接短信服务商'
+              : 'DemoMode 使用本地邮箱账号，不依赖外部认证',
           body: Form(
             key: _formKey,
             child: ListView(
@@ -168,14 +168,14 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
               children: [
                 DemoReveal(
                   child: DemoAuthBanner(
-                    title: '使用郵箱進入 LinkAble',
+                    title: '使用邮箱进入 LinkAble',
                     subtitle: authReady
-                        ? '本階段只接真實登錄態。不會創建業務表，也不會觸發匹配、AI、WebRTC 或 SOS。'
-                        : '當前仍在競賽 Demo 主線。輸入任意有效郵箱和 6 位以上密碼，即可使用本地賬號進入應用。',
+                        ? '本阶段只接真实登录态。不会创建业务表，也不会触发匹配、AI、WebRTC 或 SOS。'
+                        : '当前仍在竞赛 Demo 主线。输入任意有效邮箱和 6 位以上密码，即可使用本地账号进入应用。',
                     icon: Icons.alternate_email_rounded,
                     chips: [
                       DemoPill(
-                        label: authReady ? 'Supabase Auth' : '本地登錄',
+                        label: authReady ? 'Supabase Auth' : '本地登录',
                         color: AppTheme.stageAccent,
                       ),
                       DemoPill(
@@ -195,9 +195,9 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                         children: [
                           AccessibleTextField(
                             controller: _emailController,
-                            label: '郵箱',
+                            label: '邮箱',
                             hint: 'name@example.com',
-                            semanticLabel: '郵箱輸入框，請輸入你的郵箱地址',
+                            semanticLabel: '邮箱输入框，请输入你的邮箱地址',
                             keyboardType: TextInputType.emailAddress,
                             textInputAction: TextInputAction.next,
                             prefixIcon: Icon(
@@ -208,17 +208,17 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                             autofocus: true,
                             validator: (value) {
                               final email = value?.trim() ?? '';
-                              if (email.isEmpty) return '請輸入郵箱';
-                              if (!_isValidEmail(email)) return '請輸入有效郵箱';
+                              if (email.isEmpty) return '请输入邮箱';
+                              if (!_isValidEmail(email)) return '请输入有效邮箱';
                               return null;
                             },
                           ),
                           const SizedBox(height: AppTheme.spacingL),
                           AccessibleTextField(
                             controller: _passwordController,
-                            label: '密碼',
+                            label: '密码',
                             hint: '至少 6 位',
-                            semanticLabel: '密碼輸入框，請輸入至少 6 位密碼',
+                            semanticLabel: '密码输入框，请输入至少 6 位密码',
                             obscureText: true,
                             textInputAction: TextInputAction.done,
                             prefixIcon: Icon(
@@ -229,10 +229,10 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                             onSubmitted: (_) => _signIn(),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return '請輸入密碼';
+                                return '请输入密码';
                               }
                               if (value.length < 6) {
-                                return '密碼至少 6 位';
+                                return '密码至少 6 位';
                               }
                               return null;
                             },
@@ -257,8 +257,8 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                     color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.96),
                     child: AccessibleText(
                       authReady
-                          ? '手機號驗證碼界面仍保留，但 Phase-2 不接真實短信。需要真實手機號登錄時，要單獨配置短信服務商。'
-                          : '本地郵箱登錄僅用於手機試裝和競賽演示。真實賬號登錄會在 RealMode 且 Supabase 配置完整時啓用。',
+                          ? '手机号验证码界面仍保留，但 Phase-2 不接真实短信。需要真实手机号登录时，要单独配置短信服务商。'
+                          : '本地邮箱登录仅用于手机试装和竞赛演示。真实账号登录会在 RealMode 且 Supabase 配置完整时启用。',
                       style: TextStyle(
                         color: AppTheme.stageTextSecondary,
                         fontSize: AppTheme.fontSizeSmall,
@@ -274,9 +274,9 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               AccessibleButton(
-                label: '郵箱登錄',
-                semanticLabel: '使用郵箱和密碼登錄',
-                hint: authReady ? '雙擊使用 Supabase Auth 登錄' : '雙擊使用本地演示郵箱賬號登錄',
+                label: '邮箱登录',
+                semanticLabel: '使用邮箱和密码登录',
+                hint: authReady ? '双击使用 Supabase Auth 登录' : '双击使用本地演示邮箱账号登录',
                 icon: Icons.login_rounded,
                 isLoading: _isLoading,
                 backgroundColor: AppTheme.stageAccent,
@@ -318,12 +318,12 @@ class _EmailAuthSecondaryActions extends StatelessWidget {
             constraints.maxWidth < 360 || textScale > 1.35;
         final children = [
           _SecondaryActionButton(
-            label: '註冊',
+            label: '注册',
             icon: Icons.person_add_alt_1_rounded,
             onPressed: isLoading ? null : onSignUp,
           ),
           _SecondaryActionButton(
-            label: '發登錄郵件',
+            label: '发登录邮件',
             icon: Icons.mark_email_read_outlined,
             onPressed: isLoading ? null : onSendLoginLink,
           ),

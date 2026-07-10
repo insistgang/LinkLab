@@ -1,4 +1,4 @@
-# Supabase項目配置
+# Supabase项目配置
 project_id = "linkable"
 
 [api]
@@ -56,7 +56,7 @@ enable_confirmations = false
 [auth.sms]
 enable_signup = true
 enable_confirmations = true
-template = "您的驗證碼是: {{ .Token }}"
+template = "您的验证码是: {{ .Token }}"
 
 [auth.external.wechat]
 enabled = false
@@ -79,7 +79,7 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.points-calculator]
-verify_jwt = false  # 允許數據庫觸發器調用
+verify_jwt = false  # 允许数据库触发器调用
 
 [analytics]
 enabled = false

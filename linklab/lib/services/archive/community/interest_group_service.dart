@@ -3,7 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/utils/logger.dart';
 import '../../models/community_models.dart';
 
-/// 興趣小組服務
+/// 兴趣小组服务
 class InterestGroupService {
   SupabaseClient? _supabaseClient;
   SupabaseClient get _supabase {
@@ -14,7 +14,7 @@ class InterestGroupService {
     return _supabaseClient!;
   }
 
-  /// 獲取所有興趣小組
+  /// 获取所有兴趣小组
   Future<List<InterestGroup>> getGroups() async {
     try {
       final response = await _supabase
@@ -26,12 +26,12 @@ class InterestGroupService {
           .map((json) => InterestGroup.fromJson(json))
           .toList();
     } catch (e) {
-      AppLogger.error('獲取興趣小組失敗', e);
+      AppLogger.error('获取兴趣小组失败', e);
       return [];
     }
   }
 
-  /// 獲取用戶加入的小組
+  /// 获取用户加入的小组
   Future<List<InterestGroup>> getMyGroups(String userId) async {
     try {
       final response = await _supabase
@@ -43,12 +43,12 @@ class InterestGroupService {
           .map((json) => InterestGroup.fromJson(json['interest_groups']))
           .toList();
     } catch (e) {
-      AppLogger.error('獲取我的小組失敗', e);
+      AppLogger.error('获取我的小组失败', e);
       return [];
     }
   }
 
-  /// 創建興趣小組
+  /// 创建兴趣小组
   Future<void> createGroup(
     String name,
     String description,
@@ -57,9 +57,9 @@ class InterestGroupService {
   }) async {
     try {
       final userId = _supabase.auth.currentUser?.id;
-      if (userId == null) throw Exception('用戶未登錄');
+      if (userId == null) throw Exception('用户未登录');
 
-      // 創建小組
+      // 创建小组
       final groupResponse = await _supabase
           .from('interest_groups')
           .insert({
@@ -74,24 +74,24 @@ class InterestGroupService {
           .select()
           .single();
 
-      // 自動加入小組
+      // 自动加入小组
       await _supabase.from('group_members').insert({
         'group_id': groupResponse['id'],
         'user_id': userId,
         'role': 'admin',
       });
 
-      AppLogger.info('創建興趣小組成功: $name');
+      AppLogger.info('创建兴趣小组成功: $name');
     } catch (e) {
-      AppLogger.error('創建興趣小組失敗', e);
+      AppLogger.error('创建兴趣小组失败', e);
       rethrow;
     }
   }
 
-  /// 加入小組
+  /// 加入小组
   Future<void> joinGroup(String groupId, String userId) async {
     try {
-      // 檢查是否已加入
+      // 检查是否已加入
       final existing = await _supabase
           .from('group_members')
           .select()
@@ -100,30 +100,30 @@ class InterestGroupService {
           .maybeSingle();
 
       if (existing != null) {
-        AppLogger.info('用戶已在小組中');
+        AppLogger.info('用户已在小组中');
         return;
       }
 
-      // 加入小組
+      // 加入小组
       await _supabase.from('group_members').insert({
         'group_id': groupId,
         'user_id': userId,
         'role': 'member',
       });
 
-      // 更新成員數
+      // 更新成员数
       await _supabase.rpc('increment_group_member_count', params: {
         'group_id': groupId,
       });
 
-      AppLogger.info('加入小組成功: $groupId');
+      AppLogger.info('加入小组成功: $groupId');
     } catch (e) {
-      AppLogger.error('加入小組失敗', e);
+      AppLogger.error('加入小组失败', e);
       rethrow;
     }
   }
 
-  /// 離開小組
+  /// 离开小组
   Future<void> leaveGroup(String groupId, String userId) async {
     try {
       await _supabase
@@ -132,19 +132,19 @@ class InterestGroupService {
           .eq('group_id', groupId)
           .eq('user_id', userId);
 
-      // 更新成員數
+      // 更新成员数
       await _supabase.rpc('decrement_group_member_count', params: {
         'group_id': groupId,
       });
 
-      AppLogger.info('離開小組成功: $groupId');
+      AppLogger.info('离开小组成功: $groupId');
     } catch (e) {
-      AppLogger.error('離開小組失敗', e);
+      AppLogger.error('离开小组失败', e);
       rethrow;
     }
   }
 
-  /// 獲取小組消息
+  /// 获取小组消息
   Future<List<GroupMessage>> getMessages(
     String groupId, {
     int limit = 50,
@@ -162,17 +162,17 @@ class InterestGroupService {
         final userData = json['users'] as Map<String, dynamic>?;
         return GroupMessage.fromJson({
           ...json,
-          'user_name': userData?['name'] ?? '匿名用戶',
+          'user_name': userData?['name'] ?? '匿名用户',
           'user_avatar': userData?['avatar_url'],
         });
       }).toList();
     } catch (e) {
-      AppLogger.error('獲取小組消息失敗', e);
+      AppLogger.error('获取小组消息失败', e);
       return [];
     }
   }
 
-  /// 發送消息
+  /// 发送消息
   Future<void> postMessage(
     String groupId,
     String userId,
@@ -187,19 +187,19 @@ class InterestGroupService {
         'attachments': attachments,
       });
 
-      // 更新帖子數
+      // 更新帖子数
       await _supabase.rpc('increment_group_post_count', params: {
         'group_id': groupId,
       });
 
-      AppLogger.info('發送消息成功: $groupId');
+      AppLogger.info('发送消息成功: $groupId');
     } catch (e) {
-      AppLogger.error('發送消息失敗', e);
+      AppLogger.error('发送消息失败', e);
       rethrow;
     }
   }
 
-  /// 點贊消息
+  /// 点赞消息
   Future<void> likeMessage(String messageId, String userId) async {
     try {
       await _supabase.from('message_likes').insert({
@@ -207,14 +207,14 @@ class InterestGroupService {
         'user_id': userId,
       });
 
-      AppLogger.info('點贊消息成功: $messageId');
+      AppLogger.info('点赞消息成功: $messageId');
     } catch (e) {
-      AppLogger.error('點贊消息失敗', e);
+      AppLogger.error('点赞消息失败', e);
       rethrow;
     }
   }
 
-  /// 取消點贊
+  /// 取消点赞
   Future<void> unlikeMessage(String messageId, String userId) async {
     try {
       await _supabase
@@ -223,54 +223,54 @@ class InterestGroupService {
           .eq('message_id', messageId)
           .eq('user_id', userId);
 
-      AppLogger.info('取消點贊成功: $messageId');
+      AppLogger.info('取消点赞成功: $messageId');
     } catch (e) {
-      AppLogger.error('取消點贊失敗', e);
+      AppLogger.error('取消点赞失败', e);
       rethrow;
     }
   }
 
-  /// 獲取預設小組列表
+  /// 获取预设小组列表
   List<Map<String, dynamic>> getPresetGroups() {
     return [
       {
         'id': 'preset_medical',
-        'name': '醫療輔助組',
-        'description': '協助視障人士識別藥品、閱讀醫療說明、理解醫囑等醫療相關幫助',
+        'name': '医疗辅助组',
+        'description': '协助视障人士识别药品、阅读医疗说明、理解医嘱等医疗相关帮助',
         'category': GroupCategory.medical,
         'icon': Icons.local_hospital,
       },
       {
         'id': 'preset_translation',
-        'name': '外語翻譯組',
-        'description': '幫助視障人士閱讀外文材料、翻譯標識、理解外語內容',
+        'name': '外语翻译组',
+        'description': '帮助视障人士阅读外文材料、翻译标识、理解外语内容',
         'category': GroupCategory.translation,
         'icon': Icons.translate,
       },
       {
         'id': 'preset_psychological',
-        'name': '心理支持組',
-        'description': '提供情感支持、傾聽傾訴、心理健康指導等心理援助',
+        'name': '心理支持组',
+        'description': '提供情感支持、倾听倾诉、心理健康指导等心理援助',
         'category': GroupCategory.psychological,
         'icon': Icons.favorite,
       },
       {
         'id': 'preset_technical',
-        'name': '技術指導組',
-        'description': '指導視障人士使用輔助技術、APP操作、設備設置等技術問題',
+        'name': '技术指导组',
+        'description': '指导视障人士使用辅助技术、APP操作、设备设置等技术问题',
         'category': GroupCategory.technical,
         'icon': Icons.computer,
       },
     ];
   }
 
-  /// 初始化預設小組
+  /// 初始化预设小组
   Future<void> initializePresetGroups() async {
     try {
       final presetGroups = getPresetGroups();
 
       for (final group in presetGroups) {
-        // 檢查是否已存在
+        // 检查是否已存在
         final existing = await _supabase
             .from('interest_groups')
             .select()
@@ -290,13 +290,13 @@ class InterestGroupService {
         }
       }
 
-      AppLogger.info('預設小組初始化完成');
+      AppLogger.info('预设小组初始化完成');
     } catch (e) {
-      AppLogger.error('初始化預設小組失敗', e);
+      AppLogger.error('初始化预设小组失败', e);
     }
   }
 
-  /// 訂閱小組消息實時更新
+  /// 订阅小组消息实时更新
   RealtimeChannel subscribeToMessages(
     String groupId, {
     required Function(GroupMessage) onNewMessage,

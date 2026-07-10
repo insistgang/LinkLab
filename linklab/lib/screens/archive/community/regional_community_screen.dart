@@ -6,7 +6,7 @@ import '../../services/app_session_service.dart';
 import '../../services/community/regional_community_service.dart';
 import '../../widgets/accessible/index.dart';
 
-/// 地區社羣頁面
+/// 地区社群页面
 class RegionalCommunityScreen extends StatefulWidget {
   const RegionalCommunityScreen({super.key});
 
@@ -61,10 +61,10 @@ class _RegionalCommunityScreenState extends State<RegionalCommunityScreen> {
   @override
   Widget build(BuildContext context) {
     return AccessibleScaffold(
-      title: '地區社羣',
+      title: '地区社群',
       body: Column(
         children: [
-          // 搜索欄
+          // 搜索栏
           Padding(
             padding: const EdgeInsets.all(AppTheme.spacingM),
             child: AccessibleInput(
@@ -76,14 +76,14 @@ class _RegionalCommunityScreenState extends State<RegionalCommunityScreen> {
               onSubmitted: _searchCommunities,
             ),
           ),
-          // 我的社羣
+          // 我的社群
           if (_myCommunities.isNotEmpty) ...[
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: AppTheme.spacingM),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: AccessibleText(
-                  '我的社羣',
+                  '我的社群',
                   style: TextStyle(
                     fontSize: AppTheme.fontSizeLarge,
                     fontWeight: FontWeight.bold,
@@ -104,13 +104,13 @@ class _RegionalCommunityScreenState extends State<RegionalCommunityScreen> {
               ),
             ),
           ],
-          // 推薦社羣
+          // 推荐社群
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: AppTheme.spacingM),
             child: Align(
               alignment: Alignment.centerLeft,
               child: AccessibleText(
-                '推薦社羣',
+                '推荐社群',
                 style: TextStyle(
                   fontSize: AppTheme.fontSizeLarge,
                   fontWeight: FontWeight.bold,
@@ -118,14 +118,14 @@ class _RegionalCommunityScreenState extends State<RegionalCommunityScreen> {
               ),
             ),
           ),
-          // 社羣列表
+          // 社群列表
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _communities.isEmpty
                     ? const Center(
                         child: AccessibleText(
-                          '暫無社羣',
+                          '暂无社群',
                           style: TextStyle(color: AppTheme.textSecondary),
                         ),
                       )
@@ -158,21 +158,21 @@ class _RegionalCommunityScreenState extends State<RegionalCommunityScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('已加入 ${community.city} 社羣')),
+          SnackBar(content: Text('已加入 ${community.city} 社群')),
         );
         _loadCommunities();
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('加入失敗: $e')),
+          SnackBar(content: Text('加入失败: $e')),
         );
       }
     }
   }
 }
 
-/// 我的社羣卡片
+/// 我的社群卡片
 class _MyCommunityCard extends StatelessWidget {
   const _MyCommunityCard({required this.community});
 
@@ -185,7 +185,7 @@ class _MyCommunityCard extends StatelessWidget {
       margin: const EdgeInsets.only(right: AppTheme.spacingM),
       child: AccessibleCard(
         onTap: () {
-          // TODO: 打開社羣詳情
+          // TODO: 打开社群详情
         },
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -220,7 +220,7 @@ class _MyCommunityCard extends StatelessWidget {
   }
 }
 
-/// 社羣卡片
+/// 社群卡片
 class _CommunityCard extends StatelessWidget {
   const _CommunityCard({
     required this.community,
@@ -236,7 +236,7 @@ class _CommunityCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return AccessibleCard(
       onTap: () {
-        // TODO: 打開社羣詳情
+        // TODO: 打开社群详情
       },
       margin: const EdgeInsets.only(bottom: AppTheme.spacingM),
       child: Row(
@@ -295,7 +295,7 @@ class _CommunityCard extends StatelessWidget {
                 ),
                 const SizedBox(height: AppTheme.spacingXS),
                 AccessibleText(
-                  community.description ?? '暫無描述',
+                  community.description ?? '暂无描述',
                   style: const TextStyle(
                     fontSize: AppTheme.fontSizeSmall,
                     color: AppTheme.textSecondary,
@@ -327,7 +327,7 @@ class _CommunityCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     AccessibleText(
-                      '${community.eventCount}個活動',
+                      '${community.eventCount}个活动',
                       style: const TextStyle(
                         fontSize: AppTheme.fontSizeSmall,
                         color: AppTheme.textHint,
@@ -338,7 +338,7 @@ class _CommunityCard extends StatelessWidget {
               ],
             ),
           ),
-          // 加入按鈕
+          // 加入按钮
           if (!isJoined)
             IconButton(
               onPressed: onJoin,

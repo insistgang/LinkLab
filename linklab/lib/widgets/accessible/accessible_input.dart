@@ -4,8 +4,8 @@ import '../../core/theme/app_theme.dart';
 import '../demo/linkable_icon.dart';
 import 'accessible_text.dart';
 
-/// 無障礙文本輸入框
-/// 支持語音播報和完整的語義標籤
+/// 无障碍文本输入框
+/// 支持语音播报和完整的语义标签
 class AccessibleTextField extends StatelessWidget {
   const AccessibleTextField({
     super.key,
@@ -64,11 +64,11 @@ class AccessibleTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 構建語義標籤
+    // 构建语义标签
     final effectiveSemanticLabel =
         semanticLabel ??
-        '${label ?? '文本輸入框'}，${hint ?? ''}'
-            '${keyboardType == TextInputType.phone ? '，請輸入數字' : ''}';
+        '${label ?? '文本输入框'}，${hint ?? ''}'
+            '${keyboardType == TextInputType.phone ? '，请输入数字' : ''}';
 
     return Semantics(
       label: effectiveSemanticLabel,
@@ -129,13 +129,13 @@ class AccessibleTextField extends StatelessWidget {
   }
 }
 
-/// 無障礙手機號輸入框
+/// 无障碍手机号输入框
 class AccessiblePhoneField extends StatelessWidget {
   const AccessiblePhoneField({
     super.key,
     this.controller,
-    this.label = '手機號',
-    this.hint = '請輸入11位手機號',
+    this.label = '手机号',
+    this.hint = '请输入11位手机号',
     this.onChanged,
     this.onSubmitted,
     this.enabled = true,
@@ -158,13 +158,13 @@ class AccessiblePhoneField extends StatelessWidget {
       controller: controller,
       label: label,
       hint: hint,
-      semanticLabel: '$label，$hint，請逐位輸入數字',
+      semanticLabel: '$label，$hint，请逐位输入数字',
       keyboardType: TextInputType.phone,
       textInputAction: TextInputAction.next,
       prefixIcon: const LinkableSvgIcon(
         icon: LinkableIconName.voiceCall,
         size: 28,
-        semanticLabel: '手機號',
+        semanticLabel: '手机号',
       ),
       maxLength: 11,
       enabled: enabled,
@@ -175,11 +175,11 @@ class AccessiblePhoneField extends StatelessWidget {
           validator ??
           (value) {
             if (value == null || value.isEmpty) {
-              return '請輸入手機號';
+              return '请输入手机号';
             }
             if (value.length != 11 ||
                 !RegExp(r'^1[3-9]\d{9}$').hasMatch(value)) {
-              return '請輸入正確的11位手機號';
+              return '请输入正确的11位手机号';
             }
             return null;
           },
@@ -191,13 +191,13 @@ class AccessiblePhoneField extends StatelessWidget {
   }
 }
 
-/// 無障礙驗證碼輸入框
+/// 无障碍验证码输入框
 class AccessibleCodeField extends StatelessWidget {
   const AccessibleCodeField({
     super.key,
     this.controller,
-    this.label = '驗證碼',
-    this.hint = '請輸入6位驗證碼',
+    this.label = '验证码',
+    this.hint = '请输入6位验证码',
     this.onChanged,
     this.onSubmitted,
     this.enabled = true,
@@ -222,7 +222,7 @@ class AccessibleCodeField extends StatelessWidget {
       controller: controller,
       label: label,
       hint: hint,
-      semanticLabel: '$label，$hint，請逐位輸入數字',
+      semanticLabel: '$label，$hint，请逐位输入数字',
       keyboardType: TextInputType.number,
       textInputAction: TextInputAction.done,
       maxLength: 6,
@@ -232,10 +232,10 @@ class AccessibleCodeField extends StatelessWidget {
       onSubmitted: onSubmitted,
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return '請輸入驗證碼';
+          return '请输入验证码';
         }
         if (value.length != 6) {
-          return '驗證碼爲6位數字';
+          return '验证码为6位数字';
         }
         return null;
       },
@@ -253,7 +253,7 @@ class AccessibleCodeField extends StatelessWidget {
   }
 }
 
-/// 倒計時按鈕
+/// 倒计时按钮
 class _CountdownButton extends StatefulWidget {
   const _CountdownButton({
     required this.onPressed,
@@ -298,7 +298,7 @@ class _CountdownButtonState extends State<_CountdownButton> {
     return TextButton(
       onPressed: _isCounting ? null : _startCountdown,
       child: AccessibleText(
-        _isCounting ? '$_remainingSeconds秒後重發' : '獲取驗證碼',
+        _isCounting ? '$_remainingSeconds秒后重发' : '获取验证码',
         style: TextStyle(
           fontSize: AppTheme.fontSizeSmall,
           color: _isCounting ? AppTheme.textHint : AppTheme.primaryColor,
@@ -308,7 +308,7 @@ class _CountdownButtonState extends State<_CountdownButton> {
   }
 }
 
-/// 無障礙單選按鈕組
+/// 无障碍单选按钮组
 class AccessibleRadioGroup<T> extends StatelessWidget {
   const AccessibleRadioGroup({
     super.key,
@@ -372,7 +372,7 @@ class AccessibleRadioGroup<T> extends StatelessWidget {
   }
 }
 
-/// 單選選項
+/// 单选选项
 class AccessibleRadioOption<T> {
   final T value;
   final String label;
@@ -385,7 +385,7 @@ class AccessibleRadioOption<T> {
   });
 }
 
-/// 無障礙複選框組
+/// 无障碍复选框组
 class AccessibleCheckboxGroup extends StatelessWidget {
   const AccessibleCheckboxGroup({
     super.key,
@@ -439,7 +439,7 @@ class AccessibleCheckboxGroup extends StatelessWidget {
   }
 }
 
-/// 複選框選項
+/// 复选框选项
 class AccessibleCheckboxOption {
   final String value;
   final String label;
@@ -447,6 +447,6 @@ class AccessibleCheckboxOption {
   const AccessibleCheckboxOption({required this.value, required this.label});
 }
 
-/// AccessibleInput 別名
-/// 爲了兼容性，AccessibleInput 是 AccessibleTextField 的別名
+/// AccessibleInput 别名
+/// 为了兼容性，AccessibleInput 是 AccessibleTextField 的别名
 typedef AccessibleInput = AccessibleTextField;

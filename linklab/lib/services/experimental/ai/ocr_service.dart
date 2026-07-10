@@ -4,9 +4,9 @@ import 'package:http/http.dart' as http;
 import 'package:crypto/crypto.dart';
 import 'ai_service.dart';
 
-/// OCR服務
-/// F2 文字識別與朗讀的核心實現
-/// 支持百度OCR API（在線）和降級方案
+/// OCR服务
+/// F2 文字识别与朗读的核心实现
+/// 支持百度OCR API（在线）和降级方案
 class OcrService implements AIService {
   final AIServiceConfig _config;
   String? _accessToken;
@@ -37,33 +37,33 @@ class OcrService implements AIService {
     DialogContext? context,
   }) async {
     if (imageUrl == null) {
-      return AIResponse.error('OCR服務需要圖片輸入');
+      return AIResponse.error('OCR服务需要图片输入');
     }
 
     try {
-      // 1. 讀取圖片文件
+      // 1. 读取图片文件
       final imageFile = File(imageUrl);
       if (!await imageFile.exists()) {
-        return AIResponse.error('圖片文件不存在');
+        return AIResponse.error('图片文件不存在');
       }
 
       final imageBytes = await imageFile.readAsBytes();
       final base64Image = base64Encode(imageBytes);
 
-      // 2. 調用OCR識別
+      // 2. 调用OCR识别
       final result = await _recognizeText(base64Image);
 
-      // 3. 檢查是否是藥品標籤
+      // 3. 检查是否是药品标签
       final isMedicineLabel = _isMedicineLabel(result.text);
 
-      // 4. 構建響應
+      // 4. 构建响应
       final responseText = _buildResponseText(result, isMedicineLabel);
 
       return AIResponse(
         text: responseText,
         intent: IntentType.textRecognition,
         urgency: isMedicineLabel ? UrgencyLevel.important : UrgencyLevel.normal,
-        needsHuman: isMedicineLabel, // 藥品標籤強制轉人工
+        needsHuman: isMedicineLabel, // 药品标签强制转人工
         confidence: result.confidence,
         extraData: {
           'rawText': result.text,
@@ -73,11 +73,11 @@ class OcrService implements AIService {
         },
       );
     } catch (e) {
-      return AIResponse.error('OCR識別失敗: $e');
+      return AIResponse.error('OCR识别失败: $e');
     }
   }
 
-  /// 識別文字（通用文字識別高精度版）
+  /// 识别文字（通用文字识别高精度版）
   Future<OcrResult> _recognizeText(String base64Image) async {
     await _ensureAccessToken();
 
@@ -99,19 +99,19 @@ class OcrService implements AIService {
     ).timeout(Duration(seconds: _config.timeoutSeconds));
 
     if (response.statusCode != 200) {
-      throw Exception('OCR API請求失敗: ${response.statusCode}');
+      throw Exception('OCR API请求失败: ${response.statusCode}');
     }
 
     final data = jsonDecode(response.body);
 
     if (data['error_code'] != null) {
-      throw Exception('OCR API錯誤: ${data['error_msg']}');
+      throw Exception('OCR API错误: ${data['error_msg']}');
     }
 
     return _parseOcrResult(data);
   }
 
-  /// 解析OCR結果
+  /// 解析OCR结果
   OcrResult _parseOcrResult(Map<String, dynamic> data) {
     final wordsResult = data['words_result'] as List<dynamic>? ?? [];
 
@@ -143,9 +143,9 @@ class OcrService implements AIService {
     );
   }
 
-  /// 檢測語言
+  /// 检测语言
   String _detectLanguage(String text) {
-    // 簡單檢測：包含中文字符則爲中文
+    // 简单检测：包含中文字符则为中文
     final chineseRegex = RegExp(r'[\u4e00-\u9fff]');
     if (chineseRegex.hasMatch(text)) {
       return 'zh';
@@ -153,13 +153,13 @@ class OcrService implements AIService {
     return 'en';
   }
 
-  /// 判斷是否是藥品標籤
+  /// 判断是否是药品标签
   bool _isMedicineLabel(String text) {
     final medicineKeywords = [
-      '藥品', '藥物', '藥片', '膠囊', '顆粒', '口服液',
-      '用法用量', '適應症', '禁忌', '不良反應',
-      '國藥準字', '處方藥', 'OTC', '非處方藥',
-      '生產日期', '有效期', '批號',
+      '药品', '药物', '药片', '胶囊', '颗粒', '口服液',
+      '用法用量', '适应症', '禁忌', '不良反应',
+      '国药准字', '处方药', 'OTC', '非处方药',
+      '生产日期', '有效期', '批号',
       'medication', 'dosage', 'prescription',
       'tablet', 'capsule', 'mg', 'ml',
     ];
@@ -168,19 +168,19 @@ class OcrService implements AIService {
     return medicineKeywords.any((keyword) => lowerText.contains(keyword));
   }
 
-  /// 構建響應文本
+  /// 构建响应文本
   String _buildResponseText(OcrResult result, bool isMedicineLabel) {
     if (result.text.isEmpty) {
-      return '未能識別到文字，請嘗試重新拍攝，確保光線充足、文字清晰可見。';
+      return '未能识别到文字，请尝试重新拍摄，确保光线充足、文字清晰可见。';
     }
 
     final buffer = StringBuffer();
 
     if (isMedicineLabel) {
-      buffer.writeln('檢測到藥品標籤，識別結果如下：');
+      buffer.writeln('检测到药品标签，识别结果如下：');
       buffer.writeln();
     } else {
-      buffer.writeln('識別到以下內容：');
+      buffer.writeln('识别到以下内容：');
       buffer.writeln();
     }
 
@@ -188,13 +188,13 @@ class OcrService implements AIService {
 
     if (isMedicineLabel) {
       buffer.writeln();
-      buffer.writeln('【重要提醒】這是藥品標籤，用藥前請務必向志願者或醫生確認用法用量，確保用藥安全。');
+      buffer.writeln('【重要提醒】这是药品标签，用药前请务必向志愿者或医生确认用法用量，确保用药安全。');
     }
 
     return buffer.toString();
   }
 
-  /// 確保AccessToken有效
+  /// 确保AccessToken有效
   Future<void> _ensureAccessToken() async {
     if (_accessToken != null &&
         _tokenExpireTime != null &&
@@ -203,7 +203,7 @@ class OcrService implements AIService {
     }
 
     if (_config.baiduOcrApiKey == null || _config.baiduOcrSecretKey == null) {
-      throw Exception('百度OCR API密鑰未配置');
+      throw Exception('百度OCR API密钥未配置');
     }
 
     final url = Uri.parse(
@@ -217,16 +217,16 @@ class OcrService implements AIService {
     );
 
     if (response.statusCode != 200) {
-      throw Exception('獲取AccessToken失敗: ${response.statusCode}');
+      throw Exception('获取AccessToken失败: ${response.statusCode}');
     }
 
     final data = jsonDecode(response.body);
     _accessToken = data['access_token'];
-    final expiresIn = data['expires_in'] as int? ?? 2592000; // 默認30天
-    _tokenExpireTime = DateTime.now().add(Duration(seconds: expiresIn - 3600)); // 提前1小時刷新
+    final expiresIn = data['expires_in'] as int? ?? 2592000; // 默认30天
+    _tokenExpireTime = DateTime.now().add(Duration(seconds: expiresIn - 3600)); // 提前1小时刷新
   }
 
-  /// 識別身份證（特殊場景）
+  /// 识别身份证（特殊场景）
   Future<AIResponse> recognizeIdCard(String imageUrl, {bool isFront = true}) async {
     try {
       await _ensureAccessToken();
@@ -258,7 +258,7 @@ class OcrService implements AIService {
       final wordsResult = data['words_result'] as Map<String, dynamic>;
 
       return AIResponse(
-        text: '身份證識別成功',
+        text: '身份证识别成功',
         intent: IntentType.textRecognition,
         extraData: {
           'idCardInfo': wordsResult.map((k, v) =>
@@ -267,12 +267,12 @@ class OcrService implements AIService {
         },
       );
     } catch (e) {
-      return AIResponse.error('身份證識別失敗: $e');
+      return AIResponse.error('身份证识别失败: $e');
     }
   }
 }
 
-/// OCR識別結果
+/// OCR识别结果
 class OcrResult {
   final String text;
   final List<OcrWord> words;
@@ -287,7 +287,7 @@ class OcrResult {
   });
 }
 
-/// OCR單詞
+/// OCR单词
 class OcrWord {
   final String text;
   final double confidence;
@@ -300,7 +300,7 @@ class OcrWord {
   });
 }
 
-/// 矩形區域
+/// 矩形区域
 class Rect {
   final int left;
   final int top;

@@ -3,7 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'help_statistics_model.freezed.dart';
 part 'help_statistics_model.g.dart';
 
-/// 幫助統計數據模型（用於求助者中心）
+/// 帮助统计数据模型（用于求助者中心）
 @freezed
 class HelpStatistics with _$HelpStatistics {
   const factory HelpStatistics({
@@ -24,10 +24,10 @@ class HelpStatistics with _$HelpStatistics {
 
   const HelpStatistics._();
 
-  /// AI解決率百分比文本
+  /// AI解决率百分比文本
   String get aiResolutionRateText => '${(aiResolutionRate * 100).toStringAsFixed(1)}%';
 
-  /// 最常用的求助類型
+  /// 最常用的求助类型
   String? get mostUsedType {
     if (typeStats.isEmpty) return null;
     final sorted = [...typeStats]..sort((a, b) => b.count.compareTo(a.count));
@@ -35,7 +35,7 @@ class HelpStatistics with _$HelpStatistics {
   }
 }
 
-/// 求助類型統計
+/// 求助类型统计
 @freezed
 class HelpTypeStat with _$HelpTypeStat {
   const factory HelpTypeStat({
@@ -48,7 +48,7 @@ class HelpTypeStat with _$HelpTypeStat {
       _$HelpTypeStatFromJson(json);
 }
 
-/// 月度統計
+/// 月度统计
 @freezed
 class MonthlyStat with _$MonthlyStat {
   const factory MonthlyStat({
@@ -62,7 +62,7 @@ class MonthlyStat with _$MonthlyStat {
       _$MonthlyStatFromJson(json);
 }
 
-/// 幫助記錄篩選條件
+/// 帮助记录筛选条件
 class HelpRecordFilter {
   final DateTime? startDate;
   final DateTime? endDate;
@@ -78,7 +78,7 @@ class HelpRecordFilter {
     this.hasRating,
   });
 
-  /// 轉換爲查詢參數
+  /// 转换为查询参数
   Map<String, dynamic> toQueryParams() {
     final params = <String, dynamic>{};
     if (startDate != null) params['start_date'] = startDate!.toIso8601String();

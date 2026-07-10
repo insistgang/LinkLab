@@ -1,14 +1,14 @@
 // WebRTC 配置文件
-// 包含ICE服務器配置和WebRTC參數設置
+// 包含ICE服务器配置和WebRTC参数设置
 
-/// WebRTC配置類
+/// WebRTC配置类
 class WebRTCConfig {
-  /// 私有構造函數，防止實例化
+  /// 私有构造函数，防止实例化
   WebRTCConfig._();
 
-  // ==================== ICE服務器配置 ====================
+  // ==================== ICE服务器配置 ====================
 
-  /// STUN服務器列表 - 用於獲取公網IP地址
+  /// STUN服务器列表 - 用于获取公网IP地址
   static const List<Map<String, dynamic>> stunServers = [
     {'urls': 'stun:stun.l.google.com:19302'},
     {'urls': 'stun:stun1.l.google.com:19302'},
@@ -17,10 +17,10 @@ class WebRTCConfig {
     {'urls': 'stun:stun4.l.google.com:19302'},
   ];
 
-  /// TURN服務器配置 - 用於對稱NAT穿透
-  /// 注意：生產環境需要配置自己的TURN服務器
+  /// TURN服务器配置 - 用于对称NAT穿透
+  /// 注意：生产环境需要配置自己的TURN服务器
   static const List<Map<String, dynamic>> turnServers = [
-    // 示例配置（需要替換爲真實的TURN服務器）
+    // 示例配置（需要替换为真实的TURN服务器）
     // {
     //   'urls': 'turn:your-turn-server.com:3478',
     //   'username': 'your-username',
@@ -34,133 +34,133 @@ class WebRTCConfig {
     // },
   ];
 
-  /// 完整的ICE服務器配置
+  /// 完整的ICE服务器配置
   static Map<String, dynamic> get iceServers => {
     'iceServers': [
       ...stunServers,
       ...turnServers,
     ],
-    // ICE傳輸策略
-    'iceTransportPolicy': 'all', // 'all' 或 'relay'（僅使用TURN）
-    // ICE候選池大小
+    // ICE传输策略
+    'iceTransportPolicy': 'all', // 'all' 或 'relay'（仅使用TURN）
+    // ICE候选池大小
     'iceCandidatePoolSize': 10,
   };
 
-  // ==================== 媒體約束配置 ====================
+  // ==================== 媒体约束配置 ====================
 
-  /// 音頻約束配置
+  /// 音频约束配置
   static Map<String, dynamic> get audioConstraints => {
     'audio': {
-      'echoCancellation': true,      // 回聲消除
-      'noiseSuppression': true,      // 噪聲抑制
-      'autoGainControl': true,       // 自動增益控制
-      'sampleRate': 48000,           // 採樣率
-      'channelCount': 2,             // 聲道數（立體聲）
+      'echoCancellation': true,      // 回声消除
+      'noiseSuppression': true,      // 噪声抑制
+      'autoGainControl': true,       // 自动增益控制
+      'sampleRate': 48000,           // 采样率
+      'channelCount': 2,             // 声道数（立体声）
     },
-    'video': false, // 僅語音通話
+    'video': false, // 仅语音通话
   };
 
-  /// 低帶寬音頻約束（網絡較差時使用）
+  /// 低带宽音频约束（网络较差时使用）
   static Map<String, dynamic> get lowBandwidthAudioConstraints => {
     'audio': {
       'echoCancellation': true,
       'noiseSuppression': true,
       'autoGainControl': true,
-      'sampleRate': 16000,           // 降低採樣率
-      'channelCount': 1,             // 單聲道
+      'sampleRate': 16000,           // 降低采样率
+      'channelCount': 1,             // 单声道
       'bitrate': 16000,              // 降低比特率
     },
     'video': false,
   };
 
-  // ==================== PeerConnection約束配置 ====================
+  // ==================== PeerConnection约束配置 ====================
 
-  /// SDP約束配置
+  /// SDP约束配置
   static Map<String, dynamic> get sdpConstraints => {
     'mandatory': {
       'OfferToReceiveAudio': true,
       'OfferToReceiveVideo': false,
     },
     'optional': [
-      {'DtlsSrtpKeyAgreement': true},  // DTLS-SRTP密鑰協商
+      {'DtlsSrtpKeyAgreement': true},  // DTLS-SRTP密钥协商
     ],
   };
 
   /// RTC配置
   static Map<String, dynamic> get rtcConfiguration => {
     ...iceServers,
-    'sdpSemantics': 'unified-plan',  // 使用Unified Plan SDP語義
+    'sdpSemantics': 'unified-plan',  // 使用Unified Plan SDP语义
     'bundlePolicy': 'max-bundle',    // BUNDLE策略
-    'rtcpMuxPolicy': 'require',      // RTCP複用策略
+    'rtcpMuxPolicy': 'require',      // RTCP复用策略
   };
 
-  // ==================== 編解碼器偏好配置 ====================
+  // ==================== 编解码器偏好配置 ====================
 
-  /// 首選音頻編解碼器優先級
+  /// 首选音频编解码器优先级
   static const List<String> preferredAudioCodecs = [
-    'opus',      // Opus（首選，高音質，低延遲）
-    'ISAC',      // iSAC（WebRTC默認）
-    'G722',      // G.722（寬帶音頻）
+    'opus',      // Opus（首选，高音质，低延迟）
+    'ISAC',      // iSAC（WebRTC默认）
+    'G722',      // G.722（宽带音频）
     'PCMU',      // G.711 mu-law
     'PCMA',      // G.711 A-law
   ];
 
-  // ==================== 連接超時配置 ====================
+  // ==================== 连接超时配置 ====================
 
-  /// ICE收集超時時間（毫秒）
+  /// ICE收集超时时间（毫秒）
   static const int iceGatheringTimeout = 10000;
 
-  /// 連接超時時間（毫秒）
+  /// 连接超时时间（毫秒）
   static const int connectionTimeout = 30000;
 
-  /// 重連嘗試次數
+  /// 重连尝试次数
   static const int maxReconnectAttempts = 3;
 
-  /// 重連間隔（毫秒）
+  /// 重连间隔（毫秒）
   static const int reconnectInterval = 3000;
 
-  // ==================== 音頻處理配置 ====================
+  // ==================== 音频处理配置 ====================
 
-  /// 啓用語音活動檢測(VAD)
+  /// 启用语音活动检测(VAD)
   static const bool enableVAD = true;
 
-  /// 舒適噪聲生成
+  /// 舒适噪声生成
   static const bool enableCNG = true;
 
-  /// 抖動緩衝區最小延遲（毫秒）
+  /// 抖动缓冲区最小延迟（毫秒）
   static const int jitterBufferMinDelay = 50;
 
-  /// 抖動緩衝區最大延遲（毫秒）
+  /// 抖动缓冲区最大延迟（毫秒）
   static const int jitterBufferMaxDelay = 500;
 
-  // ==================== 錄音配置 ====================
+  // ==================== 录音配置 ====================
 
-  /// 錄音採樣率
+  /// 录音采样率
   static const int recordingSampleRate = 44100;
 
-  /// 錄音比特率
+  /// 录音比特率
   static const int recordingBitrate = 128000;
 
-  /// 錄音格式
+  /// 录音格式
   static const String recordingFormat = 'aac'; // 'aac', 'wav', 'mp4'
 
-  /// 最大錄音時長（分鐘）
+  /// 最大录音时长（分钟）
   static const int maxRecordingDurationMinutes = 60;
 }
 
-/// 網絡質量等級
+/// 网络质量等级
 enum NetworkQuality {
-  excellent,  // 優秀 (< 100ms)
+  excellent,  // 优秀 (< 100ms)
   good,       // 良好 (100-200ms)
   fair,       // 一般 (200-400ms)
-  poor,       // 較差 (400-800ms)
+  poor,       // 较差 (400-800ms)
   bad,        // 很差 (> 800ms)
   unknown,    // 未知
 }
 
-/// 網絡質量評估工具類
+/// 网络质量评估工具类
 class NetworkQualityEvaluator {
-  /// 根據RTT評估網絡質量
+  /// 根据RTT评估网络质量
   static NetworkQuality evaluateByRTT(int? rtt) {
     if (rtt == null) return NetworkQuality.unknown;
     if (rtt < 100) return NetworkQuality.excellent;
@@ -170,7 +170,7 @@ class NetworkQualityEvaluator {
     return NetworkQuality.bad;
   }
 
-  /// 根據丟包率評估網絡質量
+  /// 根据丢包率评估网络质量
   static NetworkQuality evaluateByPacketLoss(double? packetLoss) {
     if (packetLoss == null) return NetworkQuality.unknown;
     if (packetLoss < 0.01) return NetworkQuality.excellent;
@@ -180,46 +180,46 @@ class NetworkQualityEvaluator {
     return NetworkQuality.bad;
   }
 
-  /// 獲取網絡質量描述
+  /// 获取网络质量描述
   static String getQualityDescription(NetworkQuality quality) {
     switch (quality) {
       case NetworkQuality.excellent:
-        return '網絡優秀';
+        return '网络优秀';
       case NetworkQuality.good:
-        return '網絡良好';
+        return '网络良好';
       case NetworkQuality.fair:
-        return '網絡一般';
+        return '网络一般';
       case NetworkQuality.poor:
-        return '網絡較差';
+        return '网络较差';
       case NetworkQuality.bad:
-        return '網絡很差';
+        return '网络很差';
       case NetworkQuality.unknown:
-        return '網絡狀態未知';
+        return '网络状态未知';
     }
   }
 
-  /// 獲取網絡質量顏色（用於UI顯示）
+  /// 获取网络质量颜色（用于UI显示）
   static String getQualityColor(NetworkQuality quality) {
     switch (quality) {
       case NetworkQuality.excellent:
-        return '#4CAF50'; // 綠色
+        return '#4CAF50'; // 绿色
       case NetworkQuality.good:
-        return '#8BC34A'; // 淺綠
+        return '#8BC34A'; // 浅绿
       case NetworkQuality.fair:
-        return '#FFC107'; // 黃色
+        return '#FFC107'; // 黄色
       case NetworkQuality.poor:
         return '#FF9800'; // 橙色
       case NetworkQuality.bad:
-        return '#F44336'; // 紅色
+        return '#F44336'; // 红色
       case NetworkQuality.unknown:
         return '#9E9E9E'; // 灰色
     }
   }
 }
 
-/// WebRTC事件類型
+/// WebRTC事件类型
 enum WebRTCEventType {
-  // 連接事件
+  // 连接事件
   connecting,
   connected,
   disconnected,
@@ -232,18 +232,18 @@ enum WebRTCEventType {
   iceCandidateGenerated,
   iceGatheringComplete,
 
-  // 媒體事件
+  // 媒体事件
   localStreamAdded,
   remoteStreamAdded,
   trackAdded,
   trackRemoved,
 
-  // 錯誤事件
+  // 错误事件
   error,
   permissionDenied,
   deviceNotFound,
 
-  // 錄音事件
+  // 录音事件
   recordingStarted,
   recordingStopped,
   recordingError,

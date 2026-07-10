@@ -3,7 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 import '../models/admin_models.dart';
 import '../services/admin_data_service.dart';
 
-/// 數據統計頁面
+/// 数据统计页面
 class StatisticsPage extends StatefulWidget {
   const StatisticsPage({super.key});
 
@@ -49,14 +49,14 @@ class _StatisticsPageState extends State<StatisticsPage> {
   }
 
   Future<void> _exportReport(String format) async {
-    // 模擬導出功能
+    // 模拟导出功能
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('正在導出$format格式報表...')),
+      SnackBar(content: Text('正在导出$format格式报表...')),
     );
     await Future.delayed(const Duration(seconds: 1));
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$format報表導出成功')),
+        SnackBar(content: Text('$format报表导出成功')),
       );
     }
   }
@@ -68,25 +68,25 @@ class _StatisticsPageState extends State<StatisticsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 標題和工具欄
+          // 标题和工具栏
           Row(
             children: [
               const Text(
-                '數據統計報表',
+                '数据统计报表',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const Spacer(),
-              // 報表類型選擇
+              // 报表类型选择
               DropdownButton<String>(
                 value: _selectedReportType,
                 items: const [
-                  DropdownMenuItem(value: 'overview', child: Text('綜合概覽')),
-                  DropdownMenuItem(value: 'users', child: Text('用戶分析')),
+                  DropdownMenuItem(value: 'overview', child: Text('综合概览')),
+                  DropdownMenuItem(value: 'users', child: Text('用户分析')),
                   DropdownMenuItem(value: 'help', child: Text('求助分析')),
-                  DropdownMenuItem(value: 'volunteer', child: Text('志願者分析')),
+                  DropdownMenuItem(value: 'volunteer', child: Text('志愿者分析')),
                 ],
                 onChanged: (value) {
                   setState(() => _selectedReportType = value!);
@@ -94,7 +94,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                 },
               ),
               const SizedBox(width: 12),
-              // 時間週期選擇
+              // 时间周期选择
               SegmentedButton<String>(
                 segments: const [
                   ButtonSegment(value: 'day', label: Text('日')),
@@ -108,10 +108,10 @@ class _StatisticsPageState extends State<StatisticsPage> {
                 },
               ),
               const SizedBox(width: 12),
-              // 導出按鈕
+              // 导出按钮
               PopupMenuButton<String>(
                 icon: const Icon(Icons.download),
-                tooltip: '導出報表',
+                tooltip: '导出报表',
                 onSelected: _exportReport,
                 itemBuilder: (context) => [
                   const PopupMenuItem(
@@ -120,7 +120,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                       children: [
                         Icon(Icons.table_chart, size: 18),
                         SizedBox(width: 8),
-                        Text('導出 Excel'),
+                        Text('导出 Excel'),
                       ],
                     ),
                   ),
@@ -130,7 +130,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                       children: [
                         Icon(Icons.picture_as_pdf, size: 18),
                         SizedBox(width: 8),
-                        Text('導出 PDF'),
+                        Text('导出 PDF'),
                       ],
                     ),
                   ),
@@ -140,7 +140,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
           ),
           const SizedBox(height: 24),
 
-          // 報表內容
+          // 报表内容
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -168,17 +168,17 @@ class _StatisticsPageState extends State<StatisticsPage> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          // 關鍵指標卡片
+          // 关键指标卡片
           _buildOverviewCards(),
           const SizedBox(height: 24),
 
-          // 圖表行
+          // 图表行
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: _buildBarChart(
-                  '用戶增長趨勢',
+                  '用户增长趋势',
                   _userGrowthData,
                   Colors.blue,
                 ),
@@ -186,7 +186,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
               const SizedBox(width: 24),
               Expanded(
                 child: _buildBarChart(
-                  '求助請求趨勢',
+                  '求助请求趋势',
                   _helpRequestData,
                   Colors.orange,
                 ),
@@ -195,20 +195,20 @@ class _StatisticsPageState extends State<StatisticsPage> {
           ),
           const SizedBox(height: 24),
 
-          // 分佈圖行
+          // 分布图行
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: _buildDistributionChart(
-                  '求助類型分佈',
+                  '求助类型分布',
                   _helpTypeDistribution,
                 ),
               ),
               const SizedBox(width: 24),
               Expanded(
                 child: _buildDistributionChart(
-                  '殘障類型分佈',
+                  '残障类型分布',
                   _volunteerActivityData,
                 ),
               ),
@@ -227,7 +227,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
             children: [
               Expanded(
                 child: _buildBarChart(
-                  '新用戶註冊趨勢',
+                  '新用户注册趋势',
                   _userGrowthData,
                   Colors.blue,
                 ),
@@ -235,7 +235,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
               const SizedBox(width: 24),
               Expanded(
                 child: _buildDistributionChart(
-                  '用戶角色分佈',
+                  '用户角色分布',
                   _volunteerActivityData,
                 ),
               ),
@@ -243,8 +243,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
           ),
           const SizedBox(height: 24),
           _buildDataTable(
-            '用戶增長明細',
-            ['日期', '新註冊用戶', '活躍用戶', '留存率'],
+            '用户增长明细',
+            ['日期', '新注册用户', '活跃用户', '留存率'],
             _generateUserTableData(),
           ),
         ],
@@ -260,7 +260,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
             children: [
               Expanded(
                 child: _buildBarChart(
-                  '求助請求趨勢',
+                  '求助请求趋势',
                   _helpRequestData,
                   Colors.orange,
                 ),
@@ -268,7 +268,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
               const SizedBox(width: 24),
               Expanded(
                 child: _buildDistributionChart(
-                  '求助類型分佈',
+                  '求助类型分布',
                   _helpTypeDistribution,
                 ),
               ),
@@ -276,8 +276,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
           ),
           const SizedBox(height: 24),
           _buildDataTable(
-            '求助處理明細',
-            ['日期', '總求助數', 'AI解決', '人工解決', '平均響應時間'],
+            '求助处理明细',
+            ['日期', '总求助数', 'AI解决', '人工解决', '平均响应时间'],
             _generateHelpTableData(),
           ),
         ],
@@ -293,7 +293,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
             children: [
               Expanded(
                 child: _buildBarChart(
-                  '志願者活躍度',
+                  '志愿者活跃度',
                   _userGrowthData,
                   Colors.green,
                 ),
@@ -301,7 +301,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
               const SizedBox(width: 24),
               Expanded(
                 child: _buildDistributionChart(
-                  '志願者等級分佈',
+                  '志愿者等级分布',
                   _helpTypeDistribution,
                 ),
               ),
@@ -309,8 +309,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
           ),
           const SizedBox(height: 24),
           _buildDataTable(
-            '志願者績效排行',
-            ['排名', '志願者', '幫助次數', '滿意度', '響應時間'],
+            '志愿者绩效排行',
+            ['排名', '志愿者', '帮助次数', '满意度', '响应时间'],
             _generateVolunteerTableData(),
           ),
         ],
@@ -320,10 +320,10 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
   Widget _buildOverviewCards() {
     final cards = [
-      _buildOverviewCard('總用戶數', '1,234', '+56', Colors.blue, Icons.people),
-      _buildOverviewCard('活躍用戶', '856', '+12%', Colors.green, Icons.trending_up),
-      _buildOverviewCard('求助總數', '3,456', '+89', Colors.orange, Icons.support_agent),
-      _buildOverviewCard('志願者數', '567', '+23', Colors.purple, Icons.volunteer_activism),
+      _buildOverviewCard('总用户数', '1,234', '+56', Colors.blue, Icons.people),
+      _buildOverviewCard('活跃用户', '856', '+12%', Colors.green, Icons.trending_up),
+      _buildOverviewCard('求助总数', '3,456', '+89', Colors.orange, Icons.support_agent),
+      _buildOverviewCard('志愿者数', '567', '+23', Colors.purple, Icons.volunteer_activism),
     ];
 
     return Row(
@@ -651,11 +651,11 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
   List<List<String>> _generateVolunteerTableData() {
     return [
-      ['1', '志願者A', '156', '4.9', '15秒'],
-      ['2', '志願者B', '142', '4.8', '18秒'],
-      ['3', '志願者C', '128', '4.9', '20秒'],
-      ['4', '志願者D', '115', '4.7', '22秒'],
-      ['5', '志願者E', '98', '4.8', '25秒'],
+      ['1', '志愿者A', '156', '4.9', '15秒'],
+      ['2', '志愿者B', '142', '4.8', '18秒'],
+      ['3', '志愿者C', '128', '4.9', '20秒'],
+      ['4', '志愿者D', '115', '4.7', '22秒'],
+      ['5', '志愿者E', '98', '4.8', '25秒'],
     ];
   }
 }

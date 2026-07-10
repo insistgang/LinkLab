@@ -1,83 +1,83 @@
-# 共感 LinkAble 競賽 Demo MVP 交付計劃
+# 共感 LinkAble 竞赛 Demo MVP 交付计划
 
-> 狀態日期：2026-04-28
-> 最高事實來源：根目錄 `AGENTS.md`
-> 交付硬約束：**競賽 Demo 不依賴外部服務**。默認首頁、默認路由、默認構建和默認測試只服務 F1/F9/F11/F13/F33/F36 六項 MVP。
-> 2026-05-01 文檔口徑補充：當前對外標註爲 Demo-first MVP，Web / Chrome 是首選演示路徑；本輪文檔整理未運行 Flutter，歷史驗證記錄需要在交付前復跑確認。
+> 状态日期：2026-04-28
+> 最高事实来源：根目录 `AGENTS.md`
+> 交付硬约束：**竞赛 Demo 不依赖外部服务**。默认首页、默认路由、默认构建和默认测试只服务 F1/F9/F11/F13/F33/F36 六项 MVP。
+> 2026-05-01 文档口径补充：当前对外标注为 Demo-first MVP，Web / Chrome 是首选演示路径；本轮文档整理未运行 Flutter，历史验证记录需要在交付前复跑确认。
 
-## 項目定位
+## 项目定位
 
-共感 LinkAble 是一個“AI Agent 第一響應 + 人類志願者兜底”的無障礙互助 App。競賽 Demo 的目標不是展示完整平臺能力，而是在 3 分鐘內穩定跑通：用戶發起求助、AI 先處理、複雜或高風險問題轉人工、進入志願者匹配、完成 demo 通話、必要時觸發 SOS，並且全流程對讀屏、動態字體和低認知負擔友好。
+共感 LinkAble 是一个“AI Agent 第一响应 + 人类志愿者兜底”的无障碍互助 App。竞赛 Demo 的目标不是展示完整平台能力，而是在 3 分钟内稳定跑通：用户发起求助、AI 先处理、复杂或高风险问题转人工、进入志愿者匹配、完成 demo 通话、必要时触发 SOS，并且全流程对读屏、动态字体和低认知负担友好。
 
-當前工程驗收口徑是 Demo-first MVP：只交付可點擊、可講述、可閉環的本地演示主線。真實 Supabase、真實 WebRTC、真實推送、後臺和社羣等能力可以作爲後續方向存在，但不得阻塞競賽 Demo。
+当前工程验收口径是 Demo-first MVP：只交付可点击、可讲述、可闭环的本地演示主线。真实 Supabase、真实 WebRTC、真实推送、后台和社群等能力可以作为后续方向存在，但不得阻塞竞赛 Demo。
 
-## 當前主鏈路判斷
+## 当前主链路判断
 
-- `linklab/lib/main.dart` 已在啓動時鎖定 demo mode，啓用演示員預置會話，初始化 `DemoDataLoader`，並通過 `ProviderScope(child: LinkLabApp())` 啓動。
-- `linklab/lib/app.dart` 中 `LinkLabApp` 已是 `ConsumerWidget`，默認通過 session 狀態進入 `MainScreen`、登錄或首次引導。
-- `linklab/lib/screens/home/main_screen.dart` 默認底部導航已收縮爲 `首頁 / AI助手 / 我的`。
-- `linklab/pubspec.yaml` 已聲明 `assets/demo_data/`，`DemoDataLoader` 當前讀取 `volunteers.json`、`ai_responses.json`、`help_scenarios.json`。
-- 當前審計結論：Flutter 默認演示主鏈路基本符合 Demo-first，但仍需要繼續隔離 `SeekerCenterScreen` 內的積分/異步/收藏殘留、根 `supabase/` 的非 MVP 表和 `points-calculator`、真實 WebRTC/推送/admin/community 的非默認入口。
+- `linklab/lib/main.dart` 已在启动时锁定 demo mode，启用演示员预置会话，初始化 `DemoDataLoader`，并通过 `ProviderScope(child: LinkLabApp())` 启动。
+- `linklab/lib/app.dart` 中 `LinkLabApp` 已是 `ConsumerWidget`，默认通过 session 状态进入 `MainScreen`、登录或首次引导。
+- `linklab/lib/screens/home/main_screen.dart` 默认底部导航已收缩为 `首页 / AI助手 / 我的`。
+- `linklab/pubspec.yaml` 已声明 `assets/demo_data/`，`DemoDataLoader` 当前读取 `volunteers.json`、`ai_responses.json`、`help_scenarios.json`。
+- 当前审计结论：Flutter 默认演示主链路基本符合 Demo-first，但仍需要继续隔离 `SeekerCenterScreen` 内的积分/异步/收藏残留、根 `supabase/` 的非 MVP 表和 `points-calculator`、真实 WebRTC/推送/admin/community 的非默认入口。
 
-## 當前唯一 MVP 範圍
+## 当前唯一 MVP 范围
 
-| ID | 功能 | Demo MVP 驗收口徑 | 當前代碼入口 |
+| ID | 功能 | Demo MVP 验收口径 | 当前代码入口 |
 |---|---|---|---|
-| `F1` | AI Agent 智能對話 | 單一入口承接 OCR、場景描述、顏色識別、鈔票識別、翻譯、環境描述、導航、藥品確認、緊急詞檢測；首次響應 `<= 3s`；連續 3 輪上下文正確；AI 無法處理時 `100%` 可轉人工；無網絡/無 API key 時走本地 demo fallback | `linklab/lib/screens/home/ai_chat_screen.dart`；`linklab/lib/screens/ai_chat/demo_ai_chat_screen.dart`；`linklab/lib/services/demo/demo_ai_service.dart`；`linklab/assets/demo_data/ai_responses.json`；`linklab/assets/demo_data/help_scenarios.json` |
-| `F9` | 志願者匹配引擎 | AI 無法處理或用戶主動轉人工時進入匹配；基於 demo 志願者池展示 Top 5/默認志願者；匹配頁有處理中、成功、取消等可見狀態；競賽 Demo 不依賴真實地理位置、推送或 Supabase | `linklab/lib/demo_flow/demo_matching_flow.dart`；`linklab/lib/screens/call/demo_matching_screen.dart`；`linklab/lib/services/demo_call_service.dart` 中 `DemoMatchingService`；`linklab/assets/demo_data/volunteers.json` |
-| `F11` | 實時語音通話 | 匹配成功後進入 demo 通話；必須展示連接中、已連接、掛斷、評價、結果沉澱；視頻、屏幕共享、真實 WebRTC 建鏈不進入競賽主線 | `linklab/lib/screens/call/demo_call_screen.dart`；`linklab/lib/screens/call/demo_call_rating_screen.dart`；`linklab/lib/services/demo_call_service.dart` 中 `DemoCallService` |
-| `F13` | SOS 緊急呼救 | 一鍵或緊急意圖觸發；必須顯示廣播、聯繫人通知、誤觸撤銷窗口；Demo 允許 mock，但狀態變化必須可見；唯一允許的倒計時是 10 秒誤觸撤銷窗口 | `linklab/lib/screens/call/demo_sos_screen.dart`；`linklab/lib/services/demo_call_service.dart` 中 `DemoSOSService`；`linklab/lib/demo_flow/demo_sos_flow.dart`；`linklab/lib/services/security/emergency_contact_service.dart` 的本地 fallback |
-| `F33` | 登錄與無障礙偏好 | 手機號驗證碼登錄 + 首次引導 + 簡化身份/偏好設置；競賽默認使用預置演示員會話，避免 3 分鐘腳本卡在註冊；登錄和偏好流程仍需可獨立跑通 | `linklab/lib/main.dart`；`linklab/lib/services/app_session_service.dart`；`linklab/lib/providers/app_session_provider.dart`；`linklab/lib/screens/auth/onboarding_screen.dart`；`phone_login_screen.dart`；`verification_screen.dart`；`identity_select_screen.dart`；`disability_select_screen.dart`；`preference_screen.dart` |
-| `F36` | 全局無障礙適配 | 所有默認可達頁面必須有清晰 `Semantics`、接近或達到 `48x48dp` 觸摸目標、`>= 7:1` 對比度、支持 `200%` 字體縮放、錯誤狀態不只靠顏色表達；讀屏用戶能獨立完成主流程 | `linklab/lib/app.dart` 中 `TextScaler` 適配；`linklab/lib/widgets/accessible/`；默認主鏈路頁面中的 `Semantics` 與無障礙按鈕文案；閉環測試 `linklab/test/closed_loop/` |
+| `F1` | AI Agent 智能对话 | 单一入口承接 OCR、场景描述、颜色识别、钞票识别、翻译、环境描述、导航、药品确认、紧急词检测；首次响应 `<= 3s`；连续 3 轮上下文正确；AI 无法处理时 `100%` 可转人工；无网络/无 API key 时走本地 demo fallback | `linklab/lib/screens/home/ai_chat_screen.dart`；`linklab/lib/screens/ai_chat/demo_ai_chat_screen.dart`；`linklab/lib/services/demo/demo_ai_service.dart`；`linklab/assets/demo_data/ai_responses.json`；`linklab/assets/demo_data/help_scenarios.json` |
+| `F9` | 志愿者匹配引擎 | AI 无法处理或用户主动转人工时进入匹配；基于 demo 志愿者池展示 Top 5/默认志愿者；匹配页有处理中、成功、取消等可见状态；竞赛 Demo 不依赖真实地理位置、推送或 Supabase | `linklab/lib/demo_flow/demo_matching_flow.dart`；`linklab/lib/screens/call/demo_matching_screen.dart`；`linklab/lib/services/demo_call_service.dart` 中 `DemoMatchingService`；`linklab/assets/demo_data/volunteers.json` |
+| `F11` | 实时语音通话 | 匹配成功后进入 demo 通话；必须展示连接中、已连接、挂断、评价、结果沉淀；视频、屏幕共享、真实 WebRTC 建链不进入竞赛主线 | `linklab/lib/screens/call/demo_call_screen.dart`；`linklab/lib/screens/call/demo_call_rating_screen.dart`；`linklab/lib/services/demo_call_service.dart` 中 `DemoCallService` |
+| `F13` | SOS 紧急呼救 | 一键或紧急意图触发；必须显示广播、联系人通知、误触撤销窗口；Demo 允许 mock，但状态变化必须可见；唯一允许的倒计时是 10 秒误触撤销窗口 | `linklab/lib/screens/call/demo_sos_screen.dart`；`linklab/lib/services/demo_call_service.dart` 中 `DemoSOSService`；`linklab/lib/demo_flow/demo_sos_flow.dart`；`linklab/lib/services/security/emergency_contact_service.dart` 的本地 fallback |
+| `F33` | 登录与无障碍偏好 | 手机号验证码登录 + 首次引导 + 简化身份/偏好设置；竞赛默认使用预置演示员会话，避免 3 分钟脚本卡在注册；登录和偏好流程仍需可独立跑通 | `linklab/lib/main.dart`；`linklab/lib/services/app_session_service.dart`；`linklab/lib/providers/app_session_provider.dart`；`linklab/lib/screens/auth/onboarding_screen.dart`；`phone_login_screen.dart`；`verification_screen.dart`；`identity_select_screen.dart`；`disability_select_screen.dart`；`preference_screen.dart` |
+| `F36` | 全局无障碍适配 | 所有默认可达页面必须有清晰 `Semantics`、接近或达到 `48x48dp` 触摸目标、`>= 7:1` 对比度、支持 `200%` 字体缩放、错误状态不只靠颜色表达；读屏用户能独立完成主流程 | `linklab/lib/app.dart` 中 `TextScaler` 适配；`linklab/lib/widgets/accessible/`；默认主链路页面中的 `Semantics` 与无障碍按钮文案；闭环测试 `linklab/test/closed_loop/` |
 
-## 明確排除範圍
+## 明确排除范围
 
-以下內容不屬於競賽 Demo MVP，不得進入默認導航、默認首頁、默認路由、默認測試驗收或 P0/P1 資源：
+以下内容不属于竞赛 Demo MVP，不得进入默认导航、默认首页、默认路由、默认测试验收或 P0/P1 资源：
 
-- 交互式社羣、羣聊、地區社區、新手村、訓練場景；競賽版最多保留硬編碼精選故事展示。
-- 積分、徽章、善意時間線、排班、多級認證、積分流水和排行榜。
-- `admin_dashboard/` 與 `linklab/lib/admin/` 後臺；運營後臺由 Supabase Dashboard 替代，不作爲競賽 App 能力展示。
-- 真實 WebRTC、真實信令、視頻、屏幕共享、通話錄音、AI 通話檢測。
-- 真實推送、FCM、App 未啓動時的真實後臺喚醒；Demo 只展示本地 mock 狀態。
-- 真實 Supabase 強依賴、真實 API key、真實 OCR key、真實部署腳本；競賽 Demo 必須在無網絡/無 key 時完成。
-- 異步留言、任務隊列、`async_tasks`、`point_transactions`、`reports`、`call_records`、`points-calculator` 等非 MVP 後端能力。
+- 交互式社群、群聊、地区社区、新手村、训练场景；竞赛版最多保留硬编码精选故事展示。
+- 积分、徽章、善意时间线、排班、多级认证、积分流水和排行榜。
+- `admin_dashboard/` 与 `linklab/lib/admin/` 后台；运营后台由 Supabase Dashboard 替代，不作为竞赛 App 能力展示。
+- 真实 WebRTC、真实信令、视频、屏幕共享、通话录音、AI 通话检测。
+- 真实推送、FCM、App 未启动时的真实后台唤醒；Demo 只展示本地 mock 状态。
+- 真实 Supabase 强依赖、真实 API key、真实 OCR key、真实部署脚本；竞赛 Demo 必须在无网络/无 key 时完成。
+- 异步留言、任务队列、`async_tasks`、`point_transactions`、`reports`、`call_records`、`points-calculator` 等非 MVP 后端能力。
 
-## 已符合 AGENTS.md 的點
+## 已符合 AGENTS.md 的点
 
-- 全局入口已有 `ProviderScope`，`LinkLabApp` 可讀取 Riverpod session provider。
-- `AppConfig` 已鎖定競賽 demo mode，並啓用演示員預置會話。
-- 默認導航已收斂爲 `首頁 / AI助手 / 我的`，未把後臺、社羣、積分、真實通話放入底部導航。
-- 演示數據已落在 `assets/demo_data/`，並由 `DemoDataLoader` 加載。
-- `linklab/supabase/` 已標記 legacy，根目錄 `supabase/` 是事實來源。
-- `docs/rc_acceptance_evidence.md` 曾記錄 `flutter analyze` 和 `flutter test` 通過，但注意部分默認可達文件仍被 `analysis_options.yaml` 排除，不能把歷史通過結果誤讀爲當前全主鏈路完全無風險。
-- Web / Chrome 是首選演示路徑；Windows 桌面運行或構建需要 Visual Studio C++ 桌面開發工具鏈，不作爲默認驗收入口。
+- 全局入口已有 `ProviderScope`，`LinkLabApp` 可读取 Riverpod session provider。
+- `AppConfig` 已锁定竞赛 demo mode，并启用演示员预置会话。
+- 默认导航已收敛为 `首页 / AI助手 / 我的`，未把后台、社群、积分、真实通话放入底部导航。
+- 演示数据已落在 `assets/demo_data/`，并由 `DemoDataLoader` 加载。
+- `linklab/supabase/` 已标记 legacy，根目录 `supabase/` 是事实来源。
+- `docs/rc_acceptance_evidence.md` 曾记录 `flutter analyze` 和 `flutter test` 通过，但注意部分默认可达文件仍被 `analysis_options.yaml` 排除，不能把历史通过结果误读为当前全主链路完全无风险。
+- Web / Chrome 是首选演示路径；Windows 桌面运行或构建需要 Visual Studio C++ 桌面开发工具链，不作为默认验收入口。
 
-## P0/P1/P2 修復順序
+## P0/P1/P2 修复顺序
 
-### P0：阻斷演示污染源
+### P0：阻断演示污染源
 
-1. 恢復或重構默認可達文件的 analyze 覆蓋：`SeekerCenterScreen`、`demo_flow`、安全/聯繫人入口等默認主鏈路文件不應長期被排除。
-2. 拆分 `SeekerCenterScreen`：默認只保留“幫助檔案 / 求助狀態”；將 `AsyncRequestsTab`、`PointsTab`、`FavoriteVolunteersTab` 以及對 `AsyncTaskService`、`PointsService`、`VolunteerDetailScreen` 的依賴移出主文件或歸檔。
-3. 收斂根 `supabase/`：MVP 事實表只保留 `users`、`volunteer_profiles`、`help_requests`、`emergency_contacts`、`virtual_identities`；`async_tasks`、`point_transactions`、`reports`、`call_records`、`points-calculator` 移入 legacy 或明確非競賽路徑。
-4. 複覈主鏈路沒有真實 Supabase、真實 Firebase、真實 WebRTC、真實推送初始化要求；無 key、斷網仍能打開 App 並完成 3 分鐘腳本。
+1. 恢复或重构默认可达文件的 analyze 覆盖：`SeekerCenterScreen`、`demo_flow`、安全/联系人入口等默认主链路文件不应长期被排除。
+2. 拆分 `SeekerCenterScreen`：默认只保留“帮助档案 / 求助状态”；将 `AsyncRequestsTab`、`PointsTab`、`FavoriteVolunteersTab` 以及对 `AsyncTaskService`、`PointsService`、`VolunteerDetailScreen` 的依赖移出主文件或归档。
+3. 收敛根 `supabase/`：MVP 事实表只保留 `users`、`volunteer_profiles`、`help_requests`、`emergency_contacts`、`virtual_identities`；`async_tasks`、`point_transactions`、`reports`、`call_records`、`points-calculator` 移入 legacy 或明确非竞赛路径。
+4. 复核主链路没有真实 Supabase、真实 Firebase、真实 WebRTC、真实推送初始化要求；无 key、断网仍能打开 App 并完成 3 分钟脚本。
 
-### P1：凍結 Demo / Real 邊界
+### P1：冻结 Demo / Real 边界
 
-1. 將 `real_*` 頁面、`MatchingScreen`、`RealCallScreen`、`RealCallPage`、真實 WebRTC service、推送 service、admin route 明確標記爲 experimental，確認默認入口無法觸達。
-2. 精選故事保持靜態展示；若進入詳情頁，移除或隱藏 like/unlike 等交互式社羣行爲。
-3. 對 `flutter_webrtc`、Firebase、admin dashboard 相關依賴做隔離評估，避免默認平臺構建被非 MVP 依賴拖垮。
-4. 將 SOS mock 的 10 秒撤銷窗口、廣播展示、聯繫人通知展示與 AGENTS.md 口徑對齊；真實 `<= 3s` 推送指標只作爲後續真實集成驗收，不冒充 Demo 已完成。
+1. 将 `real_*` 页面、`MatchingScreen`、`RealCallScreen`、`RealCallPage`、真实 WebRTC service、推送 service、admin route 明确标记为 experimental，确认默认入口无法触达。
+2. 精选故事保持静态展示；若进入详情页，移除或隐藏 like/unlike 等交互式社群行为。
+3. 对 `flutter_webrtc`、Firebase、admin dashboard 相关依赖做隔离评估，避免默认平台构建被非 MVP 依赖拖垮。
+4. 将 SOS mock 的 10 秒撤销窗口、广播展示、联系人通知展示与 AGENTS.md 口径对齐；真实 `<= 3s` 推送指标只作为后续真实集成验收，不冒充 Demo 已完成。
 
-### P2：交付前收斂質量
+### P2：交付前收敛质量
 
-1. 歸檔重複實現，例如未被默認主鏈路使用的 `demo_flow/demo_ai_service.dart`。
-2. 逐步把 UI 直接 new service、service singleton 和裸 `setState` 流程狀態遷移到 provider-backed controller。
-3. 統一 `AppLogger`，減少 `print` / `debugPrint`，並補齊失敗態的可見降級路徑。
-4. 複查 F36：動態字體 `200%`、讀屏順序、觸摸目標、顏色+圖標+文字三重錯誤表達。
+1. 归档重复实现，例如未被默认主链路使用的 `demo_flow/demo_ai_service.dart`。
+2. 逐步把 UI 直接 new service、service singleton 和裸 `setState` 流程状态迁移到 provider-backed controller。
+3. 统一 `AppLogger`，减少 `print` / `debugPrint`，并补齐失败态的可见降级路径。
+4. 复查 F36：动态字体 `200%`、读屏顺序、触摸目标、颜色+图标+文字三重错误表达。
 
-## 分階段驗收命令
+## 分阶段验收命令
 
-### P0 驗收
+### P0 验收
 
 ```powershell
 git status --short
@@ -90,9 +90,9 @@ rg -n "PointsTab|AsyncRequestsTab|FavoriteVolunteersTab|PointsService|AsyncTaskS
 rg -n "points-calculator|point_transactions|async_tasks|reports|call_records" ..\supabase
 ```
 
-驗收口徑：Flutter 命令通過；後兩個 `rg` 只能命中 legacy/archive 或無輸出，不能命中競賽默認主鏈路。
+验收口径：Flutter 命令通过；后两个 `rg` 只能命中 legacy/archive 或无输出，不能命中竞赛默认主链路。
 
-### P1 驗收
+### P1 验收
 
 ```powershell
 cd linklab
@@ -103,9 +103,9 @@ rg -n "AdminLoginScreen|AdminLayout|RealCallScreen|RealCallPage|MatchingScreen\(
 rg -n "Supabase.initialize|Firebase.initializeApp|RealCallService\(|WebRTCService\(|PushNotificationService\(" lib/main.dart lib/app.dart lib/screens/home lib/demo_flow
 ```
 
-驗收口徑：構建和測試通過；默認主鏈路搜索不出現真實後端、真實通話、後臺或交互式社羣入口。
+验收口径：构建和测试通过；默认主链路搜索不出现真实后端、真实通话、后台或交互式社群入口。
 
-### P2 驗收
+### P2 验收
 
 ```powershell
 cd linklab
@@ -117,4 +117,4 @@ rg -n "print\(|debugPrint\(" lib
 rg -n "factory .*Service\(\)|static final .*Service _instance|ChangeNotifier" lib/screens lib/services
 ```
 
-驗收口徑：默認構建和全量測試通過；日誌、service singleton 和 `ChangeNotifier` 殘留都有明確遷移或隔離說明。
+验收口径：默认构建和全量测试通过；日志、service singleton 和 `ChangeNotifier` 残留都有明确迁移或隔离说明。

@@ -1,3 +1,3 @@
-// AGENTS.md §4.2：真實 WebRTC 信令實現已隔離到 services/experimental/real/。
-// 保留此兼容導出，僅用於歷史實驗頁面，競賽版默認鏈路不得繼續直接依賴本路徑。
+// AGENTS.md §4.2：真实 WebRTC 信令实现已隔离到 services/experimental/real/。
+// 保留此兼容导出，仅用于历史实验页面，竞赛版默认链路不得继续直接依赖本路径。
 export 'experimental/real/webrtc_service.dart';

@@ -1,5 +1,5 @@
-// AGENTS.md §4.2：該管理器屬於歷史實驗性真實鏈路。
-// 默認競賽版不進入此實現，真實 WebRTC 已隔離到 services/experimental/real/。
+// AGENTS.md §4.2：该管理器属于历史实验性真实链路。
+// 默认竞赛版不进入此实现，真实 WebRTC 已隔离到 services/experimental/real/。
 
 import 'dart:async';
 
@@ -13,9 +13,9 @@ import '../experimental/real/webrtc/real_webrtc_service.dart';
 import 'signaling_service.dart';
 import 'webrtc_config.dart';
 
-/// 通話事件類型
+/// 通话事件类型
 enum CallManagerEventType {
-  // 通話生命週期
+  // 通话生命周期
   callInitialized,
   callConnecting,
   callConnected,
@@ -28,22 +28,22 @@ enum CallManagerEventType {
   signalingDisconnected,
   signalingError,
 
-  // 媒體事件
+  // 媒体事件
   localStreamReady,
   remoteStreamReady,
   remoteStreamRemoved,
 
-  // 錄音事件
+  // 录音事件
   recordingStarted,
   recordingStopped,
   recordingError,
 
-  // 錯誤事件
+  // 错误事件
   error,
   permissionDenied,
 }
 
-/// 通話管理器事件
+/// 通话管理器事件
 class CallManagerEvent {
   final CallManagerEventType type;
   final dynamic data;
@@ -58,155 +58,155 @@ class CallManagerEvent {
   }) : timestamp = timestamp ?? DateTime.now();
 }
 
-/// WebRTC 通話管理器
-/// 負責協調WebRTC服務、信令服務和錄音服務
+/// WebRTC 通话管理器
+/// 负责协调WebRTC服务、信令服务和录音服务
 class WebRTCCallManager {
   static final WebRTCCallManager _instance = WebRTCCallManager._internal();
   factory WebRTCCallManager() => _instance;
   WebRTCCallManager._internal();
 
-  // ==================== 核心服務 ====================
+  // ==================== 核心服务 ====================
 
-  /// WebRTC服務
+  /// WebRTC服务
   final RealWebRTCService _webrtcService = RealWebRTCService();
 
-  /// 信令服務
+  /// 信令服务
   final SignalingService _signalingService = SignalingService();
 
-  /// 錄音服務
+  /// 录音服务
   final CallRecordingService _recordingService = CallRecordingService();
 
-  // ==================== 狀態流控制器 ====================
+  // ==================== 状态流控制器 ====================
 
-  /// 通話管理器事件流
+  /// 通话管理器事件流
   final _eventController = StreamController<CallManagerEvent>.broadcast();
 
-  /// 合併的通話狀態流
+  /// 合并的通话状态流
   final _callStateController = StreamController<CallState>.broadcast();
 
-  // ==================== 訂閱管理 ====================
+  // ==================== 订阅管理 ====================
 
-  /// WebRTC事件訂閱
+  /// WebRTC事件订阅
   StreamSubscription<WebRTCEvent>? _webrtcEventSubscription;
 
-  /// WebRTC狀態訂閱
+  /// WebRTC状态订阅
   StreamSubscription<CallState>? _webrtcStateSubscription;
 
-  /// 信令消息訂閱
+  /// 信令消息订阅
   StreamSubscription<SignalingMessage>? _signalingMessageSubscription;
 
-  /// 信令房間狀態訂閱
+  /// 信令房间状态订阅
   StreamSubscription<RoomState>? _roomStateSubscription;
 
-  /// 錄音狀態訂閱
+  /// 录音状态订阅
   StreamSubscription<RecordingState>? _recordingStateSubscription;
 
-  // ==================== 狀態 ====================
+  // ==================== 状态 ====================
 
-  /// 當前通話信息
+  /// 当前通话信息
   CallInfo? _currentCall;
 
-  /// 是否正在通話中
+  /// 是否正在通话中
   bool get isInCall => _currentCall != null;
 
-  /// 當前通話信息
+  /// 当前通话信息
   CallInfo? get currentCall => _currentCall;
 
-  /// 是否已連接
+  /// 是否已连接
   bool get isConnected => _webrtcService.isConnected;
 
-  /// 通話時長
+  /// 通话时长
   Duration get callDuration => _webrtcService.callDuration;
 
-  /// 本地媒體流
+  /// 本地媒体流
   MediaStream? get localStream => _webrtcService.localStream;
 
-  /// 遠程媒體流
+  /// 远程媒体流
   MediaStream? get remoteStream => _webrtcService.remoteStream;
 
-  /// 是否正在錄音
+  /// 是否正在录音
   bool get isRecording => _recordingService.isRecording;
 
   // ==================== Getters ====================
 
-  /// 通話管理器事件流
+  /// 通话管理器事件流
   Stream<CallManagerEvent> get eventStream => _eventController.stream;
 
-  /// 通話狀態流
+  /// 通话状态流
   Stream<CallState> get callStateStream => _callStateController.stream;
 
   /// WebRTC事件流
   Stream<WebRTCEvent> get webrtcEventStream => _webrtcService.eventStream;
 
-  /// 遠程媒體流流
+  /// 远程媒体流流
   Stream<MediaStream?> get remoteStreamStream => _webrtcService.remoteStreamStream;
 
-  /// 網絡質量流
+  /// 网络质量流
   Stream<NetworkQuality> get networkQualityStream => _webrtcService.networkQualityStream;
 
-  /// 通話統計信息流
+  /// 通话统计信息流
   Stream<CallStats> get statsStream => _webrtcService.statsStream;
 
-  /// 錄音狀態流
+  /// 录音状态流
   Stream<RecordingState> get recordingStateStream => _recordingService.stateStream;
 
-  /// 錄音時長流
+  /// 录音时长流
   Stream<Duration> get recordingDurationStream => _recordingService.durationStream;
 
-  /// 錄音電平流
+  /// 录音电平流
   Stream<double> get recordingLevelStream => _recordingService.levelStream;
 
   /// 信令消息流
   Stream<SignalingMessage> get signalingMessageStream => _signalingService.signalingMessageStream;
 
-  /// 房間參與者流
+  /// 房间参与者流
   Stream<List<RoomParticipant>> get participantsStream => _signalingService.participantsStream;
 
   // ==================== 初始化方法 ====================
 
-  /// 初始化通話管理器
+  /// 初始化通话管理器
   Future<void> initialize() async {
-    // 初始化錄音服務
+    // 初始化录音服务
     await _recordingService.initialize();
 
-    // 設置WebRTC回調
+    // 设置WebRTC回调
     _setupWebRTCCallbacks();
 
-    // 訂閱WebRTC事件
+    // 订阅WebRTC事件
     _webrtcEventSubscription = _webrtcService.eventStream.listen(_handleWebRTCEvent);
 
-    // 訂閱WebRTC狀態
+    // 订阅WebRTC状态
     _webrtcStateSubscription = _webrtcService.callStateStream.listen(_handleCallStateChange);
 
-    // 訂閱信令消息
+    // 订阅信令消息
     _signalingMessageSubscription = _signalingService.signalingMessageStream.listen(_handleSignalingMessage);
 
-    // 訂閱房間狀態
+    // 订阅房间状态
     _roomStateSubscription = _signalingService.roomStateStream.listen(_handleRoomStateChange);
 
-    // 訂閱錄音狀態
+    // 订阅录音状态
     _recordingStateSubscription = _recordingService.stateStream.listen(_handleRecordingStateChange);
 
-    AppLogger.info('[CallManager] 通話管理器已初始化');
+    AppLogger.info('[CallManager] 通话管理器已初始化');
   }
 
-  /// 設置WebRTC回調
+  /// 设置WebRTC回调
   void _setupWebRTCCallbacks() {
-    // Offer創建回調
+    // Offer创建回调
     _webrtcService.onOfferCreated = (sdp, type) async {
       if (_currentCall != null) {
         await _signalingService.sendOffer(_currentCall!.roomId, sdp, type);
       }
     };
 
-    // Answer創建回調
+    // Answer创建回调
     _webrtcService.onAnswerCreated = (sdp, type) async {
       if (_currentCall != null) {
         await _signalingService.sendAnswer(_currentCall!.roomId, sdp, type);
       }
     };
 
-    // ICE候選回調
+    // ICE候选回调
     _webrtcService.onIceCandidate = (candidate, sdpMid, sdpMLineIndex) async {
       if (_currentCall != null) {
         await _signalingService.sendIceCandidate(
@@ -218,15 +218,15 @@ class WebRTCCallManager {
       }
     };
 
-    // 通話結束回調
+    // 通话结束回调
     _webrtcService.onCallEnded = (reason) async {
       await _handleCallEnded(reason);
     };
   }
 
-  // ==================== 通話控制方法 ====================
+  // ==================== 通话控制方法 ====================
 
-  /// 作爲求助者發起通話
+  /// 作为求助者发起通话
   Future<CallInfo> startCallAsSeeker({
     required String seekerId,
     required String helpRequestId,
@@ -234,13 +234,13 @@ class WebRTCCallManager {
     bool enableRecording = false,
   }) async {
     if (_currentCall != null) {
-      throw Exception('已有進行中的通話');
+      throw Exception('已有进行中的通话');
     }
 
     try {
       _emitEvent(CallManagerEventType.callInitialized);
 
-      // 初始化WebRTC通話
+      // 初始化WebRTC通话
       final callInfo = await _webrtcService.initializeCallAsSeeker(
         seekerId: seekerId,
         helpRequestId: helpRequestId,
@@ -249,16 +249,16 @@ class WebRTCCallManager {
 
       _currentCall = callInfo;
 
-      // 加入信令房間
+      // 加入信令房间
       await _signalingService.joinRoom(callInfo.roomId, role: CallRole.seeker);
 
-      // 更新房間狀態
+      // 更新房间状态
       await _signalingService.updateRoomStatus(callInfo.roomId, 'connecting');
 
-      // 創建併發送Offer（作爲發起方）
+      // 创建并发送Offer（作为发起方）
       await _webrtcService.createOffer();
 
-      // 如果啓用錄音，開始錄音
+      // 如果启用录音，开始录音
       if (enableRecording) {
         await startRecording();
       }
@@ -267,14 +267,14 @@ class WebRTCCallManager {
 
       return callInfo;
     } catch (error, stackTrace) {
-      AppLogger.error('[CallManager] 發起通話失敗', error, stackTrace);
-      _emitEvent(CallManagerEventType.error, error: '發起通話失敗: $error');
+      AppLogger.error('[CallManager] 发起通话失败', error, stackTrace);
+      _emitEvent(CallManagerEventType.error, error: '发起通话失败: $error');
       await _cleanup();
       rethrow;
     }
   }
 
-  /// 作爲志願者接聽通話
+  /// 作为志愿者接听通话
   Future<CallInfo> acceptCallAsVolunteer({
     required String volunteerId,
     required String seekerId,
@@ -283,13 +283,13 @@ class WebRTCCallManager {
     bool enableRecording = false,
   }) async {
     if (_currentCall != null) {
-      throw Exception('已有進行中的通話');
+      throw Exception('已有进行中的通话');
     }
 
     try {
       _emitEvent(CallManagerEventType.callInitialized);
 
-      // 初始化WebRTC通話
+      // 初始化WebRTC通话
       final callInfo = await _webrtcService.initializeCallAsVolunteer(
         volunteerId: volunteerId,
         seekerId: seekerId,
@@ -299,13 +299,13 @@ class WebRTCCallManager {
 
       _currentCall = callInfo;
 
-      // 加入信令房間
+      // 加入信令房间
       await _signalingService.joinRoom(roomId, role: CallRole.volunteer);
 
-      // 更新房間狀態
+      // 更新房间状态
       await _signalingService.updateRoomStatus(roomId, 'connected');
 
-      // 如果啓用錄音，開始錄音
+      // 如果启用录音，开始录音
       if (enableRecording) {
         await startRecording();
       }
@@ -314,33 +314,33 @@ class WebRTCCallManager {
 
       return callInfo;
     } catch (error, stackTrace) {
-      AppLogger.error('[CallManager] 接聽通話失敗', error, stackTrace);
-      _emitEvent(CallManagerEventType.error, error: '接聽通話失敗: $error');
+      AppLogger.error('[CallManager] 接听通话失败', error, stackTrace);
+      _emitEvent(CallManagerEventType.error, error: '接听通话失败: $error');
       await _cleanup();
       rethrow;
     }
   }
 
-  /// 結束通話
+  /// 结束通话
   Future<void> endCall(CallEndReason reason) async {
     if (_currentCall == null) return;
 
     try {
-      // 發送掛斷信令
+      // 发送挂断信令
       await _signalingService.sendBye(_currentCall!.roomId, reason: reason);
 
-      // 停止錄音
+      // 停止录音
       if (_recordingService.isRecording) {
         await stopRecording();
       }
 
-      // 結束WebRTC通話
+      // 结束WebRTC通话
       await _webrtcService.endCall(reason);
 
-      // 離開信令房間
+      // 离开信令房间
       await _signalingService.leaveRoom();
 
-      // 更新房間狀態
+      // 更新房间状态
       await _signalingService.updateRoomStatus(
         _currentCall!.roomId,
         reason == CallEndReason.userHangup ? 'ended' : 'failed',
@@ -350,34 +350,34 @@ class WebRTCCallManager {
 
       _emitEvent(CallManagerEventType.callEnded, data: reason);
     } catch (error, stackTrace) {
-      AppLogger.error('[CallManager] 結束通話失敗', error, stackTrace);
-      _emitEvent(CallManagerEventType.error, error: '結束通話失敗: $error');
+      AppLogger.error('[CallManager] 结束通话失败', error, stackTrace);
+      _emitEvent(CallManagerEventType.error, error: '结束通话失败: $error');
     }
   }
 
-  /// 靜音/取消靜音
+  /// 静音/取消静音
   Future<bool> toggleMute() async {
     return await _webrtcService.toggleMute();
   }
 
-  /// 設置靜音狀態
+  /// 设置静音状态
   Future<void> setMute(bool muted) async {
     await _webrtcService.setMute(muted);
   }
 
-  /// 切換揚聲器
+  /// 切换扬声器
   Future<bool> toggleSpeaker() async {
     return await _webrtcService.toggleSpeaker();
   }
 
-  /// 設置揚聲器狀態
+  /// 设置扬声器状态
   Future<void> setSpeaker(bool enabled) async {
     await _webrtcService.setSpeaker(enabled);
   }
 
-  // ==================== 錄音控制方法 ====================
+  // ==================== 录音控制方法 ====================
 
-  /// 開始錄音
+  /// 开始录音
   Future<RecordingInfo?> startRecording() async {
     try {
       final info = await _recordingService.startRecording();
@@ -386,13 +386,13 @@ class WebRTCCallManager {
       }
       return info;
     } catch (error, stackTrace) {
-      AppLogger.error('[CallManager] 開始錄音失敗', error, stackTrace);
-      _emitEvent(CallManagerEventType.recordingError, error: '開始錄音失敗: $error');
+      AppLogger.error('[CallManager] 开始录音失败', error, stackTrace);
+      _emitEvent(CallManagerEventType.recordingError, error: '开始录音失败: $error');
       return null;
     }
   }
 
-  /// 停止錄音
+  /// 停止录音
   Future<RecordingInfo?> stopRecording() async {
     try {
       final info = await _recordingService.stopRecording();
@@ -401,25 +401,25 @@ class WebRTCCallManager {
       }
       return info;
     } catch (error, stackTrace) {
-      AppLogger.error('[CallManager] 停止錄音失敗', error, stackTrace);
-      _emitEvent(CallManagerEventType.recordingError, error: '停止錄音失敗: $error');
+      AppLogger.error('[CallManager] 停止录音失败', error, stackTrace);
+      _emitEvent(CallManagerEventType.recordingError, error: '停止录音失败: $error');
       return null;
     }
   }
 
-  /// 暫停錄音
+  /// 暂停录音
   Future<void> pauseRecording() async {
     await _recordingService.pauseRecording();
   }
 
-  /// 恢復錄音
+  /// 恢复录音
   Future<void> resumeRecording() async {
     await _recordingService.resumeRecording();
   }
 
-  // ==================== 事件處理方法 ====================
+  // ==================== 事件处理方法 ====================
 
-  /// 處理WebRTC事件
+  /// 处理WebRTC事件
   void _handleWebRTCEvent(WebRTCEvent event) {
     switch (event.type) {
       case WebRTCEventType.connected:
@@ -448,7 +448,7 @@ class WebRTCCallManager {
     }
   }
 
-  /// 處理通話狀態變化
+  /// 处理通话状态变化
   void _handleCallStateChange(CallState state) {
     _currentCall?.state = state;
     _callStateController.add(state);
@@ -471,11 +471,11 @@ class WebRTCCallManager {
     }
   }
 
-  /// 處理信令消息
+  /// 处理信令消息
   Future<void> _handleSignalingMessage(SignalingMessage message) async {
     switch (message.type) {
       case SignalingType.offer:
-        // 收到Offer，處理並創建Answer
+        // 收到Offer，处理并创建Answer
         final sdp = message.data['sdp'] as String?;
         final type = message.data['type'] as String?;
         if (sdp != null && type != null) {
@@ -493,7 +493,7 @@ class WebRTCCallManager {
         break;
 
       case SignalingType.iceCandidate:
-        // 收到ICE候選
+        // 收到ICE候选
         final candidate = message.data['candidate'] as String?;
         final sdpMid = message.data['sdp_mid'] as String?;
         final sdpMLineIndex = message.data['sdp_mline_index'] as int?;
@@ -503,7 +503,7 @@ class WebRTCCallManager {
         break;
 
       case SignalingType.bye:
-        // 對方掛斷
+        // 对方挂断
         final reasonStr = message.data['reason'] as String?;
         final reason = CallEndReason.values.firstWhere(
           (r) => r.name == reasonStr,
@@ -517,7 +517,7 @@ class WebRTCCallManager {
     }
   }
 
-  /// 處理房間狀態變化
+  /// 处理房间状态变化
   void _handleRoomStateChange(RoomState state) {
     switch (state) {
       case RoomState.joined:
@@ -534,20 +534,20 @@ class WebRTCCallManager {
     }
   }
 
-  /// 處理錄音狀態變化
+  /// 处理录音状态变化
   void _handleRecordingStateChange(RecordingState state) {
-    // 可以在這裏添加錄音狀態變化的處理邏輯
-    AppLogger.verbose('[CallManager] 錄音狀態: $state');
+    // 可以在这里添加录音状态变化的处理逻辑
+    AppLogger.verbose('[CallManager] 录音状态: $state');
   }
 
-  /// 處理通話結束
+  /// 处理通话结束
   Future<void> _handleCallEnded(CallEndReason reason) async {
-    // 停止錄音
+    // 停止录音
     if (_recordingService.isRecording) {
       await stopRecording();
     }
 
-    // 離開信令房間
+    // 离开信令房间
     await _signalingService.leaveRoom();
 
     await _cleanup();
@@ -555,17 +555,17 @@ class WebRTCCallManager {
     _emitEvent(CallManagerEventType.callEnded, data: reason);
   }
 
-  /// 處理對方掛斷
+  /// 处理对方挂断
   Future<void> _handleRemoteHangup(CallEndReason reason) async {
-    // 停止錄音
+    // 停止录音
     if (_recordingService.isRecording) {
       await stopRecording();
     }
 
-    // 結束WebRTC通話
+    // 结束WebRTC通话
     await _webrtcService.endCall(reason);
 
-    // 離開信令房間
+    // 离开信令房间
     await _signalingService.leaveRoom();
 
     await _cleanup();
@@ -573,14 +573,14 @@ class WebRTCCallManager {
     _emitEvent(CallManagerEventType.callEnded, data: reason);
   }
 
-  // ==================== 輔助方法 ====================
+  // ==================== 辅助方法 ====================
 
-  /// 清理資源
+  /// 清理资源
   Future<void> _cleanup() async {
     _currentCall = null;
   }
 
-  /// 發送事件
+  /// 发送事件
   void _emitEvent(CallManagerEventType type, {dynamic data, String? error}) {
     if (!_eventController.isClosed) {
       _eventController.add(CallManagerEvent(
@@ -591,36 +591,36 @@ class WebRTCCallManager {
     }
   }
 
-  /// 獲取格式化的通話時長
+  /// 获取格式化的通话时长
   String getFormattedDuration() {
     return _webrtcService.getFormattedDuration();
   }
 
-  /// 獲取當前統計信息
+  /// 获取当前统计信息
   Future<CallStats?> getCurrentStats() async {
     return await _webrtcService.getCurrentStats();
   }
 
-  /// 釋放所有資源
+  /// 释放所有资源
   Future<void> dispose() async {
-    // 取消訂閱
+    // 取消订阅
     await _webrtcEventSubscription?.cancel();
     await _webrtcStateSubscription?.cancel();
     await _signalingMessageSubscription?.cancel();
     await _roomStateSubscription?.cancel();
     await _recordingStateSubscription?.cancel();
 
-    // 結束當前通話
+    // 结束当前通话
     if (_currentCall != null) {
       await endCall(CallEndReason.userHangup);
     }
 
-    // 釋放服務
+    // 释放服务
     _webrtcService.dispose();
     _signalingService.dispose();
     await _recordingService.dispose();
 
-    // 關閉流控制器
+    // 关闭流控制器
     await _eventController.close();
     await _callStateController.close();
   }
