@@ -49,9 +49,27 @@ class DemoAIService {
   }
 
   /// OCR文字识别
-  Future<AIResult> recognizeText(String imagePath, {String? prompt}) async {
+  Future<AIResult> recognizeText(
+    String imagePath, {
+    String? prompt,
+    bool hasImage = true,
+  }) async {
     if (!_demoFallbackEnabled) return _demoModeDisabledResult;
     await _simulateDelay();
+
+    final preferredScenario = _preferredOcrScenario('$prompt $imagePath');
+    final isExplicitDemo = _matchesAny(_normalize(prompt ?? ''), const [
+      '示例',
+      '演示',
+    ]);
+    if (!hasImage && (!isExplicitDemo || preferredScenario == null)) {
+      return _fixedResult(
+        DemoAiIntent.ocrText,
+        '请先拍照，或从相册选择说明书、菜单、票据或站牌图片，'
+        '我会读取实际内容；没有图片时不会猜测药名、剂量或路线。',
+        extra: {'requiresImage': true, 'confidence': 1.0},
+      );
+    }
 
     final scenarios = DemoDataLoader.getOCRScenarios();
     if (scenarios.isEmpty) {
@@ -63,7 +81,6 @@ class DemoAIService {
       );
     }
 
-    final preferredScenario = _preferredOcrScenario('$prompt $imagePath');
     final scenario = scenarios.firstWhere((item) {
       final searchable = '${item['scenario']}${item['imageDescription']}';
       return preferredScenario == null
@@ -73,14 +90,16 @@ class DemoAIService {
     final summary =
         scenario['summary'] as String? ?? '我识别到一段文字，但内容不完整。请复核图片，也可以转人工确认。';
     final scenarioName = scenario['scenario'] as String? ?? '';
+    final answerPrefix = hasImage ? '' : '示例识别结果：';
 
     return _fixedResult(
       DemoAiIntent.ocrText,
-      '$summary ${_ocrReviewNotice(scenarioName)}',
+      '$answerPrefix$summary ${_ocrReviewNotice(scenarioName)}',
       extra: {
         'recognizedText': scenario['recognizedText'],
         'scenario': scenarioName,
         'confidence': 0.95,
+        if (!hasImage) 'demoSample': true,
       },
     );
   }
@@ -96,7 +115,7 @@ class DemoAIService {
     if (_matchesAny(normalized, const ['快递', '运单', '收件'])) {
       return '快递单';
     }
-    if (_matchesAny(normalized, const ['药', '说明书', '药品盒', '药盒'])) {
+    if (_matchesAny(normalized, const ['药', '药品盒', '药盒'])) {
       return '药品说明书';
     }
     return null;
@@ -395,7 +414,11 @@ class DemoAIService {
   }) async {
     switch (resolution.intent) {
       case DemoAiIntent.ocrText:
-        return recognizeText(imagePath ?? 'demo-text', prompt: input);
+        return recognizeText(
+          imagePath ?? 'demo-text',
+          prompt: input,
+          hasImage: imagePath != null,
+        );
       case DemoAiIntent.sceneDescription:
         return describeScene(imagePath ?? 'demo-scene');
       case DemoAiIntent.objectIdentify:

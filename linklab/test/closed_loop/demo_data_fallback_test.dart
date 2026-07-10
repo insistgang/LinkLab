@@ -41,8 +41,9 @@ void main() {
     await prepareEmptyDemoEnvironment();
     final ai = DemoAIService();
 
-    final ocr = await ai.process('帮我读药品盒说明书');
+    final ocr = await ai.process('查看示例药品说明书');
     expect(ocr.success, isTrue);
+    expect(ocr.text, contains('示例识别结果'));
     expect(ocr.text, contains('阿莫西林'));
 
     final scene = await ai.process('我面前是什么，描述周围环境');
@@ -59,15 +60,39 @@ void main() {
     expect(sos.data?['action'], 'sos_triggered');
   });
 
+  test('没有图片时普通读说明书请求不会猜测具体药名和剂量', () async {
+    await prepareEmptyDemoEnvironment();
+    final facade = AgentServiceFacade();
+
+    final response = await facade.processInput(text: '帮我读一下这个说明书');
+
+    expect(response.canResolveByAi, isTrue);
+    expect(response.answerText, anyOf(contains('拍照'), contains('相册')));
+    expect(response.answerText, isNot(contains('阿莫西林')));
+    expect(response.answerText, isNot(contains('成人每次服用2粒')));
+  });
+
   test('小问答会返回与文字、场景和颜色问题对应的内容', () async {
     await prepareEmptyDemoEnvironment();
     final facade = AgentServiceFacade();
 
     final cases =
         <({String prompt, List<String> expectedAll, String? unexpected})>[
-          (prompt: '帮我读一下这个说明书', expectedAll: ['阿莫西林'], unexpected: null),
-          (prompt: '帮我看一下菜单写了什么', expectedAll: ['红烧肉'], unexpected: '阿莫西林'),
-          (prompt: '读一下公交站牌内容', expectedAll: ['101路'], unexpected: '阿莫西林'),
+          (
+            prompt: '查看示例药品说明书',
+            expectedAll: ['示例识别结果', '阿莫西林'],
+            unexpected: null,
+          ),
+          (
+            prompt: '查看示例菜单内容',
+            expectedAll: ['示例识别结果', '红烧肉'],
+            unexpected: '阿莫西林',
+          ),
+          (
+            prompt: '查看示例公交站牌',
+            expectedAll: ['示例识别结果', '101路'],
+            unexpected: '阿莫西林',
+          ),
           (prompt: '我面前现在是什么样子', expectedAll: ['城市街道'], unexpected: '不能稳定判断'),
           (prompt: '这个物体的主色调是什么', expectedAll: ['深蓝色'], unexpected: '不能稳定判断'),
           (prompt: '帮我分辨这两个颜色', expectedAll: ['深蓝色', '暖橙色'], unexpected: null),
@@ -94,7 +119,11 @@ void main() {
     final ai = DemoAIService();
 
     final cases = <({String prompt, DemoAiIntent intent, String containsText})>[
-      (prompt: '帮我读药品盒说明书', intent: DemoAiIntent.ocrText, containsText: '阿莫西林'),
+      (
+        prompt: '查看示例药品说明书',
+        intent: DemoAiIntent.ocrText,
+        containsText: '示例识别结果',
+      ),
       (
         prompt: '我面前是什么，前面有什么画面',
         intent: DemoAiIntent.sceneDescription,
