@@ -752,14 +752,38 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
 
   Widget _buildChatBody({required bool compactLayout}) {
     final hasUserConversation = _messages.any((message) => message.isUser);
-    return Column(
-      children: [
-        if (!widget.embeddedInTab || !hasUserConversation)
-          _buildAssistantContextCard(compactLayout: compactLayout)
-        else
-          _buildCompactPromptStrip(compactLayout: compactLayout),
-        Expanded(child: _buildMessageList(compactLayout: compactLayout)),
-      ],
+    final promptPanel = !widget.embeddedInTab || !hasUserConversation
+        ? _buildAssistantContextCard(compactLayout: compactLayout)
+        : _buildCompactPromptStrip(compactLayout: compactLayout);
+
+    if (widget.quickPrompts.isEmpty) {
+      return Column(
+        children: [
+          promptPanel,
+          Expanded(child: _buildMessageList(compactLayout: compactLayout)),
+        ],
+      );
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final promptPanelFraction = constraints.maxHeight < 360
+            ? 0.82
+            : (compactLayout ? 0.68 : 0.62);
+        final maxPromptPanelHeight = constraints.hasBoundedHeight
+            ? constraints.maxHeight * promptPanelFraction
+            : double.infinity;
+
+        return Column(
+          children: [
+            ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: maxPromptPanelHeight),
+              child: SingleChildScrollView(primary: false, child: promptPanel),
+            ),
+            Expanded(child: _buildMessageList(compactLayout: compactLayout)),
+          ],
+        );
+      },
     );
   }
 
@@ -1168,6 +1192,10 @@ class _QuickPromptGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (prompts.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     final textScale = MediaQuery.textScalerOf(context).scale(1);
 
     return LayoutBuilder(

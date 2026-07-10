@@ -161,4 +161,38 @@ void main() {
     }
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('低高度与 200% 大字下快捷问题可滚动到达且不溢出', (tester) async {
+    tester.view.physicalSize = const Size(320, 640);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    const prompts = ['帮我读一下这个说明书', '布洛芬是什么药？', '药盒有效期怎么看？', '我需要真人志愿者帮助'];
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: MediaQuery(
+            data: MediaQueryData.fromView(
+              tester.view,
+            ).copyWith(textScaler: const TextScaler.linear(2)),
+            child: const DemoAIChatScreen(
+              title: 'AI智能对话',
+              introMessage: '直接输入你想了解的问题。',
+              quickPrompts: prompts,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(tester.takeException(), isNull);
+    final promptFinder = find.text('我需要真人志愿者帮助');
+    await tester.ensureVisible(promptFinder);
+    await tester.pump();
+    expect(promptFinder.hitTestable(), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }
