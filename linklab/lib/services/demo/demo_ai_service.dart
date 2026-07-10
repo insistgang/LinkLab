@@ -49,7 +49,7 @@ class DemoAIService {
   }
 
   /// OCR文字识别
-  Future<AIResult> recognizeText(String imagePath) async {
+  Future<AIResult> recognizeText(String imagePath, {String? prompt}) async {
     if (!_demoFallbackEnabled) return _demoModeDisabledResult;
     await _simulateDelay();
 
@@ -63,22 +63,56 @@ class DemoAIService {
       );
     }
 
-    final scenario = scenarios.firstWhere(
-      (item) => '${item['scenario']}${item['imageDescription']}'.contains('药'),
-      orElse: () => scenarios.first,
-    );
+    final preferredScenario = _preferredOcrScenario('$prompt $imagePath');
+    final scenario = scenarios.firstWhere((item) {
+      final searchable = '${item['scenario']}${item['imageDescription']}';
+      return preferredScenario == null
+          ? searchable.contains('药')
+          : searchable.contains(preferredScenario);
+    }, orElse: () => scenarios.first);
     final summary =
         scenario['summary'] as String? ?? '我识别到一段文字，但内容不完整。请复核图片，也可以转人工确认。';
+    final scenarioName = scenario['scenario'] as String? ?? '';
 
     return _fixedResult(
       DemoAiIntent.ocrText,
-      '$summary 请复核药名、剂量和有效期；不确定时可以转人工确认。',
+      '$summary ${_ocrReviewNotice(scenarioName)}',
       extra: {
         'recognizedText': scenario['recognizedText'],
-        'scenario': scenario['scenario'],
+        'scenario': scenarioName,
         'confidence': 0.95,
       },
     );
+  }
+
+  String? _preferredOcrScenario(String hint) {
+    final normalized = _normalize(hint);
+    if (_matchesAny(normalized, const ['公交', '站牌', '车站', '下一站'])) {
+      return '公交站牌';
+    }
+    if (_matchesAny(normalized, const ['菜单', '菜品', '点餐'])) {
+      return '餐厅菜单';
+    }
+    if (_matchesAny(normalized, const ['快递', '运单', '收件'])) {
+      return '快递单';
+    }
+    if (_matchesAny(normalized, const ['药', '说明书', '药品盒', '药盒'])) {
+      return '药品说明书';
+    }
+    return null;
+  }
+
+  String _ocrReviewNotice(String scenarioName) {
+    if (scenarioName.contains('公交')) {
+      return '请再确认乘车方向和站台位置；不确定时可以转人工确认。';
+    }
+    if (scenarioName.contains('菜单')) {
+      return '点餐前请再确认价格、忌口和过敏信息；不确定时可以转人工确认。';
+    }
+    if (scenarioName.contains('快递')) {
+      return '请注意保护运单号和地址等个人信息；不确定时可以转人工确认。';
+    }
+    return '请复核药名、剂量和有效期；不确定时可以转人工确认。';
   }
 
   /// 场景描述
@@ -112,7 +146,7 @@ class DemoAIService {
   }
 
   /// 颜色识别
-  Future<AIResult> recognizeColor(String imagePath) async {
+  Future<AIResult> recognizeColor(String imagePath, {String? prompt}) async {
     if (!_demoFallbackEnabled) return _demoModeDisabledResult;
     await _simulateDelay(minMs: 250, maxMs: 650);
 
@@ -123,6 +157,31 @@ class DemoAIService {
         DemoAiIntent.colorRecognition,
         '我识别到主体颜色偏深蓝，适合用于衣物、药盒或指示牌颜色确认。光线会影响判断，请复核。',
         extra: {'fallback': true},
+      );
+    }
+
+    final normalizedHint = _normalize('$prompt $imagePath');
+    final isComparison = _matchesAny(normalizedHint, const [
+      '两个颜色',
+      '两种颜色',
+      '颜色对比',
+    ]);
+    if (isComparison && colors.length >= 2) {
+      final first = colors[0];
+      final second = colors[1];
+      final firstName = first['dominantColor'] as String? ?? '第一种颜色';
+      final secondName = second['dominantColor'] as String? ?? '第二种颜色';
+      final firstDescription =
+          first['description'] as String? ?? '第一个颜色是$firstName。';
+      final secondDescription =
+          second['description'] as String? ?? '第二个颜色是$secondName。';
+      return _fixedResult(
+        DemoAiIntent.colorRecognition,
+        '第一个：$firstDescription 第二个：$secondDescription 两者对比明显，光线会影响判断，请再复核。',
+        extra: {
+          'dominantColors': [firstName, secondName],
+          'colorHexes': [first['colorHex'], second['colorHex']],
+        },
       );
     }
 
@@ -336,7 +395,7 @@ class DemoAIService {
   }) async {
     switch (resolution.intent) {
       case DemoAiIntent.ocrText:
-        return recognizeText(imagePath ?? 'demo-text');
+        return recognizeText(imagePath ?? 'demo-text', prompt: input);
       case DemoAiIntent.sceneDescription:
         return describeScene(imagePath ?? 'demo-scene');
       case DemoAiIntent.objectIdentify:
@@ -347,7 +406,7 @@ class DemoAIService {
           extra: {'confidence': 0.88},
         );
       case DemoAiIntent.colorRecognition:
-        return recognizeColor(imagePath ?? 'demo-color');
+        return recognizeColor(imagePath ?? 'demo-color', prompt: input);
       case DemoAiIntent.moneyRecognition:
         await _simulateDelay(minMs: 220, maxMs: 520);
         return _fixedResult(
@@ -606,6 +665,9 @@ const _ocrKeywords = [
   '看不清',
   '文字',
   '说明书',
+  '菜单',
+  '公交',
+  '站牌',
   '药品盒',
   '通知单',
   '路牌',
@@ -613,9 +675,9 @@ const _ocrKeywords = [
   '药盒',
 ];
 
-const _sceneKeywords = ['我面前是什么', '前面有什么', '帮我看看', '场景', '画面'];
+const _sceneKeywords = ['我面前是什么', '我面前现在', '前面有什么', '帮我看看', '场景', '画面'];
 
-const _colorKeywords = ['什么颜色', '颜色', '红色', '蓝色', '衣服颜色', '药盒颜色'];
+const _colorKeywords = ['什么颜色', '主色调', '颜色', '红色', '蓝色', '衣服颜色', '药盒颜色'];
 
 const _moneyKeywords = ['多少钱', '面额', '钞票', '纸币', '人民币', '硬币'];
 

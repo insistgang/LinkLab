@@ -59,6 +59,36 @@ void main() {
     expect(sos.data?['action'], 'sos_triggered');
   });
 
+  test('小问答会返回与文字、场景和颜色问题对应的内容', () async {
+    await prepareEmptyDemoEnvironment();
+    final facade = AgentServiceFacade();
+
+    final cases =
+        <({String prompt, List<String> expectedAll, String? unexpected})>[
+          (prompt: '帮我读一下这个说明书', expectedAll: ['阿莫西林'], unexpected: null),
+          (prompt: '帮我看一下菜单写了什么', expectedAll: ['红烧肉'], unexpected: '阿莫西林'),
+          (prompt: '读一下公交站牌内容', expectedAll: ['101路'], unexpected: '阿莫西林'),
+          (prompt: '我面前现在是什么样子', expectedAll: ['城市街道'], unexpected: '不能稳定判断'),
+          (prompt: '这个物体的主色调是什么', expectedAll: ['深蓝色'], unexpected: '不能稳定判断'),
+          (prompt: '帮我分辨这两个颜色', expectedAll: ['深蓝色', '暖橙色'], unexpected: null),
+        ];
+
+    for (final entry in cases) {
+      final response = await facade.processInput(text: entry.prompt);
+      expect(response.canResolveByAi, isTrue, reason: entry.prompt);
+      for (final expected in entry.expectedAll) {
+        expect(response.answerText, contains(expected), reason: entry.prompt);
+      }
+      if (entry.unexpected case final unexpected?) {
+        expect(
+          response.answerText,
+          isNot(contains(unexpected)),
+          reason: entry.prompt,
+        );
+      }
+    }
+  });
+
   test('F1 AI Agent 本地 demo 支持 AGENTS.md 要求的 9 类意图', () async {
     await prepareEmptyDemoEnvironment();
     final ai = DemoAIService();
