@@ -98,7 +98,8 @@ void main() {
 
     final result = await DemoAIService().process('帮我读药品盒');
     expect(result.success, isTrue);
-    expect(result.text, contains('阿莫西林'));
+    expect(result.text, anyOf(contains('拍照'), contains('相册')));
+    expect(result.text, isNot(contains('阿莫西林')));
 
     await controller.resolveByAI(summary: result.text);
     final state = container.read(demoHelpRequestFlowProvider);

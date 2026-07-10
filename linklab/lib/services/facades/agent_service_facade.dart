@@ -103,7 +103,18 @@ class AgentServiceFacade {
       return null;
     }
 
-    final intent = _demoService.resolveIntent(input, imagePath: imagePath);
+    final normalizedImagePath = imagePath?.trim();
+    final hasImage = normalizedImagePath?.isNotEmpty == true;
+    final intent = _demoService.resolveIntent(
+      input,
+      imagePath: hasImage ? normalizedImagePath : null,
+    );
+    if (intent == DemoAiIntent.ocrText && !hasImage) {
+      final result = await _demoService.process(input);
+      AppLogger.info('[AgentFacade] 本地安全分流: ocr_requires_image');
+      return _mapAIResultToAgentResult(result);
+    }
+
     const localFirstIntents = {
       DemoAiIntent.emergency,
       DemoAiIntent.needHuman,
@@ -115,7 +126,10 @@ class AgentServiceFacade {
       return null;
     }
 
-    final result = await _demoService.process(input, imagePath: imagePath);
+    final result = await _demoService.process(
+      input,
+      imagePath: hasImage ? normalizedImagePath : null,
+    );
     final mapped = _mapAIResultToAgentResult(result);
     if (mapped.nextAction == 'trigger_sos' ||
         mapped.nextAction == 'match_volunteer') {
@@ -130,8 +144,13 @@ class AgentServiceFacade {
     String input, {
     String? imagePath,
   }) async {
-    final prompt = input.isEmpty && imagePath != null ? '这是什么？' : input;
-    final result = await _demoService.process(prompt, imagePath: imagePath);
+    final normalizedImagePath = imagePath?.trim();
+    final hasImage = normalizedImagePath?.isNotEmpty == true;
+    final prompt = input.isEmpty && hasImage ? '这是什么？' : input;
+    final result = await _demoService.process(
+      prompt,
+      imagePath: hasImage ? normalizedImagePath : null,
+    );
     return _mapAIResultToAgentResult(result);
   }
 
@@ -372,6 +391,15 @@ class AgentServiceFacade {
 
   /// OCR 文字识别
   Future<AgentResult> recognizeText(String imagePath) async {
+    if (imagePath.trim().isEmpty) {
+      final result = await _demoService.recognizeText(
+        'demo-text',
+        prompt: '帮我读文字',
+        hasImage: false,
+      );
+      return _mapAIResultToAgentResult(result);
+    }
+
     // 1. 检查是否配置了百度OCR
     if (FeatureFlags.enableRealAI && APIConfig.isBaiduOcrConfigured) {
       try {

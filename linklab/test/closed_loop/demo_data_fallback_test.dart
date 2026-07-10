@@ -72,6 +72,41 @@ void main() {
     expect(response.answerText, isNot(contains('成人每次服用2粒')));
   });
 
+  test('否定示例的无图请求不能绕过上传保护', () async {
+    await prepareEmptyDemoEnvironment();
+    final facade = AgentServiceFacade();
+
+    final response = await facade.processInput(text: '不要返回示例，帮我读药盒');
+
+    expect(response.answerText, anyOf(contains('拍照'), contains('相册')));
+    expect(response.answerText, isNot(contains('阿莫西林')));
+    expect(response.answerText, isNot(contains('成人每次服用2粒')));
+  });
+
+  test('空白图片路径仍按无图请求处理', () async {
+    await prepareEmptyDemoEnvironment();
+    final facade = AgentServiceFacade();
+
+    final response = await facade.processInput(
+      text: '帮我读药品盒',
+      imagePath: '   ',
+    );
+
+    expect(response.answerText, anyOf(contains('拍照'), contains('相册')));
+    expect(response.answerText, isNot(contains('阿莫西林')));
+  });
+
+  test('有效图片路径保留 OCR 演示结果并明确标注', () async {
+    await prepareEmptyDemoEnvironment();
+    final ai = DemoAIService();
+
+    final response = await ai.process('帮我读药品盒', imagePath: '/tmp/medicine.jpg');
+
+    expect(response.success, isTrue);
+    expect(response.text, startsWith('演示识别结果：'));
+    expect(response.text, contains('阿莫西林'));
+  });
+
   test('小问答会返回与文字、场景和颜色问题对应的内容', () async {
     await prepareEmptyDemoEnvironment();
     final facade = AgentServiceFacade();
@@ -225,12 +260,12 @@ void main() {
     await prepareSignedInDemoEnvironment(clearHelpHistory: true);
     final ai = DemoAIService();
 
-    final first = await ai.process('帮我读药品盒');
+    final first = await ai.process('查看示例药品说明书');
     expect(first.success, isTrue);
     expect(first.data?['demoIntent'], DemoAiIntent.ocrText.wireName);
 
     final history = <Map<String, String>>[
-      {'role': 'user', 'content': '帮我读药品盒'},
+      {'role': 'user', 'content': '查看示例药品说明书'},
       {'role': 'assistant', 'content': first.text},
     ];
 
@@ -309,6 +344,26 @@ void main() {
       stopwatch.elapsed,
       lessThan(const Duration(seconds: 2)),
       reason: 'SOS 和转人工不能等待真实大模型返回',
+    );
+  });
+
+  test('真实 AI 开启时无图 OCR 仍由本地规则要求上传', () async {
+    await prepareEmptyDemoEnvironment();
+    AppConfig.configureFromEnvironment(const {
+      'LINKABLE_ENABLE_REAL_AI': 'true',
+    }, enablePresenterSessionOnFallback: false);
+
+    final facade = AgentServiceFacade();
+    final stopwatch = Stopwatch()..start();
+    final response = await facade.processInput(text: '帮我读一下这个说明书');
+    stopwatch.stop();
+
+    expect(response.answerText, anyOf(contains('拍照'), contains('相册')));
+    expect(response.answerText, isNot(contains('阿莫西林')));
+    expect(
+      stopwatch.elapsed,
+      lessThan(const Duration(seconds: 2)),
+      reason: '无图 OCR 不应等待真实大模型返回',
     );
   });
 }

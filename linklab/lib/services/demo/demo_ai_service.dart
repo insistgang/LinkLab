@@ -33,6 +33,12 @@ class DemoAIService {
   factory DemoAIService() => _instance;
   DemoAIService._internal();
 
+  static const _ocrDemoScenarios = {
+    '查看示例药品说明书': '药品说明书',
+    '查看示例菜单内容': '餐厅菜单',
+    '查看示例公交站牌': '公交站牌',
+  };
+
   final _random = Random();
 
   bool get _demoFallbackEnabled =>
@@ -57,12 +63,10 @@ class DemoAIService {
     if (!_demoFallbackEnabled) return _demoModeDisabledResult;
     await _simulateDelay();
 
-    final preferredScenario = _preferredOcrScenario('$prompt $imagePath');
-    final isExplicitDemo = _matchesAny(_normalize(prompt ?? ''), const [
-      '示例',
-      '演示',
-    ]);
-    if (!hasImage && (!isExplicitDemo || preferredScenario == null)) {
+    final explicitDemoScenario = _explicitOcrDemoScenario(prompt);
+    final preferredScenario =
+        explicitDemoScenario ?? _preferredOcrScenario('$prompt $imagePath');
+    if (!hasImage && explicitDemoScenario == null) {
       return _fixedResult(
         DemoAiIntent.ocrText,
         '请先拍照，或从相册选择说明书、菜单、票据或站牌图片，'
@@ -71,12 +75,23 @@ class DemoAIService {
       );
     }
 
+    if (hasImage && preferredScenario == null) {
+      return _fixedResult(
+        DemoAiIntent.ocrText,
+        '已收到图片，但当前演示模式无法可靠判断文字类型或读取实际内容。'
+        '请补充这是药品说明书、菜单、票据还是站牌，也可以转人工确认。',
+        extra: {'requiresClarification': true, 'confidence': 0.0},
+      );
+    }
+
     final scenarios = DemoDataLoader.getOCRScenarios();
     if (scenarios.isEmpty) {
       AppLogger.warning('OCR demo 数据为空，使用内置降级文案');
       return _fixedResult(
         DemoAiIntent.ocrText,
-        '我可以读出文字内容。当前资源未加载，演示降级为：这是药品盒/通知单读取结果，请复核关键信息，也可以转人工确认。',
+        hasImage
+            ? '已收到图片，但文字识别演示资源暂时未加载。请稍后重试或转人工确认。'
+            : '示例识别暂时不可用，没有图片时不会猜测具体内容。请拍照、从相册选择，或稍后重试。',
         extra: {'fallback': true},
       );
     }
@@ -90,7 +105,7 @@ class DemoAIService {
     final summary =
         scenario['summary'] as String? ?? '我识别到一段文字，但内容不完整。请复核图片，也可以转人工确认。';
     final scenarioName = scenario['scenario'] as String? ?? '';
-    final answerPrefix = hasImage ? '' : '示例识别结果：';
+    final answerPrefix = hasImage ? '演示识别结果：' : '示例识别结果：';
 
     return _fixedResult(
       DemoAiIntent.ocrText,
@@ -117,6 +132,16 @@ class DemoAIService {
     }
     if (_matchesAny(normalized, const ['药', '药品盒', '药盒'])) {
       return '药品说明书';
+    }
+    return null;
+  }
+
+  String? _explicitOcrDemoScenario(String? prompt) {
+    final normalizedPrompt = _normalize(prompt ?? '');
+    for (final entry in _ocrDemoScenarios.entries) {
+      if (normalizedPrompt == _normalize(entry.key)) {
+        return entry.value;
+      }
     }
     return null;
   }
@@ -293,16 +318,21 @@ class DemoAIService {
   }) async {
     if (!_demoFallbackEnabled) return _demoModeDisabledResult;
 
+    final normalizedImagePath = imagePath?.trim();
+    final effectiveImagePath = normalizedImagePath?.isNotEmpty == true
+        ? normalizedImagePath
+        : null;
+
     final resolution = _detectDemoIntent(
       input,
-      imagePath: imagePath,
+      imagePath: effectiveImagePath,
       history: history,
     );
     AppLogger.info('Demo AI intent recognized: ${resolution.intent.wireName}');
     return _buildIntentResult(
       input,
       resolution,
-      imagePath: imagePath,
+      imagePath: effectiveImagePath,
       history: history,
     );
   }
@@ -312,9 +342,12 @@ class DemoAIService {
     String? imagePath,
     List<Map<String, String>>? history,
   }) {
+    final normalizedImagePath = imagePath?.trim();
     return _detectDemoIntent(
       input,
-      imagePath: imagePath,
+      imagePath: normalizedImagePath?.isNotEmpty == true
+          ? normalizedImagePath
+          : null,
       history: history,
     ).intent;
   }
