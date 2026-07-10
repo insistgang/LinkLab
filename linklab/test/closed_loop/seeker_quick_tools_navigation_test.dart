@@ -102,7 +102,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    const prompts = ['帮我读一下这个说明书', '帮我看一下菜单写了什么', '读一下公交站牌内容'];
+    const prompts = ['查看示例药品说明书', '查看示例菜单内容', '查看示例公交站牌'];
 
     await tester.pumpWidget(
       const ProviderScope(
@@ -129,7 +129,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    const prompts = ['帮我读一下这个说明书', '帮我看一下菜单写了什么', '读一下公交站牌内容'];
+    const prompts = ['查看示例药品说明书', '查看示例菜单内容', '查看示例公交站牌'];
 
     await tester.pumpWidget(
       ProviderScope(
@@ -168,7 +168,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    const prompts = ['帮我读一下这个说明书', '布洛芬是什么药？', '药盒有效期怎么看？', '我需要真人志愿者帮助'];
+    const prompts = ['查看示例药品说明书', '布洛芬是什么药？', '药盒有效期怎么看？', '我需要真人志愿者帮助'];
 
     await tester.pumpWidget(
       ProviderScope(

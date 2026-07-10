@@ -17,7 +17,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    const prompts = ['帮我读一下这个说明书', '布洛芬是什么药？', '药盒有效期怎么看？', '我需要真人志愿者帮助'];
+    const prompts = ['查看示例药品说明书', '布洛芬是什么药？', '药盒有效期怎么看？', '我需要真人志愿者帮助'];
 
     await tester.pumpWidget(
       ProviderScope(

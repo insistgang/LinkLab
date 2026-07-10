@@ -348,7 +348,7 @@ class _SeekerHomeScreenState extends ConsumerState<SeekerHomeScreen> {
       page: const DemoAIChatScreen(
         title: 'AI文字识别',
         introMessage: '请告诉我需要读什么，或者直接上传一张图片。我会先尝试识别文字，再用更容易理解的方式读给您听。',
-        quickPrompts: ['帮我读一下这个说明书', '帮我看一下菜单写了什么', '读一下公交站牌内容'],
+        quickPrompts: ['查看示例药品说明书', '查看示例菜单内容', '查看示例公交站牌'],
         toolMode: DemoAIChatToolMode.ocr,
       ),
     );
@@ -372,7 +372,7 @@ class _SeekerHomeScreenState extends ConsumerState<SeekerHomeScreen> {
       page: const DemoAIChatScreen(
         title: 'AI智能对话',
         introMessage: '您好，我是 AI 助手智动。您可以直接说需求，也可以通过下方按钮发语音或图片，我会优先尝试自己解决。',
-        quickPrompts: ['帮我读一下这个说明书', '布洛芬是什么药？', '药盒有效期怎么看？', '我需要真人志愿者帮助'],
+        quickPrompts: ['查看示例药品说明书', '布洛芬是什么药？', '药盒有效期怎么看？', '我需要真人志愿者帮助'],
       ),
     );
   }

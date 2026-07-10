@@ -24,14 +24,14 @@ void main() {
             title: 'AI文字识别',
             introMessage: '请告诉我需要读什么，或者直接上传一张图片。',
             toolMode: DemoAIChatToolMode.ocr,
-            quickPrompts: ['帮我读一下这个说明书', '帮我看一下菜单写了什么', '读一下公交站牌内容'],
+            quickPrompts: ['查看示例药品说明书', '查看示例菜单内容', '查看示例公交站牌'],
           ),
         ),
       ),
     );
     await tester.pump(const Duration(milliseconds: 400));
 
-    final prompt = find.text('读一下公交站牌内容');
+    final prompt = find.text('查看示例公交站牌');
     await tester.ensureVisible(prompt);
     await tester.pump();
     expect(prompt.hitTestable(), findsOneWidget);
@@ -42,8 +42,9 @@ void main() {
 
     final history = readLocalHelpHistoryModels();
     expect(history, isNotEmpty);
-    expect(history.first.intent, '读一下公交站牌内容');
+    expect(history.first.intent, '查看示例公交站牌');
     final summary = history.first.aiResponse?['summary'] as String? ?? '';
+    expect(summary, startsWith('示例识别结果：'));
     expect(summary, contains('101路公交车站牌'));
     expect(summary, isNot(contains('阿莫西林')));
     expect(tester.takeException(), isNull);
