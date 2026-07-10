@@ -79,7 +79,7 @@ Windows 桌面不是當前首選演示路徑。若要運行或構建 Windows 桌
 1. `DEMO_STATUS.md`
 2. `README.md`
 3. `docs/rc_acceptance_evidence.md`
-4. `docs/demo_script_3min.md`
+4. `docs/demo_acceptance_checklist.md`
 5. `docs/competition_mvp_delivery_plan.md`
 6. `TODO.md`
 

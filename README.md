@@ -47,6 +47,17 @@
 - 日志已统一收口到 `AppLogger`
 - `api_config.dart` 已改为可跟踪的无密钥兼容配置，真实 AI 只经服务端代理
 
+## 项目中心与正式资料
+
+本仓库根目录是源码、测试和项目资料的唯一维护中心：
+
+- [`docs/submission/`](./docs/submission) 保存三份正式简体提交材料：项目企划书、参赛作品简介、技术可行性与指标评测。
+- `dist/LinkLab_简体中文交付包_2026-07-10/` 保存本地完整交付成品，包括 APK、演示视频、源码快照和校验清单；`dist/` 已被 Git 忽略。
+- APK、AAB、演示视频、评测生成结果和完整交付包不再进入当前版本树或后续提交，需要共享时使用 `dist/` 成品或 GitHub Release。
+- 源码 ZIP 只作为交付快照生成，不在仓库源码目录中另存一份。
+
+当前整合基线以本仓库 `main` 分支为准。
+
 ## 快速启动
 
 ### 1. 运行主应用 Demo（首选 Web / Chrome）
@@ -113,7 +124,8 @@ flutter analyze lib
 
 对应仓内文档可参考：
 
-- [DEMO_SCRIPT.md](./DEMO_SCRIPT.md)
+- [DEMO_STATUS.md](./DEMO_STATUS.md)
+- [docs/demo_acceptance_checklist.md](./docs/demo_acceptance_checklist.md)
 - [TODO.md](./TODO.md)
 - [AGENTS.md](./AGENTS.md)
 
@@ -137,9 +149,10 @@ LinkLab/
 │  ├─ migrations/
 │  └─ functions/
 ├─ docs/                     # 说明文档
+│  └─ submission/            # 三份正式简体提交材料
+├─ dist/                     # 本地交付成品（Git 忽略）
 ├─ prd-analysis/             # PRD / 分析辅助材料
 ├─ 共感LinkAble_PRD_v1_2.md
-├─ 项目深度分析报告.md
 ├─ AGENTS.md
 └─ TODO.md
 ```
@@ -263,7 +276,7 @@ LinkLab/
 1. [DEMO_STATUS.md](./DEMO_STATUS.md)
 2. [AGENTS.md](./AGENTS.md)
 3. [TODO.md](./TODO.md)
-4. [DEMO_SCRIPT.md](./DEMO_SCRIPT.md)
+4. [docs/demo_acceptance_checklist.md](./docs/demo_acceptance_checklist.md)
 5. [`linklab/lib/main.dart`](./linklab/lib/main.dart)
 6. [`linklab/lib/config/app_config.dart`](./linklab/lib/config/app_config.dart)
 7. [`supabase/migrations/005_unify_root_schema_source_of_truth.sql`](./supabase/migrations/005_unify_root_schema_source_of_truth.sql)

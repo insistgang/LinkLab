@@ -32,7 +32,8 @@ LinkLab / LinkAble 是一個 Flutter 無障礙互助平臺 Demo，核心定位�
 | `docs/` | 競賽、驗收和演示文檔。 |
 | `prd-analysis/` | PRD 拆解。 |
 | `LinkAble/` | 早期設計和材料。 |
-| `視頻/`, `pic/`, `icos/` | 演示資產和圖標素材。 |
+| `pic/`, `icos/` | 圖標與設計素材。 |
+| `dist/` | 本地交付成品；已被 Git 忽略。 |
 
 ## 維護重點
 

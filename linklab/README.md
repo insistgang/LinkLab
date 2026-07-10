@@ -263,7 +263,7 @@ flutter pub run build_runner build --delete-conflicting-outputs
 
 ## 许可证
 
-[MIT](LICENSE) License
+仓库尚未单独声明开源许可证；公开分发或接受外部贡献前，请由项目负责人确认许可方式。
 
 ---
 

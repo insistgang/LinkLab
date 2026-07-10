@@ -50,7 +50,7 @@ LinkLab/
 │
 ├─ docs/                             # 项目文档（6 个）
 ├─ AGENTS.md                         # 工程实施准则（最高优先级）
-├─ DEMO_STATUS.md / TODO.md / DEMO_SCRIPT.md
+├─ DEMO_STATUS.md / TODO.md
 └─ 共感LinkAble_PRD_v1_2.md         # PRD
 ```
 
@@ -363,7 +363,7 @@ AgentServiceFacade.processInput()
 1. `AGENTS.md` — 工程实施准则（最高优先级）
 2. `DEMO_STATUS.md` — 当前演示状态
 3. `TODO.md` — 待办事项
-4. `DEMO_SCRIPT.md` — 演示脚本
+4. `docs/demo_acceptance_checklist.md` — 演示验收清单
 5. `linklab/lib/main.dart` — 应用入口
 6. `linklab/lib/config/app_config.dart` — 配置文件
 7. `linklab/lib/services/facades/agent_service_facade.dart` — AI 核心 Facade
