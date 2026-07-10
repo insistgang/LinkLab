@@ -909,26 +909,11 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
                 SizedBox(
                   height: compactLayout ? AppTheme.spacingS : AppTheme.spacingM,
                 ),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      for (final prompt in widget.quickPrompts) ...[
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            right: AppTheme.spacingS,
-                          ),
-                          child: _QuickPromptButton(
-                            label: prompt,
-                            compactLayout: compactLayout,
-                            onPressed: _isProcessing
-                                ? null
-                                : () => _sendPresetMessage(prompt),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
+                _QuickPromptGroup(
+                  prompts: widget.quickPrompts,
+                  compactLayout: compactLayout,
+                  enabled: !_isProcessing,
+                  onSelected: _sendPresetMessage,
                 ),
               ],
             ],
@@ -952,36 +937,20 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
           horizontal: AppTheme.spacingS,
           vertical: AppTheme.spacingS,
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             DemoPill(
               icon: Icons.offline_bolt_outlined,
-              label: '本地可用',
+              label: '快捷提问',
               color: AppTheme.stageAccentLight,
             ),
-            const SizedBox(width: AppTheme.spacingS),
-            Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    for (final prompt in widget.quickPrompts) ...[
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          right: AppTheme.spacingS,
-                        ),
-                        child: _QuickPromptButton(
-                          label: prompt,
-                          compactLayout: compactLayout,
-                          onPressed: _isProcessing
-                              ? null
-                              : () => _sendPresetMessage(prompt),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
+            const SizedBox(height: AppTheme.spacingS),
+            _QuickPromptGroup(
+              prompts: widget.quickPrompts,
+              compactLayout: compactLayout,
+              enabled: !_isProcessing,
+              onSelected: _sendPresetMessage,
             ),
           ],
         ),
@@ -1184,6 +1153,58 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
   }
 }
 
+class _QuickPromptGroup extends StatelessWidget {
+  const _QuickPromptGroup({
+    required this.prompts,
+    required this.compactLayout,
+    required this.enabled,
+    required this.onSelected,
+  });
+
+  final List<String> prompts;
+  final bool compactLayout;
+  final bool enabled;
+  final ValueChanged<String> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final textScale = MediaQuery.textScalerOf(context).scale(1);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final availableWidth = constraints.hasBoundedWidth
+            ? constraints.maxWidth
+            : MediaQuery.sizeOf(context).width;
+        final preferredColumnCount = textScale > 1.3
+            ? (availableWidth >= 720 ? 2 : 1)
+            : (availableWidth >= 720 ? 3 : (availableWidth >= 360 ? 2 : 1));
+        final columnCount = preferredColumnCount > prompts.length
+            ? prompts.length
+            : preferredColumnCount;
+        final itemWidth =
+            (availableWidth - AppTheme.spacingS * (columnCount - 1)) /
+            columnCount;
+
+        return Wrap(
+          spacing: AppTheme.spacingS,
+          runSpacing: AppTheme.spacingS,
+          children: [
+            for (final prompt in prompts)
+              SizedBox(
+                width: itemWidth,
+                child: _QuickPromptButton(
+                  label: prompt,
+                  compactLayout: compactLayout,
+                  onPressed: enabled ? () => onSelected(prompt) : null,
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
 class _QuickPromptButton extends StatelessWidget {
   const _QuickPromptButton({
     required this.label,
@@ -1213,9 +1234,9 @@ class _QuickPromptButton extends StatelessWidget {
           onTap: onPressed,
           borderRadius: borderRadius,
           child: Container(
-            constraints: BoxConstraints(
+            width: double.infinity,
+            constraints: const BoxConstraints(
               minHeight: AppTheme.minTouchTarget,
-              maxWidth: compactLayout ? 210 : 260,
             ),
             padding: EdgeInsets.symmetric(
               horizontal: compactLayout ? 12 : AppTheme.spacingM,
@@ -1230,8 +1251,7 @@ class _QuickPromptButton extends StatelessWidget {
             alignment: Alignment.center,
             child: Text(
               label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppTheme.stageTextPrimary,
                 fontSize: compactLayout

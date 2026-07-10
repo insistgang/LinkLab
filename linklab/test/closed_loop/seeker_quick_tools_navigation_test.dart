@@ -2,6 +2,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -92,6 +93,72 @@ void main() {
     expect(find.text('拍照识别文字').hitTestable(), findsOneWidget);
     final inputBottom = tester.getBottomRight(find.byType(TextField)).dy;
     expect(inputBottom, lessThanOrEqualTo(568 - 220));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('桌面窄内容区中三个快捷问题无需横向滑动即可操作', (tester) async {
+    tester.view.physicalSize = const Size(1164, 770);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    const prompts = ['帮我读一下这个说明书', '帮我看一下菜单写了什么', '读一下公交站牌内容'];
+
+    await tester.pumpWidget(
+      const ProviderScope(
+        child: MaterialApp(
+          home: DemoAIChatScreen(
+            title: 'AI智能对话',
+            introMessage: '直接输入你想了解的问题。',
+            quickPrompts: prompts,
+          ),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 400));
+
+    for (final prompt in prompts) {
+      expect(find.text(prompt).hitTestable(), findsOneWidget);
+    }
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('200% 大字与窄屏下所有快捷问题均完整可见', (tester) async {
+    tester.view.physicalSize = const Size(390, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    const prompts = ['帮我读一下这个说明书', '帮我看一下菜单写了什么', '读一下公交站牌内容'];
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: MediaQuery(
+            data: MediaQueryData.fromView(
+              tester.view,
+            ).copyWith(textScaler: const TextScaler.linear(2)),
+            child: const DemoAIChatScreen(
+              title: 'AI智能对话',
+              introMessage: '直接输入你想了解的问题。',
+              quickPrompts: prompts,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 400));
+
+    for (final prompt in prompts) {
+      final promptFinder = find.text(prompt);
+      expect(promptFinder.hitTestable(), findsOneWidget);
+      final paragraph = tester.renderObject<RenderParagraph>(promptFinder);
+      expect(
+        paragraph.didExceedMaxLines,
+        isFalse,
+        reason: '快捷问题不应被单行截断：$prompt',
+      );
+    }
     expect(tester.takeException(), isNull);
   });
 }
