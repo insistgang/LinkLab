@@ -54,7 +54,7 @@ class SkillDefinitions {
       id: 'medical_basic',
       name: '医疗辅助',
       category: 'medical',
-      description: '基础医疗知识，可协助用药指导、健康谘询',
+      description: '基础医疗知识，可协助用药指导、健康咨询',
       requiresVerification: true,
     ),
     SkillModel(
@@ -126,7 +126,7 @@ class SkillDefinitions {
     // 心理支持
     SkillModel(
       id: 'psych_counseling',
-      name: '心理谘询',
+      name: '心理咨询',
       category: 'psychology',
       description: '提供情绪疏导和心理支持',
       requiresVerification: true,

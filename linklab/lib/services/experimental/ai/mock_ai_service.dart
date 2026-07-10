@@ -2,7 +2,7 @@ import 'dart:math';
 import 'ai_service.dart';
 
 /// 模拟AI服务
-/// 演示优先策略：使用预置回覆数据，不调用真实API
+/// 演示优先策略：使用预置回复数据，不调用真实API
 class MockAIService implements AIService {
   final Random _random = Random();
   final bool _simulateDelay;
@@ -26,7 +26,7 @@ class MockAIService implements AIService {
       await Future.delayed(const Duration(milliseconds: 800));
     }
 
-    // 根据输入内容返回对应的模拟回覆
+    // 根据输入内容返回对应的模拟回复
     final lowerInput = input.toLowerCase();
 
     // 1. 检查紧急关键词
@@ -34,7 +34,7 @@ class MockAIService implements AIService {
       return _emergencyResponse(input);
     }
 
-    // 2. 根据意图返回对应回覆
+    // 2. 根据意图返回对应回复
     if (_containsAny(lowerInput, ['颜色', 'color', '什么色'])) {
       return _colorRecognitionResponse(imageUrl);
     }
@@ -75,11 +75,11 @@ class MockAIService implements AIService {
       return _helpResponse();
     }
 
-    // 默认回覆
+    // 默认回复
     return _defaultResponse();
   }
 
-  // ==================== 预置回覆数据 ====================
+  // ==================== 预置回复数据 ====================
 
   AIResponse _colorRecognitionResponse(String? imageUrl) {
     final colors = [
@@ -173,7 +173,7 @@ class MockAIService implements AIService {
 
   AIResponse _medicineResponse() {
     return AIResponse(
-      text: '您谘询的是药品相关问题，药品使用需要谨慎确认，我将为您转接志愿者协助核对药品信息，请稍候。',
+      text: '您咨询的是药品相关问题，药品使用需要谨慎确认，我将为您转接志愿者协助核对药品信息，请稍候。',
       intent: IntentType.medicineConfirmation,
       urgency: UrgencyLevel.important,
       needsHuman: true,
@@ -184,7 +184,7 @@ class MockAIService implements AIService {
 
   AIResponse _medicalResponse() {
     return AIResponse(
-      text: '您谘询的是医疗相关问题，为了您的健康安全，我将为您转接专业医疗志愿者，请稍候。',
+      text: '您咨询的是医疗相关问题，为了您的健康安全，我将为您转接专业医疗志愿者，请稍候。',
       intent: IntentType.medicalConsultation,
       urgency: UrgencyLevel.important,
       needsHuman: true,

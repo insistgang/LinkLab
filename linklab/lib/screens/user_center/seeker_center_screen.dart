@@ -261,7 +261,7 @@ class _AsyncRequestsTabState extends State<AsyncRequestsTab> {
               ),
             if (task.completedAt != null)
               _DetailRow(
-                label: '回覆时间',
+                label: '回复时间',
                 value: task.completedAt!.formatDateTime(),
               ),
             const SizedBox(height: 8),
@@ -271,7 +271,7 @@ class _AsyncRequestsTabState extends State<AsyncRequestsTab> {
             if (task.result != null && task.result!.trim().isNotEmpty) ...[
               const SizedBox(height: 16),
               const Text(
-                '志愿者回覆',
+                '志愿者回复',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
@@ -1375,7 +1375,7 @@ class _AsyncSummaryCard extends StatelessWidget {
                 Expanded(
                   child: _StatColumn(
                     value: completedCount.toString(),
-                    label: '已回覆',
+                    label: '已回复',
                     valueColor: Colors.white,
                     labelColor: Colors.white70,
                   ),

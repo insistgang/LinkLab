@@ -204,7 +204,7 @@ class DemoConfig {
     },
   };
 
-  /// AI回覆类型
+  /// AI回复类型
   static Map<String, String> aiResponseTypes = {
     'ocr': '文字识别',
     'scene': '场景描述',
@@ -236,7 +236,7 @@ class DemoConfig {
     'rating': 4.9,
     'helpCount': 328,
     'skills': ['药品识别', '导航辅助', '日常协助'],
-    'bio': '退休药剂师，擅长药品识别和健康谘询',
+    'bio': '退休药剂师，擅长药品识别和健康咨询',
     'responseTime': '平均15秒响应',
   };
 

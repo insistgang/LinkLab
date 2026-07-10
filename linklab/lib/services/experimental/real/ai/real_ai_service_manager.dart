@@ -213,7 +213,7 @@ class RealAIServiceManager {
         break;
 
       default:
-        // 通用对话 - 使用通义千问VL（如果有图片）或模拟回覆
+        // 通用对话 - 使用通义千问VL（如果有图片）或模拟回复
         if (imageUrl != null && APIConfig.isQwenConfigured) {
           response = await _handleRealSceneDescription(
             input,
@@ -552,7 +552,7 @@ class RealAIServiceManager {
   String _getHandoffMessage(IntentType intent) {
     switch (intent) {
       case IntentType.medicalConsultation:
-        return '您谘询的是医疗相关问题，为了您的健康安全，我将为您转接专业医疗志愿者。';
+        return '您咨询的是医疗相关问题，为了您的健康安全，我将为您转接专业医疗志愿者。';
       case IntentType.medicineConfirmation:
         return '药品使用需要谨慎确认，我将为您转接志愿者协助核对药品信息。';
       case IntentType.emotionalSupport:

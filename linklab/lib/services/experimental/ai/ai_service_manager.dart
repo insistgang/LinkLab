@@ -124,7 +124,7 @@ class AIServiceManager {
       return response;
     }
 
-    // 2. 使用模拟服务返回预置回覆
+    // 2. 使用模拟服务返回预置回复
     final response = await _mockService.process(
       input,
       imageUrl: imageUrl,
@@ -277,7 +277,7 @@ class AIServiceManager {
   String _getHandoffMessage(IntentType intent) {
     switch (intent) {
       case IntentType.medicalConsultation:
-        return '您谘询的是医疗相关问题，为了您的健康安全，我将为您转接专业医疗志愿者。';
+        return '您咨询的是医疗相关问题，为了您的健康安全，我将为您转接专业医疗志愿者。';
       case IntentType.medicineConfirmation:
         return '药品使用需要谨慎确认，我将为您转接志愿者协助核对药品信息。';
       case IntentType.emotionalSupport:

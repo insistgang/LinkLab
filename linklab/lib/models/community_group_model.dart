@@ -14,7 +14,7 @@ class CommunityGroupCategory {
     hearingImpairment: '听障交流',
     mobilityImpairment: '轮椅出行',
     elderlyCare: '老年关爱',
-    medicineConsult: '药品谘询',
+    medicineConsult: '药品咨询',
     hospitalGuide: '导诊互助',
   };
 

@@ -309,7 +309,7 @@ class RealMatchingService {
       _matchProgressController.add(
         MatchProgress(
           stage: MatchStage.asyncPending,
-          message: '已转为异步留言，志愿者将在有空时回覆',
+          message: '已转为异步留言，志愿者将在有空时回复',
           progress: 1.0,
         ),
       );

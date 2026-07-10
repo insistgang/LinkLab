@@ -246,7 +246,7 @@ class DemoAIService {
     );
   }
 
-  /// 对话回覆
+  /// 对话回复
   Future<AIResult> chat(
     String userMessage, {
     List<Map<String, String>>? history,
@@ -636,7 +636,7 @@ class DemoAIService {
     if (normalized.contains('有效期') ||
         normalized.contains('过期') ||
         normalized.contains('过期')) {
-      return '看药盒有效期时，请找“有效期至”“EXP”或“失效期”。如果已过期、受潮、变色、破损，演示建议不要服用，请谘询药师或更换新药。';
+      return '看药盒有效期时，请找“有效期至”“EXP”或“失效期”。如果已过期、受潮、变色、破损，演示建议不要服用，请咨询药师或更换新药。';
     }
     if (normalized.contains('一起吃') ||
         normalized.contains('一起吃') ||

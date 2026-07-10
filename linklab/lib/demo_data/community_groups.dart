@@ -44,7 +44,7 @@ class CommunityGroupsData {
       ),
       CommunityGroup(
         id: 'group_medicine',
-        name: '药品谘询圈',
+        name: '药品咨询圈',
         description: '药品使用经验分享，用药注意事项交流，互相提醒健康事项。',
         icon: LinkableIconName.medicineCheck,
         memberCount: 1567,

@@ -30,10 +30,10 @@ class VolunteerSamples {
       'distanceText': '2.5公里',
       'rating': 5.0,
       'helpCount': 89,
-      'specialties': ['医疗谘询', '药品识别', '健康管理'],
+      'specialties': ['医疗咨询', '药品识别', '健康管理'],
       'tags': ['医疗专业', '细心', '可靠'],
       'responseTime': '平均45秒响应',
-      'bio': '我是某医院退休医生，擅长医疗谘询和药品识别。',
+      'bio': '我是某医院退休医生，擅长医疗咨询和药品识别。',
       'languages': ['普通话'],
       'available': true,
     },
@@ -127,7 +127,7 @@ class VolunteerSamples {
   /// 获取医疗背景志愿者（用于药品/医疗场景）
   static Map<String, dynamic> getMedicalVolunteer() {
     return volunteers.firstWhere(
-      (v) => (v['specialties'] as List).contains('医疗谘询'),
+      (v) => (v['specialties'] as List).contains('医疗咨询'),
       orElse: () => volunteers[0],
     );
   }

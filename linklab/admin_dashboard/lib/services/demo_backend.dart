@@ -695,7 +695,7 @@ class DemoBackend {
       StoryModel(
         id: 'story-004',
         title: '城市地铁换乘中的临时志愿协助',
-        content: '通过附近志愿者匹配，帮助用户完成高峯时段换乘。',
+        content: '通过附近志愿者匹配，帮助用户完成高峰时段换乘。',
         summary: '体现平台的时效性与地理分发能力。',
         authorId: 'vol-003',
         authorName: '唐琳',

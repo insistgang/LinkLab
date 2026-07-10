@@ -160,7 +160,7 @@ class AgentServiceFacade {
       '你的职责是用简洁、温暖、可被读屏软件朗读的中文回答用户问题。'
       '回答要求：'
       '1. 直接回答，不废话，不超过 100 字 '
-      '2. 如果是医疗、法律等专业问题，提醒用户谘询专业人员 '
+      '2. 如果是医疗、法律等专业问题，提醒用户咨询专业人员 '
       '3. 如果你不确定，建议用户转接真人志愿者确认 '
       '4. 语气温暖友善，像一个有耐心的朋友 '
       '5. 不要使用 Markdown 格式，纯文本即可';
@@ -209,7 +209,7 @@ class AgentServiceFacade {
       final content = message['content'] as String?;
       if (content == null || content.trim().isEmpty) return null;
 
-      AppLogger.info('[AgentFacade] GLM-4 回覆成功');
+      AppLogger.info('[AgentFacade] GLM-4 回复成功');
 
       return AgentResult.success(
         intent: 'general_chat',

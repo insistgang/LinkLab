@@ -1,8 +1,8 @@
-/// AI演示回覆数据
+/// AI演示回复数据
 /// 用于演示版的AI功能，替代真实API调用
 library;
 
-/// AI回覆数据模型
+/// AI回复数据模型
 class AIResponse {
   final String id;
   final String type;
@@ -43,7 +43,7 @@ class AIResponse {
       );
 }
 
-/// OCR识别回覆（药品）
+/// OCR识别回复（药品）
 const medicineOCRResponse = '''识别结果：阿司匹林肠溶片 100mg
 
 用法用量：
@@ -52,11 +52,11 @@ const medicineOCRResponse = '''识别结果：阿司匹林肠溶片 100mg
 
 注意事项：
 • 请勿空腹服用
-• 如有不适请谘询医生
+• 如有不适请咨询医生
 
 ⚠️ 这是药品，建议志愿者确认''';
 
-/// OCR识别回覆（菜单）
+/// OCR识别回复（菜单）
 const menuOCRResponse = '''识别结果：
 
 🍽️ 今日推荐
@@ -69,7 +69,7 @@ const menuOCRResponse = '''识别结果：
 蒜蓉西兰花 ....... 22元
 干煸四季豆 ....... 26元''';
 
-/// 场景描述回覆
+/// 场景描述回复
 const sceneDescriptionResponse = '''场景描述：
 
 📍 前方2米有一张木桌
@@ -80,7 +80,7 @@ const sceneDescriptionResponse = '''场景描述：
 💡 建议：
 请缓慢前行，注意桌角''';
 
-/// 颜色识别回覆
+/// 颜色识别回复
 const colorRecognitionResponse = '''颜色识别结果：
 
 这件衣服是深蓝色
@@ -93,7 +93,7 @@ const colorRecognitionResponse = '''颜色识别结果：
 💡 搭配建议：
 适合搭配白色或浅灰色裤子''';
 
-/// 对话回覆模板
+/// 对话回复模板
 final Map<String, String> chatResponses = {
   'greeting': '您好！我是您的智能助手，有什么可以帮助您的吗？',
   'help_request': '我理解您需要帮助，请告诉我具体情况。',
@@ -105,7 +105,7 @@ final Map<String, String> chatResponses = {
   'fallback': '抱歉，我不太明白。您可以换个说法，或者选择连接志愿者。',
 };
 
-/// 演示AI回覆集合
+/// 演示AI回复集合
 final Map<String, AIResponse> demoAIResponses = {
   'medicine': const AIResponse(
     id: 'ai_001',
@@ -138,7 +138,7 @@ final Map<String, AIResponse> demoAIResponses = {
   ),
 };
 
-/// 根据类型获取AI回覆
+/// 根据类型获取AI回复
 AIResponse? getAIResponseByType(String type) {
   return demoAIResponses[type];
 }
@@ -149,7 +149,7 @@ Future<AIResponse?> mockAIProcess(String type, {int delayMs = 1500}) async {
   return getAIResponseByType(type);
 }
 
-/// 模拟流式回覆（逐字输出）
+/// 模拟流式回复（逐字输出）
 Stream<String> mockAIStream(String text, {int charDelayMs = 50}) async* {
   final buffer = StringBuffer();
   for (int i = 0; i < text.length; i++) {

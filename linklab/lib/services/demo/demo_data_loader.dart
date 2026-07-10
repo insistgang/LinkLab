@@ -79,7 +79,7 @@ class DemoDataLoader {
     }
   }
 
-  /// 加载AI回覆数据
+  /// 加载AI回复数据
   static Future<void> _loadAIResponses() async {
     try {
       final jsonString = await rootBundle.loadString(
@@ -145,13 +145,13 @@ class DemoDataLoader {
     return _mapList(_aiResponsesData!['colorRecognitions']);
   }
 
-  /// 获取对话回覆
+  /// 获取对话回复
   static List<Map<String, dynamic>> getChatResponses() {
     if (_aiResponsesData == null) return [];
     return _mapList(_aiResponsesData!['chatResponses']);
   }
 
-  /// 根据意图获取回覆
+  /// 根据意图获取回复
   static String getChatResponseByIntent(String intent) {
     final responses = getChatResponses();
     final response = responses.firstWhere(

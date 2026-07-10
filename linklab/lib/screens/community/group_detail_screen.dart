@@ -478,7 +478,7 @@ class _DiscussionCard extends StatelessWidget {
                 const SizedBox(width: AppTheme.spacingL),
                 _InteractionButton(
                   icon: LinkableIconName.message,
-                  label: '回覆 ${discussion.replyCount}',
+                  label: '回复 ${discussion.replyCount}',
                   onTap: () {},
                 ),
               ],

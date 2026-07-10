@@ -659,7 +659,7 @@ class AsyncTaskService {
     }
   }
 
-  /// 添加任务回覆
+  /// 添加任务回复
   Future<bool> addTaskResponse(
     String taskId,
     String volunteerId,
@@ -681,12 +681,12 @@ class AsyncTaskService {
 
       return true;
     } catch (e) {
-      AppLogger.error('添加任务回覆失败', e);
+      AppLogger.error('添加任务回复失败', e);
       return false;
     }
   }
 
-  /// 获取任务回覆列表
+  /// 获取任务回复列表
   Future<List<TaskResponse>> getTaskResponses(String taskId) async {
     if (!_hasSupabase) {
       final task = await getTaskDetail(taskId);
@@ -716,7 +716,7 @@ class AsyncTaskService {
           .map((json) => TaskResponse.fromJson(_mapJson(json)))
           .toList();
     } catch (e) {
-      AppLogger.error('获取任务回覆失败', e);
+      AppLogger.error('获取任务回复失败', e);
       return [];
     }
   }
@@ -851,7 +851,7 @@ class AsyncTaskStats {
   }
 }
 
-/// 任务回覆
+/// 任务回复
 class TaskResponse {
   final String id;
   final String taskId;

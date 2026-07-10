@@ -153,7 +153,7 @@ class _MatchingScreenState extends State<MatchingScreen>
       barrierDismissible: false,
       builder: (_) => AlertDialog(
         title: const Text('当前志愿者繁忙'),
-        content: const Text('是否转为异步留言？志愿者将在空闲时回覆您。'),
+        content: const Text('是否转为异步留言？志愿者将在空闲时回复您。'),
         actions: [
           TextButton(
             onPressed: () {
@@ -171,7 +171,7 @@ class _MatchingScreenState extends State<MatchingScreen>
                   builder: (_) => AsyncHelpRequestScreen(
                     initialTaskType: widget.helpType,
                     initialDescription:
-                        '当前实时匹配暂无响应，我想先留言等待志愿者稍后回覆。',
+                        '当前实时匹配暂无响应，我想先留言等待志愿者稍后回复。',
                     replaceWithSeekerCenterOnSubmit: true,
                   ),
                 ),

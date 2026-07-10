@@ -45,7 +45,7 @@ class _AsyncHelpRequestScreenState extends ConsumerState<AsyncHelpRequestScreen>
     ),
     _ScenarioOption(
       title: '菜单翻译',
-      subtitle: '把餐厅菜单、商品说明等内容留给志愿者稍后回覆',
+      subtitle: '把餐厅菜单、商品说明等内容留给志愿者稍后回复',
     ),
     _ScenarioOption(
       title: '药盒确认',
@@ -311,7 +311,7 @@ class _AsyncHelpRequestScreenState extends ConsumerState<AsyncHelpRequestScreen>
                     const SizedBox(height: AppTheme.spacingS),
                     const _StepText('1. 留言会进入异步任务队列，状态显示为"待志愿者领取"。'),
                     const _StepText('2. 同时在帮助档案里生成一条异步求助记录。'),
-                    const _StepText('3. 志愿者回覆后，你可以在求助者中心回看结果。'),
+                    const _StepText('3. 志愿者回复后，你可以在求助者中心回看结果。'),
                   ],
                 ),
               ),

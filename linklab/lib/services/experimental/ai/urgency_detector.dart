@@ -121,7 +121,7 @@ class UrgencyDetector {
         return UrgencyDetectionResult(
           level: UrgencyLevel.important,
           confidence: 0.7,
-          reason: '医疗谘询',
+          reason: '医疗咨询',
         );
       case IntentType.medicineConfirmation:
         return UrgencyDetectionResult(

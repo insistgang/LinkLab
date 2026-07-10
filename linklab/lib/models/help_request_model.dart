@@ -110,7 +110,7 @@ class AsyncTaskModel with _$AsyncTaskModel {
       case 'processing':
         return '处理中';
       case 'completed':
-        return '已回覆';
+        return '已回复';
       case 'expired':
         return '已超时';
       case 'cancelled':

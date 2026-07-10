@@ -74,7 +74,7 @@ final List<DemoVolunteer> demoVolunteers = [
     levelBadge: '⭐',
     distance: '2.5km',
     avatar: '',
-    skills: ['医疗谘询', '紧急救助'],
+    skills: ['医疗咨询', '紧急救助'],
     rating: 4.8,
     helpCount: 86,
     isOnline: true,
