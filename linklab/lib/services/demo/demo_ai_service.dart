@@ -524,8 +524,8 @@ class DemoAIService {
         await _simulateDelay(minMs: 180, maxMs: 420);
         final contextIntent = resolution.contextIntent;
         final text = contextIntent == DemoAiIntent.medicationCheck
-            ? '可以，我将为你转接附近具备药品说明协助经验的志愿者。本 Demo 只进入 Mock 匹配，不会连接真实外部服务。'
-            : '这个需求需要真人确认，我将为你转接附近志愿者继续协助。本 Demo 会进入本地匹配流程。';
+            ? '可以，我将为你连接附近具备药品说明协助经验的志愿者。当前为本地体验流程，不会连接真实外部服务。'
+            : '这个需求需要真人确认，我将为你连接附近志愿者继续协助。当前会进入本地匹配流程。';
         return _fixedResult(
           DemoAiIntent.needHuman,
           text,
@@ -559,7 +559,7 @@ class DemoAIService {
   AIResult _emergencyResult() {
     return _fixedResult(
       DemoAiIntent.emergency,
-      '已进入紧急模式，可在 10 秒内撤销。演示版只启动 SOS Mock，不会真实报警、发短信或推送。',
+      '已进入紧急模式，可在 10 秒内撤销。当前只会启动本地紧急求助流程，不会真实报警、发短信或推送。',
       isEmergency: true,
       extra: {
         'isEmergency': true,

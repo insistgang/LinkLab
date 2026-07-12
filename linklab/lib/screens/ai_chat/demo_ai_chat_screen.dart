@@ -107,7 +107,7 @@ class _DemoAIChatScreenState extends ConsumerState<DemoAIChatScreen> {
   }
 
   String get _defaultIntroMessage =>
-      '您好！我是 AI 助手“智动”。\n\n我可以帮您：\n• 读文字、说明书、路牌和通知单\n• 描述场景、环境和颜色\n• 模拟面额识别、翻译转译和找路提示\n• 检测紧急词并进入 SOS Mock\n\n不确定时，每个回答都可以转接志愿者。';
+      '您好！我是 AI 助手“智动”。\n\n我可以帮您：\n• 读取文字、说明书、路牌和通知单\n• 描述场景、环境和颜色\n• 识别面额、翻译文字和提供找路提示\n• 发现紧急情况并启动求助流程\n\n需要进一步确认时，我会帮您连接志愿者。';
 
   bool get _isRecognitionTool => widget.toolMode != DemoAIChatToolMode.chat;
 
@@ -1203,30 +1203,52 @@ class _QuickPromptGroup extends StatelessWidget {
         final availableWidth = constraints.hasBoundedWidth
             ? constraints.maxWidth
             : MediaQuery.sizeOf(context).width;
-        final preferredColumnCount = textScale > 1.3
-            ? (availableWidth >= 720 ? 2 : 1)
-            : (availableWidth >= 720 ? 3 : (availableWidth >= 360 ? 2 : 1));
-        final columnCount = preferredColumnCount > prompts.length
-            ? prompts.length
-            : preferredColumnCount;
-        final itemWidth =
-            (availableWidth - AppTheme.spacingS * (columnCount - 1)) /
-            columnCount;
+        final visibleItemCount = prompts.length.clamp(1, 3);
+        final fittedItemWidth =
+            (availableWidth - AppTheme.spacingS * (visibleItemCount - 1)) /
+            visibleItemCount;
+        final mobileItemWidth =
+            availableWidth * (textScale > 1.3 ? 0.82 : 0.72);
+        final canFitVisibleItems = textScale <= 1.3 && fittedItemWidth >= 136;
+        final itemWidth = canFitVisibleItems
+            ? fittedItemWidth.clamp(136.0, 360.0)
+            : mobileItemWidth.clamp(220.0, 320.0);
 
-        return Wrap(
-          spacing: AppTheme.spacingS,
-          runSpacing: AppTheme.spacingS,
-          children: [
-            for (final prompt in prompts)
-              SizedBox(
-                width: itemWidth,
-                child: _QuickPromptButton(
-                  label: prompt,
-                  compactLayout: compactLayout,
-                  onPressed: enabled ? () => onSelected(prompt) : null,
-                ),
+        return Semantics(
+          container: true,
+          label: '快捷问题横向列表',
+          hint: '左右滑动查看更多快捷问题',
+          child: SingleChildScrollView(
+            key: const ValueKey('quick-prompt-horizontal-list'),
+            scrollDirection: Axis.horizontal,
+            primary: false,
+            physics: const BouncingScrollPhysics(),
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (var index = 0; index < prompts.length; index++)
+                    Padding(
+                      padding: EdgeInsets.only(
+                        right: index == prompts.length - 1
+                            ? 0
+                            : AppTheme.spacingS,
+                      ),
+                      child: SizedBox(
+                        width: itemWidth,
+                        child: _QuickPromptButton(
+                          label: prompts[index],
+                          compactLayout: compactLayout,
+                          onPressed: enabled
+                              ? () => onSelected(prompts[index])
+                              : null,
+                        ),
+                      ),
+                    ),
+                ],
               ),
-          ],
+            ),
+          ),
         );
       },
     );
@@ -1280,6 +1302,8 @@ class _QuickPromptButton extends StatelessWidget {
             child: Text(
               label,
               textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 color: AppTheme.stageTextPrimary,
                 fontSize: compactLayout

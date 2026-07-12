@@ -123,7 +123,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('200% 大字与窄屏下所有快捷问题均完整可见', (tester) async {
+  testWidgets('200% 大字与窄屏下快捷问题保持横排并可滑动到达', (tester) async {
     tester.view.physicalSize = const Size(390, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -149,16 +149,33 @@ void main() {
     );
     await tester.pump(const Duration(milliseconds: 400));
 
+    final firstPromptY = tester.getCenter(find.text(prompts.first)).dy;
     for (final prompt in prompts) {
       final promptFinder = find.text(prompt);
-      expect(promptFinder.hitTestable(), findsOneWidget);
+      expect(
+        tester.getCenter(promptFinder).dy,
+        closeTo(firstPromptY, 0.5),
+        reason: '快捷问题应保持在同一横排：$prompt',
+      );
       final paragraph = tester.renderObject<RenderParagraph>(promptFinder);
       expect(
         paragraph.didExceedMaxLines,
         isFalse,
-        reason: '快捷问题不应被单行截断：$prompt',
+        reason: '快捷问题应在两行内完整展示：$prompt',
       );
     }
+
+    final lastPrompt = find.text(prompts.last);
+    expect(lastPrompt.hitTestable(), findsNothing);
+    final promptList = find.byKey(
+      const ValueKey('quick-prompt-horizontal-list'),
+    );
+    for (var index = 0; index < 4; index++) {
+      await tester.drag(promptList, const Offset(-150, 0));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    await tester.pumpAndSettle();
+    expect(lastPrompt.hitTestable(), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

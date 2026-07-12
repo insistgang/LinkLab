@@ -467,7 +467,7 @@ class _StageModeCard extends StatelessWidget {
           ),
           const SizedBox(height: AppTheme.spacingXS),
           AccessibleText(
-            '日间模式采用页面稿的荧光渐变与紫色主按钮；深夜模式适合低光环境。',
+            '日间模式采用高对比度荧光配色；深夜模式适合低光环境。',
             style: TextStyle(
               color: AppTheme.stageTextSecondary,
               fontSize: AppTheme.fontSizeSmall,

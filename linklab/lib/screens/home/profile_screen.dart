@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/constants/app_constants.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/extensions.dart';
 import '../../models/user_model.dart';
@@ -117,7 +118,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             delay: Duration(milliseconds: 110),
             child: DemoSectionTitle(
               title: '无障碍设置',
-              subtitle: 'F33 与 F36 的关键偏好都收口在这里。',
+              subtitle: '在这里调整显示、朗读和操作方式。',
             ),
           ),
           const SizedBox(height: AppTheme.spacingM),
@@ -141,8 +142,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   : LinkableIconName.lightMode,
               title: '切换界面模式',
               subtitle: session.isDayStageMode
-                  ? '当前为页面稿的荧光日间风格，点击切回深夜模式'
-                  : '当前为深夜模式，点击切到荧光日间风格',
+                  ? '当前使用荧光日间模式，点击切换为深夜模式'
+                  : '当前使用深夜模式，点击切换为荧光日间模式',
               onTap: () async {
                 await ref.read(appSessionProvider.notifier).toggleStageMode();
                 if (!context.mounted) return;
@@ -179,7 +180,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             child: DemoSectionTitle(
               title: isVolunteerMode ? '接单与记录' : '安全与记录',
               subtitle: isVolunteerMode
-                  ? '志愿者接单准备、服务记录和演示状态的统一入口。'
+                  ? '管理接单准备与服务记录。'
                   : 'SOS 就绪度、联系人和帮助档案的统一入口。',
             ),
           ),
@@ -219,8 +220,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             icon: LinkableIconName.helpHistory,
             title: isVolunteerMode ? '服务记录' : '帮助档案',
             subtitle: isVolunteerMode
-                ? '已沉淀 $helpCount 条演示协助记录，展示志愿者服务闭环'
-                : '最近已保存 $helpCount 条主线记录，进入帮助档案查看',
+                ? '已保存 $helpCount 条协助记录'
+                : '最近已保存 $helpCount 条求助记录，进入帮助档案查看',
             onTap: () {
               pushDemoStageRoute(context, page: const DemoHelpArchiveScreen());
             },
@@ -232,7 +233,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               final count = snapshot.data ?? 0;
               final subtitle = count == 0
                   ? '尚未设置联系人，建议至少添加 1 位'
-                  : '已设置 $count / 3 位联系人，SOS 时会自动通知';
+                  : '已设置 $count / 3 位紧急联系人';
 
               return _MenuItem(
                 icon: LinkableIconName.emergencyContact,
@@ -269,39 +270,36 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             },
           ),
           const SizedBox(height: AppTheme.spacingXL),
-          const DemoSectionTitle(
-            title: '演示说明',
-            subtitle: '只展示 MVP 主线，避免半成品功能干扰评审。',
-          ),
+          const DemoSectionTitle(title: '关于与服务', subtitle: '查看当前服务状态与版本信息。'),
           const SizedBox(height: AppTheme.spacingM),
           _MenuItem(
             icon: LinkableIconName.needHelp,
-            title: '当前可演示功能',
+            title: '服务状态',
             subtitle: isVolunteerMode
-                ? '待帮助、接单、通话和志愿者我的页已联通'
-                : '首页、AI、通话、SOS、我的与帮助档案已联通',
+                ? '待帮助、接单、通话与服务记录可用'
+                : 'AI 助手、通话体验、SOS 设置与帮助档案可用',
             onTap: () {
               _showInfoSheet(
                 context,
-                title: '当前演示范围',
+                title: '服务状态',
                 message: isVolunteerMode
-                    ? '志愿者侧已覆盖待帮助列表、演示接单、Demo 通话和志愿者身份展示。真实在线状态、排班、推送和专业认证仍属于后续工作。'
-                    : '当前主前端已覆盖 onboarding、登录、首页求助入口、个人中心、帮助档案、无障碍偏好编辑和紧急联系人管理。真实认证、消息推送、SOS 通知链路和稳定实时通话仍属于后续工作。',
+                    ? '待帮助、接单、通话体验和服务记录可使用；在线排班、消息推送与专业认证尚未接入。'
+                    : '首页求助、AI 助手、通话体验、SOS 设置与帮助档案可使用；真实短信、消息推送和外部紧急通知尚未接入。',
               );
             },
           ),
           const SizedBox(height: AppTheme.spacingM),
           _MenuItem(
             icon: LinkableIconName.help,
-            title: '关于 LinkLab',
-            subtitle: '版本 1.0.0 Demo',
+            title: '关于 LinkAble',
+            subtitle: '版本 ${AppConstants.appVersion}',
             onTap: () {
               _showInfoSheet(
                 context,
-                title: '关于 LinkLab',
+                title: '关于 LinkAble',
                 message: isVolunteerMode
-                    ? '这是一个面向无障碍互助场景的志愿者侧演示版，重点展示从待帮助列表到接单、通话和服务记录沉淀的流程。'
-                    : '这是一个面向无障碍互助场景的主前端演示版，重点展示从登录到求助、再到个人档案沉淀的用户旅程。',
+                    ? 'LinkAble 是面向无障碍互助场景的 AI 与真人协作应用，帮助志愿者查看需求、提供协助并保存服务记录。'
+                    : 'LinkAble 是面向无障碍互助场景的 AI 与真人协作应用，先用 AI 处理常见问题，需要时再连接真人志愿者。',
               );
             },
           ),
@@ -338,28 +336,28 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
     if (safety.contactCount == 0 &&
         safety.settings.shareWithEmergencyContacts) {
-      return 'SOS 基础流程已就绪';
+      return 'SOS 联系人待添加';
     }
-    return 'SOS 演示链路已就绪';
+    return 'SOS 安全设置已完成';
   }
 
   String _buildSafetySummary(_SafetySnapshot safety) {
     if (!safety.settings.autoShareLocation) {
-      return '当前触发 SOS 时不会自动附带位置，建议开启后再演示。';
+      return '触发 SOS 时不会自动附带位置，可在“位置共享”中开启。';
     }
     if (safety.contactCount == 0 &&
         safety.settings.shareWithEmergencyContacts) {
-      return '位置共享已开启，但联系人通知还没有实际接收对象。';
+      return '位置共享已开启；添加紧急联系人后可完善求助信息。';
     }
-    return '当前位置、联系人通知和志愿者广播的前端状态都可以完整展示。';
+    return '位置共享与联系人信息已配置，可随时启动求助。';
   }
 
   String _buildLocationSharingSummary(_SafetySnapshot safety) {
     if (!safety.settings.autoShareLocation) {
-      return '自动位置共享已关闭，SOS 仅展示基础广播流程';
+      return '自动位置共享已关闭';
     }
     if (!safety.settings.shareWithEmergencyContacts) {
-      return '已开启${safety.settings.usePreciseLocation ? '精确' : '大致'}位置，仅同步给志愿者广播';
+      return '已开启${safety.settings.usePreciseLocation ? '精确' : '大致'}位置，用于查找附近志愿者';
     }
     if (safety.contactCount == 0) {
       return '位置共享已开启，联系人通知仍待补充';
@@ -490,7 +488,7 @@ class _ProfileHero extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 AccessibleText(
-                  user?.displayName ?? '演示用户',
+                  user?.displayName ?? 'LinkAble 用户',
                   style: TextStyle(
                     color: AppTheme.stageTextPrimary,
                     fontSize: compactLayout
@@ -545,7 +543,7 @@ class _ProfileHero extends StatelessWidget {
 
   String _buildRoleText(UserModel? user) {
     if (mode == ProfileScreenMode.volunteer) return '志愿者';
-    if (user == null) return '演示账号';
+    if (user == null) return '用户';
     if (user.isSeeker && user.isVolunteer) return '求助者 / 志愿者';
     if (user.isVolunteer) return '志愿者';
     return '求助者';
@@ -591,7 +589,7 @@ class _ProfileIdentityAvatar extends StatelessWidget {
     return Semantics(
       image: true,
       label:
-          '个人头像，$roleLabel，名称 ${displayName?.isNotEmpty == true ? displayName : '演示用户'}',
+          '个人头像，$roleLabel，名称 ${displayName?.isNotEmpty == true ? displayName : 'LinkAble 用户'}',
       child: ExcludeSemantics(
         child: SizedBox(
           width: avatarSize,
@@ -739,7 +737,7 @@ class _ProfileIdentityAvatar extends StatelessWidget {
 
   String _buildRoleBadge(UserModel? user) {
     if (mode == ProfileScreenMode.volunteer) return '志愿者';
-    if (user == null) return 'Demo';
+    if (user == null) return '用户';
     if (user.isSeeker && user.isVolunteer) return '互助';
     if (user.isVolunteer) return '志愿者';
     return '求助者';
@@ -794,7 +792,7 @@ class _VolunteerReadinessCard extends StatelessWidget {
           ),
           const SizedBox(height: AppTheme.spacingXS),
           AccessibleText(
-            '你现在看到的是志愿者侧「我的」。演示中可以从待帮助列表接单，进入 Demo 语音协助，再沉淀服务记录。',
+            '可以从待帮助列表查看需求、接单并完成语音协助；服务结束后会自动保存记录。',
             style: TextStyle(
               color: AppTheme.stageTextSecondary,
               fontSize: AppTheme.fontSizeSmall,
@@ -808,7 +806,7 @@ class _VolunteerReadinessCard extends StatelessWidget {
             children: [
               DemoPill(
                 icon: Icons.radio_button_checked,
-                label: '在线演示',
+                label: '准备接单',
                 color: AppTheme.stageAccentLight,
               ),
               DemoPill(

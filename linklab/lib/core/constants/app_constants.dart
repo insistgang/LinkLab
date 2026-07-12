@@ -7,7 +7,7 @@ class AppConstants {
   // 应用信息
   static const String appName = '共感LinkAble';
   static const String appTagline = 'AI驱动的视障人士智能互助平台';
-  static const String appVersion = '1.0.0';
+  static const String appVersion = '1.0.1';
 
   // Supabase配置：Phase-1 只允许从 .env 读取。
   static String get supabaseUrl => AppConfig.supabaseUrl;

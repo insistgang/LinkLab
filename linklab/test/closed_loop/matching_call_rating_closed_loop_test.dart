@@ -38,7 +38,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('共感 LinkAble'), findsWidgets);
-    expect(find.text('点击启动SOS紧急求助'), findsOneWidget);
+    expect(find.text('SOS 紧急求助'), findsOneWidget);
 
     final completedHistory = readLocalHelpHistoryModels();
     expect(completedHistory.first.status, 'completed');

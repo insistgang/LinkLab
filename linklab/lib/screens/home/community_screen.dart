@@ -44,7 +44,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
   Widget build(BuildContext context) {
     return DemoStageScaffold(
       title: '社群',
-      subtitle: '精选故事只做价值展示，互动社群作为 V1.0 蓝图',
+      subtitle: '阅读真实互助故事，连接彼此的经验与善意',
       showBackButton: false,
       body: RefreshIndicator(
         color: AppTheme.stageAccent,
@@ -63,7 +63,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
               delay: const Duration(milliseconds: 80),
               child: _SectionHeader(
                 title: '精选故事',
-                subtitle: '3 条真实互助场景，用于竞赛展示与价值说明',
+                subtitle: '来自求助者与志愿者的真实互助经历',
                 trailing: IconButton(
                   tooltip: '刷新精选故事',
                   onPressed: _loadStories,
@@ -135,7 +135,7 @@ class _CommunityHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: '社群页，展示精选互助故事和未来蓝图',
+      label: '社群页，展示精选互助故事和社区计划',
       child: Container(
         padding: const EdgeInsets.all(AppTheme.spacingL),
         decoration: AppTheme.stageCardDecoration(
@@ -162,7 +162,7 @@ class _CommunityHero extends StatelessWidget {
             ),
             const SizedBox(height: AppTheme.spacingM),
             Text(
-              '社群',
+              '让互助经验被看见',
               style: TextStyle(
                 color: AppTheme.stageTextPrimary,
                 fontSize: AppTheme.fontSizeXLarge,
@@ -171,7 +171,7 @@ class _CommunityHero extends StatelessWidget {
             ),
             const SizedBox(height: AppTheme.spacingS),
             Text(
-              '这里先展示精选互助故事。群聊、地区社区和积分互动属于后续版本，不进入当前 3 分钟 Demo 主线。',
+              '在这里阅读真实互助故事，从他人的经验中获得提示，也把善意继续传递下去。',
               style: TextStyle(
                 color: AppTheme.stageTextSecondary,
                 fontSize: AppTheme.fontSizeNormal,
@@ -387,17 +387,17 @@ class _BlueprintPanel extends StatelessWidget {
       _BlueprintItem(
         icon: LinkableIconName.volunteerMatch,
         title: '地区社群',
-        body: '后续用于同城志愿者互助与活动组织。',
+        body: '连接同城志愿者，组织互助与公益活动。',
       ),
       _BlueprintItem(
         icon: LinkableIconName.completed,
         title: '公益成长',
-        body: '后续再评估积分、徽章和志愿者成长体系。',
+        body: '记录志愿服务，支持徽章与成长档案。',
       ),
       _BlueprintItem(
         icon: LinkableIconName.emergencyContact,
         title: '安全治理',
-        body: '举报、黑名单、内容审核会先服务主求助链路。',
+        body: '通过举报、黑名单和内容审核保护社区安全。',
       ),
     ];
 
@@ -413,7 +413,7 @@ class _BlueprintPanel extends StatelessWidget {
           Semantics(
             header: true,
             child: Text(
-              '未来蓝图',
+              '社区计划',
               style: TextStyle(
                 color: AppTheme.stageTextPrimary,
                 fontSize: AppTheme.fontSizeLarge,
@@ -423,7 +423,7 @@ class _BlueprintPanel extends StatelessWidget {
           ),
           const SizedBox(height: AppTheme.spacingS),
           Text(
-            '这些能力仅作为 V1.0 展示，不会影响当前 AI、匹配、通话和 SOS 演示闭环。',
+            '我们会逐步完善地区互助、公益成长和安全治理，让每一次求助更有回应。',
             style: TextStyle(
               color: AppTheme.stageTextSecondary,
               fontSize: AppTheme.fontSizeNormal,
@@ -527,7 +527,7 @@ class _EmptyStoriesCard extends StatelessWidget {
             ),
             const SizedBox(height: AppTheme.spacingS),
             Text(
-              '可以稍后刷新，或继续完成 AI 求助主流程演示。',
+              '可以稍后刷新，或继续使用 AI 助手。',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppTheme.stageTextSecondary,

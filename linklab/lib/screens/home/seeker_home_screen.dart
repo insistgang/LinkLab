@@ -88,7 +88,7 @@ class _SeekerHomeScreenState extends ConsumerState<SeekerHomeScreen> {
     final profile = session.userProfile;
     final preferenceSummary = session.preferences.highContrastMode
         ? '高对比度已开启'
-        : '标准显示模式';
+        : '标准显示';
 
     return DemoStageLiveBuilder(
       builder: (context) {
@@ -99,8 +99,8 @@ class _SeekerHomeScreenState extends ConsumerState<SeekerHomeScreen> {
         return DemoStageScaffold(
           title: '共感 LinkAble',
           subtitle: compactLayout
-              ? 'AI 先处理，复杂需求转真人'
-              : 'AI 先处理标准化问题，复杂需求再转真人志愿者',
+              ? 'AI 先帮您处理，需要时转真人'
+              : 'AI 先帮您处理常见问题，需要时连接真人志愿者',
           showBackButton: false,
           headerTopPadding: compactLayout
               ? AppTheme.spacingXS
@@ -121,7 +121,7 @@ class _SeekerHomeScreenState extends ConsumerState<SeekerHomeScreen> {
                     session: session,
                     profile: profile,
                     dateLabel: _buildDateLabel(now),
-                    weatherLabel: _buildWeatherLabel(now),
+                    statusLabel: _buildAvailabilityLabel(),
                     preferenceSummary: preferenceSummary,
                     onHelpPressed: () {
                       HapticFeedback.mediumImpact();
@@ -157,7 +157,7 @@ class _SeekerHomeScreenState extends ConsumerState<SeekerHomeScreen> {
                         child: _SummaryStatCard(
                           eyebrow: '最近求助',
                           value: '${_recentHistory.length} 条',
-                          description: '本地演示档案已同步',
+                          description: '记录已保存在本机',
                           color: AppTheme.stageAccent,
                         ),
                       ),
@@ -184,7 +184,7 @@ class _SeekerHomeScreenState extends ConsumerState<SeekerHomeScreen> {
                 const SizedBox(height: AppTheme.spacingXL),
                 const DemoSectionTitle(
                   title: '快捷工具',
-                  subtitle: '保留最高频入口，避免首屏功能过载。',
+                  subtitle: '文字识别、颜色识别和 AI 对话。',
                 ),
                 const SizedBox(height: AppTheme.spacingM),
                 DemoReveal(
@@ -282,7 +282,7 @@ class _SeekerHomeScreenState extends ConsumerState<SeekerHomeScreen> {
                         const LinkableSvgIcon(
                           icon: LinkableIconName.navigationGuide,
                           size: 34,
-                          semanticLabel: '进入匹配演示',
+                          semanticLabel: '匹配志愿者',
                         ),
                       ],
                     ),
@@ -291,7 +291,7 @@ class _SeekerHomeScreenState extends ConsumerState<SeekerHomeScreen> {
                 const SizedBox(height: AppTheme.spacingXL),
                 DemoSectionTitle(
                   title: '最近帮助',
-                  subtitle: '展示主链路的终态与回看落点。',
+                  subtitle: '查看最近完成的求助与协助记录。',
                   trailing: TextButton(
                     onPressed: () {
                       pushDemoStageRoute(
@@ -382,14 +382,10 @@ class _SeekerHomeScreenState extends ConsumerState<SeekerHomeScreen> {
     return '${now.month}月${now.day}日 周${weekdays[now.weekday - 1]}';
   }
 
-  String _buildWeatherLabel(DateTime now) {
-    if (now.hour < 12) return '演示天气 晴 24°C';
-    if (now.hour < 18) return '演示天气 多云 26°C';
-    return '演示天气 夜间 21°C';
-  }
+  String _buildAvailabilityLabel() => 'AI 服务可用';
 
   String _buildRoleSummary(UserModel? profile) {
-    if (profile == null) return '演示账号';
+    if (profile == null) return '未登录';
     if (profile.isVolunteer && profile.isSeeker) return '互助双角色';
     if (profile.isVolunteer) return '志愿者';
     return '求助者';
@@ -401,7 +397,7 @@ class _HeroPanel extends StatelessWidget {
     required this.session,
     required this.profile,
     required this.dateLabel,
-    required this.weatherLabel,
+    required this.statusLabel,
     required this.preferenceSummary,
     required this.onHelpPressed,
     required this.onVolunteerPressed,
@@ -411,7 +407,7 @@ class _HeroPanel extends StatelessWidget {
   final AppSessionService session;
   final UserModel? profile;
   final String dateLabel;
-  final String weatherLabel;
+  final String statusLabel;
   final String preferenceSummary;
   final VoidCallback onHelpPressed;
   final VoidCallback onVolunteerPressed;
@@ -446,8 +442,8 @@ class _HeroPanel extends StatelessWidget {
                 backgroundColor: Colors.white.withValues(alpha: 0.1),
               ),
               DemoPill(
-                icon: Icons.wb_sunny_outlined,
-                label: weatherLabel,
+                icon: Icons.smart_toy_outlined,
+                label: statusLabel,
                 color: AppTheme.stageAccentLight,
               ),
               DemoPill(
@@ -487,7 +483,7 @@ class _HeroPanel extends StatelessWidget {
                     ),
                     const SizedBox(height: AppTheme.spacingXS),
                     AccessibleText(
-                      'AI Agent × 真人互助',
+                      'AI 助手 × 真人互助',
                       style: TextStyle(
                         color: AppTheme.stageAccentLight,
                         fontSize: AppTheme.fontSizeSmall,
@@ -515,7 +511,7 @@ class _HeroPanel extends StatelessWidget {
           AccessibleText(
             profile?.isVolunteer == true
                 ? '今天想先帮助别人，还是先处理自己的需求？'
-                : '把标准化需求先交给 AI，复杂问题再转真人。',
+                : '常见问题先交给 AI，复杂情况再连接真人志愿者。',
             style: TextStyle(
               color: AppTheme.stageTextSecondary,
               fontSize: compactLayout
@@ -533,7 +529,7 @@ class _HeroPanel extends StatelessWidget {
           const SizedBox(height: AppTheme.spacingM),
           Center(
             child: AccessibleText(
-              '点击启动SOS紧急求助',
+              'SOS 紧急求助',
               style: TextStyle(
                 color: AppTheme.stageTextSecondary,
                 fontSize: AppTheme.fontSizeSmall,
@@ -701,8 +697,8 @@ class _CompetitionDemoNoticeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DemoSurfaceCard(
-      semanticLabel: '竞赛演示模式说明',
-      hint: '当前默认只展示 MVP 主线，社群入口仅展示精选故事',
+      semanticLabel: '离线功能说明',
+      hint: '核心求助流程可在本地稳定体验',
       color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.94),
       borderColor: AppTheme.stageAccent.withValues(alpha: 0.28),
       child: Row(
@@ -719,7 +715,7 @@ class _CompetitionDemoNoticeCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 AccessibleText(
-                  '竞赛演示模式已锁定',
+                  '离线功能已就绪',
                   style: TextStyle(
                     color: AppTheme.stageTextPrimary,
                     fontSize: AppTheme.fontSizeNormal,
@@ -728,7 +724,7 @@ class _CompetitionDemoNoticeCard extends StatelessWidget {
                 ),
                 const SizedBox(height: AppTheme.spacingXS),
                 AccessibleText(
-                  '当前默认仅展示 AI 对话、真人匹配、实时通话、SOS、登录偏好与无障碍能力。社群入口只展示精选故事和未来蓝图，不开放群聊或积分互动。',
+                  'AI 对话、真人匹配、实时通话、紧急求助和无障碍设置均可直接体验；社群提供精选互助故事。',
                   style: TextStyle(
                     color: AppTheme.stageTextSecondary,
                     fontSize: AppTheme.fontSizeSmall,
@@ -984,14 +980,14 @@ class _SafetyReadyCard extends StatelessWidget {
     final title = !settings.autoShareLocation
         ? 'SOS 位置信息未开启'
         : settings.shareWithEmergencyContacts && contactCount == 0
-        ? 'SOS 基础广播已就绪'
-        : 'SOS 演示链路已就绪';
+        ? 'SOS 联系人待添加'
+        : 'SOS 安全设置已完成';
 
     final subtitle = !settings.autoShareLocation
         ? '建议先到“我的 > 位置共享”开启位置同步。'
         : settings.shareWithEmergencyContacts && contactCount == 0
-        ? '已开启位置共享，但联系人通知还没有接收对象。'
-        : '当前位置、联系人通知和志愿者广播都可在演示中展示。';
+        ? '位置共享已开启；添加紧急联系人后可完善求助信息。'
+        : '位置共享与联系人信息已配置，可随时启动求助。';
 
     return DemoSurfaceCard(
       color: AppTheme.stageSurfaceStrong.withValues(alpha: 0.96),

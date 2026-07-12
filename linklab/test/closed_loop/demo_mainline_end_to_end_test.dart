@@ -25,7 +25,7 @@ void main() {
       find.byKey(const ValueKey('seeker_sos_hold_button')),
       findsOneWidget,
     );
-    expect(find.text('点击启动SOS紧急求助'), findsOneWidget);
+    expect(find.text('SOS 紧急求助'), findsOneWidget);
 
     await tester.tap(find.text('AI助手').last);
     await tester.pumpAndSettle();
@@ -66,7 +66,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('共感 LinkAble'), findsWidgets);
-    expect(find.text('点击启动SOS紧急求助'), findsOneWidget);
+    expect(find.text('SOS 紧急求助'), findsOneWidget);
 
     final history = readLocalHelpHistoryModels();
     expect(history.first.status, 'completed');
