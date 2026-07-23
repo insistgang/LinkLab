@@ -208,7 +208,10 @@ class AppSessionService extends ChangeNotifier {
 
     _isLoggedIn = false;
     await _storage.setLoggedIn(false);
-    await _storage.clearAuthToken();
+    if (AppConfig.isRealMode) {
+      _userProfile = null;
+      await _storage.clearUserProfile();
+    }
     notifyListeners();
   }
 
@@ -411,7 +414,6 @@ class AppSessionService extends ChangeNotifier {
     await _storage.saveUserProfile(user.toJson());
     await _storage.setLoggedIn(true);
     await _storage.setFirstLaunch(false);
-    await _storage.saveAuthToken('demo-email-session-${user.id}');
 
     if (_storage.getHelpHistory().isEmpty) {
       await _seedDemoHelpHistory(seekerId: user.id);
@@ -428,7 +430,8 @@ class AppSessionService extends ChangeNotifier {
     if (session == null) {
       _isLoggedIn = false;
       await _storage.setLoggedIn(false);
-      await _storage.clearAuthToken();
+      _userProfile = null;
+      await _storage.clearUserProfile();
       return;
     }
 
@@ -452,7 +455,8 @@ class AppSessionService extends ChangeNotifier {
       case AuthChangeEvent.userDeleted:
         _isLoggedIn = false;
         await _storage.setLoggedIn(false);
-        await _storage.clearAuthToken();
+        _userProfile = null;
+        await _storage.clearUserProfile();
         notifyListeners();
       case AuthChangeEvent.passwordRecovery:
       case AuthChangeEvent.mfaChallengeVerified:
@@ -468,7 +472,8 @@ class AppSessionService extends ChangeNotifier {
     if (session == null || authUser == null) {
       _isLoggedIn = false;
       await _storage.setLoggedIn(false);
-      await _storage.clearAuthToken();
+      _userProfile = null;
+      await _storage.clearUserProfile();
       if (notify) notifyListeners();
       return;
     }
@@ -479,8 +484,6 @@ class AppSessionService extends ChangeNotifier {
     _isLoggedIn = true;
     _isFirstLaunch = false;
 
-    await _storage.saveUserProfile(user.toJson());
-    await _storage.saveAuthToken(session.accessToken);
     await _storage.setLoggedIn(true);
     await _storage.setFirstLaunch(false);
 

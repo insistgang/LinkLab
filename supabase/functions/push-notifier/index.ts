@@ -27,6 +27,10 @@ interface PushResult {
   mock?: boolean;
 }
 
+interface AuthenticatedUser {
+  id: string;
+}
+
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
@@ -38,6 +42,74 @@ function createSupabaseClient() {
   const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
   const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
   return createClient(supabaseUrl, supabaseKey);
+}
+
+async function authenticateRequest(
+  req: Request,
+  supabase: ReturnType<typeof createSupabaseClient>,
+): Promise<AuthenticatedUser | null> {
+  const authorization = req.headers.get('authorization') || '';
+  if (!authorization.startsWith('Bearer ')) {
+    return null;
+  }
+
+  const token = authorization.slice('Bearer '.length).trim();
+  if (!token) {
+    return null;
+  }
+
+  const { data, error } = await supabase.auth.getUser(token);
+  if (error || !data.user) {
+    return null;
+  }
+
+  return { id: data.user.id };
+}
+
+function requireServiceRoleRequest(req: Request): Response | null {
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+  const authorization = req.headers.get('authorization') || '';
+
+  if (!serviceRoleKey || authorization !== `Bearer ${serviceRoleKey}`) {
+    return jsonResponse({ error: 'Unauthorized' }, 401);
+  }
+
+  return null;
+}
+
+async function authorizeSOSRequest(
+  supabase: ReturnType<typeof createSupabaseClient>,
+  user: AuthenticatedUser,
+  body: Record<string, unknown>,
+): Promise<Response | null> {
+  const helpRequestId =
+    (body.helpRequestId as string | undefined) ??
+    (body.sosId as string | undefined);
+
+  if (!helpRequestId) {
+    return jsonResponse({ error: '缺少 helpRequestId 或 sosId' }, 400);
+  }
+
+  const { data: helpRequest, error } = await supabase
+    .from('help_requests')
+    .select('id, seeker_id, type')
+    .eq('id', helpRequestId)
+    .maybeSingle();
+
+  if (error) {
+    return jsonResponse({ error: error.message }, 500);
+  }
+  if (!helpRequest) {
+    return jsonResponse({ error: 'SOS 求助记录不存在' }, 404);
+  }
+  if (helpRequest.seeker_id !== user.id) {
+    return jsonResponse({ error: '无权操作该 SOS 求助记录' }, 403);
+  }
+  if (helpRequest.type !== 'sos') {
+    return jsonResponse({ error: '目标记录不是 SOS 求助' }, 400);
+  }
+
+  return null;
 }
 
 async function getPushTokens(
@@ -193,13 +265,12 @@ async function handleSOSBroadcast(
   body: Record<string, unknown>,
 ): Promise<Response> {
   const urgency = (body.urgency as string | undefined) ?? 'emergency';
-  const seekerId =
-    (body.seekerId as string | undefined) ??
+  const helpRequestId =
     (body.helpRequestId as string | undefined) ??
     (body.sosId as string | undefined);
 
-  if (!seekerId) {
-    return jsonResponse({ error: '缺少 seekerId / helpRequestId / sosId' }, 400);
+  if (!helpRequestId) {
+    return jsonResponse({ error: '缺少 helpRequestId 或 sosId' }, 400);
   }
 
   const { data: volunteers, error } = await supabase
@@ -219,7 +290,7 @@ async function handleSOSBroadcast(
     body: '有新的求助廣播，請儘快查看',
     data: {
       type: 'sos',
-      requestId: seekerId,
+      requestId: helpRequestId,
       urgency,
     },
     priority: 'high',
@@ -228,10 +299,18 @@ async function handleSOSBroadcast(
   return sendBatchPush(supabase, messages);
 }
 
-async function handleLegacyRequest(req: Request): Promise<Response> {
+async function handleLegacyRequest(
+  req: Request,
+  supabase: ReturnType<typeof createSupabaseClient>,
+  user: AuthenticatedUser,
+): Promise<Response> {
   const body = await req.json() as Record<string, unknown>;
-  const supabase = createSupabaseClient();
   const type = (body.type as string | undefined) ?? '';
+
+  const authorizationError = await authorizeSOSRequest(supabase, user, body);
+  if (authorizationError) {
+    return authorizationError;
+  }
 
   if (type == 'sos_broadcast' || type == 'sos_escalation') {
     return handleSOSBroadcast(supabase, body);
@@ -272,22 +351,39 @@ Deno.serve(async (req: Request) => {
   }
 
   const url = new URL(req.url);
-
-  if (url.pathname === '/push-notifier' && req.method === 'POST') {
-    return handleLegacyRequest(req);
-  }
+  const supabase = createSupabaseClient();
 
   if (url.pathname === '/push-notifier/send' && req.method === 'POST') {
+    const unauthorized = requireServiceRoleRequest(req);
+    if (unauthorized) {
+      return unauthorized;
+    }
     return handleSinglePush(req);
   }
 
   if (url.pathname === '/push-notifier/batch' && req.method === 'POST') {
+    const unauthorized = requireServiceRoleRequest(req);
+    if (unauthorized) {
+      return unauthorized;
+    }
     return handleBatchPushRequest(req);
   }
 
+  const user = await authenticateRequest(req, supabase);
+  if (!user) {
+    return jsonResponse({ error: 'Unauthorized' }, 401);
+  }
+
+  if (url.pathname === '/push-notifier' && req.method === 'POST') {
+    return handleLegacyRequest(req, supabase, user);
+  }
+
   if (url.pathname === '/push-notifier/sos' && req.method === 'POST') {
-    const supabase = createSupabaseClient();
     const body = await req.json() as Record<string, unknown>;
+    const authorizationError = await authorizeSOSRequest(supabase, user, body);
+    if (authorizationError) {
+      return authorizationError;
+    }
     return handleSOSBroadcast(supabase, body);
   }
 

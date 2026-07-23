@@ -79,7 +79,7 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.points-calculator]
-verify_jwt = false  # 允許數據庫觸發器調用
+verify_jwt = true
 
 [analytics]
 enabled = false

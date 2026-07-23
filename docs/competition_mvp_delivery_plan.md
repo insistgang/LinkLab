@@ -99,7 +99,7 @@ cd linklab
 flutter analyze
 flutter test test/closed_loop
 flutter build web --debug
-rg -n "AdminLoginScreen|AdminLayout|RealCallScreen|RealCallPage|MatchingScreen\(|CommunityScreen|InterestGroupsScreen|GroupChatScreen|NewbieVillageScreen" lib/main.dart lib/app.dart lib/screens/home lib/demo_flow
+rg -n "AdminLoginScreen|AdminLayout|RealCallScreen|RealCallPage|MatchingScreen\(|InterestGroupsScreen|GroupChatScreen|NewbieVillageScreen" lib/main.dart lib/app.dart lib/screens/home lib/demo_flow
 rg -n "Supabase.initialize|Firebase.initializeApp|RealCallService\(|WebRTCService\(|PushNotificationService\(" lib/main.dart lib/app.dart lib/screens/home lib/demo_flow
 ```
 

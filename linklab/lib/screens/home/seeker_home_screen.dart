@@ -191,7 +191,11 @@ class _SeekerHomeScreenState extends ConsumerState<SeekerHomeScreen> {
                   delay: const Duration(milliseconds: 230),
                   child: LayoutBuilder(
                     builder: (context, constraints) {
-                      final isNarrow = constraints.maxWidth < 360;
+                      final textScale = MediaQuery.textScalerOf(
+                        context,
+                      ).scale(1);
+                      final isNarrow =
+                          constraints.maxWidth < 560 || textScale > 1.15;
                       final children = [
                         _QuickToolButton(
                           label: '文字识别',

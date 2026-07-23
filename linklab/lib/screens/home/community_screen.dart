@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_theme.dart';
 import '../../models/community_models.dart';
 import '../../providers/community_provider.dart';
-import '../../services/community/featured_story_service.dart';
 import '../../widgets/accessible/index.dart';
 import '../../widgets/demo/demo_motion.dart';
 import '../../widgets/demo/demo_stage.dart';

@@ -134,7 +134,7 @@ class _StoryDetailScreenState extends ConsumerState<StoryDetailScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    LinkableMaterialIcon(
+                    const LinkableMaterialIcon(
                       icon: Icons.remove_red_eye,
                       size: 24,
                       color: AppTheme.textHint,
@@ -143,7 +143,7 @@ class _StoryDetailScreenState extends ConsumerState<StoryDetailScreen> {
                     const SizedBox(width: AppTheme.spacingXS),
                     AccessibleText(
                       '${_story.readCount} 次阅读',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: AppTheme.fontSizeNormal,
                         color: AppTheme.textHint,
                       ),

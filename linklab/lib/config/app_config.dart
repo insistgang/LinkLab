@@ -233,9 +233,13 @@ class AppConfig {
     }
 
     final uri = Uri.tryParse(value);
+    final isLoopbackHost =
+        uri?.host == 'localhost' ||
+        uri?.host == '127.0.0.1' ||
+        uri?.host == '::1';
     return uri != null &&
         uri.hasScheme &&
-        (uri.scheme == 'https' || uri.scheme == 'http') &&
+        (uri.scheme == 'https' || (uri.scheme == 'http' && isLoopbackHost)) &&
         uri.host.isNotEmpty;
   }
 

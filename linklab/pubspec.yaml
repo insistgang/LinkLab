@@ -119,10 +119,6 @@ dependencies:
   # Admin Dashboard
   fl_chart: ^0.70.0
   data_table_2: ^2.5.18
-  file_picker: ^9.0.0
-  pdf: ^3.10.8
-  excel: ^4.0.6
-  go_router: ^14.8.0
   flutter_svg: ^2.3.0
 
 dev_dependencies:

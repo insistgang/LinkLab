@@ -11,6 +11,24 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+function jsonResponse(body: unknown, status = 200): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
+}
+
+function requireServiceRoleRequest(req: Request): Response | null {
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+  const authorization = req.headers.get('authorization') || '';
+
+  if (!serviceRoleKey || authorization !== `Bearer ${serviceRoleKey}`) {
+    return jsonResponse({ error: 'Unauthorized' }, 401);
+  }
+
+  return null;
+}
+
 // 積分配置
 const POINTS_CONFIG = {
   // 實時幫助積分
@@ -141,103 +159,30 @@ function calculateAsyncTaskPoints(priority: string): { points: number; breakdown
   return { points: totalPoints, breakdown };
 }
 
-/**
- * 根據積分計算等級
- */
-function calculateLevel(points: number): { level: number; title: string } {
-  for (let i = LEVEL_CONFIG.length - 1; i >= 0; i--) {
-    if (points >= LEVEL_CONFIG[i].minPoints) {
-      return { level: LEVEL_CONFIG[i].level, title: LEVEL_CONFIG[i].title };
-    }
-  }
-  return { level: 1, title: LEVEL_CONFIG[0].title };
-}
-
-/**
- * 添加積分流水
- */
-async function addPointTransaction(
+async function awardVolunteerPointsOnce(
   supabase: any,
   userId: string,
-  type: 'earn' | 'spend' | 'bonus' | 'penalty',
-  amount: number,
-  source: string,
-  sourceId: string | null,
+  points: number,
+  source: 'help_complete' | 'task_complete',
+  sourceId: string,
   description: string,
-  currentBalance: number
-): Promise<void> {
-  const newBalance = currentBalance + amount;
-
-  const { error } = await supabase.from('point_transactions').insert({
-    user_id: userId,
-    type,
-    amount,
-    balance: newBalance,
-    source,
-    source_id: sourceId,
-    description,
+  incrementHelpCount: boolean,
+): Promise<boolean> {
+  const { data, error } = await supabase.rpc('award_volunteer_points_once', {
+    p_user_id: userId,
+    p_points: points,
+    p_source: source,
+    p_source_id: sourceId,
+    p_description: description,
+    p_increment_help_count: incrementHelpCount,
   });
 
   if (error) {
-    console.error('添加積分流水失敗:', error);
+    console.error('原子化積分寫入失敗:', error);
     throw error;
   }
-}
 
-/**
- * 更新志願者積分和等級
- */
-async function updateVolunteerPoints(
-  supabase: any,
-  userId: string,
-  pointsToAdd: number
-): Promise<void> {
-  // 獲取當前積分
-  const { data: profile, error: fetchError } = await supabase
-    .from('volunteer_profiles')
-    .select('points, level')
-    .eq('user_id', userId)
-    .single();
-
-  if (fetchError || !profile) {
-    console.error('獲取志願者資料失敗:', fetchError);
-    throw fetchError;
-  }
-
-  const newPoints = profile.points + pointsToAdd;
-  const { level: newLevel, title } = calculateLevel(newPoints);
-
-  // 更新積分和等級
-  const updateData: any = {
-    points: newPoints,
-    total_help_count: supabase.rpc('increment', { x: 1 }),
-  };
-
-  // 如果等級提升，更新等級
-  if (newLevel > profile.level) {
-    updateData.level = newLevel;
-  }
-
-  const { error: updateError } = await supabase
-    .from('volunteer_profiles')
-    .update(updateData)
-    .eq('user_id', userId);
-
-  if (updateError) {
-    console.error('更新志願者積分失敗:', updateError);
-    throw updateError;
-  }
-
-  // 如果等級提升，發送通知
-  if (newLevel > profile.level) {
-    await supabase.from('notifications').insert({
-      user_id: userId,
-      type: 'level_up',
-      title: '等級提升！',
-      content: `恭喜您升級到${title}！`,
-      data: { newLevel, newPoints },
-    });
-  }
+  return data === true;
 }
 
 /**
@@ -264,31 +209,22 @@ async function handleHelpCompleted(supabase: any, helpRequest: any): Promise<voi
 
   if (points <= 0) return;
 
-  // 獲取當前積分餘額
-  const { data: profile } = await supabase
-    .from('volunteer_profiles')
-    .select('points')
-    .eq('user_id', volunteer_id)
-    .single();
-
-  const currentBalance = profile?.points || 0;
-
-  // 添加積分流水
-  await addPointTransaction(
+  const awarded = await awardVolunteerPointsOnce(
     supabase,
     volunteer_id,
-    'earn',
     points,
     'help_complete',
     id,
     `完成${isSOS ? '緊急' : ''}幫助獲得積分`,
-    currentBalance
+    true,
   );
 
-  // 更新志願者積分
-  await updateVolunteerPoints(supabase, volunteer_id, points);
-
-  console.log(`志願者 ${volunteer_id} 獲得 ${points} 積分`, breakdown);
+  console.log(
+    awarded
+      ? `志願者 ${volunteer_id} 獲得 ${points} 積分`
+      : `求助 ${id} 已計分，跳過重複請求`,
+    breakdown,
+  );
 }
 
 /**
@@ -301,31 +237,22 @@ async function handleAsyncTaskCompleted(supabase: any, task: any): Promise<void>
 
   const { points, breakdown } = calculateAsyncTaskPoints(priority || 'normal');
 
-  // 獲取當前積分餘額
-  const { data: profile } = await supabase
-    .from('volunteer_profiles')
-    .select('points')
-    .eq('user_id', volunteer_id)
-    .single();
-
-  const currentBalance = profile?.points || 0;
-
-  // 添加積分流水
-  await addPointTransaction(
+  const awarded = await awardVolunteerPointsOnce(
     supabase,
     volunteer_id,
-    'earn',
     points,
     'task_complete',
     id,
     '完成異步任務獲得積分',
-    currentBalance
+    false,
   );
 
-  // 更新志願者積分
-  await updateVolunteerPoints(supabase, volunteer_id, points);
-
-  console.log(`志願者 ${volunteer_id} 獲得 ${points} 積分(異步任務)`, breakdown);
+  console.log(
+    awarded
+      ? `志願者 ${volunteer_id} 獲得 ${points} 積分(異步任務)`
+      : `異步任務 ${id} 已計分，跳過重複請求`,
+    breakdown,
+  );
 }
 
 /**
@@ -451,6 +378,11 @@ async function handleWebhook(req: Request): Promise<Response> {
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
+  }
+
+  const unauthorized = requireServiceRoleRequest(req);
+  if (unauthorized) {
+    return unauthorized;
   }
 
   const url = new URL(req.url);

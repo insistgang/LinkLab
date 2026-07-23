@@ -7,6 +7,17 @@ import 'screens/auth/login_screen.dart';
 import 'screens/auth/onboarding_screen.dart';
 import 'screens/home/main_screen.dart';
 
+TextScaler resolveAccessibleTextScaler({
+  required TextScaler systemTextScaler,
+  required double preferredScale,
+}) {
+  final normalizedPreference = preferredScale.clamp(0.8, 2.0).toDouble();
+  final systemScale = systemTextScaler.scale(1);
+  return systemScale >= normalizedPreference
+      ? systemTextScaler
+      : TextScaler.linear(normalizedPreference);
+}
+
 /// 应用根组件
 /// 说明：
 /// - 入口必须由 ProviderScope 包裹，满足全局 Riverpod 状态容器要求
@@ -37,11 +48,14 @@ class LinkLabApp extends ConsumerWidget {
       home: _buildInitialScreen(session),
       builder: (context, child) {
         final mediaQuery = MediaQuery.of(context);
-        final scaledText = preferences.fontScale.clamp(0.8, 2.0).toDouble();
+        final effectiveTextScaler = resolveAccessibleTextScaler(
+          systemTextScaler: mediaQuery.textScaler,
+          preferredScale: preferences.fontScale,
+        );
         final childWidget = child ?? const SizedBox.shrink();
 
         return MediaQuery(
-          data: mediaQuery.copyWith(textScaler: TextScaler.linear(scaledText)),
+          data: mediaQuery.copyWith(textScaler: effectiveTextScaler),
           child: childWidget,
         );
       },

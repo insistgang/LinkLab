@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:linklab/app.dart';
 import 'package:linklab/config/app_config.dart';
 import 'package:linklab/main.dart' as app_entry;
 import 'package:linklab/screens/auth/login_screen.dart';
@@ -22,11 +23,10 @@ void main() {
       tester.view.resetDevicePixelRatio();
     });
 
-    await app_entry.initializeLinkLabApp(
-      enableAuthAutoRefresh: false,
-    );
+    await app_entry.initializeLinkLabApp(enableAuthAutoRefresh: false);
     await tester.pumpWidget(app_entry.buildLinkLabApp());
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
 
     expect(find.byType(MaterialApp), findsOneWidget);
     expect(AppConfig.demoMode, isTrue);
@@ -53,6 +53,15 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  test('应用根节点不得覆盖系统 200% 字体缩放', () {
+    final effectiveTextScaler = resolveAccessibleTextScaler(
+      systemTextScaler: const TextScaler.linear(2.0),
+      preferredScale: 1.1,
+    );
+
+    expect(effectiveTextScaler.scale(1), 2.0);
+  });
+
   test('缺少 Supabase 配置时 fallback 到 DemoMode', () {
     AppConfig.configureFromEnvironment(
       const {},
@@ -67,6 +76,20 @@ void main() {
     expect(FeatureFlags.enableSupabaseAuth, isFalse);
     expect(FeatureFlags.enableWebRTC, isFalse);
     expect(FeatureFlags.enableRealAI, isFalse);
+  });
+
+  test('非本机 HTTP Supabase 地址不得启用 RealMode', () {
+    AppConfig.configureFromEnvironment(
+      const {
+        'SUPABASE_URL': 'http://project.example.com',
+        'SUPABASE_ANON_KEY': 'test-anon-key',
+      },
+      preferRealMode: true,
+      enablePresenterSessionOnFallback: false,
+    );
+
+    expect(AppConfig.hasSupabaseConfig, isFalse);
+    expect(AppConfig.isRealMode, isFalse);
   });
 
   test('真实 AI 只有 .env 显式开关时启用，且不要求切出 DemoMode', () {
@@ -122,6 +145,8 @@ void main() {
     expect(AppSessionService.instance.isLoggedIn, isTrue);
     // ignore: deprecated_member_use
     expect(AppSessionService.instance.currentUser?.phone, 'demo@example.com');
+    final preferences = await SharedPreferences.getInstance();
+    expect(preferences.containsKey('auth_token'), isFalse);
   });
 
   testWidgets('登录页在窄屏和 200% 字体下不出现横向溢出', (tester) async {

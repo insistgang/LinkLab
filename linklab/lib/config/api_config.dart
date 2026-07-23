@@ -78,10 +78,12 @@ class APIConfig {
   static const String xfyunTtsWsUrl = 'wss://tts-api.xfyun.cn/v2/tts';
 
   /// 科大讯飞语音听写HTTP地址（备选）
-  static const String xfyunAsrHttpUrl = 'http://api.xfyun.cn/v1/service/v1/iat';
+  static const String xfyunAsrHttpUrl =
+      'https://api.xfyun.cn/v1/service/v1/iat';
 
   /// 科大讯飞语音合成HTTP地址（备选）
-  static const String xfyunTtsHttpUrl = 'http://api.xfyun.cn/v1/service/v1/tts';
+  static const String xfyunTtsHttpUrl =
+      'https://api.xfyun.cn/v1/service/v1/tts';
 
   // ==================== MiniMax TTS API配置 ====================
   /// MiniMax API Key

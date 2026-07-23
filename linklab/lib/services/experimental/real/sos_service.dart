@@ -70,7 +70,8 @@ class SOSService {
     final now = DateTime.now();
 
     if (_lastPowerKeyTime == null ||
-        now.difference(_lastPowerKeyTime!).inMilliseconds > _powerKeyTimeWindowMs) {
+        now.difference(_lastPowerKeyTime!).inMilliseconds >
+            _powerKeyTimeWindowMs) {
       // 重置计数
       _powerKeyCount = 1;
     } else {
@@ -117,7 +118,7 @@ class SOSService {
       await _broadcastSOS(sosId, position);
 
       // 5. 通知紧急联系人
-      await _notifyEmergencyContacts(position);
+      await _notifyEmergencyContacts(sosId, position);
 
       // 6. 启动升级定时器
       _startEscalationTimer(sosId, position);
@@ -156,25 +157,32 @@ class SOSService {
   }
 
   /// 创建SOS记录
-  Future<String> _createSOSRecord(SOSTriggerMethod method, Position position) async {
+  Future<String> _createSOSRecord(
+    SOSTriggerMethod method,
+    Position position,
+  ) async {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) throw Exception('用户未登录');
 
-    final response = await _supabase.from('help_requests').insert({
-      'seeker_id': userId,
-      'type': 'sos',
-      'intent': 'sos_${method.name}',
-      'urgency': 'emergency',
-      'status': 'matching',
-      'help_type': 'sos',
-      'latitude': position.latitude,
-      'longitude': position.longitude,
-      'ai_response': {
-        'triggerMethod': method.name,
-        'locationAccuracy': position.accuracy,
-        'escalationLevel': 0,
-      },
-    }).select('id').single();
+    final response = await _supabase
+        .from('help_requests')
+        .insert({
+          'seeker_id': userId,
+          'type': 'sos',
+          'intent': 'sos_${method.name}',
+          'urgency': 'emergency',
+          'status': 'matching',
+          'help_type': 'sos',
+          'latitude': position.latitude,
+          'longitude': position.longitude,
+          'ai_response': {
+            'triggerMethod': method.name,
+            'locationAccuracy': position.accuracy,
+            'escalationLevel': 0,
+          },
+        })
+        .select('id')
+        .single();
 
     final record = Map<String, dynamic>.from(response as Map);
     return record['id'].toString();
@@ -188,17 +196,15 @@ class SOSService {
         Uri.parse('${AppConstants.supabaseUrl}/functions/v1/push-notifier'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer ${_supabase.auth.currentSession?.accessToken ?? ''}',
+          'Authorization':
+              'Bearer ${_supabase.auth.currentSession?.accessToken ?? ''}',
         },
         body: jsonEncode({
           'type': 'sos_broadcast',
           'seekerId': seekerId,
           'helpRequestId': sosId,
           'sosId': sosId,
-          'location': {
-            'lat': position.latitude,
-            'lng': position.longitude,
-          },
+          'location': {'lat': position.latitude, 'lng': position.longitude},
           'radius': 5, // 5km
           'priority': 'critical',
         }),
@@ -216,7 +222,7 @@ class SOSService {
   }
 
   /// 通知紧急联系人
-  Future<void> _notifyEmergencyContacts(Position position) async {
+  Future<void> _notifyEmergencyContacts(String sosId, Position position) async {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) return;
 
@@ -241,12 +247,17 @@ class SOSService {
         Uri.parse('${AppConstants.supabaseUrl}/functions/v1/push-notifier'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer ${_supabase.auth.currentSession?.accessToken ?? ''}',
+          'Authorization':
+              'Bearer ${_supabase.auth.currentSession?.accessToken ?? ''}',
         },
         body: jsonEncode({
           'type': 'emergency_sms',
-          'contacts': contactRecords.map((c) => c['phone']?.toString()).toList(),
-          'message': '【共感LinkAble紧急求助】您的亲友触发了SOS求助，'
+          'sosId': sosId,
+          'contacts': contactRecords
+              .map((c) => c['phone']?.toString())
+              .toList(),
+          'message':
+              '【共感LinkAble紧急求助】您的亲友触发了SOS求助，'
               '位置: $locationUrl，请尽快联系确认安全。',
         }),
       );
@@ -257,7 +268,9 @@ class SOSService {
 
   /// 启动升级定时器
   void _startEscalationTimer(String sosId, Position position) {
-    _escalationTimer = Timer.periodic(const Duration(minutes: 5), (timer) async {
+    _escalationTimer = Timer.periodic(const Duration(minutes: 5), (
+      timer,
+    ) async {
       _escalationLevel++;
 
       switch (_escalationLevel) {
@@ -273,10 +286,7 @@ class SOSService {
           break;
       }
 
-      await _updateSOSMetadata(
-        sosId,
-        {'escalationLevel': _escalationLevel},
-      );
+      await _updateSOSMetadata(sosId, {'escalationLevel': _escalationLevel});
     });
   }
 
@@ -289,7 +299,8 @@ class SOSService {
         Uri.parse('${AppConstants.supabaseUrl}/functions/v1/push-notifier'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer ${_supabase.auth.currentSession?.accessToken ?? ''}',
+          'Authorization':
+              'Bearer ${_supabase.auth.currentSession?.accessToken ?? ''}',
         },
         body: jsonEncode({
           'type': 'sos_escalation',
@@ -312,11 +323,14 @@ class SOSService {
       Uri.parse('${AppConstants.supabaseUrl}/functions/v1/push-notifier'),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ${_supabase.auth.currentSession?.accessToken ?? ''}',
+        'Authorization':
+            'Bearer ${_supabase.auth.currentSession?.accessToken ?? ''}',
       },
       body: jsonEncode({
         'type': 'emergency_call',
-        'message': '【紧急】SOS求助10分钟无响应，位置: $locationUrl，'
+        'sosId': sosId,
+        'message':
+            '【紧急】SOS求助10分钟无响应，位置: $locationUrl，'
             '请立即联系或报警！',
       }),
     );
@@ -324,15 +338,15 @@ class SOSService {
 
   /// 升级至人工介入
   Future<void> _escalateToManual(String sosId) async {
-    await _supabase.from('help_requests').update({
-      'status': 'expired',
-      'completed_at': DateTime.now().toIso8601String(),
-    }).eq('id', sosId);
+    await _supabase
+        .from('help_requests')
+        .update({
+          'status': 'expired',
+          'completed_at': DateTime.now().toIso8601String(),
+        })
+        .eq('id', sosId);
 
-    await _updateSOSMetadata(
-      sosId,
-      {'requiresManualIntervention': true},
-    );
+    await _updateSOSMetadata(sosId, {'requiresManualIntervention': true});
 
     _updateSOSState(SOSState.manualIntervention);
   }
@@ -351,7 +365,9 @@ class SOSService {
             value: sosId,
           ),
           callback: (payload) async {
-            final newRecord = Map<String, dynamic>.from(payload.newRecord as Map);
+            final newRecord = Map<String, dynamic>.from(
+              payload.newRecord as Map,
+            );
             if (newRecord['type']?.toString() != 'sos') {
               return;
             }
@@ -396,10 +412,13 @@ class SOSService {
 
     final currentSOSId = _currentSOSId;
     if (currentSOSId != null) {
-      await _supabase.from('help_requests').update({
-        'status': 'cancelled',
-        'completed_at': DateTime.now().toIso8601String(),
-      }).eq('id', currentSOSId);
+      await _supabase
+          .from('help_requests')
+          .update({
+            'status': 'cancelled',
+            'completed_at': DateTime.now().toIso8601String(),
+          })
+          .eq('id', currentSOSId);
     }
 
     await _clearLocalSOSState(SOSState.cancelled);
@@ -411,10 +430,13 @@ class SOSService {
 
     final currentSOSId = _currentSOSId;
     if (currentSOSId != null) {
-      await _supabase.from('help_requests').update({
-        'status': 'completed',
-        'completed_at': DateTime.now().toIso8601String(),
-      }).eq('id', currentSOSId);
+      await _supabase
+          .from('help_requests')
+          .update({
+            'status': 'completed',
+            'completed_at': DateTime.now().toIso8601String(),
+          })
+          .eq('id', currentSOSId);
     }
 
     await _clearLocalSOSState(SOSState.resolved);
@@ -470,24 +492,24 @@ class SOSService {
 
 /// SOS触发方式
 enum SOSTriggerMethod {
-  voice,        // 语音触发
-  powerButton,  // 电源键3次
-  longPress,    // 长按3秒
-  manual,       // 手动触发
+  voice, // 语音触发
+  powerButton, // 电源键3次
+  longPress, // 长按3秒
+  manual, // 手动触发
 }
 
 /// SOS状态
 enum SOSState {
-  idle,                // 空闲
-  triggering,          // 触发中
-  gettingLocation,     // 获取位置中
-  broadcasting,        // 广播中
-  waitingResponse,     // 等待响应
-  escalating,          // 升级中
-  responded,           // 已响应
-  connected,           // 已连接
-  manualIntervention,  // 人工介入
-  cancelled,           // 已取消
-  resolved,            // 已解决
-  error,               // 错误
+  idle, // 空闲
+  triggering, // 触发中
+  gettingLocation, // 获取位置中
+  broadcasting, // 广播中
+  waitingResponse, // 等待响应
+  escalating, // 升级中
+  responded, // 已响应
+  connected, // 已连接
+  manualIntervention, // 人工介入
+  cancelled, // 已取消
+  resolved, // 已解决
+  error, // 错误
 }

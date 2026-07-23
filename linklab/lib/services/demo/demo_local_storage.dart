@@ -3,6 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../config/app_config.dart';
 
+const String _legacyAuthTokenStorageKey = 'auth_token';
+
 /// 本地存储键名
 class StorageKeys {
   static const String userProfile = 'user_profile';
@@ -11,7 +13,6 @@ class StorageKeys {
   static const String emergencyContacts = 'emergency_contacts';
   static const String isFirstLaunch = 'is_first_launch';
   static const String isLoggedIn = 'is_logged_in';
-  static const String authToken = 'auth_token';
   static const String lastSyncTime = 'last_sync_time';
 }
 
@@ -53,6 +54,7 @@ class DemoLocalStorage {
     }
 
     _prefs = await SharedPreferences.getInstance();
+    await _prefs!.remove(_legacyAuthTokenStorageKey);
   }
 
   /// 确保已初始化
@@ -229,24 +231,6 @@ class DemoLocalStorage {
   Future<bool> setLoggedIn(bool value) async {
     _ensureInitialized();
     return await _prefs!.setBool(StorageKeys.isLoggedIn, value);
-  }
-
-  /// 保存认证令牌
-  Future<bool> saveAuthToken(String token) async {
-    _ensureInitialized();
-    return await _prefs!.setString(StorageKeys.authToken, token);
-  }
-
-  /// 获取认证令牌
-  String? getAuthToken() {
-    _ensureInitialized();
-    return _prefs!.getString(StorageKeys.authToken);
-  }
-
-  /// 清除认证令牌
-  Future<bool> clearAuthToken() async {
-    _ensureInitialized();
-    return await _prefs!.remove(StorageKeys.authToken);
   }
 
   // ==================== 通用方法 ====================

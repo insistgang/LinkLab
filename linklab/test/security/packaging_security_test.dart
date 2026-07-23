@@ -1,6 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:linklab/services/local_storage.dart';
 
 void main() {
   test('Flutter 资源清单不得打包本地 .env', () {
@@ -27,5 +30,34 @@ void main() {
     expect(config, isNot(contains('static void initialize(')));
     expect(config, isNot(contains('static String zhipuApiKey')));
     expect(config, contains('static const String zhipuApiKey'));
+  });
+
+  test('客户端不得将认证令牌复制到 SharedPreferences', () {
+    final sessionService = File(
+      'lib/services/app_session_service.dart',
+    ).readAsStringSync();
+    final localStorage = File(
+      'lib/services/local_storage.dart',
+    ).readAsStringSync();
+
+    expect(sessionService, isNot(contains('saveAuthToken')));
+    expect(localStorage, isNot(contains('saveAuthToken')));
+  });
+
+  test('升级后初始化会清除旧版本遗留的明文认证令牌', () async {
+    SharedPreferences.setMockInitialValues({
+      'auth_token': 'legacy-plaintext-token',
+    });
+
+    await LocalStorage().initialize();
+    final preferences = await SharedPreferences.getInstance();
+
+    expect(preferences.containsKey('auth_token'), isFalse);
+  });
+
+  test('真实语音接口不得使用明文 HTTP', () {
+    final config = File('lib/config/api_config.dart').readAsStringSync();
+
+    expect(config, isNot(contains("'http://api.xfyun.cn")));
   });
 }

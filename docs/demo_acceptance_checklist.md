@@ -168,7 +168,7 @@ flutter test test/closed_loop
 
 ## 非 MVP 污染檢查
 
-- [ ] 默認導航沒有社羣、積分、徽章、排班、後臺。
+- [ ] 默認社羣僅展示精選故事，沒有發帖、羣聊或地區社羣；積分、徽章、排班、後臺不進入主線。
 - [ ] 首頁和 demo flow 不進入真實 WebRTC、真實推送、真實 Supabase 頁面。
 - [ ] `SeekerCenterScreen` 默認只展示“幫助檔案 / 求助狀態”；積分、異步任務、收藏志願者不進入競賽主線。
 - [ ] 根 `supabase/` 中非 MVP 表和 functions 已被標註 legacy、歸檔或從競賽部署路徑移除。
@@ -178,7 +178,7 @@ flutter test test/closed_loop
 
 ```powershell
 cd linklab
-rg -n "AdminLoginScreen|AdminLayout|CommunityScreen|PointsTab|AsyncRequestsTab|FavoriteVolunteersTab|RealCallScreen|RealCallPage|MatchingScreen\(" lib/main.dart lib/app.dart lib/screens/home lib/demo_flow
+rg -n "AdminLoginScreen|AdminLayout|InterestGroupsScreen|GroupChatScreen|NewbieVillageScreen|PointsTab|AsyncRequestsTab|FavoriteVolunteersTab|RealCallScreen|RealCallPage|MatchingScreen\(" lib/main.dart lib/app.dart lib/screens/home lib/demo_flow
 rg -n "points-calculator|point_transactions|async_tasks|reports|call_records" ..\supabase
 ```
 

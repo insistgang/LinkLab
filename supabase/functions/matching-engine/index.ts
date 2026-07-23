@@ -31,6 +31,10 @@ interface RankedVolunteer {
   distance: number;
 }
 
+interface AuthenticatedUser {
+  id: string;
+}
+
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
@@ -42,6 +46,28 @@ function createSupabaseClient() {
   const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
   const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
   return createClient(supabaseUrl, supabaseKey);
+}
+
+async function authenticateRequest(
+  req: Request,
+  supabase: ReturnType<typeof createSupabaseClient>,
+): Promise<AuthenticatedUser | null> {
+  const authorization = req.headers.get('authorization') || '';
+  if (!authorization.startsWith('Bearer ')) {
+    return null;
+  }
+
+  const token = authorization.slice('Bearer '.length).trim();
+  if (!token) {
+    return null;
+  }
+
+  const { data, error } = await supabase.auth.getUser(token);
+  if (error || !data.user) {
+    return null;
+  }
+
+  return { id: data.user.id };
 }
 
 async function rankVolunteers(
@@ -95,7 +121,11 @@ async function createHelpRequest(
   return data.id as string;
 }
 
-async function handleMatching(req: Request): Promise<Response> {
+async function handleMatching(
+  req: Request,
+  supabase: ReturnType<typeof createSupabaseClient>,
+  user: AuthenticatedUser,
+): Promise<Response> {
   try {
     const request = await req.json() as MatchingRequest;
 
@@ -106,7 +136,10 @@ async function handleMatching(req: Request): Promise<Response> {
       );
     }
 
-    const supabase = createSupabaseClient();
+    if (request.seekerId !== user.id) {
+      return jsonResponse({ error: '不能为其他用户创建求助记录' }, 403);
+    }
+
     const volunteers = await rankVolunteers(supabase, request, 5000);
 
     if (volunteers.length === 0) {
@@ -141,7 +174,11 @@ async function handleMatching(req: Request): Promise<Response> {
   }
 }
 
-async function handleTimeout(req: Request): Promise<Response> {
+async function handleTimeout(
+  req: Request,
+  supabase: ReturnType<typeof createSupabaseClient>,
+  user: AuthenticatedUser,
+): Promise<Response> {
   try {
     const { helpRequestId, expandRange } = await req.json() as {
       helpRequestId: string;
@@ -152,7 +189,6 @@ async function handleTimeout(req: Request): Promise<Response> {
       return jsonResponse({ error: '缺少 helpRequestId' }, 400);
     }
 
-    const supabase = createSupabaseClient();
     const { data: helpRequest, error } = await supabase
       .from('help_requests')
       .select('id, seeker_id, urgency, latitude, longitude, required_skills, help_type, intent, status')
@@ -163,18 +199,22 @@ async function handleTimeout(req: Request): Promise<Response> {
       return jsonResponse({ error: '求助記錄不存在' }, 404);
     }
 
+    if (helpRequest.seeker_id !== user.id) {
+      return jsonResponse({ error: '无权修改该求助记录' }, 403);
+    }
+
     if (expandRange) {
       const volunteers = await rankVolunteers(
         supabase,
         {
           seekerId: helpRequest.seeker_id as string,
-          urgency: (helpRequest.urgency as string?) ?? 'normal',
+          urgency: (helpRequest.urgency as string | null) ?? 'normal',
           location: {
             lat: Number(helpRequest.latitude ?? 0),
             lng: Number(helpRequest.longitude ?? 0),
           },
-          skills: (helpRequest.required_skills as string[]?) ?? [],
-          helpType: (helpRequest.help_type as string?) ?? 'general',
+          skills: (helpRequest.required_skills as string[] | null) ?? [],
+          helpType: (helpRequest.help_type as string | null) ?? 'general',
         },
         10000,
       );
@@ -195,8 +235,8 @@ async function handleTimeout(req: Request): Promise<Response> {
     await supabase.from('async_tasks').insert({
       request_id: helpRequestId,
       seeker_id: helpRequest.seeker_id,
-      title: (helpRequest.help_type as string?) ?? '異步協助',
-      description: (helpRequest.intent as string?) ?? '匹配超時後自動轉爲異步留言',
+      title: (helpRequest.help_type as string | null) ?? '異步協助',
+      description: (helpRequest.intent as string | null) ?? '匹配超時後自動轉爲異步留言',
       type: 'other',
       status: 'pending',
       deadline_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
@@ -213,7 +253,11 @@ async function handleTimeout(req: Request): Promise<Response> {
   }
 }
 
-async function handleAccept(req: Request): Promise<Response> {
+async function handleAccept(
+  req: Request,
+  supabase: ReturnType<typeof createSupabaseClient>,
+  user: AuthenticatedUser,
+): Promise<Response> {
   try {
     const { helpRequestId, volunteerId } = await req.json() as {
       helpRequestId: string;
@@ -224,7 +268,24 @@ async function handleAccept(req: Request): Promise<Response> {
       return jsonResponse({ error: '缺少 helpRequestId 或 volunteerId' }, 400);
     }
 
-    const supabase = createSupabaseClient();
+    if (volunteerId !== user.id) {
+      return jsonResponse({ error: '不能代替其他志愿者接单' }, 403);
+    }
+
+    const { data: volunteer, error: volunteerError } = await supabase
+      .from('volunteer_profiles')
+      .select('user_id, is_available')
+      .eq('user_id', user.id)
+      .eq('is_available', true)
+      .maybeSingle();
+
+    if (volunteerError) {
+      throw new Error(`验证志愿者身份失败: ${volunteerError.message}`);
+    }
+    if (!volunteer) {
+      return jsonResponse({ error: '当前用户不是可接单志愿者' }, 403);
+    }
+
     const { data, error } = await supabase
       .from('help_requests')
       .update({
@@ -261,7 +322,10 @@ async function handleAccept(req: Request): Promise<Response> {
   }
 }
 
-async function handleReject(req: Request): Promise<Response> {
+async function handleReject(
+  req: Request,
+  user: AuthenticatedUser,
+): Promise<Response> {
   try {
     const { helpRequestId, volunteerId } = await req.json() as {
       helpRequestId: string;
@@ -270,6 +334,10 @@ async function handleReject(req: Request): Promise<Response> {
 
     if (!helpRequestId || !volunteerId) {
       return jsonResponse({ error: '缺少 helpRequestId 或 volunteerId' }, 400);
+    }
+
+    if (volunteerId !== user.id) {
+      return jsonResponse({ error: '不能代替其他志愿者拒绝求助' }, 403);
     }
 
     return jsonResponse({
@@ -291,21 +359,26 @@ Deno.serve(async (req: Request) => {
   }
 
   const url = new URL(req.url);
+  const supabase = createSupabaseClient();
+  const user = await authenticateRequest(req, supabase);
+  if (!user) {
+    return jsonResponse({ error: 'Unauthorized' }, 401);
+  }
 
   if (url.pathname === '/matching-engine' && req.method === 'POST') {
-    return handleMatching(req);
+    return handleMatching(req, supabase, user);
   }
 
   if (url.pathname === '/matching-engine/timeout' && req.method === 'POST') {
-    return handleTimeout(req);
+    return handleTimeout(req, supabase, user);
   }
 
   if (url.pathname === '/matching-engine/accept' && req.method === 'POST') {
-    return handleAccept(req);
+    return handleAccept(req, supabase, user);
   }
 
   if (url.pathname === '/matching-engine/reject' && req.method === 'POST') {
-    return handleReject(req);
+    return handleReject(req, user);
   }
 
   return jsonResponse({ error: 'Not Found' }, 404);

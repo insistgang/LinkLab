@@ -39,8 +39,8 @@
 
 - 竞赛版入口已强制锁定 `Demo Mode`
 - 全局已补齐 `ProviderScope`
-- 默认导航只保留 `Home / AIChat / Profile`
-- 社区 / 社群 / 复杂后台能力已降级或移出默认主链路
+- 默认导航保留 `Home / AIChat / 社群精选 / Profile`
+- 社群仅展示精选互助故事，不开放发帖、群聊或地区社群；复杂后台能力已移出默认主链路
 - Supabase 以根目录 `supabase/` 为唯一 schema source of truth
 - `real_*` 真实链路已隔离到 `services/experimental/real/`
 - 5 条关键 Demo 闭环测试已补齐并通过
