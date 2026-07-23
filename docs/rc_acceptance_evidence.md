@@ -1,26 +1,122 @@
-# 競賽 Demo RC 驗收證據
+# 竞赛 Demo RC 验收证据
 
-> 口徑聲明：**競賽 Demo 不依賴外部服務**。當前驗收只證明 2026 創客大賽 3 分鐘 Demo RC 的本地閉環穩定性，不聲明生產上線、真實 WebRTC、真實 Supabase、真實短信、真實推送或真實報警已完成。
-> 2026-05-01 文檔口徑補充：本文件保留歷史 RC 證據；本輪只整理 Markdown，未運行 `flutter analyze`、`flutter test`、`flutter build web` 或 `flutter run`。如與 README/TODO 的早期記錄衝突，應按“不同時間點的歷史驗證記錄”理解，交付前需要重新復跑並追加最新結果。
+> 核对日期：2026-07-24
+> 基线：以 `3eb6810` 为起点的本轮收口交付
+> 总索引：[PROJECT_MASTER_PLAN.md](./PROJECT_MASTER_PLAN.md)
 
-## 驗收證據表
+## 1. 口径
 
-| 驗收項 | 當前證據 | 代碼入口 | 自動化驗證 | 手動驗證方式 | 風險 |
-|---|---|---|---|---|---|
-| 啓動進入首頁 | 入口使用 `ProviderScope(child: LinkLabApp())`；初始化強制 demo mode；預置演示員會話可跳過真實登錄 | `linklab/lib/main.dart`；`linklab/lib/app.dart`；`linklab/lib/config/app_config.dart`；`linklab/lib/services/app_session_service.dart` | `linklab/test/widget_test.dart` 驗證 demo mode、presenter session、首頁三項底部導航與無登錄卡點 | 冷啓動 App，確認 20 秒內進入首頁並看到“我需要幫助”主按鈕 | 真實登錄/實名完整鏈路不是本輪 RC 驗收目標 |
-| AI 直接解決 | F1 本地 fallback 支持 OCR、場景、顏色、面額、翻譯、環境、導航、藥品、緊急詞等演示意圖；AI 可處理時進入 `ai_resolved` | `linklab/lib/services/demo/demo_ai_service.dart`；`linklab/lib/models/demo_ai_intent.dart`；`linklab/lib/screens/ai_chat/demo_ai_chat_screen.dart`；`linklab/lib/providers/demo_help_request_flow_provider.dart` | `linklab/test/closed_loop/demo_data_fallback_test.dart`；`linklab/test/closed_loop/help_request_state_machine_test.dart` | 在 AI 助手輸入“幫我讀藥品盒”“我面前是什麼”，確認本地固定結果可見且有轉人工入口 | 意圖準確率指標仍需更大樣本手測；當前是 deterministic demo 驗收 |
-| AI 轉人工 | AI 無法處理、複雜醫院動線、用戶要求真人時進入 `matching`，不出現死路 | `linklab/lib/services/demo/demo_ai_service.dart`；`linklab/lib/providers/demo_help_request_flow_provider.dart`；`linklab/lib/screens/ai_chat/demo_ai_chat_screen.dart` | `help_request_state_machine_test.dart` 覆蓋 `ai_processing -> matching -> connected -> completed`；`demo_data_fallback_test.dart` 覆蓋 need_human | 輸入“我在醫院找不到科室，需要人幫忙”，確認進入匹配頁 | 真實異步留言不是 RC 主線，僅可作爲後續落點 |
-| Top 5 志願者匹配 | F9-A 本地志願者池與 Top 5 匹配引擎已接入匹配頁；只展示在線候選人和推薦理由 | `linklab/assets/demo_data/demo_volunteers.json`；`linklab/lib/services/demo/demo_matching_service.dart`；`linklab/lib/providers/demo_matching_flow_provider.dart`；`linklab/lib/screens/call/demo_matching_screen.dart` | `linklab/test/closed_loop/demo_matching_service_test.dart`；`linklab/test/closed_loop/demo_matching_screen_test.dart` | 從 AI 轉人工進入匹配頁，確認 Top 5、距離、技能、信譽、歷史幫助次數、推薦理由可見 | 距離、在線狀態、信譽分爲本地模擬，不代表真實定位或真實在線狀態 |
-| Demo Call connecting / connected / reconnecting / ended | F11 當前爲 Demo Call 狀態機；不初始化真實 WebRTC、不請求真實麥克風權限；支持掉線恢復與失敗回匹配 | `linklab/lib/providers/demo_call_flow_provider.dart`；`linklab/lib/screens/call/demo_call_screen.dart`；`linklab/lib/screens/call/demo_call_rating_screen.dart` | `linklab/test/closed_loop/demo_call_flow_test.dart`；`linklab/test/closed_loop/demo_call_screen_test.dart` | 在匹配頁模擬接單，進入通話頁，依次演示連接中、已接通、模擬掉線、恢復、結束通話和評價頁 | 真實 WebRTC、弱網媒體質量、真實信令均未作爲 RC 完成項 |
-| Mock SOS 10 秒撤銷 / 廣播 / 聯繫人通知 | F13 只做 Mock：誤觸撤銷窗口、模擬廣播、模擬緊急聯繫人通知；不新增 `sos_triggered` 主狀態 | `linklab/lib/screens/call/demo_sos_screen.dart`；`linklab/lib/providers/demo_help_request_flow_provider.dart`；`linklab/lib/services/demo_sos_service.dart` | `linklab/test/closed_loop/sos_closed_loop_test.dart`；`help_request_state_machine_test.dart` 新增 SOS 不污染主狀態機驗證 | 點擊首頁 SOS 或輸入緊急詞，確認“可在 10 秒內撤銷”、模擬廣播和聯繫人通知狀態可見 | 真實短信、真實推送、真實定位、真實 110/120 聯通未接入 RC |
-| 我的頁與無障礙偏好 | 默認“我的”頁保留偏好、幫助記錄、緊急聯繫人、位置共享說明等與 F33/F36 相關入口；未接入積分/徽章/排班/後臺 | `linklab/lib/screens/profile/profile_screen.dart`；`linklab/lib/screens/profile/preference_screen.dart` | `widget_test.dart` 覆蓋默認導航不出現社羣/積分/徽章/排班 | 打開“我的”，檢查偏好設置、緊急聯繫人、退出演示會話；確認沒有後臺、積分、徽章、排班主入口 | “位置共享”需人工確認文案仍爲演示/偏好，不應變成真實定位前置依賴 |
-| 200% 字體 smoke | 匹配頁、通話頁已有 200% text scale smoke；主頁面使用滾動容器降低 overflow 風險 | `linklab/lib/screens/call/demo_matching_screen.dart`；`linklab/lib/screens/call/demo_call_screen.dart`；`linklab/lib/screens/home/home_screen.dart`；`linklab/lib/screens/ai_chat/demo_ai_chat_screen.dart` | `demo_matching_screen_test.dart`；`demo_call_screen_test.dart` | Android/iOS 模擬器開啓 200% 字體，手動跑首頁、AI、匹配、通話、SOS | 自動化覆蓋仍不是完整視覺無障礙審計；首頁/AI/SOS 仍建議現場 smoke |
-| Semantics / 讀屏待手測 | 主按鈕、匹配候選卡、通話控制按鈕、SOS 操作按鈕已有 Semantics；讀屏焦點需人工確認 | `linklab/lib/screens/home/home_screen.dart`；`linklab/lib/screens/call/demo_matching_screen.dart`；`linklab/lib/screens/call/demo_call_screen.dart`；`linklab/lib/screens/call/demo_sos_screen.dart` | 匹配頁與通話頁 Semantics 測試覆蓋關鍵按鈕；widget test 覆蓋啓動 smoke | 使用 TalkBack / VoiceOver 從首頁跑完整 3 分鐘腳本，確認焦點順序、按鈕朗讀、狀態文案 | 讀屏屬於必須手測項，不能只靠 Flutter 單測判定通過 |
-| 非 MVP 入口隱藏 | 底部導航只有：首頁 / AI助手 / 我的；FeatureFlags 默認關閉真實 WebRTC、真實匹配、推送、數據庫同步、位置、短信、社羣、積分、徽章、排班、後臺、錄音 | `linklab/lib/screens/home/main_screen.dart`；`linklab/lib/config/app_config.dart`；`linklab/analysis_options.yaml` | `widget_test.dart` 新增 feature flag 關閉斷言；默認導航斷言 | 從首頁、AI、我的逐項點擊，確認不能直接進入 admin/community/points/badges/schedule/recording/real WebRTC/real Supabase-only 頁面 | 根 `supabase/` 仍有非 MVP 歷史表和 points/push functions，需要後續後端收口 |
-| Web / Chrome 演示路徑 | Web / Chrome 是當前首選演示和交付複驗路徑；`linklab/web/` 存在 Web 殼文件，交付計劃把 `flutter build web --debug` / `flutter build web --release` 列爲驗收命令 | `linklab/web/index.html`；`linklab/web/manifest.json`；`docs/competition_mvp_delivery_plan.md` | 建議複驗：`flutter test`；`flutter build web --release` | 使用 Chrome 打開 Demo 主線並跑完整 3 分鐘腳本 | 本輪未復跑 Flutter；Web build 通過狀態需在交付前追加最新命令輸出 |
-| Windows 桌面路徑 | Windows desktop 不是首選演示路徑；運行或構建需要 Visual Studio C++ 桌面開發工具鏈 | `linklab/windows/` | 不作爲本輪 RC 必跑項 | 僅在已安裝 VS C++ toolchain 的機器上單獨驗證 | 缺少 toolchain 導致 Windows 構建失敗，不代表 Web/Chrome Demo 不可演示 |
-| analyze / tests 歷史 RC 結果 | 歷史 RC 加固後曾執行 Flutter 靜態分析與測試：`flutter analyze` 爲 No issues found；`flutter test --reporter compact` 爲 All tests passed（60 tests） | `linklab/` | `flutter analyze`；`flutter test --reporter compact` | 無 | 該結果只覆蓋當時 Flutter 分析範圍；被 `analysis_options.yaml` 排除的 legacy 模塊另行審計。本輪文檔整理未復跑 |
+本次验收只证明 LinkAble 竞赛 Demo 的本地闭环和 Web 交付能力，不代表真实 WebRTC、Supabase、推送、短信、定位、AI 供应商或报警链路已生产上线。
 
-## 當前結論
+默认演示不依赖外部服务。所有广播、联系人通知、通话和 SOS 均明确标注为本地 Demo / Mock。
 
-當前 Flutter 默認主線符合 AGENTS.md 的 Demo-first RC 口徑：打開 App 進入預置演示員首頁，F1 AI 本地 fallback、F9 Top 5 本地匹配、F11 Demo Call、F13 Mock SOS、F33 演示會話與 F36 基礎無障礙檢查均有自動化或手動驗收入口。仍需把讀屏、200% 字體完整腳本、真實設備冷啓動作爲賽前人工驗收清單執行。
+## 2. 自动化证据
+
+| 检查 | 结果 |
+|---|---|
+| Flutter | 3.44.4 stable |
+| Dart | 3.12.2 |
+| `flutter analyze` | No issues found |
+| `flutter test --reporter compact` | 114 项全部通过 |
+| `flutter build web --release` | 成功，生成 `build/web` |
+| `flutter build apk --release` | 成功，生成 `app-release.apk`（`1.0.1 (2)`，92.0 MB） |
+| 后端部署面安全测试 | 3 项通过 |
+| 补丁格式 | `git diff --check` 通过 |
+| workflow | YAML 可解析 |
+| 敏感信息扫描 | 未发现真实 key、JWT 或私钥 |
+
+Web Release 的 WASM dry-run 曾报告 `flutter_tts` 兼容提示，并在依赖收敛后的增量构建中出现工具内部 `org-dartlang-untranslatable-uri` 非阻断异常；JavaScript Web 构建均成功，不阻塞当前 Pages 交付。
+
+Android APK 包名为 `com.gonggan.linklab`，通过 APK Signature Scheme v2 校验。当前使用与旧简体 APK 相同的 Android Debug 证书，适合自装、覆盖升级和现场演示，不作为应用商店正式签名包。
+
+## 3. 功能证据
+
+| 功能 | 自动化证据 | Chrome 实际验收 | 结论 |
+|---|---|---|---|
+| 启动与 F33 | presenter session、登录和偏好 Widget 测试 | 角色选择后进入求助者首页，没有真实登录卡点 | 通过 |
+| F1 9 类意图 | `demo_data_fallback_test.dart` | AI 页面本地可用，输入真人请求出现明确二次确认 | 通过 |
+| F1 紧急词 | 100 条固定集；召回率 `>=95%`、误识率 `<=2%` | “救命，我摔倒了”直接进入 SOS | 通过固定集 |
+| F1 三轮上下文 | 药品说明三轮对话测试 | 未单独人工计时 | 自动化通过 |
+| F1 转人工 | need-human / 状态机测试 | 确认弹窗 → “连接志愿者” → matching | 通过 |
+| F9 Top 5 | 50 人池 `<500ms` | 页面展示 Top 5、距离、技能、信誉与 Mock 标签 | 通过 |
+| F9 并发 | 10 路接单竞争只有 1 个成功 | 页面最终只有 1 位已接单志愿者 | 通过 Demo 合同 |
+| F9 拒接降权 | 连续 3 次拒接/超时后下一轮分数降低 | 页面可见超时并尝试下一位 | 通过 |
+| F11 Demo Call | connecting / connected / reconnecting / ended | 匹配后自动进入通话；可静音、免提、结束与评价 | 通过 |
+| F11 掉线 | 默认阈值 10 秒；超时回 matching | 页面明确显示“掉线 10 秒未恢复会回到 matching” | 通过状态合同 |
+| F13 SOS | 10 秒撤销、Mock 广播、联系人状态测试 | 紧急词进入撤销窗口；点击“撤销误触”返回 SOS 首页 | 通过 |
+| 评价与结果回看 | rating / history 闭环测试 | 选择星级、提交后回首页，提示已写入本地 Demo 回看 | 通过 |
+| 静态精选故事 | 默认导航范围测试 | 底部“社群”为只读精选入口 | 通过范围合同 |
+
+## 4. Web 与响应式验收
+
+本地使用 Release 产物在浏览器中完成以下路径：
+
+```text
+角色选择
+  → 求助者首页
+  → AI 输入“我需要真人志愿者帮助”
+  → 二次确认
+  → Top 5 匹配
+  → 单一志愿者接单
+  → Demo 通话
+  → 结束与评价
+  → 返回首页
+```
+
+SOS 路径：
+
+```text
+AI 输入“救命，我摔倒了”
+  → SOS 10 秒误触撤销窗口
+  → 撤销误触
+  → 返回 SOS 首页
+```
+
+实际观察：
+
+- 1280×720 页面无明显溢出或断图。
+- 390×844 窄屏首页可滚动，主卡片和四项底栏可用。
+- 所有 SVG 与本地 Demo JSON 请求成功。
+- 浏览器控制台 0 个 error。
+- 字体资源在窄屏硬刷新后约 1.5 秒内完成加载；加载完成后中文显示正常。
+
+## 5. 无障碍证据
+
+已自动化：
+
+- 登录、首页、AI、快捷工具、匹配、通话、SOS 与个人页的 200% 字体 smoke。
+- 关键按钮与状态的 Semantics 断言。
+- 关键触摸目标和可滚动布局。
+- 状态不只依赖颜色，配有图标和文字。
+
+仍需人工：
+
+- TalkBack / VoiceOver 完整 3 分钟焦点顺序。
+- 真实设备系统字体 200%。
+- 关键文字与背景的逐项 7:1 对比度测量。
+- Android / iOS 真实设备冷启动。
+
+因此 F36 当前是“自动化通过、人工读屏待验收”，不能写成全部完成。
+
+## 6. Supabase 证据
+
+- 线上只有 `profiles`、`help_requests`、`volunteer_profiles` 三张空业务表，均启用 RLS。
+- 线上 migration 记录为 0，Edge Function 为 0。
+- 本地活跃 migration 只保留最小三表候选基线。
+- 历史全量 schema 与 4 个不可部署函数位于 `supabase/legacy/`。
+- 本次没有执行生产 DDL、数据写入或函数部署。
+- 候选 migration 的字段、约束、索引、触发器和 12 条 RLS 策略已通过线上只读查询逐项核对。
+- 当前机器没有 Supabase CLI 和 Docker，因此空库重放与 migration 历史登记仍待隔离环境/用户确认。
+
+详细依赖见 [SUPABASE_DEPLOYMENT_SURFACE.md](./SUPABASE_DEPLOYMENT_SURFACE.md)，基线核对见 [SUPABASE_BASELINE_VALIDATION.md](./SUPABASE_BASELINE_VALIDATION.md)。
+
+## 7. 当前结论
+
+Demo 主线已达到本地交付 RC：114 项测试通过、静态分析通过、Web 与 Android Release 构建成功、Chrome 主闭环和 SOS 撤销无死路。
+
+进入正式发布前还需要：
+
+1. TalkBack / VoiceOver 和真实设备检查。
+2. 逐项对比度记录。
+
+依赖与分析范围证据见 [DEPENDENCY_AUDIT.md](./DEPENDENCY_AUDIT.md)。

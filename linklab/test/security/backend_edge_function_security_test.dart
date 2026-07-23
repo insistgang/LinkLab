@@ -6,57 +6,81 @@ String _readRepositoryFile(String relativePath) {
   return File('../$relativePath').readAsStringSync();
 }
 
+List<String> _repositoryFiles(String relativePath) {
+  final directory = Directory('../$relativePath');
+  if (!directory.existsSync()) return const [];
+
+  return directory
+      .listSync(recursive: true)
+      .whereType<File>()
+      .map((file) => file.path.replaceFirst('../', ''))
+      .toList()
+    ..sort();
+}
+
 void main() {
-  test('所有部署中的 Edge Function 都必须启用 JWT 网关校验', () {
-    final rootConfig = _readRepositoryFile('supabase/config.toml');
-    final pointsConfig = _readRepositoryFile(
-      'supabase/functions/points-calculator/config.toml',
+  test('活跃 migration 只保留最小三表 RealMode 基线', () {
+    final activeMigrations = _repositoryFiles('supabase/migrations');
+    final baseline = _readRepositoryFile(
+      'supabase/migrations/202605240001_realmode_phase3_minimal_crud.sql',
     );
 
+    expect(activeMigrations, [
+      'supabase/migrations/202605240001_realmode_phase3_minimal_crud.sql',
+    ]);
+    expect(baseline, contains('create table if not exists public.profiles'));
     expect(
-      RegExp(
-        r'\[functions\.points-calculator\]\s+verify_jwt\s*=\s*true',
-      ).hasMatch(rootConfig),
-      isTrue,
+      baseline,
+      contains('create table if not exists public.help_requests'),
     );
-    expect(pointsConfig, contains('verify_jwt = true'));
-    expect(rootConfig, isNot(contains('verify_jwt = false')));
+    expect(
+      baseline,
+      contains('create table if not exists public.volunteer_profiles'),
+    );
+    expect(baseline, contains('references auth.users(id)'));
+    expect(baseline, isNot(contains('create table users')));
+    expect(baseline, isNot(contains('point_transactions')));
+    expect(baseline, isNot(contains('async_tasks')));
   });
 
-  test('积分写入仅接受 service-role 调用且由数据库保证幂等', () {
-    final implementation = _readRepositoryFile(
-      'supabase/functions/points-calculator/index.ts',
-    );
-    final migration = _readRepositoryFile(
-      'supabase/migrations/202607230001_harden_edge_functions.sql',
-    );
+  test('活跃部署面不声明任何未对齐的 Edge Function', () {
+    final rootConfig = _readRepositoryFile('supabase/config.toml');
 
-    expect(implementation, contains('requireServiceRoleRequest'));
-    expect(implementation, contains('award_volunteer_points_once'));
-    expect(implementation, isNot(contains("supabase.rpc('increment'")));
-    expect(migration, contains('point_transactions_source_record_unique'));
-    expect(migration, contains('award_volunteer_points_once'));
+    expect(_repositoryFiles('supabase/functions'), isEmpty);
+    expect(rootConfig, isNot(contains('[functions.')));
+    expect(rootConfig, contains('当前不声明可部署 Edge Function'));
   });
 
-  test('匹配接口必须从 JWT 获取调用者并绑定资源归属', () {
-    final implementation = _readRepositoryFile(
-      'supabase/functions/matching-engine/index.ts',
+  test('历史迁移与函数保留在 legacy 且有禁止部署说明', () {
+    final legacyReadme = _readRepositoryFile('supabase/legacy/README.md');
+    final legacyFiles = _repositoryFiles('supabase/legacy');
+
+    expect(legacyReadme, contains('不要从本目录执行 `supabase db push`'));
+    expect(
+      legacyFiles,
+      contains('supabase/legacy/migrations/001_create_tables.sql'),
     );
-
-    expect(implementation, contains('authenticateRequest'));
-    expect(implementation, contains('request.seekerId !== user.id'));
-    expect(implementation, contains('helpRequest.seeker_id !== user.id'));
-    expect(implementation, contains('volunteerId !== user.id'));
-  });
-
-  test('推送接口必须鉴权并验证 SOS 记录属于调用者', () {
-    final implementation = _readRepositoryFile(
-      'supabase/functions/push-notifier/index.ts',
+    expect(
+      legacyFiles,
+      contains(
+        'supabase/legacy/migrations/202607230001_harden_edge_functions.sql',
+      ),
     );
-
-    expect(implementation, contains('authenticateRequest'));
-    expect(implementation, contains('requireServiceRoleRequest'));
-    expect(implementation, contains('authorizeSOSRequest'));
-    expect(implementation, contains('helpRequest.seeker_id !== user.id'));
+    expect(
+      legacyFiles,
+      contains('supabase/legacy/functions/matching-engine/index.ts'),
+    );
+    expect(
+      legacyFiles,
+      contains('supabase/legacy/functions/push-notifier/index.ts'),
+    );
+    expect(
+      legacyFiles,
+      contains('supabase/legacy/functions/points-calculator/index.ts'),
+    );
+    expect(
+      legacyFiles,
+      contains('supabase/legacy/functions/ai-dispatcher/index.ts'),
+    );
   });
 }

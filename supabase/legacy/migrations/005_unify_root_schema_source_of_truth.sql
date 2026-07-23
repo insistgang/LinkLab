@@ -1,3 +1,4 @@
+-- 历史全量 schema：仅归档，禁止作为当前默认部署迁移。
 -- =====================================================
 -- 共感 LinkAble Schema 對齊腳本
 -- AGENTS.md §4.4：根目錄 supabase/ 是唯一 schema source of truth

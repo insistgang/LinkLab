@@ -161,6 +161,28 @@ void main() {
     );
   });
 
+  test('默认掉线超时为 10 秒，超时后自动回到 matching', () async {
+    await prepareSignedInDemoEnvironment(clearHelpHistory: true);
+    expect(demoCallReconnectTimeout, const Duration(seconds: 10));
+    final container = await createConnectedMatchingContainer();
+
+    await container
+        .read(demoCallFlowProvider.notifier)
+        .start(autoConnect: false);
+    container.read(demoCallFlowProvider.notifier).connectNow();
+    container
+        .read(demoCallFlowProvider.notifier)
+        .simulateDisconnect(autoFailDelay: const Duration(milliseconds: 10));
+
+    await Future<void>.delayed(const Duration(milliseconds: 30));
+
+    expect(container.read(demoCallFlowProvider).phase, DemoCallUiPhase.failed);
+    expect(
+      container.read(demoHelpRequestFlowProvider).status,
+      HelpRequestStatus.matching,
+    );
+  });
+
   test('reconnecting 时结束通话不崩溃，并完成 help_request', () async {
     await prepareSignedInDemoEnvironment(clearHelpHistory: true);
     final container = await createConnectedMatchingContainer();

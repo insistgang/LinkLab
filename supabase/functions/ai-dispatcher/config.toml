@@ -1,3 +1,0 @@
-[functions.ai-dispatcher]
-verify_jwt = true
-cors_origins = ["*"]

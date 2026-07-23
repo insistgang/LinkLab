@@ -279,6 +279,78 @@ void main() {
     expect(nextAccept.activeVolunteerId, secondVolunteerId);
   });
 
+  test('10 个志愿者同时抢单时只有 1 个成功', () async {
+    await prepareEmptyDemoEnvironment();
+    final service = DemoMatchingEngineService();
+
+    final attempts = await Future.wait(
+      List.generate(
+        10,
+        (index) => Future.microtask(
+          () => service.tryAccept('concurrent_volunteer_$index'),
+        ),
+      ),
+    );
+
+    expect(attempts.where((attempt) => attempt.success), hasLength(1));
+    expect(attempts.where((attempt) => !attempt.success), hasLength(9));
+    expect(service.activeVolunteerId, isNotNull);
+  });
+
+  test('同一志愿者连续 3 次拒接或超时后在下一轮自动降权', () async {
+    await prepareEmptyDemoEnvironment();
+    final service = DemoMatchingEngineService();
+    const repeatedlyRejected = DemoVolunteer(
+      id: 'penalty_a',
+      nickname: '连续拒接者',
+      avatarLabel: '拒',
+      distanceMeters: 100,
+      skills: [demoSkillHospitalGuide],
+      reputationScore: 0.9,
+      isOnline: true,
+      helpCount: 20,
+      estimatedResponseSeconds: 10,
+    );
+    const reliable = DemoVolunteer(
+      id: 'penalty_b',
+      nickname: '稳定接单者',
+      avatarLabel: '稳',
+      distanceMeters: 100,
+      skills: [demoSkillHospitalGuide],
+      reputationScore: 0.9,
+      isOnline: true,
+      helpCount: 20,
+      estimatedResponseSeconds: 10,
+    );
+
+    final beforePenalty = await service.matchTopVolunteers(
+      hospitalRequest,
+      volunteerPool: const [repeatedlyRejected, reliable],
+    );
+    expect(beforePenalty.results.first.volunteer.id, repeatedlyRejected.id);
+
+    for (var index = 0; index < 3; index++) {
+      service.rejectOrTimeout(repeatedlyRejected.id);
+      service.resetCompetition();
+    }
+
+    final afterPenalty = await service.matchTopVolunteers(
+      hospitalRequest,
+      volunteerPool: const [repeatedlyRejected, reliable],
+    );
+    expect(afterPenalty.results.first.volunteer.id, reliable.id);
+    expect(
+      afterPenalty.results
+          .firstWhere((result) => result.volunteer.id == repeatedlyRejected.id)
+          .score,
+      lessThan(
+        afterPenalty.results
+            .firstWhere((result) => result.volunteer.id == reliable.id)
+            .score,
+      ),
+    );
+  });
+
   test('cancel 和 expire 逻辑可用', () async {
     await prepareEmptyDemoEnvironment();
 

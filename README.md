@@ -7,7 +7,7 @@
 > 2026 两岸大学生创客大赛 · 逢甲赛区竞赛交付版本
 > 当前仓库状态：**Demo-first MVP** / **Web 与 Chrome 是主要演示路径** / **真实 WebRTC、Supabase、推送、SOS 生产链路仍为实验或后续能力**
 
-> 最新状态索引见 [DEMO_STATUS.md](./DEMO_STATUS.md)。本轮文档整理不运行 Flutter，也不把历史测试记录重新声明为当前复验结果。
+> 当前唯一总索引见 [docs/PROJECT_MASTER_PLAN.md](./docs/PROJECT_MASTER_PLAN.md)；[DEMO_STATUS.md](./DEMO_STATUS.md) 是精简运行状态页，其他带日期的数字均按历史记录理解。
 
 ## 项目定位
 
@@ -28,24 +28,25 @@
 | **F9 志愿者匹配** | AI 无法解决时，进入 Demo 匹配流程并展示明确的状态变化 | MVP 核心 |
 | **F11 实时语音通话** | 匹配成功后进入语音通话闭环；竞赛版默认走 Demo 通话 | MVP 核心 |
 | **F13 SOS 紧急呼救** | 一键触发、10 秒误触撤销窗口、Mock 广播和联系人通知 | MVP 核心 |
-| **F33 登录与无障碍偏好** | 手机号验证码登录、首次引导、偏好恢复 | MVP 核心 |
+| **F33 登录与无障碍偏好** | 演示员会话、首次引导、偏好恢复；真实 Auth 仅在显式 RealMode 使用 | MVP 核心 |
 | **F36 全局无障碍** | `Semantics`、高对比度、48x48 触摸目标、动态字体、错误三重表达 | 强制约束 |
 
 一句话总结：**AI 处理 80% 标准化需求，志愿者兜底 20% 复杂 / 紧急需求。**
 
 ## 当前交付状态
 
-截至 `2026-04-17` 的历史执行记录显示，仓库曾完成 `P0 + P1 + P2` 收口工作；`2026-05-01` 文档口径整理后，统一将当前项目标注为 Demo-first MVP：
+截至 `2026-07-24` 的当前核对结果：
 
 - 竞赛版入口已强制锁定 `Demo Mode`
 - 全局已补齐 `ProviderScope`
 - 默认导航保留 `Home / AIChat / 社群精选 / Profile`
 - 社群仅展示精选互助故事，不开放发帖、群聊或地区社群；复杂后台能力已移出默认主链路
-- Supabase 以根目录 `supabase/` 为唯一 schema source of truth
+- 根目录 `supabase/` 已完成本地隔离：活跃目录只保留最小三表 migration，历史全量 schema 与不可部署函数位于 `supabase/legacy/`
 - `real_*` 真实链路已隔离到 `services/experimental/real/`
-- 5 条关键 Demo 闭环测试已补齐并通过
+- 最近本地复验为 114 项测试通过、`flutter analyze` 无问题、Web Release 构建成功
 - 日志已统一收口到 `AppLogger`
 - `api_config.dart` 已改为可跟踪的无密钥兼容配置，真实 AI 只经服务端代理
+- 线上 Supabase 当前为三张空业务表、0 条迁移记录、0 个 Edge Function；未执行本轮生产写入
 
 ## 项目中心与正式资料
 
@@ -82,7 +83,7 @@ cd linklab
 flutter build web --release
 ```
 
-说明：Web build 是推荐交付复验口径之一。本轮文档整理未运行该命令，交付前应重新执行并把结果补入 [`docs/rc_acceptance_evidence.md`](./docs/rc_acceptance_evidence.md)。
+说明：Web build 是推荐交付复验口径之一。`2026-07-24` 最近一次本地复验已成功；正式 RC 仍需重新执行并把 commit、命令和结果补入 [`docs/rc_acceptance_evidence.md`](./docs/rc_acceptance_evidence.md)。
 
 ### 3. 运行闭环测试
 
@@ -95,20 +96,17 @@ flutter test --tags demo
 
 ```bash
 cd linklab
-flutter analyze lib
+flutter analyze
 ```
 
-```bash
-cd linklab/admin_dashboard
-flutter analyze lib
-```
+最近验证记录（`2026-07-24`）：
 
-已有验证记录口径：
+- `flutter analyze`：`No issues found`
+- `flutter test --reporter compact`：114 项通过
+- `flutter build web --release`：成功
+- `git diff --check`：通过
 
-- `README.md` / `TODO.md` 的 2026-04-17 历史记录曾写明：主应用 `flutter analyze lib` 仍有 `70 issues found`，`admin_dashboard` 有 `9 issues found`，`flutter test --tags demo` 为 **All tests passed**。
-- [`docs/rc_acceptance_evidence.md`](./docs/rc_acceptance_evidence.md) 的较新 RC 记录曾写明：`flutter analyze` 为 `No issues found`，`flutter test --reporter compact` 为 `All tests passed`（60 tests）。
-- [`docs/competition_mvp_delivery_plan.md`](./docs/competition_mvp_delivery_plan.md) 将 `flutter build web --debug` / `flutter build web --release` 纳入 Web 演示验收口径。
-- 本轮仅整理文档，没有复跑 `flutter test`、`flutter analyze` 或 `flutter build web`；交付前以 Web / Chrome 路径重新复验为准。
+这组结果证明当前代码基线可运行，不代表总纲中的每个量化 KPI 都已完成；具体证据缺口见总纲 §4.2。
 
 ## 3 分钟竞赛演示主线
 
@@ -144,8 +142,8 @@ LinkLab/
 │  │  ├─ screens/            # 页面
 │  │  ├─ services/           # 业务服务与 unified facade
 │  │  └─ widgets/            # 无障碍组件与通用 UI
-│  └─ test/closed_loop/      # 5 条关键闭环测试
-├─ supabase/                 # 唯一 schema source of truth
+│  └─ test/closed_loop/      # Demo 闭环与量化指标测试
+├─ supabase/                 # 最小三表活跃基线 + legacy 历史部署面
 │  ├─ migrations/
 │  └─ functions/
 ├─ docs/                     # 说明文档
@@ -224,7 +222,7 @@ LinkLab/
 
 ## 测试覆盖
 
-当前已补齐 5 条关键闭环测试，位于 [`linklab/test/closed_loop/`](./linklab/test/closed_loop)：
+当前共有 29 个测试文件，最近一次全量运行通过 114 项。最早建立的 5 条核心闭环测试位于 [`linklab/test/closed_loop/`](./linklab/test/closed_loop)：
 
 - `startup_login_closed_loop_test.dart`
 - `ai_to_human_closed_loop_test.dart`
@@ -252,7 +250,7 @@ LinkLab/
 
 ### Supabase 规则
 
-- 根目录 [`supabase/`](./supabase) 是唯一 schema source of truth
+- 根目录 [`supabase/`](./supabase) 是唯一 schema source of truth；活跃目录只保留最小三表候选基线，生产执行仍需独立确认
 - 任何字段 / 表结构调整都应先改 migration，再改客户端代码
 - 竞赛版主流程默认不依赖真实 Supabase 初始化
 
@@ -273,13 +271,13 @@ LinkLab/
 
 如果你第一次接手这个项目，建议按下面顺序阅读：
 
-1. [DEMO_STATUS.md](./DEMO_STATUS.md)
+1. [docs/PROJECT_MASTER_PLAN.md](./docs/PROJECT_MASTER_PLAN.md)
 2. [AGENTS.md](./AGENTS.md)
-3. [TODO.md](./TODO.md)
-4. [docs/demo_acceptance_checklist.md](./docs/demo_acceptance_checklist.md)
-5. [`linklab/lib/main.dart`](./linklab/lib/main.dart)
-6. [`linklab/lib/config/app_config.dart`](./linklab/lib/config/app_config.dart)
-7. [`supabase/migrations/005_unify_root_schema_source_of_truth.sql`](./supabase/migrations/005_unify_root_schema_source_of_truth.sql)
+3. [DEMO_STATUS.md](./DEMO_STATUS.md)
+4. [TODO.md](./TODO.md)
+5. [docs/demo_acceptance_checklist.md](./docs/demo_acceptance_checklist.md)
+6. [`linklab/lib/main.dart`](./linklab/lib/main.dart)
+7. [`linklab/lib/config/app_config.dart`](./linklab/lib/config/app_config.dart)
 
 ## 一句话总结
 

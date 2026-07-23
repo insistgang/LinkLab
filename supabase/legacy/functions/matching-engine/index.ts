@@ -1,3 +1,4 @@
+// 历史实验函数：依赖当前最小 schema 之外的匹配字段、异步任务与 RPC。
 // 志願者匹配引擎 Edge Function
 // AGENTS.md §4.2 / §4.4：競賽版默認走 Demo 主線；
 // 當前真實函數僅與根 supabase/ schema 對齊，不再依賴 linklab/supabase 歷史分叉表。

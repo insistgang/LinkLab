@@ -8,6 +8,8 @@ import '../core/utils/logger.dart';
 import 'demo_help_request_flow_provider.dart';
 import 'demo_matching_flow_provider.dart';
 
+const demoCallReconnectTimeout = Duration(seconds: 10);
+
 enum DemoCallUiPhase {
   idle,
   connecting,
@@ -216,10 +218,14 @@ class DemoCallFlowController extends Notifier<DemoCallFlowState> {
       errorMessage: null,
     );
 
-    AppLogger.warning('Demo Call entered reconnecting phase; '
-        'will auto-fail after ${autoFailDelay?.inSeconds ?? 10}s if not restored.');
+    AppLogger.warning(
+      'Demo Call entered reconnecting phase; '
+      'will auto-fail after '
+      '${(autoFailDelay ?? demoCallReconnectTimeout).inSeconds}s '
+      'if not restored.',
+    );
 
-    final delay = autoFailDelay ?? const Duration(seconds: 10);
+    final delay = autoFailDelay ?? demoCallReconnectTimeout;
     _reconnectFailureTimer = Timer(delay, () {
       unawaited(failReconnect());
     });

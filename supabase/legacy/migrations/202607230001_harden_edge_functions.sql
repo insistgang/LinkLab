@@ -1,3 +1,4 @@
+-- 历史 Edge Function 加固迁移：仅归档，依赖当前线上不存在的积分与通知对象。
 -- LinkAble Edge Function hardening.
 -- Points are awarded exactly once per business record and only through a
 -- service-role-only database function.

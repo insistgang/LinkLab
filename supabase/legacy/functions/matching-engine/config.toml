@@ -1,3 +1,4 @@
+# 历史实验函数配置；禁止从 legacy 目录直接部署。
 [functions.matching-engine]
 enabled = true
 verify_jwt = true

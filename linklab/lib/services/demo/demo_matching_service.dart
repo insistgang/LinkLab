@@ -31,6 +31,7 @@ class DemoMatchActionResult {
 /// 仅服务竞赛 Demo，不接真实定位、Supabase、Realtime、推送或 WebRTC。
 class DemoMatchingEngineService {
   final Set<String> _rejectedOrTimedOutVolunteerIds = <String>{};
+  final Map<String, int> _rejectionOrTimeoutCounts = <String, int>{};
   String? _activeVolunteerId;
   bool _expired = false;
   bool _cancelled = false;
@@ -194,6 +195,7 @@ class DemoMatchingEngineService {
     }
 
     _activeVolunteerId = volunteerId;
+    _rejectionOrTimeoutCounts.remove(volunteerId);
     AppLogger.info('F9 demo volunteer accepted request');
     return DemoMatchActionResult(
       success: true,
@@ -211,7 +213,16 @@ class DemoMatchingEngineService {
       );
     }
 
-    _rejectedOrTimedOutVolunteerIds.add(volunteerId);
+    final isFirstRejectionThisRound = _rejectedOrTimedOutVolunteerIds.add(
+      volunteerId,
+    );
+    if (isFirstRejectionThisRound) {
+      _rejectionOrTimeoutCounts.update(
+        volunteerId,
+        (count) => count + 1,
+        ifAbsent: () => 1,
+      );
+    }
     AppLogger.info('F9 demo volunteer rejected or timed out');
     return DemoMatchActionResult(
       success: true,
@@ -270,13 +281,17 @@ class DemoMatchingEngineService {
     final skillScore = _skillScore(matchedSkills, preferredSkills);
     final trustHistoryScore = _trustHistoryScore(volunteer.helpCount);
     final reputationScore = _reputationScore(volunteer.reputationScore);
+    final penaltyScore = _penaltyScore(volunteer.id);
 
     final score = _roundScore(
-      availabilityScore * 0.30 +
-          distanceScore * 0.25 +
-          skillScore * 0.20 +
-          trustHistoryScore * 0.15 +
-          reputationScore * 0.10,
+      (availabilityScore * 0.30 +
+              distanceScore * 0.25 +
+              skillScore * 0.20 +
+              trustHistoryScore * 0.15 +
+              reputationScore * 0.10 -
+              penaltyScore)
+          .clamp(0.0, 1.0)
+          .toDouble(),
     );
 
     return DemoMatchResult(
@@ -339,6 +354,14 @@ class DemoMatchingEngineService {
         ? reputationScore / 5
         : reputationScore;
     return _clampScore(normalized);
+  }
+
+  double _penaltyScore(String volunteerId) {
+    final count = _rejectionOrTimeoutCounts[volunteerId] ?? 0;
+    if (count < 3) return 0;
+
+    // 连续 3 次开始降权，之后每次继续增加，最多扣 0.30。
+    return (0.10 + (count - 3) * 0.05).clamp(0.0, 0.30).toDouble();
   }
 
   double _clampScore(num value) {

@@ -35,19 +35,11 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          flutter-version: 3.44.4
           cache: true
 
       - name: Enable Flutter web
         run: flutter config --enable-web
-
-      - name: Create .env for web build
-        working-directory: linklab
-        run: |
-          cat > .env << 'ENVEOF'
-          SUPABASE_URL=${{ vars.SUPABASE_URL }}
-          SUPABASE_ANON_KEY=${{ vars.SUPABASE_ANON_KEY }}
-          ENVEOF
 
       - name: Install dependencies
         working-directory: linklab

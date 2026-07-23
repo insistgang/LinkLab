@@ -1,4 +1,4 @@
-# Supabase項目配置
+# Supabase 项目配置
 project_id = "linkable"
 
 [api]
@@ -56,7 +56,7 @@ enable_confirmations = false
 [auth.sms]
 enable_signup = true
 enable_confirmations = true
-template = "您的驗證碼是: {{ .Token }}"
+template = "您的验证码是: {{ .Token }}"
 
 [auth.external.wechat]
 enabled = false
@@ -68,18 +68,8 @@ redirect_uri = ""
 enabled = true
 inspector_port = 8083
 
-[functions]
-[functions.matching-engine]
-verify_jwt = true
-
-[functions.ai-dispatcher]
-verify_jwt = true
-
-[functions.push-notifier]
-verify_jwt = true
-
-[functions.points-calculator]
-verify_jwt = true
+# 当前不声明可部署 Edge Function。
+# 历史函数已移动到 supabase/legacy/functions/，不得批量部署。
 
 [analytics]
 enabled = false

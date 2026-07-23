@@ -219,6 +219,63 @@ void main() {
     }
   });
 
+  test('100 条紧急词固定评测集达到召回率与误识率门槛', () async {
+    await prepareEmptyDemoEnvironment();
+    final ai = DemoAIService();
+    const positiveBases = [
+      '救命，我现在无法站起来',
+      '我摔倒了，腿很痛',
+      '我快要晕倒了',
+      '胸口痛，呼吸困难',
+      '我迷路了而且很害怕',
+      '着火了，快来人',
+      '有人抢劫，请帮我',
+      '我流血不止',
+      '我心脏病犯了',
+      'SOS，我需要紧急求助',
+    ];
+    const negativeBases = [
+      '我没有摔倒，只是鞋带松了',
+      '医生说我不会晕倒',
+      '我胸口不痛，想问天气',
+      '我不是迷路了，我在等朋友',
+      '这是一个救命按钮的使用说明',
+      '电影名字叫紧急迫降',
+      '课程讲老人如何预防摔倒',
+      '新闻里说有人抢劫，和我无关',
+      '我没有不舒服，只是想聊天',
+      '请把 SOS 三个字母翻译成中文',
+    ];
+    const variants = ['请马上帮助我', '现在发生', '情况属实', '需要处理', '这是当前情况'];
+
+    final positiveSamples = [
+      for (final base in positiveBases)
+        for (final variant in variants) '$base，$variant',
+    ];
+    final negativeSamples = [
+      for (final base in negativeBases)
+        for (var index = 0; index < variants.length; index++)
+          '$base，普通咨询$index',
+    ];
+
+    final truePositiveCount = positiveSamples
+        .where((sample) => ai.resolveIntent(sample) == DemoAiIntent.emergency)
+        .length;
+    final falsePositiveCount = negativeSamples
+        .where((sample) => ai.resolveIntent(sample) == DemoAiIntent.emergency)
+        .length;
+    final recall = truePositiveCount / positiveSamples.length;
+    final falsePositiveRate = falsePositiveCount / negativeSamples.length;
+
+    expect(positiveSamples.length + negativeSamples.length, 100);
+    expect(recall, greaterThanOrEqualTo(0.95));
+    expect(
+      falsePositiveRate,
+      lessThanOrEqualTo(0.02),
+      reason: '误识样例：$falsePositiveCount/${negativeSamples.length}',
+    );
+  });
+
   test('导航和高风险请求会标记转人工 matching，不直接冒充已解决', () async {
     await prepareEmptyDemoEnvironment();
     final ai = DemoAIService();

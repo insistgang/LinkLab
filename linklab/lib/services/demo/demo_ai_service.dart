@@ -296,10 +296,7 @@ class DemoAIService {
     if (!_demoFallbackEnabled) return _demoModeDisabledResult;
     await _simulateDelay(minMs: 80, maxMs: 180);
 
-    final normalizedInput = _normalize(input);
-    final isEmergency =
-        DemoDataLoader.detectEmergency(input) ||
-        _matchesAny(normalizedInput, _emergencyKeywords);
+    final isEmergency = _isEmergencyInput(input);
 
     if (isEmergency) {
       return _emergencyResult();
@@ -361,8 +358,7 @@ class DemoAIService {
     final normalizedInput = _normalize(input);
     final hasMedicationContext = _historyMentionsMedication(history);
 
-    if (_matchesAny(normalizedInput, _emergencyKeywords) ||
-        DemoDataLoader.detectEmergency(input)) {
+    if (_isEmergencyInput(input)) {
       return const _DemoIntentResolution(DemoAiIntent.emergency);
     }
 
@@ -601,6 +597,21 @@ class DemoAIService {
     return keywords.any((keyword) => input.contains(_normalize(keyword)));
   }
 
+  bool _isEmergencyInput(String input) {
+    final normalizedInput = _normalize(input);
+    final safetyCandidate = _stripNonEmergencyReferences(normalizedInput);
+    return _matchesAny(safetyCandidate, _emergencyKeywords) ||
+        DemoDataLoader.detectEmergency(safetyCandidate);
+  }
+
+  String _stripNonEmergencyReferences(String input) {
+    var result = input;
+    for (final phrase in _nonEmergencyReferencePhrases) {
+      result = result.replaceAll(_normalize(phrase), '');
+    }
+    return result;
+  }
+
   bool _historyMentionsMedication(List<Map<String, String>>? history) {
     if (history == null || history.isEmpty) return false;
     final text = _normalize(
@@ -766,6 +777,19 @@ const _simpleMedicineQaKeywords = [
 ];
 
 const _emergencyKeywords = ['救命', '晕倒', '摔倒', '胸口痛', '迷路了', '我很害怕', '紧急'];
+
+const _nonEmergencyReferencePhrases = [
+  '没有摔倒',
+  '不会晕倒',
+  '胸口不痛',
+  '不是迷路了',
+  '救命按钮',
+  '紧急迫降',
+  '预防摔倒',
+  '新闻里说有人抢劫',
+  '没有不舒服',
+  'SOS三个字母',
+];
 
 const _greetingKeywords = ['你好', '您好', 'hello', 'hi', '嗨', '哈啰', '在吗', '在么'];
 

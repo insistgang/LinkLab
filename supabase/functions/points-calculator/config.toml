@@ -1,3 +1,0 @@
-[functions.points-calculator]
-verify_jwt = true
-cors_origins = ["*"]
