@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="语音通话">
+  <defs>
+<!-- Base body (top light → bottom deep) -->
+    <linearGradient id="pBody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#D5BBFF"/>
+      <stop offset="0.45" stop-color="#A86FFF"/>
+      <stop offset="1" stop-color="#6B22D6"/>
+    </linearGradient>
+    <!-- Glass with diagonal highlight bloom -->
+    <radialGradient id="pGlass" cx="32%" cy="22%" r="85%">
+      <stop offset="0" stop-color="#F4E8FF"/>
+      <stop offset="0.25" stop-color="#C9A4FF"/>
+      <stop offset="0.7" stop-color="#8B43F5"/>
+      <stop offset="1" stop-color="#5818BF"/>
+    </radialGradient>
+    <!-- Soft chubby fill, no extreme contrast -->
+    <linearGradient id="pSoft" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C8A2FF"/>
+      <stop offset="1" stop-color="#7A2EEA"/>
+    </linearGradient>
+    <!-- Light tint for surfaces / accents on top of body -->
+    <linearGradient id="pPale" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F2E5FF"/>
+      <stop offset="1" stop-color="#C9A4FF"/>
+    </linearGradient>
+    <!-- Deep shadow underlay -->
+    <linearGradient id="pShadow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9b59ff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#5a18c0" stop-opacity="0.4"/>
+    </linearGradient>
+    <!-- White highlight dot -->
+    <radialGradient id="hiDot" cx="50%" cy="40%" r="60%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="1"/>
+      <stop offset="0.6" stop-color="#ffffff" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Inner shine for spheres -->
+    <radialGradient id="pSphere" cx="35%" cy="28%" r="78%">
+      <stop offset="0" stop-color="#FBF1FF"/>
+      <stop offset="0.3" stop-color="#C8A1FF"/>
+      <stop offset="0.7" stop-color="#7A2EE6"/>
+      <stop offset="1" stop-color="#4B0FA8"/>
+    </radialGradient>
+    <!-- Glow for color/sun -->
+    <radialGradient id="pGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="0.5" stop-color="#DDBFFF"/>
+      <stop offset="1" stop-color="#9448FF"/>
+    </radialGradient>
+    <!-- Used for hairline strokes on top -->
+    <linearGradient id="pStroke" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.3"/>
+    </linearGradient>
+  </defs>
+<path d="M40 32 Q34 24 44 18 L54 14 Q60 14 64 22 L70 38 Q72 46 64 50 L58 54
+                Q66 76 88 88 L92 82 Q96 74 104 78 L120 84 Q126 90 122 96
+                L116 106 Q108 116 96 110 Q56 96 30 56 Q22 40 30 32Z"
+          fill="url(#pShadow)" opacity="0.45" transform="translate(6 6)"/>
+        <path d="M36 30 Q30 22 40 16 L50 12 Q56 12 60 20 L66 36 Q68 44 60 48 L54 52
+                Q62 74 84 86 L88 80 Q92 72 100 76 L116 82 Q122 88 118 94
+                L112 104 Q104 114 92 108 Q52 94 26 54 Q18 38 26 30Z"
+          fill="url(#pGlass)"/>
+        <ellipse cx="42" cy="28" rx="8" ry="5" fill="url(#hiDot)" opacity="0.9"/>
+</svg>

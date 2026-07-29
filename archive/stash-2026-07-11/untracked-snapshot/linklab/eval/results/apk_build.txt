@@ -1,0 +1,10 @@
+command: ANDROID_HOME=/opt/homebrew/share/android-commandlinetools ANDROID_SDK_ROOT=/opt/homebrew/share/android-commandlinetools flutter build apk --release
+attempt_time: 2026-06-27 10:11:03 CST
+status: failed in this environment
+reason: Android SDK was found after setting ANDROID_HOME, but Gradle failed because no Java Runtime/JDK is available.
+build_log: eval/results/flutter_build_apk.txt
+
+existing_apk_path: build/app/outputs/flutter-apk/app-release.apk
+existing_apk_mtime: Jun 26 20:05:18 2026
+existing_apk_sha256: 4c9f5d38e55ee954f91ddc7bac12eeb1e904089b5e996ba21f56e129837f45ab
+note: The existing APK was not produced by the current build command because the current environment lacks a Java Runtime/JDK required by Gradle.

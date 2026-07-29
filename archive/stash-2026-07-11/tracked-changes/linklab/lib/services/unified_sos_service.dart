@@ -1,0 +1,131 @@
+// AGENTS.md §4.2：竞赛版已冻结 Demo 主线，真实路径仅供实验，已隔离到 services/experimental/real/。
+
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import 'demo_call_service.dart';
+
+/// SOS状态
+enum SOSStatus {
+  idle,
+  triggering,
+  broadcasting,
+  waiting,
+  responded,
+  cancelled,
+  resolved,
+}
+
+/// 统一SOS服务
+/// 竞赛版默认只调度本地 Demo SOS 流程。
+class UnifiedSOSService extends ChangeNotifier {
+  static final UnifiedSOSService _instance = UnifiedSOSService._internal();
+  factory UnifiedSOSService() => _instance;
+  UnifiedSOSService._internal();
+
+  SOSStatus _status = SOSStatus.idle;
+  int _elapsedSeconds = 0;
+  int _responderCount = 0;
+  String? _errorMessage;
+
+  final DemoSOSService _demoService = DemoSOSService();
+  Timer? _responseTimer;
+
+  SOSStatus get status => _status;
+  int get elapsedSeconds => _elapsedSeconds;
+  int get responderCount => _responderCount;
+  String? get errorMessage => _errorMessage;
+  bool get isActive =>
+      _status != SOSStatus.idle &&
+      _status != SOSStatus.cancelled &&
+      _status != SOSStatus.resolved;
+
+  String get statusText {
+    switch (_status) {
+      case SOSStatus.triggering:
+        return '正在触发SOS...';
+      case SOSStatus.broadcasting:
+        return '正在广播求助信号...';
+      case SOSStatus.waiting:
+        return '等待志愿者响应...';
+      case SOSStatus.responded:
+        return '已有 $_responderCount 位志愿者响应';
+      case SOSStatus.cancelled:
+        return 'SOS已取消';
+      case SOSStatus.resolved:
+        return 'SOS已解决';
+      default:
+        return '长按3秒发送紧急求助';
+    }
+  }
+
+  Future<void> triggerSOS() async {
+    if (_status != SOSStatus.idle) return;
+
+    _resetState();
+    _status = SOSStatus.triggering;
+    notifyListeners();
+
+    HapticFeedback.heavyImpact();
+
+    // AGENTS.md §4.2：真实 SOS 已隔离到 services/experimental/real/sos_service.dart，
+    // 竞赛版统一服务不再自动切换到真实路径。
+    await _triggerDemoSOS();
+  }
+
+  Future<void> _triggerDemoSOS() async {
+    _demoService.addListener(_onDemoServiceUpdate);
+    await _demoService.triggerSOS();
+    _demoService.removeListener(_onDemoServiceUpdate);
+
+    _status = SOSStatus.responded;
+    _responderCount = 5;
+    notifyListeners();
+  }
+
+  Future<void> cancelSOS() async {
+    _responseTimer?.cancel();
+    _demoService.cancelSOS();
+    _status = SOSStatus.cancelled;
+    notifyListeners();
+  }
+
+  Future<void> resolveSOS() async {
+    _responseTimer?.cancel();
+    _demoService.resolveSOS();
+    _status = SOSStatus.resolved;
+    notifyListeners();
+  }
+
+  void _resetState() {
+    _status = SOSStatus.idle;
+    _elapsedSeconds = 0;
+    _responderCount = 0;
+    _errorMessage = null;
+    _responseTimer?.cancel();
+  }
+
+  void _onDemoServiceUpdate() {
+    _elapsedSeconds = _demoService.elapsedSeconds;
+    _responderCount = _demoService.responderCount;
+
+    if (_demoService.isActive) {
+      if (_elapsedSeconds < 2) {
+        _status = SOSStatus.broadcasting;
+      } else {
+        _status = SOSStatus.waiting;
+      }
+    }
+
+    notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _responseTimer?.cancel();
+    _demoService.removeListener(_onDemoServiceUpdate);
+    super.dispose();
+  }
+}

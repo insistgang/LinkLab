@@ -1,0 +1,84 @@
+add	添加	add
+ai_assistant	AI助手	ai assistant
+ai_chat	AI 对话	ai chat · F1
+answer	接听	answer · connected
+async_note	留言	async note
+back	返回	back
+both	两者皆是	both
+broadcast	广播	broadcast
+cancel	撤销	cancel · 10s window
+color_identify	颜色识别	color_identify
+community	社群	community
+completed	已完成	completed
+daily_story	社群每日故事	daily story
+dark_mode	夜间模式	dark mode
+date	日期	date
+deaf_relay	听障转译	deaf relay
+default_avatar	用户原始头像	default avatar
+delete	删除	delete
+elderly	老年人	elderly
+emergency	紧急求助	emergency · F13
+emergency_contact	紧急联系人	emergency contact
+emergency_detect	紧急识别	emergency detect
+expired	超时	expired · 60s
+favorite	收藏	favorite
+featured_story	精选故事	stories
+font_size	字体调节	font size · 200%
+forward	转发	forward
+group	社群小组	group
+haptic	触觉反馈	haptic
+hang_up	挂断	hang up
+hearing_impairment	听力障碍	hearing
+help	帮助	help
+help_history	我的求助历史	help history
+high_contrast	高对比度	contrast ≥ 7:1
+home	首页	home · F1 入口
+human_handoff	转人工	handoff
+like	点赞	like
+light_mode	白天模式	light mode
+location_share	位置共享	location
+matching	匹配中	matching
+medicine_check	药品确认	medicine_check
+message	消息	message
+mobility_impairment	肢体障碍	mobility
+money_identify	钞票识别	money_identify
+mute	静音	mute
+navigation_guide	导航导诊	navigation_guide
+need_help	我需要帮助	help · primary cta
+notification	通知	notification
+object_identify	物体识别	object_identify
+ocr_text	读文字	ocr_text
+personal_profile	个人档案	personal profile
+personalized_experience	个性化使用体验	personalized experience
+photo_help	拍照求助	photo
+points	积分	points
+processing	处理中	ai_processing
+profile	个人中心	profile · F33
+report	举报	report
+safety_ready	安全就绪度	safety ready
+save_settings	保存设置	save settings
+scan	扫一扫	scan
+scene_describe	场景描述	scene_describe
+screen_reader	读屏	screen reader
+search	搜索	search
+select_disability	请选择你的障碍类型	select disability
+send	发送	send
+settings	设置	settings
+sign_language	手语识别	sign language
+speech_impairment	言语障碍	speech
+speech_to_text	语音转文字	speech to text
+temp_help	临时需要帮助	temp help
+text_help	文字求助	text
+translate_relay	翻译代述	translate_or_relay
+tts	语音输出	tts · spoken
+unknown	不确定	unknown · low conf
+vibration_flash	震动闪光提醒	vibration flash
+visual_impairment	视力障碍	visual
+voice_call	语音通话	call · F11
+voice_help	语音求助	voice
+voice_input	语音输入	voice input
+volunteer_match	志愿者匹配	match · F9
+volunteer_role	我是志愿者	volunteer role
+want_to_help	我想帮助他人	want to help
+weather	天气	weather
+weak_signal	弱网	weak signal
