@@ -1,0 +1,82 @@
+name: Deploy LinkLab App
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/deploy-admin-dashboard.yml
+      - linklab/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Enable Flutter web
+        run: flutter config --enable-web
+
+      - name: Create .env for web build
+        working-directory: linklab
+        run: |
+          cat > .env << 'ENVEOF'
+          SUPABASE_URL=${{ vars.SUPABASE_URL }}
+          SUPABASE_ANON_KEY=${{ vars.SUPABASE_ANON_KEY }}
+          ENVEOF
+
+      - name: Generate api_config.dart from example
+        working-directory: linklab
+        run: cp lib/config/api_config.example.dart lib/config/api_config.dart
+
+      - name: Install dependencies
+        working-directory: linklab
+        run: flutter pub get
+
+      - name: Build web app
+        working-directory: linklab
+        run: >
+          flutter build web
+          --release
+          --base-href "/${{ github.event.repository.name }}/"
+
+      - name: Prepare Pages artifact
+        working-directory: linklab
+        run: |
+          cp build/web/index.html build/web/404.html
+          touch build/web/.nojekyll
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: linklab/build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

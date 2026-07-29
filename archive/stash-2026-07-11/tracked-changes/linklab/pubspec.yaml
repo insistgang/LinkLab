@@ -1,0 +1,156 @@
+name: linklab
+description: "共感LinkAble - 视障人士智能互助平台"
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # UI & Icons
+  cupertino_icons: ^1.0.8
+
+  # State Management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Backend - Supabase
+  supabase_flutter: ^2.8.4
+  flutter_dotenv: ^5.2.1
+
+  # WebRTC for voice/video calls
+  flutter_webrtc: ^0.12.12
+
+  # Permissions
+  permission_handler: ^11.4.0
+
+  # Image Picker for OCR
+  image_picker: ^1.1.2
+
+  # Text to Speech
+  flutter_tts: ^4.2.2
+
+  # Speech to Text
+  speech_to_text: ^7.0.0
+
+  # Firebase Messaging for push notifications
+  firebase_core: ^3.13.0
+  firebase_messaging: ^15.2.5
+
+  # HTTP client
+  http: ^1.3.0
+
+  # WebSocket
+  web_socket_channel: ^3.0.2
+
+  # JSON serialization
+  json_annotation: ^4.9.0
+  freezed_annotation: ^2.4.4
+
+  # Shared preferences for local storage
+  shared_preferences: ^2.5.2
+
+  # Location services
+  geolocator: ^13.0.4
+
+  # Path provider
+  path_provider: ^2.1.5
+
+  # URL launcher
+  url_launcher: ^6.3.1
+
+  # Vibration for haptic feedback
+  vibration: ^3.1.3
+
+  # Audio players for sound effects
+  audioplayers: ^6.4.0
+
+  # Audio recording for call recording
+  flutter_sound: ^9.28.0
+
+  # Camera for taking photos
+  camera: ^0.11.1
+
+  # Image processing
+  image: ^4.3.0
+
+  # Connectivity check
+  connectivity_plus: ^6.1.3
+
+  # Package info
+  package_info_plus: ^8.3.0
+
+  # Device info
+  device_info_plus: ^11.3.3
+
+  # Local notifications
+  flutter_local_notifications: ^19.1.0
+
+  # Sensors (accelerometer for SOS detection)
+  sensors_plus: ^6.1.1
+
+  # Wakelock to keep screen on during calls
+  wakelock_plus: ^1.2.11
+
+  # Screen brightness control
+  screen_brightness: ^2.1.2
+
+  # Intl for localization
+  intl: ^0.20.2
+
+  # Logger
+  logger: ^2.5.0
+
+  # Equatable for value equality
+  equatable: ^2.0.7
+
+  # UUID generation
+  uuid: ^4.5.1
+
+  # Crypto for hashing
+  crypto: ^3.0.6
+
+  # Collection utilities
+  collection: ^1.19.1
+
+  # Admin Dashboard
+  fl_chart: ^0.70.0
+  data_table_2: ^2.5.18
+  file_picker: ^9.0.0
+  pdf: ^3.10.8
+  excel: ^4.0.6
+  go_router: ^14.8.0
+  flutter_svg: ^2.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+  # Code generation
+  build_runner: ^2.4.15
+  freezed: ^2.5.8
+  json_serializable: ^6.9.4
+  riverpod_generator: ^2.4.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - .env
+    - assets/brand/link_hand.svg
+    - assets/brand/logo4.svg
+    - assets/demo_data/
+    - assets/icons/linkable/
+
+  # fonts:
+  #   - family: NotoSansSC
+  #     fonts:
+  #       - asset: assets/fonts/NotoSansSC-Regular.otf
+  #       - asset: assets/fonts/NotoSansSC-Bold.otf
+  #         weight: 700

@@ -1,0 +1,6 @@
+Running Gradle task 'assembleRelease'...                        
+The operation couldn’t be completed. Unable to locate a Java Runtime.
+Please visit http://www.java.com for information on installing Java.
+
+Running Gradle task 'assembleRelease'...                            28ms
+Gradle task assembleRelease failed with exit code 1
