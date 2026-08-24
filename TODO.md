@@ -263,7 +263,7 @@
 
 - `2026-04-17` 历史记录中，`flutter test --tags demo` 曾标记为通过；同一批记录也写明 `flutter analyze lib` 仍存在主应用 `70 issues found`、`admin_dashboard` `9 issues found`。
 - `docs/rc_acceptance_evidence.md` 的 RC 记录写明，后续曾有 `flutter analyze` 为 `No issues found`、`flutter test --reporter compact` 为 `All tests passed`（60 tests）的结果。
-- `docs/competition_mvp_delivery_plan.md` 和 `docs/plans/2026-04-12-prd-alignment-main-frontend.md` 已把 `flutter build web --debug` / `flutter build web --release` 纳入 Web 演示验收口径。
+- `docs/archive/competition_mvp_delivery_plan.md` 和 `docs/archive/2026-04-12-prd-alignment-main-frontend.md`（已归档）曾把 `flutter build web --debug` / `flutter build web --release` 纳入 Web 演示验收口径。
 - 上述记录来自不同时间点，不应混写成“当前全部已复验”。本轮只整理 Markdown 文档，未运行 `flutter test`、`flutter analyze`、`flutter build web` 或任何 Flutter 命令。
 - 交付前建议以 Web / Chrome 为主路径重新执行：`flutter test`、`flutter build web --release`，并把具体日期、命令和结果补入 `docs/rc_acceptance_evidence.md`。
 - 真实 WebRTC、真实 Supabase、真实推送、真实短信和生产级 SOS 仍按实验/后续能力处理；竞赛 Demo 只承诺本地 Demo fallback 与 Mock 状态展示。
