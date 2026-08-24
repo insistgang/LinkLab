@@ -17,4 +17,4 @@
 - 不要把 `public.users` 历史身份模型与 `auth.users -> profiles` 当前模型叠加。
 - 不要因为线上三张业务表为空而删除或重建生产对象；线上仍有 Auth 用户。
 
-依赖矩阵、隔离理由与生产检查点见 [`../../docs/SUPABASE_DEPLOYMENT_SURFACE.md`](../../docs/SUPABASE_DEPLOYMENT_SURFACE.md)。
+依赖矩阵、隔离理由与生产检查点见 [`../../docs/PROJECT_DOCS.md`](../../docs/PROJECT_DOCS.md)（SUPABASE 部署面章节）。

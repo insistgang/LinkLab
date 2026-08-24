@@ -7,7 +7,7 @@
 > 2026 两岸大学生创客大赛 · 逢甲赛区竞赛交付版本
 > 当前仓库状态：**Demo-first MVP** / **Web 与 Chrome 是主要演示路径** / **真实 WebRTC、Supabase、推送、SOS 生产链路仍为实验或后续能力**
 
-> 当前唯一总索引见 [docs/PROJECT_MASTER_PLAN.md](./docs/PROJECT_MASTER_PLAN.md)；[DEMO_STATUS.md](./DEMO_STATUS.md) 是精简运行状态页，其他带日期的数字均按历史记录理解。
+> 当前唯一总索引见 [docs/PROJECT_DOCS.md](./docs/PROJECT_DOCS.md)；[DEMO_STATUS.md](./DEMO_STATUS.md) 是精简运行状态页，其他带日期的数字均按历史记录理解。
 
 ## 项目定位
 
@@ -83,7 +83,7 @@ cd linklab
 flutter build web --release
 ```
 
-说明：Web build 是推荐交付复验口径之一。`2026-07-24` 最近一次本地复验已成功；正式 RC 仍需重新执行并把 commit、命令和结果补入 [`docs/rc_acceptance_evidence.md`](./docs/rc_acceptance_evidence.md)。
+说明：Web build 是推荐交付复验口径之一。`2026-07-24` 最近一次本地复验已成功；正式 RC 仍需重新执行并把 commit、命令和结果补入 [`docs/PROJECT_DOCS.md`](./docs/PROJECT_DOCS.md)。
 
 ### 3. 运行闭环测试
 
@@ -123,7 +123,7 @@ flutter analyze
 对应仓内文档可参考：
 
 - [DEMO_STATUS.md](./DEMO_STATUS.md)
-- [docs/demo_acceptance_checklist.md](./docs/demo_acceptance_checklist.md)
+- [docs/PROJECT_DOCS.md](./docs/PROJECT_DOCS.md)
 - [TODO.md](./TODO.md)
 - [AGENTS.md](./AGENTS.md)
 
@@ -271,13 +271,12 @@ LinkLab/
 
 如果你第一次接手这个项目，建议按下面顺序阅读：
 
-1. [docs/PROJECT_MASTER_PLAN.md](./docs/PROJECT_MASTER_PLAN.md)
+1. [docs/PROJECT_DOCS.md](./docs/PROJECT_DOCS.md)（全部文档总集）
 2. [AGENTS.md](./AGENTS.md)
 3. [DEMO_STATUS.md](./DEMO_STATUS.md)
 4. [TODO.md](./TODO.md)
-5. [docs/demo_acceptance_checklist.md](./docs/demo_acceptance_checklist.md)
-6. [`linklab/lib/main.dart`](./linklab/lib/main.dart)
-7. [`linklab/lib/config/app_config.dart`](./linklab/lib/config/app_config.dart)
+5. [`linklab/lib/main.dart`](./linklab/lib/main.dart)
+6. [`linklab/lib/config/app_config.dart`](./linklab/lib/config/app_config.dart)
 
 ## 一句话总结
 

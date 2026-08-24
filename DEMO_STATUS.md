@@ -1,7 +1,7 @@
 # LinkLab Demo 当前状态
 
 > 核对日期：2026-07-24
-> 唯一完整总索引：[docs/PROJECT_MASTER_PLAN.md](./docs/PROJECT_MASTER_PLAN.md)
+> 唯一完整总索引：[docs/PROJECT_DOCS.md](./docs/PROJECT_DOCS.md)
 
 ## 当前定位
 
@@ -69,9 +69,7 @@ Windows 桌面不是当前首选路径；缺少 Visual Studio C++ 工具链时�
 
 ## 推荐阅读顺序
 
-1. [docs/PROJECT_MASTER_PLAN.md](./docs/PROJECT_MASTER_PLAN.md)
+1. [docs/PROJECT_DOCS.md](./docs/PROJECT_DOCS.md)（全部文档总集：主计划 / 验收清单 / RC 证据 / 索引 / 审计）
 2. [AGENTS.md](./AGENTS.md)
 3. [README.md](./README.md)
-4. [docs/demo_acceptance_checklist.md](./docs/demo_acceptance_checklist.md)
-5. [docs/rc_acceptance_evidence.md](./docs/rc_acceptance_evidence.md)
-6. [TODO.md](./TODO.md)（历史执行档案）
+4. [TODO.md](./TODO.md)（历史执行档案）
